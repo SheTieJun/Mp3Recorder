@@ -1,0 +1,2 @@
+include ':app', ':recorder'
+rootProject.name='Mp3Recorder'
