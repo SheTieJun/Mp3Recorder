@@ -5,12 +5,18 @@ import android.media.AudioAttributes
 import android.media.AudioFormat
 import android.media.AudioManager
 import android.media.AudioTrack
+import android.text.TextUtils
 import android.util.Log
 
 import java.io.FileInputStream
 import java.io.FileNotFoundException
 import java.io.IOException
+import java.lang.NullPointerException
 
+/**
+ * PCM音频播放manager
+ * 必须先设置setContext
+ */
 object AudioTrackManager {
     private var PATH: String? = null
     private var mAudioTrack: AudioTrack? = null
@@ -59,14 +65,20 @@ object AudioTrackManager {
     }
 
     fun startThread() {
-        isStartPlay = true
-        PlayThread().start()
+        if (!TextUtils.isEmpty(PATH)) {
+            isStartPlay = true
+            PlayThread().start()
+        }else{
+            throw NullPointerException("PATH not be null,please setContext")
+        }
     }
 
     fun stopThread() {
-        isStartPlay = false
-        mAudioTrack!!.stop()
-        mAudioTrack!!.release()
+        if (isStartPlay) {
+            isStartPlay = false
+            mAudioTrack?.stop()
+            mAudioTrack?.release()
+        }
     }
 
     private class PlayThread : Thread() {
@@ -83,7 +95,6 @@ object AudioTrackManager {
                 } catch (e: IOException) {
                     Log.e("AudioTrackManager", "IOException $e")
                 }
-
             }
         }
     }

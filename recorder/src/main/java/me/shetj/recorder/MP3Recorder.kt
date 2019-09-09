@@ -467,13 +467,11 @@ class MP3Recorder : BaseRecorder {
             DEFAULT_SAMPLING_RATE, DEFAULT_CHANNEL_CONFIG, DEFAULT_AUDIO_FORMAT.audioFormat,
             mBufferSize
         )
-
         mPCMBuffer = ShortArray(mBufferSize)
         /*
          * Initialize lame buffer
          * mp3 sampling rate is the same as the recorded pcm sampling rate
          * The bit rate is 32kbps
-         *
          */
         LameUtils.init(
             DEFAULT_SAMPLING_RATE,

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:drawable="@mipmap/ic_normal_re" android:state_enabled="true" android:state_pressed="false" />
+    <item android:drawable="@mipmap/ic_click_re" android:state_enabled="true" android:state_pressed="true" />
+    <item android:drawable="@mipmap/ic_normal_re" android:state_enabled="false" android:state_pressed="false" />
+</selector>

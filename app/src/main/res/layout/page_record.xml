@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    android:focusable="true"
+    android:focusableInTouchMode="true">
+
+
+    <RelativeLayout
+        android:id="@+id/rl_record_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:background="@drawable/bg_record_content"
+        android:elevation="1dp"
+        android:padding="20dp"
+        app:layout_constraintBottom_toBottomOf="parent">
+        <ProgressBar
+            android:id="@+id/progressBar_record"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="match_parent"
+            android:layout_height="3dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginBottom="10dp"
+            android:max="3600"
+            android:progressDrawable="@drawable/weike_progressbar_bg" />
+
+        <TextView
+            android:id="@+id/tv_record_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/progressBar_record"
+            android:text="00:00"
+            android:textColor="#FF999999"
+            android:textSize="14sp" />
+
+        <TextView
+            android:id="@+id/tv_all_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/progressBar_record"
+            android:layout_alignParentRight="true"
+            android:text="60:00"
+            android:textColor="#FF999999"
+            android:textSize="14sp" />
+
+        <TextView
+            android:id="@+id/tv_reRecord"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/tv_record_time"
+            android:layout_marginLeft="20dp"
+            android:layout_marginTop="38dp"
+            android:drawableTop="@drawable/selector_rerecord"
+            android:drawablePadding="10dp"
+            android:gravity="center"
+            android:text="@string/rerecording"
+            android:textColor="#FF333333"
+            android:textSize="14sp"
+            android:visibility="invisible" />
+
+        <TextView
+            android:id="@+id/tv_save_record"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/tv_record_time"
+            android:layout_alignParentRight="true"
+            android:layout_marginTop="38dp"
+            android:layout_marginRight="20dp"
+            android:drawableTop="@drawable/selector_weike_record_save"
+            android:drawablePadding="10dp"
+            android:gravity="center"
+            android:text="@string/save"
+            android:textColor="#FF333333"
+            android:textSize="14sp"
+            android:visibility="invisible" />
+
+        <ImageView
+            android:id="@+id/iv_record_state"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/tv_record_time"
+            android:layout_centerHorizontal="true"
+            android:layout_gravity="center"
+            android:layout_marginTop="15dp"
+            android:background="@drawable/selector_weike_record_cir_btn"
+            android:clickable="true"
+            android:focusable="true"
+            android:src="@drawable/icon_start_record" />
+
+
+        <TextView
+            android:id="@+id/tv_state_msg"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/iv_record_state"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
+            android:gravity="center"
+            android:text="@string/click_to_record"
+            android:textColor="#FF333333"
+            android:textSize="15sp" />
+    </RelativeLayout>
+
+    <ScrollView
+        android:id="@+id/scrollView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@id/rl_record_view"
+        android:layout_marginBottom="-20dp"
+        >
+    </ScrollView>
+
+    <me.shetj.mp3recorder.record.view.BackgroundMusicView
+        android:id="@+id/bg_music_view"
+        android:layout_width="match_parent"
+        android:layout_above="@id/rl_record_view"
+        android:layout_height="102dp"
+        android:visibility="gone">
+    </me.shetj.mp3recorder.record.view.BackgroundMusicView>
+
+    <LinearLayout
+        android:id="@+id/ll_add_music"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/rl_record_view"
+        android:layout_alignParentEnd="true"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:padding="15dp"
+        android:clickable="true"
+        android:background="@drawable/bg_record_add_music"
+        android:focusable="true">
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/icon_record_add_music"
+            android:layout_marginStart="5dp"
+            android:layout_marginBottom="3dp"
+            android:layout_marginEnd="5dp"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="添加背景音乐"
+            android:textColor="#FF666666"
+            android:textSize="14sp"
+            android:layout_marginBottom="3dp"
+            android:layout_marginEnd="5dp"
+            />
+    </LinearLayout>
+</RelativeLayout>

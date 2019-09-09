@@ -1,3 +1,9 @@
 <resources>
-    <string name="app_name">Mp3Recorder</string>
+    <string name="app_name">录音工具</string>
+    <string name="my_record">我的录音</string>
+    <string name="record">录音</string>
+    <string name="cancel">取消</string>
+    <string name="click_to_record">点击录音</string>
+    <string name="save">保存</string>
+    <string name="rerecording">重录</string>
 </resources>

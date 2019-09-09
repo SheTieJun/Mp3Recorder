@@ -7,5 +7,16 @@
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
     </style>
+    <style name="transparent_music_style" parent="transparent_dialog_fragment_style">
+        <item name="behavior_peekHeight">373dp</item>
+        <item name="android:windowAnimationStyle">@style/Animation.Design.BottomSheetDialog</item>
+    </style>
 
+
+    <!--transparent_dialog_fragment_style-->
+    <style name="transparent_dialog_fragment_style" parent="@android:style/Theme.Dialog">
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowFullscreen">false</item>
+        <item name="android:windowBackground">@color/blackDivider</item>
+    </style>
 </resources>

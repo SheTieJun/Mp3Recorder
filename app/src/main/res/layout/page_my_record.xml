@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/white"
+  >
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recycler_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:choiceMode="singleChoice"
+        android:scrollbars="none"
+        android:layout_marginBottom="100dp"
+        app:layoutManager="LinearLayoutManager" />
+    <TextView
+        android:id="@+id/tv_tip"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:padding="8dp"
+        android:alpha="0.95"
+        android:background="#FFF4F4F4"
+        android:text="用录音创建录播音频课，可分享给好友"
+        android:textColor="#FF999999"
+        android:textSize="14sp"/>
+    <FrameLayout
+        android:id="@+id/rl_record_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:background="@drawable/bg_record_content"
+        android:paddingTop="32dp"
+        android:elevation="1dp"
+        android:paddingBottom="20dp"
+        >
+
+        <ImageView
+            android:id="@+id/iv_record_state"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:layout_gravity="center_horizontal"
+            android:background="@drawable/bg_circle_record"
+            android:src="@drawable/icon_start_record"/>
+    </FrameLayout>
+
+</RelativeLayout>

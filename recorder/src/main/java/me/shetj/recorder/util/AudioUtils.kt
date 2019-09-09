@@ -1,4 +1,4 @@
-package me.shetj.player
+package me.shetj.recorder.util
 
 object AudioUtils {
 

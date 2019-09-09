@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tool="http://schemas.android.com/tools"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="98dp"
+    android:paddingStart="20dp"
+    android:paddingEnd="20dp"
+    android:paddingTop="15dp"
+    android:paddingBottom="15dp">
+
+    <ImageView
+        android:id="@+id/iv_logo"
+        android:layout_width="68dp"
+        android:layout_height="68dp"
+        android:src="@drawable/icon_music_logo_def"
+       />
+    <ImageView
+        android:id="@+id/iv_play"
+        android:layout_width="68dp"
+        android:layout_height="68dp"
+        android:src="@drawable/icon_record_bg_music"
+        android:scaleType="centerInside"
+        />
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toEndOf="@id/iv_logo"
+        android:layout_centerVertical="true"
+        android:src="@drawable/icon_music_logo"/>
+
+    <TextView
+        android:id="@+id/tv_name"
+        android:layout_toEndOf="@id/iv_logo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        tool:text="这是一首简单的背景音乐"
+        android:textColor="#FF333333"
+        android:textSize="14sp"
+        android:layout_marginStart="20dp"/>
+
+
+    <TextView
+        android:id="@+id/tv_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        tool:text="03:20"
+        android:layout_toEndOf="@id/iv_logo"
+        android:layout_marginStart="20dp"
+        android:textColor="#FF999999"
+        android:textSize="14sp"
+        android:layout_alignBottom="@id/iv_logo"
+        />
+
+    <ImageView
+        android:id="@+id/checkbox"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:src="@drawable/weike_icon_select_music_selector"
+        android:layout_alignParentEnd="true"/>
+
+</RelativeLayout>

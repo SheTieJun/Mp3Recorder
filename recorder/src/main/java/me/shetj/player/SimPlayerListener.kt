@@ -6,7 +6,7 @@ package me.shetj.player
  * **@email：** 375105540@qq.com<br></br>
  * **@describe**  <br></br>
  */
-class SimPlayerListener : PlayerListener {
+open class SimPlayerListener : PlayerListener {
 
     override fun onStart(url: String, duration: Int) {
 

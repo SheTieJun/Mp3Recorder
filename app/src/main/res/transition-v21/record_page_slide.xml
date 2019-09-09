@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<transitionSet
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:duration="400"
+    android:transitionOrdering="together"
+    >
+    <slide android:slideEdge="top"
+        >
+        <targets >
+            <target android:targetId="@id/scrollView"/>
+        </targets>
+    </slide>
+    <fade android:startDelay="300"
+          android:duration="100">
+        <targets >
+            <target android:targetId="@id/progressBar_record"/>
+            <target android:targetId="@id/tv_all_time"/>
+            <target android:targetId="@id/tv_record_time"/>
+        </targets>
+    </fade>
+    <slide android:slideEdge="right">
+        <targets >
+            <target android:targetId="@id/ll_add_music"/>
+        </targets>
+    </slide>
+    <changeImageTransform/>
+    <changeBounds/>
+</transitionSet>
+
+
+
