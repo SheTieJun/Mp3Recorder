@@ -236,8 +236,9 @@ class MP3Recorder : BaseRecorder {
         return this
     }
 
-    fun setMp3Quality(@IntRange(from = 0, to = 9) mp3Quality: Int) {
+    fun setMp3Quality(@IntRange(from = 0, to = 9) mp3Quality: Int): MP3Recorder {
         this.defaultLameMp3Quality = mp3Quality
+        return this
     }
 
     /**

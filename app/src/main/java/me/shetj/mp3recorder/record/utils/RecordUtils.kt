@@ -72,10 +72,11 @@ class RecordUtils(private val callBack: RecordCallBack?
      */
     private fun initRecorder() {
         mRecorder = MP3Recorder(MediaRecorder.AudioSource.VOICE_COMMUNICATION, BuildConfig.DEBUG)
-                .setMaxTime(1800 * 1000)
-                .setPermissionListener(this)
-                .setRecordListener(this)
-                .setWax(2f) //声音增强处理 默认
+            .setMaxTime(1800 * 1000)
+            .setMp3Quality(5)
+            .setPermissionListener(this)
+            .setRecordListener(this)
+            .setWax(2f) //声音增强处理 默认
     }
 
     fun setBackgroundMusic(url:String){
