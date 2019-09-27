@@ -6,9 +6,9 @@ object LameUtils {
     }
     external fun version(): String
     external fun init(
-        inSamplerate: Int,
+        inSampleRate: Int,
         inChannel: Int,
-        outSamplerate: Int,
+        outSampleRate: Int,
         outBitrate: Int,
         quality: Int
     )

@@ -265,12 +265,12 @@ class MP3Recorder : BaseRecorder {
      * 设置回调
      * @param recordListener
      */
-    fun setRecordListener(recordListener: RecordListener): MP3Recorder {
+    fun setRecordListener(recordListener: RecordListener?): MP3Recorder {
         this.mRecordListener = recordListener
         return this
     }
 
-    fun setPermissionListener(permissionListener: PermissionListener): MP3Recorder {
+    fun setPermissionListener(permissionListener: PermissionListener?): MP3Recorder {
         this.mPermissionListener = permissionListener
         return this
     }
@@ -335,16 +335,9 @@ class MP3Recorder : BaseRecorder {
                                 continue
                             }
                             val readTime = 1000.0 * readSize.toDouble() * 2.0 / bytesPerSecond
-                            //对声音进行扩大
-                            for (i in 0 until readSize) {
-                                mPCMBuffer!![i] =
-                                    Math.min(mPCMBuffer!![i] * wax, Integer.MAX_VALUE.toFloat())
-                                        .toShort()
-                            }
                             mEncodeThread!!.addTask(mPCMBuffer!!, readSize)
                             calculateRealVolume(mPCMBuffer!!, readSize)
                             //short 是2个字节 byte 是1个字节8位
-
                             onRecording(readTime)
                             sendData(mPCMBuffer, readSize)
                         } else {
@@ -399,7 +392,7 @@ class MP3Recorder : BaseRecorder {
      */
     fun onResume() {
         if (state === RecordState.PAUSED) {
-            this.isPause = false
+            isPause = false
             state = RecordState.RECORDING
             handler.sendEmptyMessage(HANDLER_RESUME)
             if (backgroundMusicIsPlay) {
@@ -413,7 +406,7 @@ class MP3Recorder : BaseRecorder {
      */
     fun onPause() {
         if (state === RecordState.RECORDING) {
-            this.isPause = true
+            isPause = true
             state = RecordState.PAUSED
             handler.sendEmptyMessage(HANDLER_PAUSE)
             backgroundMusicIsPlay = bgPlayer!!.isPlaying
@@ -461,7 +454,7 @@ class MP3Recorder : BaseRecorder {
             frameSize += FRAME_COUNT - frameSize % FRAME_COUNT
             mBufferSize = frameSize * bytesPerFrame
         }
-        Log.i(TAG, "mBufferSize = $mBufferSize")
+//        Log.i(TAG, "mBufferSize = $mBufferSize")
         /* Setup audio recorder */
         mAudioRecord = AudioRecord(
             defaultAudioSource,
@@ -591,10 +584,10 @@ class MP3Recorder : BaseRecorder {
     }
 
     private fun mapFormat(format: Int): Int {
-        when (format) {
-            AudioFormat.ENCODING_PCM_8BIT -> return 8
-            AudioFormat.ENCODING_PCM_16BIT -> return 16
-            else -> return 0
+        return when (format) {
+            AudioFormat.ENCODING_PCM_8BIT -> 8
+            AudioFormat.ENCODING_PCM_16BIT -> 16
+            else -> 0
         }
     }
 

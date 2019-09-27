@@ -1,17 +1,16 @@
 package me.shetj.mp3recorder.record.utils
 
-import android.media.MediaRecorder
 import me.shetj.base.tools.app.ArmsUtils
 import me.shetj.base.tools.file.FileUtils
 import me.shetj.base.tools.file.SDCardUtils
 import me.shetj.base.tools.json.EmptyUtils
-import me.shetj.mp3recorder.BuildConfig
 import me.shetj.player.AudioPlayer
 import me.shetj.player.PermissionListener
 import me.shetj.player.PlayerListener
 import me.shetj.player.RecordListener
 import me.shetj.recorder.MP3Recorder
 import me.shetj.recorder.RecordState
+import me.shetj.recorder.recorderBuilder
 import java.io.File
 
 class RecordUtils(private val callBack: RecordCallBack?
@@ -71,12 +70,7 @@ class RecordUtils(private val callBack: RecordCallBack?
      * MIC 麦克风- 因为有噪音问题
      */
     private fun initRecorder() {
-        mRecorder = MP3Recorder(MediaRecorder.AudioSource.VOICE_COMMUNICATION, BuildConfig.DEBUG)
-            .setMaxTime(1800 * 1000)
-            .setMp3Quality(5)
-            .setPermissionListener(this)
-            .setRecordListener(this)
-            .setWax(2f) //声音增强处理 默认
+        mRecorder = recorderBuilder(permissionListener = this,recordListener = this)
     }
 
     fun setBackgroundMusic(url:String){
