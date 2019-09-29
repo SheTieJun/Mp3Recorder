@@ -1,9 +1,14 @@
-package me.shetj.recorder
+package me.shetj.kt
 
 import android.media.MediaRecorder
+import android.text.TextUtils
 import androidx.annotation.IntRange
 import me.shetj.player.PermissionListener
 import me.shetj.player.RecordListener
+import me.shetj.recorder.BuildConfig
+import me.shetj.recorder.MP3Recorder
+import me.shetj.recorder.RecordState
+import java.lang.IllegalStateException
 
 @JvmOverloads
 fun recorderBuilder(audioSource: Int = MediaRecorder.AudioSource.VOICE_COMMUNICATION,
@@ -14,8 +19,8 @@ fun recorderBuilder(audioSource: Int = MediaRecorder.AudioSource.VOICE_COMMUNICA
                     recordListener: RecordListener ?= null,
                     wax: Float = 1f
 
-):MP3Recorder{
-   return MP3Recorder(audioSource, isDebug)
+): MP3Recorder {
+    return MP3Recorder(audioSource, isDebug)
         .setMaxTime(mMaxTime)
         .setMp3Quality(mp3Quality)
         .setPermissionListener(permissionListener)

@@ -10,7 +10,7 @@ import me.shetj.player.PlayerListener
 import me.shetj.player.RecordListener
 import me.shetj.recorder.MP3Recorder
 import me.shetj.recorder.RecordState
-import me.shetj.recorder.recorderBuilder
+import me.shetj.kt.recorderBuilder
 import java.io.File
 
 class RecordUtils(private val callBack: RecordCallBack?
@@ -70,7 +70,7 @@ class RecordUtils(private val callBack: RecordCallBack?
      * MIC 麦克风- 因为有噪音问题
      */
     private fun initRecorder() {
-        mRecorder = recorderBuilder(permissionListener = this,recordListener = this)
+        mRecorder = recorderBuilder(permissionListener = this, recordListener = this)
     }
 
     fun setBackgroundMusic(url:String){
