@@ -21,8 +21,6 @@
 - 录制声道数设置，因为合成，所有你需要设置和背景音乐相同的声道数据，背景音乐需要是44k
 
 
-so ： https://github.com/GavinCT/AndroidMP3Recorder
-
 #### 录制（可以选择背景音乐）
   - 录制中可以中断背景音乐，继续录制声音  建议优化这个思路 MixRecorder
 #### PCM 文件时间计算
@@ -48,6 +46,7 @@ so ： https://github.com/GavinCT/AndroidMP3Recorder
        
                 }
             }
+            // kotlin:  mRecorder = mixRecorderBuilder(permissionListener = this, recordListener = this)
             mixRecorder = MixRecorder()
                     .setOutputFile(filePath)//设置输出文件
                     .setBackgroundMusic(musicUrl, true)//设置默认的背景音乐
@@ -99,6 +98,7 @@ so ： https://github.com/GavinCT/AndroidMP3Recorder
 #### 使用 MP3Recorder
 ```java
 filePath = FileUtils.getAppPath() + UUID.randomUUID().toString() + ".mp3";
+// kotlin:  mRecorder = recorderBuilder(permissionListener = this, recordListener = this)
 //设置
 mRecorder = new MP3Recorder(MediaRecorder.AudioSource.VOICE_COMMUNICATION,BuildConfig.DEBUG)      
 			.setOutputFile(filePath)        

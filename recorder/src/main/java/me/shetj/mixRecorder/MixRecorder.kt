@@ -283,12 +283,12 @@ class MixRecorder : BaseRecorder {
      * 设置回调
      * @param recordListener
      */
-    fun setRecordListener(recordListener: RecordListener): MixRecorder {
+    fun setRecordListener(recordListener: RecordListener?): MixRecorder {
         this.mRecordListener = recordListener
         return this
     }
 
-    fun setPermissionListener(permissionListener: PermissionListener): MixRecorder {
+    fun setPermissionListener(permissionListener: PermissionListener?): MixRecorder {
         this.mPermissionListener = permissionListener
         return this
     }
