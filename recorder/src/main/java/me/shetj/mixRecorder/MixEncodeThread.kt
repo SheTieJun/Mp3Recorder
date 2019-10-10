@@ -1,5 +1,4 @@
-package me.shetj.recorder
-
+package me.shetj.mixRecorder
 
 import android.media.AudioRecord
 import android.os.Handler
@@ -14,7 +13,7 @@ import java.io.FileOutputStream
 import java.io.IOException
 import java.util.*
 
-class DataEncodeThread
+class MixEncodeThread
 /**
  * Constructor
  *
@@ -24,8 +23,8 @@ class DataEncodeThread
  * @throws FileNotFoundException file not found
  */
 @Throws(FileNotFoundException::class)
-constructor(file: File, bufferSize: Int, isContinue: Boolean) : HandlerThread("DataEncodeThread"),
-    AudioRecord.OnRecordPositionUpdateListener {
+constructor(file: File, bufferSize: Int, isContinue: Boolean, private val is2CHANNEL: Boolean) :
+    HandlerThread("DataEncodeThread"), AudioRecord.OnRecordPositionUpdateListener {
     private var mHandler: StopHandler? = null
     private val mMp3Buffer: ByteArray
     private val mFileOutputStream: FileOutputStream?
@@ -37,9 +36,9 @@ constructor(file: File, bufferSize: Int, isContinue: Boolean) : HandlerThread("D
             return mHandler
         }
 
-    private val mTasks = Collections.synchronizedList(ArrayList<ReadTask>())
+    private val mTasks = Collections.synchronizedList(ArrayList<ReadMixTask>())
 
-    private class StopHandler(looper: Looper, private val encodeThread: DataEncodeThread) :
+    private class StopHandler(looper: Looper, private val encodeThread: MixEncodeThread) :
         Handler(looper) {
 
         override fun handleMessage(msg: Message) {
@@ -106,8 +105,32 @@ constructor(file: File, bufferSize: Int, isContinue: Boolean) : HandlerThread("D
         if (mTasks.size > 0) {
             val task = mTasks.removeAt(0)
             val buffer = task.data
-            val readSize = task.readSize
-            val encodedSize = LameUtils.encode(buffer, buffer, readSize, mMp3Buffer)
+            val encodedSize: Int
+            val readSize: Int
+            if (is2CHANNEL) {
+                readSize = buffer.size / 2
+                //因为是双声道所有要对录制的声音进行左右区分
+                val leftChannelAudioData = ShortArray(readSize)
+                val rightChannelAudioData = ShortArray(readSize)
+                //readSize -1 因为有可能 i+1超过了
+                var i = 0
+                while (i < readSize - 1) {
+                    leftChannelAudioData[i] = buffer[2 * i]
+                    leftChannelAudioData[i + 1] = buffer[2 * i + 1]
+                    rightChannelAudioData[i] = buffer[2 * i + 2]
+                    rightChannelAudioData[i + 1] = buffer[2 * i + 3]
+                    i += 2
+                }
+                encodedSize = LameUtils.encode(
+                    leftChannelAudioData,
+                    rightChannelAudioData,
+                    readSize,
+                    mMp3Buffer
+                )
+            } else {
+                readSize = buffer.size
+                encodedSize = LameUtils.encode(buffer, buffer, readSize, mMp3Buffer)
+            }
             if (encodedSize > 0) {
                 try {
                     mFileOutputStream!!.write(mMp3Buffer, 0, encodedSize)
@@ -146,8 +169,8 @@ constructor(file: File, bufferSize: Int, isContinue: Boolean) : HandlerThread("D
         }
     }
 
-    fun addTask(rawData: ShortArray, readSize: Int) {
-        mTasks.add(ReadTask(rawData, readSize))
+    fun addTask(rawData: ByteArray, readSize: Int) {
+        mTasks.add(ReadMixTask(rawData, readSize))
     }
 
     companion object {

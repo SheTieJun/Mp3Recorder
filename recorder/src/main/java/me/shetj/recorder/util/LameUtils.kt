@@ -18,6 +18,14 @@ object LameUtils {
         samples: Int,
         mp3buf: ByteArray
     ): Int
+
+    external fun encodeByByte(
+        bufferLeft: ByteArray,
+        bufferRight: ByteArray,
+        samples: Int,
+        mp3buf: ByteArray
+    ): Int
+
     external fun flush(mp3buf: ByteArray): Int
     external fun close()
 }

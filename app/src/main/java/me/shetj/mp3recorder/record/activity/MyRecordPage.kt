@@ -13,14 +13,14 @@ import android.widget.RelativeLayout
 import androidx.recyclerview.widget.RecyclerView
 import com.chad.library.adapter.base.BaseQuickAdapter
 import com.chad.library.adapter.base.BaseViewHolder
+import me.shetj.audio.record.view.RecordBottomSheetDialog
+import me.shetj.base.tools.app.ArmsUtils
+import me.shetj.mp3recorder.R
 import me.shetj.mp3recorder.record.adapter.RecordAdapter
 import me.shetj.mp3recorder.record.bean.Record
 import me.shetj.mp3recorder.record.bean.RecordDbUtils
 import me.shetj.mp3recorder.record.utils.Callback
 import me.shetj.mp3recorder.record.utils.MainThreadEvent
-import me.shetj.audio.record.view.RecordBottomSheetDialog
-import me.shetj.base.tools.app.ArmsUtils
-import me.shetj.mp3recorder.R
 import org.simple.eventbus.EventBus
 import org.simple.eventbus.Subscriber
 import org.simple.eventbus.ThreadMode

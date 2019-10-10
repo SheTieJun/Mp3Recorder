@@ -11,10 +11,10 @@ import android.widget.SeekBar
 import android.widget.TextView
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.appcompat.widget.AppCompatSeekBar
-import me.shetj.mp3recorder.record.bean.Music
-import me.shetj.mp3recorder.record.utils.RecordUtils
 import me.shetj.base.tools.app.ArmsUtils
 import me.shetj.mp3recorder.R
+import me.shetj.mp3recorder.record.bean.Music
+import me.shetj.mp3recorder.record.utils.RecordUtils
 import me.shetj.mp3recorder.record.utils.Util
 import me.shetj.player.AudioPlayer
 import me.shetj.player.PlayerListener

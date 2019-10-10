@@ -33,6 +33,7 @@ JNIEXPORT void JNICALL Java_me_shetj_recorder_util_LameUtils_init(
     lame_set_out_samplerate(lame,outSamplerate);//输出采样率
     lame_set_num_channels(lame,inChannel);//声道
     lame_set_brate(lame,outBitrate);//比特率
+    lame_set_mode(lame,1);
     lame_set_quality(lame,quality);//质量
     lame_init_params(lame);
 
@@ -60,6 +61,32 @@ JNIEXPORT jint JNICALL Java_me_shetj_recorder_util_LameUtils_encode(
     //释放参数
     (*env)->ReleaseShortArrayElements(env,buffer_left,j_buff_left,0);
     (*env)->ReleaseShortArrayElements(env,buffer_right,j_buff_right,0);
+    (*env)->ReleaseByteArrayElements(env,mp3buf,j_mp3buff,0);
+    return result;
+
+}
+
+JNIEXPORT jint JNICALL Java_me_shetj_recorder_util_LameUtils_encodeByByte(
+        JNIEnv  *env,
+        jclass cls,
+        jbyteArray buffer_left,
+        jbyteArray buffer_right,
+        jint samples,
+        jbyteArray mp3buf){
+
+    //把Java传过来参数转成C中的参数进行修改
+    jbyte * j_buff_left =(*env)->GetByteArrayElements(env,buffer_left,NULL);
+    jbyte * j_buff_right = (*env) ->GetByteArrayElements(env,buffer_right,NULL);
+
+    const jsize mp3buf_size = (*env) ->GetArrayLength(env,mp3buf);
+
+    jbyte* j_mp3buff = (*env) ->GetByteArrayElements(env,mp3buf,NULL);
+
+    int result = lame_encode_buffer(lame, (const short *) j_buff_left, (const short *) j_buff_right, samples, j_mp3buff, mp3buf_size);
+
+    //释放参数
+    (*env)->ReleaseByteArrayElements(env,buffer_left,j_buff_left,0);
+    (*env)->ReleaseByteArrayElements(env,buffer_right,j_buff_right,0);
     (*env)->ReleaseByteArrayElements(env,mp3buf,j_mp3buff,0);
     return result;
 

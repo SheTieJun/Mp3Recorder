@@ -31,6 +31,10 @@ JNIEXPORT void JNICALL Java_me_shetj_recorder_util_LameUtils_init
 JNIEXPORT jint JNICALL Java_me_shetj_recorder_util_LameUtils_encode
   (JNIEnv *, jclass, jshortArray, jshortArray, jint, jbyteArray);
 
+
+JNIEXPORT jint JNICALL Java_me_shetj_recorder_util_LameUtils_encodeByByte
+        (JNIEnv *, jclass, jbyteArray, jbyteArray, jint, jbyteArray);
+
 /*
  * Class:     me_shetj_recorder_util_LameUtils
  * Method:    flush

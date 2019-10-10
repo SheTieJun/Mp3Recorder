@@ -1,14 +1,11 @@
 package me.shetj.kt
 
 import android.media.MediaRecorder
-import android.text.TextUtils
 import androidx.annotation.IntRange
 import me.shetj.player.PermissionListener
 import me.shetj.player.RecordListener
 import me.shetj.recorder.BuildConfig
 import me.shetj.recorder.MP3Recorder
-import me.shetj.recorder.RecordState
-import java.lang.IllegalStateException
 
 @JvmOverloads
 fun recorderBuilder(audioSource: Int = MediaRecorder.AudioSource.VOICE_COMMUNICATION,

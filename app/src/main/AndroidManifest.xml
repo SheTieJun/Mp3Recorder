@@ -36,6 +36,8 @@
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar"
             android:windowSoftInputMode="stateHidden|adjustPan"/>
+
+        <activity android:name=".record.MixRecordActivity"></activity>
     </application>
 
 </manifest>

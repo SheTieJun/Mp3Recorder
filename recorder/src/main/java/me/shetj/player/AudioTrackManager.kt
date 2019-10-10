@@ -7,11 +7,9 @@ import android.media.AudioManager
 import android.media.AudioTrack
 import android.text.TextUtils
 import android.util.Log
-
 import java.io.FileInputStream
 import java.io.FileNotFoundException
 import java.io.IOException
-import java.lang.NullPointerException
 
 /**
  * PCM音频播放manager

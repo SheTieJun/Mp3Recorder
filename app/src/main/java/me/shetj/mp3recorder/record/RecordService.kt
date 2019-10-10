@@ -5,10 +5,10 @@ import android.content.Intent
 import android.os.Binder
 import android.os.IBinder
 import android.util.Log
+import me.shetj.base.base.BaseService
 import me.shetj.mp3recorder.record.bean.Record
 import me.shetj.mp3recorder.record.utils.RecordCallBack
 import me.shetj.mp3recorder.record.utils.RecordUtils
-import me.shetj.base.base.BaseService
 
 class RecordService : BaseService() {
 

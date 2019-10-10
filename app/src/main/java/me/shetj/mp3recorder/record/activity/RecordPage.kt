@@ -21,6 +21,8 @@ import io.reactivex.BackpressureStrategy
 import io.reactivex.Flowable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
+import me.shetj.base.tools.app.ArmsUtils
+import me.shetj.mp3recorder.R
 import me.shetj.mp3recorder.record.RecordService
 import me.shetj.mp3recorder.record.bean.Music
 import me.shetj.mp3recorder.record.bean.Record
@@ -28,11 +30,9 @@ import me.shetj.mp3recorder.record.bean.RecordDbUtils
 import me.shetj.mp3recorder.record.utils.Callback
 import me.shetj.mp3recorder.record.utils.MainThreadEvent
 import me.shetj.mp3recorder.record.utils.RecordCallBack
+import me.shetj.mp3recorder.record.utils.Util
 import me.shetj.mp3recorder.record.view.BackgroundMusicView
 import me.shetj.mp3recorder.record.view.MusicListBottomSheetDialog
-import me.shetj.base.tools.app.ArmsUtils
-import me.shetj.mp3recorder.R
-import me.shetj.mp3recorder.record.utils.Util
 import org.simple.eventbus.EventBus
 import org.simple.eventbus.Subscriber
 import org.simple.eventbus.ThreadMode

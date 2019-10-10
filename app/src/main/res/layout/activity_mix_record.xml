@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="me.shetj.audio.record.MixRecordActivity">
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/bt_start"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="开始录音"/>
+
+
+
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/bt_pause"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/bt_start"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="暂停/开始"/>
+
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/bt_start_bg"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/bt_pause"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="暂停背景音乐/开始背景音乐"/>
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/bt_change_bg"
+        app:layout_constraintStart_toEndOf="@+id/bt_start_bg"
+        app:layout_constraintTop_toBottomOf="@id/bt_pause"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="切换背景音乐"/>
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/bt_stop"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/bt_start_bg"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="结束录音"/>
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/bt_audition"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/bt_stop"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="试听"/>
+    <TextView
+        android:id="@+id/tv_msg_foot"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"/>
+
+    <SeekBar
+        android:id="@+id/seek_bar"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:max="100"
+        android:progress="30"
+        app:layout_constraintTop_toBottomOf="@id/bt_audition"/>
+</androidx.constraintlayout.widget.ConstraintLayout>

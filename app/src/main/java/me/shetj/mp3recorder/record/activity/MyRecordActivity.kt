@@ -7,12 +7,12 @@ import android.transition.TransitionInflater
 import android.transition.TransitionManager
 import android.widget.FrameLayout
 import com.tbruyelle.rxpermissions2.RxPermissions
-import me.shetj.mp3recorder.record.RecordingNotification
-import me.shetj.mp3recorder.record.utils.Callback
 import me.shetj.base.base.BaseActivity
 import me.shetj.base.base.BasePresenter
 import me.shetj.base.tools.app.ArmsUtils
 import me.shetj.mp3recorder.R
+import me.shetj.mp3recorder.record.RecordingNotification
+import me.shetj.mp3recorder.record.utils.Callback
 
 
 /**

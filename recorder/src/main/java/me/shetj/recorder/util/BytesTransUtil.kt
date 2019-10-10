@@ -30,6 +30,28 @@ object BytesTransUtil {
     }
 
     /**
+     * 将short转成byte[2]
+     */
+    fun short2Byte(a: Short): ByteArray {
+        val b = ByteArray(2)
+
+        b[0] = (a.toInt() shr 8).toByte()
+        b[1] = a.toByte()
+
+        return b
+    }
+
+
+
+    /**
+     * 将byte[2]转换成short
+     */
+    fun byte2Short(high: Byte, low: Byte): Short {
+        return (high.toInt() and 0xff shl 8 or (low.toInt() and 0xff)).toShort()
+    }
+
+
+    /**
      * 噪音消除算法
      */
     fun noiseClear(lin: ShortArray, off: Int, len: Int) {
@@ -46,6 +68,28 @@ object BytesTransUtil {
         val data = bytes2Shorts(bytes)
         noiseClear(data, off, len)
         return shorts2Bytes(data)
+    }
+
+    /**
+     * 改变音量
+     */
+    fun changeDataWithVolume(buffer: ByteArray, volumeValue: Float): ByteArray {
+
+        var i = 0
+        while (i < buffer.size) {
+            var value = byte2Short(buffer[i + 1], buffer[i])
+            val tempValue = value
+            value =  (volumeValue*value).toShort()
+            value = if (value > 0x7fff) 0x7fff else value
+            value = if (value < -0x8000) -0x8000 else value
+            val newValue = value
+            val array = short2Byte(newValue)
+            buffer[i + 1] = array[0]
+            buffer[i] = array[1]
+            i += 2
+        }
+
+        return buffer
     }
 
     /**

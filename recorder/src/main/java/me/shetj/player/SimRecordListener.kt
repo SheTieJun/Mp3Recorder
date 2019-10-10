@@ -8,7 +8,7 @@ import android.util.Log
  * **@email：** 375105540@qq.com<br></br>
  * **@describe**  <br></br>
  */
-class SimRecordListener : RecordListener, PermissionListener {
+open class SimRecordListener : RecordListener, PermissionListener {
     override fun needPermission() {
         Log.d("SimRecordListener", "needPermission")
     }
