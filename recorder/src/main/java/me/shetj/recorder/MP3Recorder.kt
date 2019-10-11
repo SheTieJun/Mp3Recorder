@@ -416,7 +416,6 @@ class MP3Recorder : BaseRecorder {
     fun onReset() {
         isRecording = false
         isPause = false
-        FileUtils.deleteFile(mRecordFile!!.absolutePath)
         state = RecordState.STOPPED
         duration = 0L
         mRecordFile = null

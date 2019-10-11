@@ -19,7 +19,6 @@ import me.shetj.recorder.BaseRecorder
 import me.shetj.recorder.PCMFormat
 import me.shetj.recorder.RecordState
 import me.shetj.recorder.util.BytesTransUtil
-import me.shetj.recorder.util.FileUtils
 import me.shetj.recorder.util.LameUtils
 import java.io.File
 import java.io.IOException
@@ -460,7 +459,6 @@ class MixRecorder : BaseRecorder {
     fun onReset() {
         isRecording = false
         isPause = false
-        FileUtils.deleteFile(mRecordFile!!.absolutePath)
         state = RecordState.STOPPED
         duration = 0L
         mRecordFile = null
@@ -477,7 +475,7 @@ class MixRecorder : BaseRecorder {
 
     fun setVolume(volume: Float) {
         val bgPlayer = bgPlayer
-        bgPlayer?.setVolume(volume)
+        bgPlayer.setVolume(volume)
         this.bglevel = volume
     }
 
@@ -573,9 +571,7 @@ class MixRecorder : BaseRecorder {
 
 
     private fun initAEC(mAudioSessionId: Int) {
-
-
-        if (mAudioSessionId != 0 && android.os.Build.VERSION.SDK_INT >= 16) {
+        if (mAudioSessionId != 0 ) {
             if (NoiseSuppressor.isAvailable()) {
                 if (mNoiseSuppressor != null) {
                     mNoiseSuppressor!!.release()
