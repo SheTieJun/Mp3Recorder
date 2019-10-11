@@ -13,7 +13,6 @@ import android.os.Message
 import android.os.Process
 import android.text.TextUtils
 import android.util.Log
-import androidx.annotation.IntRange
 import me.shetj.player.PermissionListener
 import me.shetj.player.RecordListener
 import me.shetj.recorder.BaseRecorder
@@ -210,7 +209,7 @@ class MixRecorder : BaseRecorder {
      * {MediaRecorder.AudioSource.MIC,MediaRecorder.AudioSource.VOICE_COMMUNICATION;}
      * @param channel 声道数量
      */
-    constructor(audioSource: Int, @IntRange(from = 1, to = 2) channel: Int) {
+    constructor(audioSource: Int,   channel: Int) {
         defaultAudioSource = audioSource
         defaultLameInChannel = channel
         is2Channel = defaultLameInChannel == 2

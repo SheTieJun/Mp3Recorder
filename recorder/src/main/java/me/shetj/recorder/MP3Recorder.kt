@@ -9,7 +9,6 @@ import android.os.Message
 import android.os.Process
 import android.text.TextUtils
 import android.util.Log
-import androidx.annotation.IntRange
 import me.shetj.player.AudioPlayer
 import me.shetj.player.PermissionListener
 import me.shetj.player.PlayerListener
@@ -233,7 +232,7 @@ class MP3Recorder : BaseRecorder {
         return this
     }
 
-    fun setMp3Quality(@IntRange(from = 0, to = 9) mp3Quality: Int): MP3Recorder {
+    fun setMp3Quality(mp3Quality: Int): MP3Recorder {
         this.defaultLameMp3Quality = mp3Quality
         return this
     }

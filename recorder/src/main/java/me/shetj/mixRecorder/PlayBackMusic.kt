@@ -3,11 +3,11 @@ package me.shetj.mixRecorder
 import android.media.AudioFormat
 import android.media.AudioManager
 import android.media.AudioTrack
+import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.os.Message
 import android.util.Log
-import androidx.annotation.FloatRange
 import java.util.concurrent.LinkedBlockingDeque
 
 /**
@@ -261,10 +261,14 @@ class PlayBackMusic {
         )
     }
 
-    fun setVolume(@FloatRange(from = 0.0, to = 1.0) volume: Float) {
+    fun setVolume(volume: Float) {
         this.volume = volume
         if (audioTrack != null) {
-            audioTrack!!.setVolume(volume)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                audioTrack!!.setVolume(volume)
+            }else{
+                audioTrack!!.setStereoVolume(volume,volume)
+            }
         }
     }
 
