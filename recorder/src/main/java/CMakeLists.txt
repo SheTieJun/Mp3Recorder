@@ -19,7 +19,7 @@ AUX_SOURCE_DIRECTORY(../jni/libmp3lame_3.100 SRC_LIST)
 #SET(APPEND  SRC_LIST ../jni/lame_util.c)
 
 add_library( # Sets the name of the library.
-             mp3lame
+             shetj_mp3lame
 
              # Sets the library as a shared library.
              SHARED
@@ -40,7 +40,7 @@ find_library( # Sets the name of the path variable.
 
 
 target_link_libraries( # Specifies the target library.
-                       mp3lame
+                        shetj_mp3lame
 
                        # Links the target library to the log library
                        # included in the NDK.

@@ -303,14 +303,6 @@ class PlayBackMusic {
         private val PROCESS_ERROR = 4
         private val PROCESS_REPLAY = 5
 
-        private val HANDLER_PLAYING = 0x201 //正在录音
-        private val HANDLER_START = 0x202   //开始了
-        private val HANDLER_COMPLETE = 0x203//完成
-        private val HANDLER_ERROR = 0x205   //错误
-        private val HANDLER_PAUSE = 0x206   //暂停
-        private val HANDLER_RESUME = 0x208  //暂停后开始
-        private val HANDLER_RESET = 0x209   //重置
-
         private val mFrequence = 44100
         private val mPlayChannelConfig = AudioFormat.CHANNEL_OUT_STEREO
         private val mAudioEncoding = AudioFormat.ENCODING_PCM_16BIT//一个采样点16比特-2个字节

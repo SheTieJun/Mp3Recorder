@@ -109,7 +109,6 @@ object BytesTransUtil {
     }
 
     fun averageMix(src1: ByteArray, src2: ByteArray): ByteArray? {
-        //        return averageMix(new byte[][]{src1,src2});
         return averageMixSelectShort(arrayOf(src1, src2))
     }
 
@@ -246,29 +245,6 @@ object BytesTransUtil {
             ++sr
         }
         return realMixAudio
-    }
-
-    /**
-     * 视频帧数据 YV12 --> I420
-     */
-    fun swapYV12toI420(yv12bytes: ByteArray, width: Int, height: Int): ByteArray {
-        val i420bytes = ByteArray(yv12bytes.size)
-        System.arraycopy(yv12bytes, 0, i420bytes, 0, width * height)
-        System.arraycopy(
-            yv12bytes,
-            width * height + width / 2 * height / 2,
-            i420bytes,
-            width * height,
-            width * height + width / 2 * height / 2 - width * height
-        )
-        System.arraycopy(
-            yv12bytes,
-            width * height + width / 2 * height / 2 - width / 2 * height / 2,
-            i420bytes,
-            width * height + width / 2 * height / 2,
-            width * height + 2 * (width / 2 * height / 2) - (width * height + width / 2 * height / 2)
-        )
-        return i420bytes
     }
 
     fun getBytes(s: Short): ByteArray {

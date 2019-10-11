@@ -20,6 +20,11 @@ import java.io.IOException
 import java.util.*
 
 
+/**
+ * 录制MP3 边录边转
+ * 1.可以去换录制来源
+ * 2.可以增强录制的声音
+ */
 class MP3Recorder : BaseRecorder {
 
 
@@ -233,7 +238,11 @@ class MP3Recorder : BaseRecorder {
     }
 
     fun setMp3Quality(mp3Quality: Int): MP3Recorder {
-        this.defaultLameMp3Quality = mp3Quality
+        this.defaultLameMp3Quality = when {
+            mp3Quality < 1 -> 1
+            mp3Quality > 9 -> 9
+            else -> mp3Quality
+        }
         return this
     }
 

@@ -206,12 +206,16 @@ class MixRecorder : BaseRecorder {
     constructor() {}
 
     /**
-     * {MediaRecorder.AudioSource.MIC,MediaRecorder.AudioSource.VOICE_COMMUNICATION;}
-     * @param channel 声道数量
+     * @param audioSource 最好是  [MediaRecorder.AudioSource.VOICE_COMMUNICATION] 或者 [MediaRecorder.AudioSource.MIC]
+     * @param channel 声道数量 (1 或者 2)
      */
     constructor(audioSource: Int,   channel: Int) {
         defaultAudioSource = audioSource
-        defaultLameInChannel = channel
+        defaultLameInChannel = when {
+            channel < 1 -> 1
+            channel > 2 -> 2
+            else -> channel
+        }
         is2Channel = defaultLameInChannel == 2
     }
 
@@ -310,6 +314,24 @@ class MixRecorder : BaseRecorder {
      */
     fun setWax(wax: Float): MixRecorder {
         this.wax = wax
+        return this
+    }
+
+    fun setBackgroundMusicListener(playerListener: PlayerListener): MixRecorder {
+        bgPlayer.setBackGroundPlayListener(playerListener)
+        return this
+    }
+
+
+    fun setVolume(volume: Float): MixRecorder {
+        val volume1 = when {
+            volume < 0 -> 0f
+            volume > 1 -> 1f
+            else -> volume
+        }
+        val bgPlayer = bgPlayer
+        bgPlayer.setVolume(volume1)
+        this.bglevel = volume1
         return this
     }
 
@@ -474,13 +496,6 @@ class MixRecorder : BaseRecorder {
         release()
     }
 
-    fun setVolume(volume: Float) {
-        val bgPlayer = bgPlayer
-        bgPlayer.setVolume(volume)
-        this.bglevel = volume
-    }
-
-
     /**
      * Initialize audio recorder
      */
@@ -644,11 +659,6 @@ class MixRecorder : BaseRecorder {
             mNoiseSuppressor = null
         }
 
-    }
-
-    fun setBackgroundMusicListener(playerListener: PlayerListener): MixRecorder {
-        bgPlayer.setBackGroundPlayListener(playerListener)
-        return this
     }
 
     companion object {
