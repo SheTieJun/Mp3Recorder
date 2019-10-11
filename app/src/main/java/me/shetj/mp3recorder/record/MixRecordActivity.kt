@@ -11,6 +11,7 @@ import me.shetj.mixRecorder.MixRecorder
 import me.shetj.mp3recorder.R
 import me.shetj.mp3recorder.record.utils.LocalMusicUtils
 import me.shetj.player.AudioPlayer
+import me.shetj.player.SimPlayerListener
 import me.shetj.player.SimRecordListener
 import me.shetj.recorder.RecordState
 import timber.log.Timber
@@ -148,6 +149,27 @@ class MixRecordActivity : AppCompatActivity() {
                 it.pause()
             }
         }
+        mixRecorder?.bgPlayer?.setBackGroundPlayListener(object :SimPlayerListener(){
+            override fun onStart(url: String, duration: Int) {
+                super.onStart(url, duration)
+                ArmsUtils.makeText("开始播放")
+            }
+
+            override fun onPause() {
+                super.onPause()
+                ArmsUtils.makeText("onPause")
+            }
+
+            override fun onResume() {
+                super.onResume()
+                ArmsUtils.makeText("onResume")
+            }
+
+            override fun onCompletion() {
+                super.onCompletion()
+                ArmsUtils.makeText("结束")
+            }
+        })
     }
 
     private fun mixRecord() {

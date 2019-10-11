@@ -8,6 +8,7 @@ import android.os.Handler
 import android.os.Looper
 import android.os.Message
 import android.util.Log
+import me.shetj.player.PlayerListener
 import java.util.concurrent.LinkedBlockingDeque
 
 /**
@@ -31,6 +32,7 @@ class PlayBackMusic {
     private val playHandler: PlayHandler
     private var audioTrack: AudioTrack? = null
     private var volume  = 0.3f
+    private var playerListener: PlayerListener?=null
 
     internal val isPCMDataEos: Boolean
         get() = mAudioDecoder!!.isPCMExtractorEOS
@@ -68,6 +70,10 @@ class PlayBackMusic {
             isIsPause = false
         }
         return this
+    }
+
+    fun setBackGroundPlayListener(playerListener: PlayerListener){
+        this.playerListener = playerListener
     }
 
     private fun initDecoder(path: String) {
@@ -116,6 +122,7 @@ class PlayBackMusic {
                 addBackGroundBytes(bytes)
             }
         }).start()
+        playerListener?.onStart("",0 )
         return this
     }
 
@@ -143,17 +150,20 @@ class PlayBackMusic {
      */
     fun stop() {
         isPlayingMusic = false
+        playerListener?.onStop()
     }
 
     fun resume() {
         if (isPlayingMusic) {
             isIsPause = false
+            playerListener?.onResume()
         }
     }
 
     fun pause() {
         if (isPlayingMusic) {
             isIsPause = true
+            playerListener?.onPause()
         }
     }
 
@@ -231,15 +241,16 @@ class PlayBackMusic {
                         } catch (e: InterruptedException) {
                             e.printStackTrace()
                         }
-
                     }
                 }
+                playerListener?.onCompletion()
                 audioTrack!!.stop()
                 audioTrack!!.flush()
                 audioTrack!!.release()
                 audioTrack = null
             } catch (e: Exception) {
                 Log.e("mp3Recorder", "error:" + e.message)
+                playerListener?.onError(e)
             } finally {
                 isPlayingMusic = false
                 isIsPause = false
