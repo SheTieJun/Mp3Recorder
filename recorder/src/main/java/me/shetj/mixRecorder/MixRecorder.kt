@@ -410,7 +410,7 @@ class MixRecorder : BaseRecorder {
             val mine = BytesTransUtil.changeDataWithVolume(buffer!!, wax)
             return BytesTransUtil.averageMix(arrayOf(mine, bytes))
         }
-        return buffer
+        return BytesTransUtil.changeDataWithVolume(buffer!!, wax)
     }
 
 
