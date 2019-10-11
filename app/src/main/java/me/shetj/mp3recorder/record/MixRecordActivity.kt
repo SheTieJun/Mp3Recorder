@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.widget.SeekBar
 import androidx.appcompat.app.AppCompatActivity
 import com.jakewharton.rxbinding3.view.clicks
+import io.reactivex.android.schedulers.AndroidSchedulers
 import kotlinx.android.synthetic.main.activity_mix_record.*
 import me.shetj.base.tools.app.ArmsUtils
 import me.shetj.base.tools.file.SDCardUtils
@@ -18,7 +19,7 @@ import timber.log.Timber
 import java.util.concurrent.TimeUnit
 
 /**
- * 或者录音的demo
+ * mix录音的demo
  */
 class MixRecordActivity : AppCompatActivity() {
 
@@ -57,15 +58,15 @@ class MixRecordActivity : AppCompatActivity() {
         }
 
         bt_change_bg
-                .clicks()
-                .throttleFirst(1000,TimeUnit.MILLISECONDS)
-                .subscribe {
-                    if (mixRecorder?.state == RecordState.RECORDING) {
-                        changeMusic()
-                    }else{
-                        ArmsUtils.makeText(   "请先开始录音")
-                    }
+            .clicks()
+            .throttleFirst(1000,TimeUnit.MILLISECONDS)
+            .subscribe {
+                if (mixRecorder?.state == RecordState.RECORDING) {
+                    changeMusic()
+                }else{
+                    ArmsUtils.makeText(   "请先开始录音")
                 }
+            }
 
         bt_audition.setOnClickListener {
             mp3Url?.let {
@@ -111,6 +112,7 @@ class MixRecordActivity : AppCompatActivity() {
             }
         }
 
+
     }
 
     private fun stop() {
@@ -138,7 +140,7 @@ class MixRecordActivity : AppCompatActivity() {
     }
 
     private fun startOrPause() {
-        if (!mixRecorder!!.isRecording) {
+        if (mixRecorder!=null && !mixRecorder!!.isRecording) {
             ArmsUtils.makeText(   "请先开始录音")
             return
         }
@@ -149,27 +151,12 @@ class MixRecordActivity : AppCompatActivity() {
                 it.pause()
             }
         }
-        mixRecorder?.bgPlayer?.setBackGroundPlayListener(object :SimPlayerListener(){
-            override fun onStart(url: String, duration: Int) {
-                super.onStart(url, duration)
-                ArmsUtils.makeText("开始播放")
-            }
+    }
 
-            override fun onPause() {
-                super.onPause()
-                ArmsUtils.makeText("onPause")
-            }
-
-            override fun onResume() {
-                super.onResume()
-                ArmsUtils.makeText("onResume")
-            }
-
-            override fun onCompletion() {
-                super.onCompletion()
-                ArmsUtils.makeText("结束")
-            }
-        })
+    private fun showMsg(info:String) {
+        AndroidSchedulers.mainThread().scheduleDirect {
+            ArmsUtils.makeText(info)
+        }
     }
 
     private fun mixRecord() {
@@ -191,11 +178,38 @@ class MixRecordActivity : AppCompatActivity() {
                 }
             }
             mixRecorder = MixRecorder()
-                    .setOutputFile(filePath)//设置输出文件
-                    .setBackgroundMusic(musicUrl!!, true)//设置默认的背景音乐
-                    .setRecordListener(listener)
-                    .setPermissionListener(listener)
-                    .setMaxTime(1800 * 1000)//设置最大时间
+                .setOutputFile(filePath)//设置输出文件
+                .setBackgroundMusic(musicUrl!!, true)//设置默认的背景音乐
+                .setRecordListener(listener)
+                .setPermissionListener(listener)
+                .setBackgroundMusicListener(object :SimPlayerListener(){
+                    override fun onStart(url: String, duration: Int) {
+                        super.onStart(url, duration)
+                        showMsg("开始播放")
+                    }
+
+                    override fun onPause() {
+                        super.onPause()
+                        showMsg("onPause")
+                    }
+
+                    override fun onResume() {
+                        super.onResume()
+                        showMsg("onResume")
+                    }
+
+                    override fun onCompletion() {
+                        super.onCompletion()
+                        showMsg("结束")
+
+                    }
+
+                    override fun onProgress(current: Int, size: Int) {
+                        super.onProgress(current, size)
+                        Timber.i("current = $current,size = $size")
+                    }
+                })
+                .setMaxTime(1800 * 1000)//设置最大时间
         }
         if (!mixRecorder!!.isRecording) {
             mixRecorder!!.bgPlayer.startPlayBackMusic()

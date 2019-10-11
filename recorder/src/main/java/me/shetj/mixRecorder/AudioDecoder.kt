@@ -6,6 +6,7 @@ import android.media.MediaFormat
 import android.util.Log
 import java.nio.ByteBuffer
 import java.util.*
+import javax.sql.RowSetInternal
 
 class AudioDecoder {
 
@@ -27,12 +28,12 @@ class AudioDecoder {
     //记得加锁
     //每次取出index 0 的数据
     //取出后将此数据remove掉 既能保证PCM数据块的取出顺序 又能及时释放内存
-    val pcmData: ByteArray?
+    val pcmData: PCM?
         get() = synchronized(lockPCM) {
             if (chunkPCMDataContainer.isEmpty()) {
                 return null
             }
-            val pcmChunk = chunkPCMDataContainer[0].bufferBytes
+            val pcmChunk = chunkPCMDataContainer[0]
             chunkPCMDataContainer.removeAt(0)
             return pcmChunk
         }
@@ -111,10 +112,10 @@ class AudioDecoder {
         decodeBufferInfo = MediaCodec.BufferInfo()//用于描述解码得到的byte[]数据的相关信息
     }
 
-    private fun putPCMData(pcmChunk: ByteArray, bufferSize: Int) {
+    private fun putPCMData(pcmChunk: ByteArray, bufferSize: Int,time: Long) {
         synchronized(lockPCM) {
             //记得加锁
-            chunkPCMDataContainer.add(PCM(pcmChunk, bufferSize))
+            chunkPCMDataContainer.add(PCM(pcmChunk, bufferSize,time))
         }
     }
 
@@ -179,7 +180,7 @@ class AudioDecoder {
                         val data = ByteArray(decodeBufferInfo!!.size)//BufferInfo内定义了此数据块的大小
                         outBuf.get(data)//将Buffer内的数据取出到字节数组中
                         //                        Log.i("mixRecorder","try put pcm data ...");
-                        putPCMData(data, decodeBufferInfo!!.size)//自己定义的方法，供编码器所在的线程获取数据,下面会贴出代码
+                        putPCMData(data, decodeBufferInfo!!.size,mediaExtractor!!.sampleTime)//自己定义的方法，供编码器所在的线程获取数据,下面会贴出代码
                     }
 
                     mediaDecode!!.releaseOutputBuffer(
@@ -207,9 +208,10 @@ class AudioDecoder {
     }
 
 
-    private inner class PCM internal constructor(
+    inner class PCM internal constructor(
         internal var bufferBytes: ByteArray,
-        internal var bufferSize: Int
+        internal var bufferSize: Int,
+        internal var time :Long
     )
 
     companion object {

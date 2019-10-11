@@ -14,6 +14,7 @@ import android.os.Process
 import android.text.TextUtils
 import android.util.Log
 import me.shetj.player.PermissionListener
+import me.shetj.player.PlayerListener
 import me.shetj.player.RecordListener
 import me.shetj.recorder.BaseRecorder
 import me.shetj.recorder.PCMFormat
@@ -643,6 +644,11 @@ class MixRecorder : BaseRecorder {
             mNoiseSuppressor = null
         }
 
+    }
+
+    fun setBackgroundMusicListener(playerListener: PlayerListener): MixRecorder {
+        bgPlayer.setBackGroundPlayListener(playerListener)
+        return this
     }
 
     companion object {

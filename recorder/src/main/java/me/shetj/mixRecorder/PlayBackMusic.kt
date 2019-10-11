@@ -3,6 +3,7 @@ package me.shetj.mixRecorder
 import android.media.AudioFormat
 import android.media.AudioManager
 import android.media.AudioTrack
+import android.media.MediaFormat
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
@@ -14,9 +15,14 @@ import java.util.concurrent.LinkedBlockingDeque
 /**
  * 播放音乐，用来播放PCM
  *
- * 支持暂停 pause(),resume()
- * 支持循环播放setLoop(boolean isLoop)
- * 支持切换背景音乐 setBackGroundUrl(String path)
+ * 1.支持暂停 pause(),resume() <br>
+ * 2.支持循环播放setLoop(boolean isLoop)<br>
+ * 3. 支持切换背景音乐 setBackGroundUrl(String path)<br>
+ * update 2019年10月11日
+ * 添加时间进度记录(注意返回不是在主线程需要自己设置在主线程)
+ *
+ * TODO seekTo 缺失功能
+ *
  */
 class PlayBackMusic {
 
@@ -122,7 +128,7 @@ class PlayBackMusic {
                 addBackGroundBytes(bytes)
             }
         }).start()
-        playerListener?.onStart("",0 )
+        playerListener?.onStart("",0)
         return this
     }
 
@@ -223,8 +229,9 @@ class PlayBackMusic {
                 audioTrack!!.play()
                 while (isPlayingMusic) {
                     if (!isIsPause) {
-                        val temp = mAudioDecoder!!.pcmData
-                        if (temp == null) {
+                        val pcm = mAudioDecoder!!.pcmData
+                        val temp = pcm?.bufferBytes
+                        if (pcm == null || temp == null){
                             if (mIsLoop) {
                                 playHandler.sendEmptyMessage(PROCESS_REPLAY)
                                 sleep(50)
@@ -232,6 +239,8 @@ class PlayBackMusic {
                             continue
                         }
                         audioTrack!!.write(temp, 0, temp.size)
+                        playerListener?.onProgress((pcm.time/1000).toInt(),
+                            (mAudioDecoder!!.mediaFormat!!.getLong(MediaFormat.KEY_DURATION)/1000).toInt())
                         listener?.onFrameArrive(temp)
                     } else {
                         //如果是暂停
@@ -243,7 +252,7 @@ class PlayBackMusic {
                         }
                     }
                 }
-                playerListener?.onCompletion()
+                playerListener?.onStop()
                 audioTrack!!.stop()
                 audioTrack!!.flush()
                 audioTrack!!.release()
@@ -254,6 +263,7 @@ class PlayBackMusic {
             } finally {
                 isPlayingMusic = false
                 isIsPause = false
+                playerListener?.onCompletion()
             }
         }
     }
@@ -292,6 +302,14 @@ class PlayBackMusic {
         private val PROCESS_STOP = 3
         private val PROCESS_ERROR = 4
         private val PROCESS_REPLAY = 5
+
+        private val HANDLER_PLAYING = 0x201 //正在录音
+        private val HANDLER_START = 0x202   //开始了
+        private val HANDLER_COMPLETE = 0x203//完成
+        private val HANDLER_ERROR = 0x205   //错误
+        private val HANDLER_PAUSE = 0x206   //暂停
+        private val HANDLER_RESUME = 0x208  //暂停后开始
+        private val HANDLER_RESET = 0x209   //重置
 
         private val mFrequence = 44100
         private val mPlayChannelConfig = AudioFormat.CHANNEL_OUT_STEREO
