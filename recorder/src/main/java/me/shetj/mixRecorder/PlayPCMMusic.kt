@@ -89,6 +89,7 @@ class PlayPCMMusic(private val defaultChannel: Int = CHANNEL_OUT_STEREO) {
             isIsPause = true
             releaseDecoder()
             initDecoder(path)
+            initMediaDecode()
             isIsPause = false
         }
         return this
@@ -109,7 +110,6 @@ class PlayPCMMusic(private val defaultChannel: Int = CHANNEL_OUT_STEREO) {
         if (mediaExtractor != null) {
             mediaExtractor!!.release()
         }
-        initMediaDecode()
     }
 
     /**
@@ -212,7 +212,8 @@ class PlayPCMMusic(private val defaultChannel: Int = CHANNEL_OUT_STEREO) {
      * 重新开始播放
      */
     private fun restartMusic() {
-        isPlayingMusic  = false
+        releaseDecoder()
+        initMediaDecode()
     }
 
 
@@ -262,19 +263,17 @@ class PlayPCMMusic(private val defaultChannel: Int = CHANNEL_OUT_STEREO) {
         }
 
         private fun playMusic() {
-            isPCMExtractorEOS = false
             var sawInputEOS = false
             try {
-                while (!isPCMExtractorEOS && isPlayingMusic ) {
+                while (!isPCMExtractorEOS && isPlayingMusic   ) {
                     if (isIsPause) {
-                        //如果是暂停
                         try {
                             //防止死循环ANR
                             sleep(500)
                         } catch (e: InterruptedException) {
                             e.printStackTrace()
                         }
-                        return
+                        continue
                     }
                     if (!sawInputEOS) {
                         val inputIndex =
@@ -282,10 +281,10 @@ class PlayPCMMusic(private val defaultChannel: Int = CHANNEL_OUT_STEREO) {
                         if (inputIndex >= 0) {
                             val inputBuffer = decodeInputBuffers!![inputIndex]//拿到inputBuffer
                             inputBuffer.clear()//清空之前传入inputBuffer内的数据
-                            val sampleSize = mediaExtractor?.readSampleData(
+                            val sampleSize = mediaExtractor!!.readSampleData(
                                 inputBuffer,
                                 0
-                            ) ?: -1
+                            )
                             if (sampleSize < 0) {//小于0 代表所有数据已读取完成
                                 sawInputEOS = true
                                 mediaDecode!!.queueInputBuffer(
@@ -350,13 +349,8 @@ class PlayPCMMusic(private val defaultChannel: Int = CHANNEL_OUT_STEREO) {
                         )//此操作一定要做，不然MediaCodec用完所有的Buffer后 将不能向外输出数据
 
                         if (decodeBufferInfo!!.flags and MediaCodec.BUFFER_FLAG_END_OF_STREAM != 0) {
-                            if (mIsLoop) {
-                                mediaExtractor!!.seekTo(0, SEEK_TO_PREVIOUS_SYNC)
-                                playHandler.sendEmptyMessage(PROCESS_REPLAY)
-                            }else {
                                 isPCMExtractorEOS = true
                                 Log.i("mixRecorder", "pcm finished..." + mp3FilePath!!)
-                            }
                         }
 
                     } else if (outputIndex == MediaCodec.INFO_OUTPUT_BUFFERS_CHANGED) {
