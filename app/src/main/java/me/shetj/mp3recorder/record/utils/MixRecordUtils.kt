@@ -5,6 +5,7 @@ import android.text.TextUtils
 import me.shetj.base.tools.file.SDCardUtils
 import me.shetj.mixRecorder.MixRecorder
 import me.shetj.mixRecorder.PlayBackMusic
+import me.shetj.mixRecorder.PlayPCMMusic
 import me.shetj.player.PermissionListener
 import me.shetj.player.PlayerListener
 import me.shetj.player.RecordListener
@@ -88,7 +89,7 @@ class MixRecordUtils(private val callBack: RecordCallBack?
         mRecorder?.bgPlayer?.setBackGroundPlayListener(listener)
     }
 
-    fun getBgPlayer(): PlayBackMusic {
+    fun getBgPlayer(): PlayPCMMusic {
         return mRecorder!!.bgPlayer
     }
 

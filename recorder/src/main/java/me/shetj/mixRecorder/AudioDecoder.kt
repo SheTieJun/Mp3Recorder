@@ -70,14 +70,6 @@ class AudioDecoder {
     }
 
     private fun initMediaDecode() {
-        while (!isPCMExtractorEOS) {
-            try {
-                Thread.sleep(80)
-            } catch (e: InterruptedException) {
-                e.printStackTrace()
-            }
-
-        }
         try {
             mediaExtractor = MediaExtractor()//此类可分离视频文件的音轨和视频轨道
             Log.i("mixRecorder", "mp3FilePath = " + mp3FilePath!!)
@@ -209,7 +201,7 @@ class AudioDecoder {
     }
 
 
-    inner class PCM internal constructor(
+    class PCM internal constructor(
         internal var bufferBytes: ByteArray,
         internal var bufferSize: Int,
         internal var time :Long//当前时间

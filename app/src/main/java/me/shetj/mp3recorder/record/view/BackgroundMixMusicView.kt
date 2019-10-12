@@ -14,6 +14,7 @@ import androidx.appcompat.widget.AppCompatImageView
 import io.reactivex.android.schedulers.AndroidSchedulers
 import me.shetj.base.tools.app.ArmsUtils
 import me.shetj.mixRecorder.PlayBackMusic
+import me.shetj.mixRecorder.PlayPCMMusic
 import me.shetj.mp3recorder.R
 import me.shetj.mp3recorder.record.bean.Music
 import me.shetj.mp3recorder.record.utils.MixRecordUtils
@@ -39,7 +40,7 @@ class BackgroundMixMusicView @JvmOverloads constructor(context: Context,
     private var mTvName: TextView
     private var mTvVoice:TextView
     private var mTvProgress:TextView
-    private var audioPlayer: PlayBackMusic?=null //播放器
+    private var audioPlayer: PlayPCMMusic?=null //播放器
     private var recordUtils: MixRecordUtils?=null //录音
     private var addMusicView: LinearLayout  ?=null//添加背景音乐的空间
     private var music: Music?=null //背景文件相关

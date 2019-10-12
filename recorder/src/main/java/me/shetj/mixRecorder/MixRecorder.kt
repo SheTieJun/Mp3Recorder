@@ -34,7 +34,7 @@ class MixRecorder : BaseRecorder {
     private var defaultLameInChannel = 2 //声道数量
     private var defaultLameMp3Quality = 5
     private var mAudioRecord: AudioRecord? = null
-    private var mPlayBackMusic: PlayBackMusic? = null
+    private var mPlayBackMusic: PlayPCMMusic? = null
 
     /**
      * 系统自带的去噪音，增强以及回音问题
@@ -156,7 +156,7 @@ class MixRecorder : BaseRecorder {
      * 返回背景音乐的
      * @return
      */
-    val bgPlayer: PlayBackMusic
+    val bgPlayer: PlayPCMMusic
         get() {
             initPlayer()
             return mPlayBackMusic!!
@@ -252,7 +252,7 @@ class MixRecorder : BaseRecorder {
 
     private fun initPlayer() {
         if (mPlayBackMusic == null) {
-            mPlayBackMusic = PlayBackMusic(
+            mPlayBackMusic = PlayPCMMusic(
                 when (defaultLameInChannel == 2) {
                     true -> AudioFormat.CHANNEL_OUT_STEREO
                     else -> AudioFormat.CHANNEL_IN_LEFT
@@ -372,7 +372,7 @@ class MixRecorder : BaseRecorder {
                 Process.setThreadPriority(Process.THREAD_PRIORITY_URGENT_AUDIO)
                 onStart()
                 while (isRecording) {
-                    val samplesPerFrame = mPlayBackMusic!!.bufferSize // 这里需要与 背景音乐读取出来的数据长度 一样
+                    val samplesPerFrame = mPlayBackMusic!!.getBufferSize() // 这里需要与 背景音乐读取出来的数据长度 一样
                     var buffer: ByteArray? = ByteArray(samplesPerFrame)
                     val readSize = mAudioRecord!!.read(buffer!!, 0, buffer.size)
                     if (readSize == AudioRecord.ERROR_INVALID_OPERATION || readSize == AudioRecord.ERROR_BAD_VALUE) {
