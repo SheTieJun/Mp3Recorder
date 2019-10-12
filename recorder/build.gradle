@@ -1,6 +1,7 @@
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
+apply plugin: 'maven'
 android {
     compileSdkVersion 29
 
@@ -43,6 +44,17 @@ android {
         main {
             jniLibs.srcDirs = ['libs']
         }
+    }
+}
+
+//本地上传
+uploadArchives{
+    repositories.mavenDeployer{
+        //http://localhost:8080/maven/
+        repository(url:"file://C://maven/shetj")
+        pom.groupId = "me.shetj"
+        pom.artifactId = "record"
+        pom.version ="1.2"
     }
 }
 

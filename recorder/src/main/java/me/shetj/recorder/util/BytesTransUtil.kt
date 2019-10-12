@@ -78,7 +78,6 @@ object BytesTransUtil {
         var i = 0
         while (i < buffer.size) {
             var value = byte2Short(buffer[i + 1], buffer[i])
-            val tempValue = value
             value =  (volumeValue*value).toShort()
             value = if (value > 0x7fff) 0x7fff else value
             value = if (value < -0x8000) -0x8000 else value

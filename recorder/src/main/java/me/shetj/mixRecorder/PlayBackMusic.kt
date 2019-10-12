@@ -1,3 +1,5 @@
+@file:Suppress("DEPRECATION")
+
 package me.shetj.mixRecorder
 
 import android.media.AudioFormat
@@ -137,12 +139,10 @@ class PlayBackMusic(private val defaultChannel: Int = CHANNEL_OUT_STEREO) {
 
 
     fun getBackGroundBytes(): ByteArray? {
-        var temp: ByteArray? = null
         if (backGroundBytes.isEmpty()) {
             return null
         }
-        temp = backGroundBytes.poll()
-        return temp
+        return backGroundBytes.poll()
     }
 
     fun hasFrameBytes(): Boolean {

@@ -36,7 +36,7 @@ dependencies {
     androidTestImplementation 'androidx.test:runner:1.2.0'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
     implementation project(path: ':recorder')
-
+//    implementation 'me.shetj:record:1.2'
     implementation "com.github.SheTieJun:Base:$base_kt_version"
     implementation "com.github.SheTieJun:SimXutilsDb:$SimXutilsDb"
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
