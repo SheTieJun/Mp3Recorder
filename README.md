@@ -4,17 +4,19 @@
 
 - 边录边转码,没有额外转码时间,录制音频为MP3保存本地。
 - 录制中添加背景音乐（支持耳机，文件写入） 可以控制背景音乐声音的大小
-- speex进行去噪音，但是好像效果不佳（MixRecorder使用VOICE_COMMUNICATION ,使用系统自带的AEC）
-- 录制中，试听的功能 
-- 可以设置是否是继续录制功能（已完成）
+- speex进行去噪音，但是好像效果不佳（最后MixRecorder使用VOICE_COMMUNICATION ,使用系统自带的AEC）
+- 录制过程中**暂停**,已录制的那段音频是**可以播放**的.
+- 录制声道数设置，因为合成，所有你需要设置和背景音乐相同的声道数据，背景音乐默认需要是 44k ，双声道，16位
+- 可以设置是否是继续录制功能
 - 音频权限提示，权限获取回调
 - 支持获取声音大小
+
 - 本地/网络音频播放，音频时长与播放时长支持。
-- 录制过程中**暂停**,已录制的那段音频是**可以播放**的.
 - 支持返回已经录制时长和当前声音大小
+
 - 设置最大录制时间，达到最大时间触发自动完成
 - 播放可以设置播放开始时间
-- 录制声道数设置，因为合成，所有你需要设置和背景音乐相同的声道数据，背景音乐默认需要是 44k ，双声道，16位
+
 
 
 #### 录制（可以选择背景音乐）
@@ -34,7 +36,7 @@
 ``` kotlin
 //  默认音频要求 44k ，双声道，16位
 //       private val mFrequence = 44100
-//        private val mPlayChannelConfig = AudioFormat.CHANNEL_OUT_STEREO(双声道)
+//        private val mPlayChannelConfig = AudioFormat.CHANNEL_OUT_STEREO//(双声道)
 //        private val mAudioEncoding = AudioFormat.ENCODING_PCM_16BIT//一个采样点16比特-2个字节
 
   private fun mixRecord() {
@@ -49,6 +51,7 @@
                 }
             }
             // kotlin:  mRecorder = mixRecorderBuilder(permissionListener = this, recordListener = this)
+            //MediaRecorder.AudioSource.VOICE_COMMUNICATION;//**对麦克风中类似ip通话的交流声音进行识别，默认会开启回声消除和自动增益*/
             mixRecorder = MixRecorder()
                     .setOutputFile(filePath)//设置输出文件
                     .setBackgroundMusic(musicUrl, true)//设置默认的背景音乐
@@ -102,6 +105,7 @@
 filePath = FileUtils.getAppPath() + UUID.randomUUID().toString() + ".mp3";
 // kotlin:  mRecorder = recorderBuilder(permissionListener = this, recordListener = this)
 //设置
+//MediaRecorder.AudioSource.VOICE_COMMUNICATION;//**对麦克风中类似ip通话的交流声音进行识别，默认会开启回声消除和自动增益*/
 mRecorder = new MP3Recorder(MediaRecorder.AudioSource.VOICE_COMMUNICATION,BuildConfig.DEBUG)      
 			.setOutputFile(filePath)        
 			.setRecordListener(simRecordListener)    			

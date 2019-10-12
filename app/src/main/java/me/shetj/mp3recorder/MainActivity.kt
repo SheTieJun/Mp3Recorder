@@ -15,6 +15,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         Log.i("MainActivity",LameUtils.version())
+
         btn_demo.setOnClickListener {
            ArmsUtils.startActivity(this,MyRecordActivity::class.java)
         }

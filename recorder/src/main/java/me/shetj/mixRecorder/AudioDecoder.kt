@@ -47,8 +47,7 @@ class AudioDecoder {
             if (chunkPCMDataContainer.isEmpty()) {
                 return BUFFER_SIZE
             }
-            val pcm = chunkPCMDataContainer[0]
-            return pcm?.bufferSize ?: BUFFER_SIZE
+            return chunkPCMDataContainer[0]?.bufferSize ?: BUFFER_SIZE
         }
 
     fun setMp3FilePath(path: String): AudioDecoder {
@@ -64,7 +63,9 @@ class AudioDecoder {
 
     fun release(): AudioDecoder {
         isPCMExtractorEOS = true
-        chunkPCMDataContainer.clear()
+        synchronized(lockPCM) {
+            chunkPCMDataContainer.clear()
+        }
         return this
     }
 
@@ -134,10 +135,10 @@ class AudioDecoder {
                     if (inputIndex >= 0) {
                         val inputBuffer = decodeInputBuffers!![inputIndex]//拿到inputBuffer
                         inputBuffer.clear()//清空之前传入inputBuffer内的数据
-                        val sampleSize = mediaExtractor!!.readSampleData(
+                        val sampleSize = mediaExtractor?.readSampleData(
                             inputBuffer,
                             0
-                        )//MediaExtractor读取数据到inputBuffer中
+                        )?:-1
                         if (sampleSize < 0) {//小于0 代表所有数据已读取完成
                             sawInputEOS = true
                             mediaDecode!!.queueInputBuffer(
@@ -211,7 +212,7 @@ class AudioDecoder {
     inner class PCM internal constructor(
         internal var bufferBytes: ByteArray,
         internal var bufferSize: Int,
-        internal var time :Long
+        internal var time :Long//当前时间
     )
 
     companion object {

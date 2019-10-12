@@ -158,9 +158,7 @@ class MixRecorder : BaseRecorder {
      */
     val bgPlayer: PlayBackMusic
         get() {
-            if (mPlayBackMusic == null) {
-                mPlayBackMusic = PlayBackMusic()
-            }
+            initPlayer()
             return mPlayBackMusic!!
         }
 
@@ -243,9 +241,7 @@ class MixRecorder : BaseRecorder {
 
     fun setBackgroundMusic(url: String, isLoop: Boolean): MixRecorder {
         if (!TextUtils.isEmpty(url)) {
-            if (mPlayBackMusic == null) {
-                mPlayBackMusic = PlayBackMusic()
-            }
+            initPlayer()
             mPlayBackMusic!!.setBackGroundUrl(url)
             mPlayBackMusic!!.setLoop(isLoop)
         } else {
@@ -254,6 +250,16 @@ class MixRecorder : BaseRecorder {
         return this
     }
 
+    private fun initPlayer() {
+        if (mPlayBackMusic == null) {
+            mPlayBackMusic = PlayBackMusic(
+                when (defaultLameInChannel == 2) {
+                    true -> AudioFormat.CHANNEL_OUT_STEREO
+                    else -> AudioFormat.CHANNEL_IN_LEFT
+                }
+            )
+        }
+    }
     /**
      * 设置录音输出文件
      * @param outputFile
@@ -694,7 +700,6 @@ class MixRecorder : BaseRecorder {
          * 自定义 每160帧作为一个周期，通知一下需要进行编码
          */
         private val FRAME_COUNT = 160
-
         private val MAX_VOLUME = 2000
     }
 }

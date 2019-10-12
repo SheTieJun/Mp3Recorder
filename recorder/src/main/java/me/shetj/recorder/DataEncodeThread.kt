@@ -16,11 +16,9 @@ import java.util.*
 
 class DataEncodeThread
 /**
- * Constructor
- *
  * @param file       file
  * @param bufferSize bufferSize
- * @param isContinue
+ * @param isContinue 是否写在文件末尾
  * @throws FileNotFoundException file not found
  */
 @Throws(FileNotFoundException::class)

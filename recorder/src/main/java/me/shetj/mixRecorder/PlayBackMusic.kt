@@ -11,6 +11,9 @@ import android.os.Message
 import android.util.Log
 import me.shetj.player.PlayerListener
 import java.util.concurrent.LinkedBlockingDeque
+import android.media.AudioAttributes
+import android.media.AudioFormat.CHANNEL_OUT_STEREO
+
 
 /**
  * 播放音乐，用来播放PCM
@@ -24,7 +27,7 @@ import java.util.concurrent.LinkedBlockingDeque
  * TODO seekTo 缺失功能
  *
  */
-class PlayBackMusic {
+class PlayBackMusic(private val defaultChannel: Int = CHANNEL_OUT_STEREO) {
 
     private var mAudioDecoder: AudioDecoder? = null
     private val backGroundBytes =
@@ -239,8 +242,12 @@ class PlayBackMusic {
                             continue
                         }
                         audioTrack!!.write(temp, 0, temp.size)
-                        playerListener?.onProgress((pcm.time/1000).toInt(),
-                            (mAudioDecoder!!.mediaFormat!!.getLong(MediaFormat.KEY_DURATION)/1000).toInt())
+                        if (mAudioDecoder!= null && mAudioDecoder!!.mediaFormat !=null) {
+                            playerListener?.onProgress(
+                                (pcm.time / 1000).toInt(),
+                                (mAudioDecoder!!.mediaFormat!!.getLong(MediaFormat.KEY_DURATION) / 1000).toInt()
+                            )
+                        }
                         listener?.onFrameArrive(temp)
                     } else {
                         //如果是暂停
@@ -270,17 +277,36 @@ class PlayBackMusic {
 
     private fun initAudioTrack(): AudioTrack {
         val bufferSize = AudioTrack.getMinBufferSize(
-            mFrequence,
-            mPlayChannelConfig, mAudioEncoding
+            mSampleRate,
+            defaultChannel, mAudioEncoding
         )
-        // 实例AudioTrack
-        return AudioTrack(
-            AudioManager.STREAM_MUSIC,
-            mFrequence,
-            mPlayChannelConfig, mAudioEncoding, bufferSize,
-            AudioTrack.MODE_STREAM
-        )
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            return AudioTrack.Builder()
+                .setAudioAttributes(
+                    AudioAttributes.Builder()
+                        .setUsage(AudioAttributes.USAGE_MEDIA)
+                        .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                        .setLegacyStreamType(AudioManager.STREAM_MUSIC)
+                        .build()
+                )
+                .setAudioFormat(
+                    AudioFormat.Builder()
+                        .setEncoding(mAudioEncoding)
+                        .setSampleRate(mSampleRate)
+                        .setChannelMask(defaultChannel)
+                        .build()
+                )
+                .setTransferMode(AudioTrack.MODE_STREAM)
+                .setBufferSizeInBytes(bufferSize)
+                .build()
+        } else {
+            return  AudioTrack(AudioManager.STREAM_MUSIC,
+                mSampleRate, defaultChannel, mAudioEncoding, bufferSize,
+                AudioTrack.MODE_STREAM
+            )
+        }
     }
+
 
     fun setVolume(volume: Float) {
         this.volume = volume
@@ -298,13 +324,10 @@ class PlayBackMusic {
     }
 
     companion object {
-
         private val PROCESS_STOP = 3
         private val PROCESS_ERROR = 4
         private val PROCESS_REPLAY = 5
-
-        private val mFrequence = 44100
-        private val mPlayChannelConfig = AudioFormat.CHANNEL_OUT_STEREO
+        private val mSampleRate = 44100
         private val mAudioEncoding = AudioFormat.ENCODING_PCM_16BIT//一个采样点16比特-2个字节
     }
 }

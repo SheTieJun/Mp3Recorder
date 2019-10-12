@@ -24,20 +24,16 @@ import java.util.*
  * 录制MP3 边录边转
  * 1.可以去换录制来源
  * 2.可以增强录制的声音
+ *
+ * 目前只支持单声道
  */
 class MP3Recorder : BaseRecorder {
-
-
     private val TAG = javaClass.simpleName
-
     //=======================AudioRecord Default Settings=======================
     //    private static final int DEFAULT_AUDIO_SOURCE = MediaRecorder.AudioSource.VOICE_COMMUNICATION;//**对麦克风中类似ip通话的交流声音进行识别，默认会开启回声消除和自动增益*/
     private var defaultAudioSource = MediaRecorder.AudioSource.MIC
-
     //======================Lame Default Settings=====================
     private var defaultLameMp3Quality = 5
-
-
     private var mAudioRecord: AudioRecord? = null
     private var mEncodeThread: DataEncodeThread? = null
     private var backgroundPlayer: AudioPlayer? = null
@@ -178,8 +174,7 @@ class MP3Recorder : BaseRecorder {
         }
 
     /**
-     * 获取真实的音量。 [算法来自三星]
-     *
+     * 获取真实的音量 分呗
      * @return 真实音量
      */
     override val realVolume: Int

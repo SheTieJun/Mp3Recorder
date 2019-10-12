@@ -1,5 +1,6 @@
 package me.shetj.mp3recorder.record
 
+import android.media.MediaRecorder
 import android.os.Bundle
 import android.widget.SeekBar
 import androidx.appcompat.app.AppCompatActivity
@@ -177,7 +178,7 @@ class MixRecordActivity : AppCompatActivity() {
                     Timber.i("time = $time  ,volume = $volume")
                 }
             }
-            mixRecorder = MixRecorder()
+            mixRecorder = MixRecorder(MediaRecorder.AudioSource.VOICE_COMMUNICATION,2)
                 .setOutputFile(filePath)//设置输出文件
                 .setBackgroundMusic(musicUrl!!, true)//设置默认的背景音乐
                 .setRecordListener(listener)
@@ -201,7 +202,6 @@ class MixRecordActivity : AppCompatActivity() {
                     override fun onCompletion() {
                         super.onCompletion()
                         showMsg("结束")
-
                     }
 
                     override fun onProgress(current: Int, size: Int) {

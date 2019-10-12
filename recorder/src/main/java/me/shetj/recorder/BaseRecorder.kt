@@ -8,7 +8,7 @@ abstract class BaseRecorder {
 
     protected var mVolume: Int = 0
     /**
-     * @return 当前声音大小
+     * @return 当前声音大小 db
      */
     abstract val realVolume: Int
 
@@ -32,22 +32,6 @@ abstract class BaseRecorder {
     protected fun calculateRealVolume(buffer: ByteArray) {
         val shorts = BytesTransUtil.bytes2Shorts(buffer)
         val readSize = shorts.size
-        var sum = 0.0
-        for (aShort in shorts) {
-            // 这里没有做运算的优化，为了更加清晰的展示代码
-            sum += (aShort * aShort).toDouble()
-        }
-        if (readSize > 0) {
-            val amplitude = sum / readSize
-            mVolume = sqrt(amplitude).toInt()
-            if (mVolume < 5) {
-                for (i in 0 until readSize) {
-                    buffer[i] = 0
-                }
-            }
-        }
-
+        calculateRealVolume(shorts,readSize)
     }
-
-
 }
