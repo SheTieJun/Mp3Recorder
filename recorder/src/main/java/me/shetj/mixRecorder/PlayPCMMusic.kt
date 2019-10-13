@@ -82,13 +82,12 @@ class PlayPCMMusic(private val defaultChannel: Int = CHANNEL_OUT_STEREO) {
      * @return
      */
     fun setBackGroundUrl(path: String): PlayPCMMusic {
+        mp3FilePath = path
         if (isIsPause) {
             releaseDecoder()
-            initDecoder(path)
         } else {
             isIsPause = true
             releaseDecoder()
-            initDecoder(path)
             initMediaDecode()
             isIsPause = false
         }
@@ -99,16 +98,15 @@ class PlayPCMMusic(private val defaultChannel: Int = CHANNEL_OUT_STEREO) {
         this.playerListener = playerListener
     }
 
-    private fun initDecoder(path: String) {
-        mp3FilePath = path
-    }
 
     private fun releaseDecoder() {
         if (mediaDecode != null) {
             mediaDecode!!.release()
+            mediaDecode = null
         }
         if (mediaExtractor != null) {
             mediaExtractor!!.release()
+            mediaExtractor= null
         }
     }
 
@@ -189,13 +187,7 @@ class PlayPCMMusic(private val defaultChannel: Int = CHANNEL_OUT_STEREO) {
     fun release(): PlayPCMMusic {
         isPlayingMusic = false
         isIsPause = false
-        if (mediaDecode != null) {
-            mediaDecode!!.release()
-        }
-        if (mediaExtractor != null) {
-            mediaExtractor!!.release()
-        }
-        backGroundBytes.clear()
+        releaseDecoder()
         return this
     }
 
@@ -218,11 +210,6 @@ class PlayPCMMusic(private val defaultChannel: Int = CHANNEL_OUT_STEREO) {
 
 
     /**
-     * 虽然可以新建多个 AsyncTask的子类的实例，但是AsyncTask的内部Handler和ThreadPoolExecutor都是static的，
-     * 这么定义的变 量属于类的，是进程范围内共享的，所以AsyncTask控制着进程范围内所有的子类实例，
-     * 而且该类的所有实例都共用一个线程池和Handler
-     * 这里新开一个线程
-     * 自己解析出来 pcm data
      */
     private inner class PlayNeedMixAudioTask internal constructor(private val listener: BackGroundFrameListener?) :
         Thread() {
@@ -238,7 +225,6 @@ class PlayPCMMusic(private val defaultChannel: Int = CHANNEL_OUT_STEREO) {
                         playMusic()
                         continue
                     } else {
-                        //如果是暂停
                         try {
                             //防止死循环ANR
                             sleep(500)
@@ -319,28 +305,19 @@ class PlayPCMMusic(private val defaultChannel: Int = CHANNEL_OUT_STEREO) {
                         }
 
                         if (decodeBufferInfo!!.size != 0) {
-
                             val outBuf = decodeOutputBuffers!![outputIndex]//拿到用于存放PCM数据的Buffer
-
                             outBuf.position(decodeBufferInfo!!.offset)
                             outBuf.limit(decodeBufferInfo!!.offset + decodeBufferInfo!!.size)
                             val data = ByteArray(decodeBufferInfo!!.size)//BufferInfo内定义了此数据块的大小
                             outBuf.get(data)//将Buffer内的数据取出到字节数组中
-                            //                        Log.i("mixRecorder","try put pcm data ...");
+                            // Log.i("mixRecorder","try put pcm data ...");
                             val pcm = AudioDecoder.PCM(
                                 data,
                                 decodeBufferInfo!!.size,
                                 mediaExtractor!!.sampleTime
                             )
                             val temp = pcm.bufferBytes
-                            audioTrack!!.write(temp, 0, temp.size)
-                            if (mediaFormat != null) {
-                                playerListener?.onProgress(
-                                    (pcm.time / 1000).toInt(),
-                                    (mediaFormat!!.getLong(MediaFormat.KEY_DURATION) / 1000).toInt()
-                                )
-                            }
-                            listener?.onFrameArrive(temp)
+                            playPCM(temp, pcm)
                         }
 
                         mediaDecode!!.releaseOutputBuffer(
@@ -360,7 +337,6 @@ class PlayPCMMusic(private val defaultChannel: Int = CHANNEL_OUT_STEREO) {
             } finally {
                 if (isPCMExtractorEOS) {
                     if (mIsLoop) {
-                        mediaExtractor!!.seekTo(0, SEEK_TO_PREVIOUS_SYNC)
                         playHandler.sendEmptyMessage(PROCESS_REPLAY)
                     } else {
                         if (mediaDecode != null) {
@@ -373,6 +349,17 @@ class PlayPCMMusic(private val defaultChannel: Int = CHANNEL_OUT_STEREO) {
                     }
                 }
             }
+        }
+
+        private fun playPCM(temp: ByteArray, pcm: AudioDecoder.PCM) {
+            audioTrack!!.write(temp, 0, temp.size)
+            if (mediaFormat != null) {
+                playerListener?.onProgress(
+                    (pcm.time / 1000).toInt(),
+                    (mediaFormat!!.getLong(MediaFormat.KEY_DURATION) / 1000).toInt()
+                )
+            }
+            listener?.onFrameArrive(temp)
         }
     }
 
@@ -438,7 +425,6 @@ class PlayPCMMusic(private val defaultChannel: Int = CHANNEL_OUT_STEREO) {
         decodeInputBuffers = mediaDecode!!.inputBuffers
         //MediaCodec将解码后的数据放到此ByteBuffer[]中 我们可以直接在这里面得到PCM数据
         decodeOutputBuffers = mediaDecode!!.outputBuffers
-
         decodeBufferInfo = MediaCodec.BufferInfo()//用于描述解码得到的byte[]数据的相关信息
         isPCMExtractorEOS = false
     }

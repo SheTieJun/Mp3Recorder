@@ -40,7 +40,7 @@ class BackgroundMixMusicView @JvmOverloads constructor(context: Context,
     private var mTvName: TextView
     private var mTvVoice:TextView
     private var mTvProgress:TextView
-    private var audioPlayer: PlayPCMMusic?=null //播放器
+    private var audioPlayer: PlayBackMusic?=null //播放器
     private var recordUtils: MixRecordUtils?=null //录音
     private var addMusicView: LinearLayout  ?=null//添加背景音乐的空间
     private var music: Music?=null //背景文件相关

@@ -112,8 +112,6 @@ class MixRecordActivity : AppCompatActivity() {
                 it.startPlayBackMusic()
             }
         }
-
-
     }
 
     private fun stop() {

@@ -89,7 +89,7 @@ class MixRecordUtils(private val callBack: RecordCallBack?
         mRecorder?.bgPlayer?.setBackGroundPlayListener(listener)
     }
 
-    fun getBgPlayer(): PlayPCMMusic {
+    fun getBgPlayer(): PlayBackMusic {
         return mRecorder!!.bgPlayer
     }
 

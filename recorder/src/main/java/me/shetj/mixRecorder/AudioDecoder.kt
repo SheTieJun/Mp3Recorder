@@ -120,7 +120,17 @@ class AudioDecoder {
         isPCMExtractorEOS = false
         var sawInputEOS = false
         try {
-            while (!isPCMExtractorEOS) {
+            while (!isPCMExtractorEOS ) {
+                //加入限制，防止垃圾手机卡顿
+                if(chunkPCMDataContainer.size >10){
+                    try {
+                        //防止死循环ANR
+                        Thread.sleep(50)
+                    } catch (e: InterruptedException) {
+                        e.printStackTrace()
+                    }
+                   continue
+                }
                 if (!sawInputEOS) {
                     val inputIndex =
                         mediaDecode!!.dequeueInputBuffer(-1)//获取可用的inputBuffer -1代表一直等待，0表示不等待 建议-1,避免丢帧
