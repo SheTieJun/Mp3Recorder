@@ -57,7 +57,10 @@ class AudioDecoder {
 
     fun startPcmExtractor(): AudioDecoder {
         initMediaDecode()
-        Thread(Runnable { srcAudioFormatToPCM() }).start()
+        if (isPCMExtractorEOS) {
+            isPCMExtractorEOS = false
+            Thread(Runnable { srcAudioFormatToPCM() }).start()
+        }
         return this
     }
 
@@ -120,7 +123,7 @@ class AudioDecoder {
         isPCMExtractorEOS = false
         var sawInputEOS = false
         try {
-            while (!isPCMExtractorEOS ) {
+            while (!isPCMExtractorEOS && mediaExtractor !=null && mediaDecode!=null) {
                 //加入限制，防止垃圾手机卡顿
                 if(chunkPCMDataContainer.size >10){
                     try {
@@ -137,33 +140,40 @@ class AudioDecoder {
                     if (inputIndex >= 0) {
                         val inputBuffer = decodeInputBuffers!![inputIndex]//拿到inputBuffer
                         inputBuffer.clear()//清空之前传入inputBuffer内的数据
-                        val sampleSize = mediaExtractor?.readSampleData(
-                            inputBuffer,
-                            0
-                        )?:-1
-                        if (sampleSize < 0) {//小于0 代表所有数据已读取完成
-                            sawInputEOS = true
-                            mediaDecode!!.queueInputBuffer(
-                                inputIndex,
-                                0,
-                                0,
-                                0L,
-                                MediaCodec.BUFFER_FLAG_END_OF_STREAM
-                            )
-                        } else {
-                            val presentationTimeUs = mediaExtractor!!.sampleTime
-                            mediaDecode!!.queueInputBuffer(
-                                inputIndex,
-                                0,
-                                sampleSize,
-                                presentationTimeUs,
+                        //这里有记录读取失败，导致直接结束跳出循环了
+                        try {
+                            val sampleSize = mediaExtractor!!.readSampleData(
+                                inputBuffer,
                                 0
-                            )//通知MediaDecode解码刚刚传入的数据
-                            mediaExtractor!!.advance()//MediaExtractor移动到下一取样处
+                            )
+                            if (sampleSize < 0) {//小于0 代表所有数据已读取完成
+                                sawInputEOS = true
+                                mediaDecode!!.queueInputBuffer(
+                                    inputIndex,
+                                    0,
+                                    0,
+                                    0L,
+                                    MediaCodec.BUFFER_FLAG_END_OF_STREAM
+                                )
+                            } else {
+                                val presentationTimeUs = mediaExtractor!!.sampleTime
+                                mediaDecode!!.queueInputBuffer(
+                                    inputIndex,
+                                    0,
+                                    sampleSize,
+                                    presentationTimeUs,
+                                    0
+                                )//通知MediaDecode解码刚刚传入的数据
+                                mediaExtractor!!.advance()//MediaExtractor移动到下一取样处
+                            }
+                        } catch (e: Exception) {
+                            Log.e("mixRecorder","message = ${e.message}")
+                            isPCMExtractorEOS = true
+                            releaseDecode()
+                            break
                         }
                     }
                 }
-
                 //获取解码得到的byte[]数据 参数BufferInfo上面已介绍 10000同样为等待时间 同上-1代表一直等待，0代表不等待。此处单位为微秒
                 //此处建议不要填-1 有些时候并没有数据输出，那么他就会一直卡在这 等待
                 val outputIndex = mediaDecode!!.dequeueOutputBuffer(decodeBufferInfo!!, 10000)
@@ -181,11 +191,24 @@ class AudioDecoder {
                         outBuf.position(decodeBufferInfo!!.offset)
                         outBuf.limit(decodeBufferInfo!!.offset + decodeBufferInfo!!.size)
                         val data = ByteArray(decodeBufferInfo!!.size)//BufferInfo内定义了此数据块的大小
-                        outBuf.get(data)//将Buffer内的数据取出到字节数组中
-                        //                        Log.i("mixRecorder","try put pcm data ...");
-                        putPCMData(data, decodeBufferInfo!!.size,mediaExtractor!!.sampleTime)//自己定义的方法，供编码器所在的线程获取数据,下面会贴出代码
+                        var successBufferGet = true
+                        try {
+                            //某些机器上buf可能 isAccessible false
+                            outBuf.get(data)//将Buffer内的数据取出到字节数组中
+                            outBuf.clear()
+                        } catch (e: Exception) {
+                            successBufferGet = false
+                            e.printStackTrace()
+                        }
+                        if(successBufferGet) {
+                            //                        Log.i("mixRecorder","try put pcm data ...");
+                            putPCMData(
+                                data,
+                                decodeBufferInfo!!.size,
+                                mediaExtractor!!.sampleTime
+                            )//自己定义的方法，供编码器所在的线程获取数据,下面会贴出代码
+                        }
                     }
-
                     mediaDecode!!.releaseOutputBuffer(
                         outputIndex,
                         false
@@ -194,19 +217,26 @@ class AudioDecoder {
                     if (decodeBufferInfo!!.flags and MediaCodec.BUFFER_FLAG_END_OF_STREAM != 0) {
                         isPCMExtractorEOS = true
                         Log.i("mixRecorder", "pcm finished..." + mp3FilePath!!)
+                        //只有读取完成才
+                        releaseDecode()
                     }
 
                 } else if (outputIndex == MediaCodec.INFO_OUTPUT_BUFFERS_CHANGED) {
                     decodeOutputBuffers = mediaDecode!!.outputBuffers
                 }
             }
-        } finally {
-            if (mediaDecode != null) {
-                mediaDecode!!.release()
-            }
-            if (mediaExtractor != null) {
-                mediaExtractor!!.release()
-            }
+
+        } catch (e:Exception) {
+            Log.e("mixRecorder","message = ${e.message}")
+        }
+    }
+
+    private fun releaseDecode() {
+        if (mediaDecode != null) {
+            mediaDecode!!.release()
+        }
+        if (mediaExtractor != null) {
+            mediaExtractor!!.release()
         }
     }
 

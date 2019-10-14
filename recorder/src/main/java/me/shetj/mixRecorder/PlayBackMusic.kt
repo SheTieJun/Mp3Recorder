@@ -204,6 +204,7 @@ class PlayBackMusic(private val defaultChannel: Int = CHANNEL_OUT_STEREO) {
             //重新开始播放mp3 -> pcm
             initPCMData()
         }
+        Log.i("PlayBackMusic","restartMusic")
     }
 
     /**
@@ -237,7 +238,7 @@ class PlayBackMusic(private val defaultChannel: Int = CHANNEL_OUT_STEREO) {
                         if (pcm == null || temp == null){
                             if (mIsLoop) {
                                 playHandler.sendEmptyMessage(PROCESS_REPLAY)
-                                sleep(50)
+                                sleep(100)
                             }
                             continue
                         }

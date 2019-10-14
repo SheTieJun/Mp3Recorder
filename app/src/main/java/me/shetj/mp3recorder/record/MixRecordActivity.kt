@@ -94,10 +94,11 @@ class MixRecordActivity : AppCompatActivity() {
     }
 
     private fun changeMusic() {
-        position = if (position == 0){
-            1
-        }else{
-            0
+        position = when (position) {
+            0 -> 1
+            1->2
+            2->3
+            else -> 0
         }
         musicUrl=   LocalMusicUtils.loadFileData(this)!!.blockingFirst()[position].url
         /**
