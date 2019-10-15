@@ -425,20 +425,6 @@ class MixRecorder : BaseRecorder {
     }
 
 
-    /**
-     * 混合 音频
-     */
-    private fun mixBuffer(buffer: ByteArray?): ByteArray? {
-        if (mPlayBackMusic != null && mPlayBackMusic!!.hasFrameBytes()) {
-            val bytes = BytesTransUtil.changeDataWithVolume(
-                mPlayBackMusic!!.getBackGroundBytes()!!,
-                bglevel
-            )
-            val mine = BytesTransUtil.changeDataWithVolume(buffer!!, wax)
-            return BytesTransUtil.averageMix(arrayOf(mine, bytes))
-        }
-        return BytesTransUtil.changeDataWithVolume(buffer!!, wax)
-    }
 
 
     fun stop() {
@@ -479,6 +465,14 @@ class MixRecorder : BaseRecorder {
             backgroundMusicIsPlay = !bgPlayer.isIsPause
             bgPlayer.pause()
         }
+    }
+
+    fun startPlayMusic(){
+        bgPlayer.startPlayBackMusic()
+    }
+
+    fun pauseMusic(){
+        bgPlayer.pause()
     }
 
     /**
@@ -530,6 +524,20 @@ class MixRecorder : BaseRecorder {
         mAudioRecord!!.positionNotificationPeriod = FRAME_COUNT
     }
 
+    /**
+     * 混合 音频
+     */
+    private fun mixBuffer(buffer: ByteArray?): ByteArray? {
+        if (mPlayBackMusic != null && mPlayBackMusic!!.hasFrameBytes()) {
+            val bytes = BytesTransUtil.changeDataWithVolume(
+                mPlayBackMusic!!.getBackGroundBytes()!!,
+                bglevel
+            )
+            val mine = BytesTransUtil.changeDataWithVolume(buffer!!, wax)
+            return BytesTransUtil.averageMix(arrayOf(mine, bytes))
+        }
+        return BytesTransUtil.changeDataWithVolume(buffer!!, wax)
+    }
 
     /***************************private method  */
     private fun onStart() {
