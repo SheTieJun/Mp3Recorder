@@ -54,12 +54,12 @@ dependencies {
 
 
 
-### 1. 录音方式一：建议使用 [MixRecorder](https://github.com/SheTieJun/Mp3Recorder/blob/master/doc/MixRecorder.MD)  可很好的录制背景音乐
+### 1. 录音方式一：建议使用 [MixRecorder](/doc/MixRecorder.MD)  可很好的录制背景音乐
 
-### 2. 录音方式二： [MP3Recorder](https://github.com/SheTieJun/Mp3Recorder/blob/master/doc/Mp3Recorder.MD)
+### 2. 录音方式二： [MP3Recorder](/doc/Mp3Recorder.MD)
 
-### 3. 播放音乐：[AudioPlayer](https://github.com/SheTieJun/Mp3Recorder/blob/master/doc/AudioPlayer.MD)
+### 3. 播放音乐：[AudioPlayer](/doc/AudioPlayer.MD)
 
-### 4. 播放音乐,可以得到PCM：[PlayBackMusic](https://github.com/SheTieJun/Mp3Recorder/blob/master/doc/PlayBackMusic.MD)
+### 4. 播放音乐,可以得到PCM：[PlayBackMusic](/doc/PlayBackMusic.MD)
 
-### 5. 播放PCM文件：[AudioTrackManager](https://github.com/SheTieJun/Mp3Recorder/blob/master/doc/AudioTrackManager.MD)
+### 5. 播放PCM文件：[AudioTrackManager](/doc/AudioTrackManager.MD)
