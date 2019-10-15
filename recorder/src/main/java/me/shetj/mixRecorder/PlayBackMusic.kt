@@ -89,12 +89,12 @@ class PlayBackMusic(private val defaultChannel: Int = CHANNEL_OUT_STEREO) {
 
     private fun initDecoder(path: String) {
         mAudioDecoder = AudioDecoder()
-        mAudioDecoder!!.setMp3FilePath(path)
+        mAudioDecoder?.setMp3FilePath(path)
     }
 
     private fun releaseDecoder() {
         if (mAudioDecoder != null) {
-            mAudioDecoder!!.release()
+            mAudioDecoder?.release()
             mAudioDecoder = null
         }
     }
@@ -180,7 +180,7 @@ class PlayBackMusic(private val defaultChannel: Int = CHANNEL_OUT_STEREO) {
     fun release(): PlayBackMusic {
         isPlayingMusic = false
         isIsPause = false
-        mAudioDecoder!!.release()
+        mAudioDecoder?.release()
         backGroundBytes.clear()
         return this
     }
