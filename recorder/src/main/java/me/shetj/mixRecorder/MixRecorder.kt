@@ -371,7 +371,7 @@ class MixRecorder : BaseRecorder {
                 Process.setThreadPriority(Process.THREAD_PRIORITY_URGENT_AUDIO)
                 onStart()
                 while (isRecording) {
-                    val samplesPerFrame = mPlayBackMusic!!.bufferSize // 这里需要与 背景音乐读取出来的数据长度 一样
+                    val samplesPerFrame = bgPlayer.bufferSize // 这里需要与 背景音乐读取出来的数据长度 一样
                     var buffer: ByteArray? = ByteArray(samplesPerFrame)
                     val readSize = mAudioRecord!!.read(buffer!!, 0, buffer.size)
                     if (readSize == AudioRecord.ERROR_INVALID_OPERATION || readSize == AudioRecord.ERROR_BAD_VALUE) {

@@ -46,10 +46,18 @@ class PlayBackMusic(private val defaultChannel: Int = CHANNEL_OUT_STEREO) {
     private var playerListener: PlayerListener?=null
 
     internal val isPCMDataEos: Boolean
-        get() = mAudioDecoder!!.isPCMExtractorEOS
+        get() = if (mAudioDecoder == null){
+            true
+        }else {
+            mAudioDecoder!!.isPCMExtractorEOS
+        }
 
     val bufferSize: Int
-        get() = mAudioDecoder!!.bufferSize
+        get() = if (mAudioDecoder == null){
+            AudioDecoder.BUFFER_SIZE
+        }else{
+            mAudioDecoder!!.bufferSize
+        }
 
     private class PlayHandler(private val playBackMusic: PlayBackMusic) :
         Handler(Looper.getMainLooper()) {

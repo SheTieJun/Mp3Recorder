@@ -253,6 +253,6 @@ class AudioDecoder {
          * 初始化解码器
          */
         private val lockPCM = Any()
-        private val BUFFER_SIZE = 2048
+        val BUFFER_SIZE = 2048
     }
 }
