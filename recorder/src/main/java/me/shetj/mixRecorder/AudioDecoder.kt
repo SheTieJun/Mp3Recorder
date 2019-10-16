@@ -125,7 +125,7 @@ class AudioDecoder {
         try {
             while (!isPCMExtractorEOS && mediaExtractor !=null && mediaDecode!=null) {
                 //加入限制，防止垃圾手机卡顿
-                if(chunkPCMDataContainer.size >10){
+                if(chunkPCMDataContainer.size > 40){
                     try {
                         //防止死循环ANR
                         Thread.sleep(50)
