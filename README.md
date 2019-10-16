@@ -45,7 +45,7 @@ Step 2. Add the dependency
 
 ```
 dependencies {
-    implementation 'com.github.SheTieJun:Mp3Recorder:e242ddbf11'
+    implementation 'com.github.SheTieJun:Mp3Recorder:0.0.1'
 }
 ```
 
@@ -63,3 +63,4 @@ dependencies {
 ### 4. 播放音乐,可以得到PCM：[PlayBackMusic](/doc/PlayBackMusic.MD)
 
 ### 5. 播放PCM文件：[AudioTrackManager](/doc/AudioTrackManager.MD)
+
