@@ -182,6 +182,7 @@ class MixRecordActivity : AppCompatActivity() {
                 .setBackgroundMusic(musicUrl!!, true)//设置默认的背景音乐
                 .setRecordListener(listener)
                 .setPermissionListener(listener)
+                .setWax(2f)
                 .setBackgroundMusicListener(object :SimPlayerListener(){
                     override fun onStart(url: String, duration: Int) {
                         super.onStart(url, duration)

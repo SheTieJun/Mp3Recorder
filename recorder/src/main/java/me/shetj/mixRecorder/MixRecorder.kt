@@ -29,6 +29,7 @@ import java.io.IOException
  * 混合录音
  */
 class MixRecorder : BaseRecorder {
+
     private val TAG = this.javaClass.simpleName
     //======================Lame Default Settings=====================
     private var defaultLameInChannel = 2 //声道数量
@@ -65,6 +66,8 @@ class MixRecorder : BaseRecorder {
     private var mMaxTime: Long = 3600000
     //提醒时间
     private var mRemindTime = (3600000 - 10000).toLong()
+    //通知速度，毫秒
+    var speed: Long = 300
     //当前状态
     /**
      * 当前录制状态
@@ -533,7 +536,7 @@ class MixRecorder : BaseRecorder {
                 mPlayBackMusic!!.getBackGroundBytes()!!,
                 bglevel
             )
-            val mine = BytesTransUtil.changeDataWithVolume(buffer!!, wax)
+            val mine = BytesTransUtil.changeDataWithVolume(buffer!!, wax*1.5f)
             return BytesTransUtil.averageMix(arrayOf(mine, bytes))
         }
         return BytesTransUtil.changeDataWithVolume(buffer!!, wax)
@@ -570,7 +573,7 @@ class MixRecorder : BaseRecorder {
      */
     private fun onRecording(readTime: Double) {
         duration += readTime.toLong()
-        handler.sendEmptyMessageDelayed(HANDLER_RECORDING, 300)
+        handler.sendEmptyMessageDelayed(HANDLER_RECORDING, speed)
         if (mMaxTime in 1..duration) {
             autoStop()
         }
@@ -581,7 +584,7 @@ class MixRecorder : BaseRecorder {
         if (state !== RecordState.STOPPED) {
             isPause = false
             isRecording = false
-            handler.sendEmptyMessageDelayed(HANDLER_AUTO_COMPLETE, 300)
+            handler.sendEmptyMessageDelayed(HANDLER_AUTO_COMPLETE, speed)
             state = RecordState.STOPPED
             backgroundMusicIsPlay = false
             if (mPlayBackMusic != null) {

@@ -4,6 +4,7 @@ import android.content.Context
 import android.media.AudioAttributes
 import android.media.AudioManager
 import android.media.MediaPlayer
+import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.os.Message
@@ -348,9 +349,13 @@ class AudioPlayer : MediaPlayer.OnPreparedListener, MediaPlayer.OnErrorListener,
     private fun initMedia() {
         if (mediaPlayer == null) {
             mediaPlayer = MediaPlayer()
-            val attrBuilder = AudioAttributes.Builder()
-            attrBuilder.setLegacyStreamType(AudioManager.STREAM_MUSIC)
-            mediaPlayer!!.setAudioAttributes(attrBuilder.build())
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                val attrBuilder = AudioAttributes.Builder()
+                attrBuilder.setLegacyStreamType(AudioManager.STREAM_MUSIC)
+                mediaPlayer!!.setAudioAttributes(attrBuilder.build())
+            } else {
+                mediaPlayer!!.setAudioStreamType(AudioManager.STREAM_MUSIC)
+            }
         }
     }
 
@@ -380,9 +385,9 @@ class AudioPlayer : MediaPlayer.OnPreparedListener, MediaPlayer.OnErrorListener,
 
     override fun onCompletion(mp: MediaPlayer) {
         if (!mp.isLooping) {
-            listener?.onCompletion()
             stopProgress()
             release()
+            listener?.onCompletion()
         }
     }
 
