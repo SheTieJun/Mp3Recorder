@@ -108,18 +108,13 @@ class MixRecordActivity : AppCompatActivity() {
         /**
          * 开始播放背景音乐，demo是直接开始播放背景音乐
          */
-        mixRecorder?.bgPlayer?.let {
-            if (!it.isPlayingMusic){
-                it.startPlayBackMusic()
-            }
-        }
+        mixRecorder?.startPlayMusic()
     }
 
     private fun stop() {
         mixRecorder?.let {
             if (mixRecorder!!.isRecording) {
                 mixRecorder?.stop()
-                mixRecorder?.bgPlayer?.release()
                 ArmsUtils.makeText("停止录音")
             }
         }
@@ -144,11 +139,11 @@ class MixRecordActivity : AppCompatActivity() {
             ArmsUtils.makeText(   "请先开始录音")
             return
         }
-        mixRecorder?.bgPlayer?.let {
-            if (it.isIsPause){
-                it.resume()
+        mixRecorder?.let {
+            if (it.isPauseMusic()){
+                it.resumeMusic()
             }else{
-                it.pause()
+                it.pauseMusic()
             }
         }
     }
@@ -212,7 +207,7 @@ class MixRecordActivity : AppCompatActivity() {
                 .setMaxTime(1800 * 1000)//设置最大时间
         }
         if (!mixRecorder!!.isRecording) {
-            mixRecorder!!.bgPlayer.startPlayBackMusic()
+            mixRecorder!!.startPlayMusic()
             mixRecorder!!.start()
             ArmsUtils.makeText("开始录音")
         }

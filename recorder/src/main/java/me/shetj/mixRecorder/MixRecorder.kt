@@ -33,7 +33,7 @@ class MixRecorder : BaseRecorder {
     private val TAG = this.javaClass.simpleName
     //======================Lame Default Settings=====================
     private var defaultLameInChannel = 2 //声道数量
-    private var defaultLameMp3Quality = 5
+    private var defaultLameMp3Quality = 5 //音频质量，好像LAME已经不使用它了
     private var mAudioRecord: AudioRecord? = null
     private var mPlayBackMusic: PlayBackMusic? = null
 
@@ -51,6 +51,7 @@ class MixRecorder : BaseRecorder {
     private var mEncodeThread: MixEncodeThread? = null
     private var mRecordListener: RecordListener? = null
     private var mPermissionListener: PermissionListener? = null
+
     var isRecording = false
         private set
     //背景音乐相关
@@ -67,7 +68,7 @@ class MixRecorder : BaseRecorder {
     //提醒时间
     private var mRemindTime = (3600000 - 10000).toLong()
     //通知速度，毫秒
-    var speed: Long = 300
+    private var speed: Long = 300
     //当前状态
     /**
      * 当前录制状态
@@ -78,10 +79,12 @@ class MixRecorder : BaseRecorder {
     private var bytesPerSecond: Int = 0  //PCM文件大小=采样率采样时间采样位深/8*通道数（Bytes）
 
     private var is2Channel = true //默认是双声道
-    private var bglevel = 0.30f//背景音乐
-    private var isContinue: Boolean = false
+    private var bgLevel = 0.30f//背景音乐
+    private var isContinue: Boolean = false //是否写在文件末尾
+
     //声音增强
     private var wax = 1f
+    private var bgWax = 1.5f
 
     private val handler = object : Handler(Looper.getMainLooper()) {
         override fun handleMessage(msg: Message) {
@@ -323,6 +326,16 @@ class MixRecorder : BaseRecorder {
      */
     fun setWax(wax: Float): MixRecorder {
         this.wax = wax
+        this.bgWax = wax*1.5f
+        return this
+    }
+
+    /**
+     * 设置通知速度 毫秒
+     * @param speed 毫秒 默认300毫秒提醒一次
+     */
+    fun setSpeed(speed: Long): MixRecorder {
+        this.speed = speed
         return this
     }
 
@@ -339,7 +352,7 @@ class MixRecorder : BaseRecorder {
         }
         val bgPlayer = bgPlayer
         bgPlayer.setVolume(volume1)
-        this.bglevel = volume1
+        this.bgLevel = volume1
         return this
     }
 
@@ -471,11 +484,25 @@ class MixRecorder : BaseRecorder {
     }
 
     fun startPlayMusic(){
-        bgPlayer.startPlayBackMusic()
+        if (!bgPlayer.isPlayingMusic) {
+            bgPlayer.startPlayBackMusic()
+        }
+    }
+
+    fun isPauseMusic(): Boolean {
+        return bgPlayer.isIsPause
     }
 
     fun pauseMusic(){
-        bgPlayer.pause()
+        if (!bgPlayer.isIsPause){
+            bgPlayer.pause()
+        }
+    }
+
+    fun resumeMusic(){
+        if (bgPlayer.isIsPause){
+            bgPlayer.resume()
+        }
     }
 
     /**
@@ -503,7 +530,7 @@ class MixRecorder : BaseRecorder {
      */
     @Throws(IOException::class)
     private fun initAudioRecorder() {
-        bufferSize
+        bufferSize  //获取合适的buffer大小
         /* Setup audio recorder */
         mAudioRecord = AudioRecord(
             defaultAudioSource,
@@ -534,9 +561,9 @@ class MixRecorder : BaseRecorder {
         if (mPlayBackMusic != null && mPlayBackMusic!!.hasFrameBytes()) {
             val bytes = BytesTransUtil.changeDataWithVolume(
                 mPlayBackMusic!!.getBackGroundBytes()!!,
-                bglevel
+                bgLevel
             )
-            val mine = BytesTransUtil.changeDataWithVolume(buffer!!, wax*1.5f)
+            val mine = BytesTransUtil.changeDataWithVolume(buffer!!, bgWax)
             return BytesTransUtil.averageMix(arrayOf(mine, bytes))
         }
         return BytesTransUtil.changeDataWithVolume(buffer!!, wax)
