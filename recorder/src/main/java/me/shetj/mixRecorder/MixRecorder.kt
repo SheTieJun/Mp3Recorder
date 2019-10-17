@@ -408,7 +408,7 @@ class MixRecorder : BaseRecorder {
                             buffer = mixBuffer(buffer) // 混合背景音乐
 
                             if (buffer != null) {
-                                mEncodeThread!!.addTask(buffer, readSize)
+                                mEncodeThread!!.addTask(buffer, wax)
                                 calculateRealVolume(buffer)
                             }
                         } else {
@@ -557,16 +557,15 @@ class MixRecorder : BaseRecorder {
     /**
      * 混合 音频
      */
-    private fun mixBuffer(buffer: ByteArray?): ByteArray? {
+    private fun mixBuffer(buffer: ByteArray): ByteArray? {
         if (mPlayBackMusic != null && mPlayBackMusic!!.hasFrameBytes()) {
             val bytes = BytesTransUtil.changeDataWithVolume(
                 mPlayBackMusic!!.getBackGroundBytes()!!,
                 bgLevel
             )
-            val mine = BytesTransUtil.changeDataWithVolume(buffer!!, bgWax)
-            return BytesTransUtil.averageMix(arrayOf(mine, bytes))
+            return BytesTransUtil.averageMix(arrayOf(buffer, bytes))
         }
-        return BytesTransUtil.changeDataWithVolume(buffer!!, wax)
+        return buffer
     }
 
     /***************************private method  */

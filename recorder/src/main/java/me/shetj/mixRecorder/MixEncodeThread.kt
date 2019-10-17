@@ -169,8 +169,8 @@ constructor(file: File, bufferSize: Int, isContinue: Boolean, private val is2CHA
         }
     }
 
-    fun addTask(rawData: ByteArray, readSize: Int) {
-        mTasks.add(ReadMixTask(rawData, readSize))
+    fun addTask(rawData: ByteArray, wax: Float) {
+        mTasks.add(ReadMixTask(rawData, wax))
     }
 
     companion object {
