@@ -207,8 +207,8 @@ class MixRecordActivity : AppCompatActivity() {
                 .setMaxTime(1800 * 1000)//设置最大时间
         }
         if (!mixRecorder!!.isRecording) {
-            mixRecorder!!.startPlayMusic()
             mixRecorder!!.start()
+            mixRecorder!!.startPlayMusic()
             ArmsUtils.makeText("开始录音")
         }
 

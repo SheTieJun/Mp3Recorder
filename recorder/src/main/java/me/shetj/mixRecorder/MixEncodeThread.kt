@@ -104,7 +104,7 @@ constructor(file: File, bufferSize: Int, isContinue: Boolean, private val is2CHA
     private fun processData(): Int {
         if (mTasks.size > 0) {
             val task = mTasks.removeAt(0)
-            val buffer = task.data
+            val buffer = task.getData()
             val encodedSize: Int
             val readSize: Int
             if (is2CHANNEL) {
@@ -169,8 +169,8 @@ constructor(file: File, bufferSize: Int, isContinue: Boolean, private val is2CHA
         }
     }
 
-    fun addTask(rawData: ByteArray, wax: Float) {
-        mTasks.add(ReadMixTask(rawData, wax))
+    fun addTask(rawData: ByteArray, wax: Float,bgData: ByteArray?, bgWax: Float) {
+        mTasks.add(ReadMixTask(rawData, wax,bgData,bgWax))
     }
 
     companion object {

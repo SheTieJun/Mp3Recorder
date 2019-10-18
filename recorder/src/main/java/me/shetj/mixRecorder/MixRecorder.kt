@@ -84,7 +84,6 @@ class MixRecorder : BaseRecorder {
 
     //声音增强
     private var wax = 1f
-    private var bgWax = 1.5f
 
     private val handler = object : Handler(Looper.getMainLooper()) {
         override fun handleMessage(msg: Message) {
@@ -326,7 +325,6 @@ class MixRecorder : BaseRecorder {
      */
     fun setWax(wax: Float): MixRecorder {
         this.wax = wax
-        this.bgWax = wax*1.5f
         return this
     }
 
@@ -388,7 +386,7 @@ class MixRecorder : BaseRecorder {
                 onStart()
                 while (isRecording) {
                     val samplesPerFrame = bgPlayer.bufferSize // 这里需要与 背景音乐读取出来的数据长度 一样
-                    var buffer: ByteArray? = ByteArray(samplesPerFrame)
+                    val buffer: ByteArray? = ByteArray(samplesPerFrame)
                     val readSize = mAudioRecord!!.read(buffer!!, 0, buffer.size)
                     if (readSize == AudioRecord.ERROR_INVALID_OPERATION || readSize == AudioRecord.ERROR_BAD_VALUE) {
                         if (!mSendError) {
@@ -405,12 +403,8 @@ class MixRecorder : BaseRecorder {
                             val readTime =
                                 1000.0 * readSize.toDouble() * (if (is2Channel) 1 else 2).toDouble() / bytesPerSecond  //双声道和单声道的计算不一样
                             onRecording(readTime) //计算时间长度
-                            buffer = mixBuffer(buffer) // 混合背景音乐
-
-                            if (buffer != null) {
-                                mEncodeThread!!.addTask(buffer, wax)
-                                calculateRealVolume(buffer)
-                            }
+                            mEncodeThread!!.addTask(buffer, wax, mPlayBackMusic!!.getBackGroundBytes(),bgLevel)
+                            calculateRealVolume(buffer)
                         } else {
                             if (!mSendError) {
                                 mSendError = true
@@ -558,14 +552,18 @@ class MixRecorder : BaseRecorder {
      * 混合 音频
      */
     private fun mixBuffer(buffer: ByteArray): ByteArray? {
-        if (mPlayBackMusic != null && mPlayBackMusic!!.hasFrameBytes()) {
-            val bytes = BytesTransUtil.changeDataWithVolume(
-                mPlayBackMusic!!.getBackGroundBytes()!!,
-                bgLevel
-            )
-            return BytesTransUtil.averageMix(arrayOf(buffer, bytes))
+        try {
+            if (mPlayBackMusic != null && mPlayBackMusic!!.hasFrameBytes()) {
+                val bytes = BytesTransUtil.changeDataWithVolume(
+                    mPlayBackMusic!!.getBackGroundBytes()!!,
+                    bgLevel
+                )
+                return BytesTransUtil.averageMix(arrayOf(buffer, bytes))
+            }
+            return buffer
+        }catch (e: Exception){
+            return buffer
         }
-        return buffer
     }
 
     /***************************private method  */
