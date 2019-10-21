@@ -21,7 +21,9 @@
  
  停止  	AudioPlayer.stopPlay() 
  
- 停止计时      AudioPlayer.stopProgress() 
+ 跳转    seekTo
+ 
+ 停止计时（和是否播放无关）      AudioPlayer.stopProgress() 
  
  开始计时      AudioPlayer.startProgress()  
 ```

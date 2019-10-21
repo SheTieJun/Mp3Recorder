@@ -1,7 +1,5 @@
 package me.shetj.player
 
-import android.util.Log
-
 /**
  * **@author：** shetj<br></br>
  * **@createTime：** 2019/6/21<br></br>

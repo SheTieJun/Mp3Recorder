@@ -1,6 +1,6 @@
 [TOC]
 
-# 背景音乐录制：MixRecorder
+# MixRecorder
 
 ### 背景音频要求
 
@@ -13,7 +13,7 @@
 
 1.  播放音乐,可以得到PCM：[PlayBackMusic](https://github.com/SheTieJun/Mp3Recorder/blob/master/doc/PlayBackMusic.MD)
 2.  AudioRecord 得到麦克风的声音：PCM
-3. 2个PCM 进行混合，用lame 写入到文件
+3.  2个PCM进行声音混合，然后Lame转码成MP3 写入到文件
 
 #### 1. 初始化
 
@@ -32,7 +32,7 @@
                     //录音完成
                     Timber.i("file= %s", file)
               }
-     //设置录音来源和单双声道         
+     //设置录音来源和单双声道  ，录制中无法改变属性 AudioRecord 的相关属性
      mixRecorder = MixRecorder(MediaRecorder.AudioSource.VOICE_COMMUNICATION,2)
                 .setOutputFile(filePath)//设置输出文件
                 .setBackgroundMusic(musicUrl, true)//设置默认的背景音乐
@@ -53,6 +53,7 @@
 ```kotlin
  mixRecorder?.onPause() //暂停
  mixRecorder?.onResume() //重新开始
+ mRecorder?.state //当前录音的状态 3个专题，停止，录音中，暂停
 ```
 
 #### 4. 背景音乐相关

@@ -45,7 +45,7 @@ interface PlayerListener {
     /**
      * 进度条
      * @param current 当前播放位置
-     * @param size 一共
+     * @param duration 一共
      */
     fun onProgress(current: Int, duration: Int)
 }
