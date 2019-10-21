@@ -239,6 +239,9 @@ class PlayBackMusic(private val defaultChannel: Int = CHANNEL_OUT_STEREO) {
                 }
                 // 开始播放
                 audioTrack!!.play()
+                repeat(10) {
+                    listener?.onFrameArrive(ByteArray(2048))
+                }
                 while (isPlayingMusic) {
                     if (!isIsPause) {
                         val pcm = mAudioDecoder!!.pcmData
