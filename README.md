@@ -51,6 +51,76 @@ dependencies {
 #### [demo](https://github.com/SheTieJun/Mp3Recorder/tree/master/app) 中继续录制 
 - 继续录制，是通过音频文件合并，因为重录希望上次录制的没有丢掉,所有采用的文件拼接
 
+### 初始化
+```
+   val listener = object : SimRecordListener() {
+                override fun onSuccess(file: String, time: Long) {
+                    super.onSuccess(file, time)
+                    Timber.i("file= %s", file)
+                }
+
+                override fun onRecording(time: Long, volume: Int) {
+                    super.onRecording(time, volume)
+                    Timber.i("time = $time  ,volume = $volume")
+                }
+            }
+            
+   val mRecorder = simpleRecorderBuilder()
+                .setRecordListener(listener)
+                .setPermissionListener(listener)
+```
+```
+      when {
+            mRecorder?.state == RecordState.STOPPED -> {
+                if (EmptyUtils.isEmpty(file)) {
+                    val mRecordFile = SDCardUtils.getPath("record") + "/" + System.currentTimeMillis() + ".mp3"
+                    this.saveFile = mRecordFile
+                }else{
+                    this.saveFile = file
+                }
+                mRecorder?.setOutputFile(saveFile,isContinue)
+                mRecorder?.start()
+            }
+            mRecorder?.state == RecordState.PAUSED->{
+                mRecorder?.onResume()
+            }
+            mRecorder?.state == RecordState.RECORDING ->{
+                mRecorder?.onPause()
+            }
+        }  
+```
+
+   #### 2. 开始录音
+
+```kotlin
+  mRecorder!!.start()
+```
+
+#### 3. 暂停、重新开始录音
+
+```kotlin
+ mRecorder?.onPause() //暂停
+ mRecorder?.onResume() //重新开始
+ mRecorder?.state //当前录音的状态 3个专题，停止，录音中，暂停
+```
+
+#### 4. 背景音乐相关
+
+```kotlin
+ mRecorder?.setBackgroundMusic(musicUrl)//设置背景音乐
+ mRecorder?.setVolume(volume)//设置背景音乐大小0-1	
+ mRecorder?.startPlayMusic() //开始播放背景音乐
+ mRecorder?.pauseMusic() //暂停背景音乐
+ mRecorder?.isPauseMusic()// 背景音乐是否暂停
+ mRecorder?.resumeMusic() //重新开始播放
+```
+
+#### 5. 停止录音
+
+```kotlin
+ mRecorder?.stop()  //完成录音
+```
+   
 
 
 ### 1. 录音方式一：[MixRecorder](/doc/MixRecorder.MD) 
@@ -63,4 +133,4 @@ dependencies {
 
 ### 5. 播放PCM文件：[AudioTrackManager](/doc/AudioTrackManager.MD)
 
-> 人生苦短，请选择科学上网。无限流量，节点多速度快。[电梯直达](https://qwertyuiopzxcvbnm.com/auth/register?code=Sncl)  
+> 人生苦短，请选择科学上网。[电梯直达](https://qwertyuiopzxcvbnm.com/auth/register?code=Sncl)  

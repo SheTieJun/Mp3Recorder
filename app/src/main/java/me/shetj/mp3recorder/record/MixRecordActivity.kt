@@ -174,7 +174,7 @@ class MixRecordActivity : AppCompatActivity() {
                     Timber.i("time = $time  ,volume = $volume")
                 }
             }
-            mixRecorder = simpleRecorderBuilder(MixRecorder::class.java.simpleName,MediaRecorder.AudioSource.VOICE_COMMUNICATION)
+            mixRecorder = simpleRecorderBuilder()
                 .setBackgroundMusic(musicUrl!!)//设置默认的背景音乐
                 .setRecordListener(listener)
                 .setPermissionListener(listener)

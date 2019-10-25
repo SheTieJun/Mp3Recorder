@@ -53,7 +53,7 @@
 ```kotlin
  mixRecorder?.onPause() //暂停
  mixRecorder?.onResume() //重新开始
- mRecorder?.state //当前录音的状态 3个专题，停止，录音中，暂停
+ mixRecorder?.state //当前录音的状态 3个专题，停止，录音中，暂停
 ```
 
 #### 4. 背景音乐相关
