@@ -51,33 +51,19 @@ class MixRecorder : BaseRecorder {
     private var mEncodeThread: MixEncodeThread? = null
     private var mRecordListener: RecordListener? = null
     private var mPermissionListener: PermissionListener? = null
-
-    var isRecording = false
-        private set
     //背景音乐相关
     private var backgroundMusicIsPlay: Boolean = false //记录是否暂停
     private var mSendError: Boolean = false
     var isPause: Boolean = false //暂停录制
     //缓冲数量
     private var mBufferSize: Int = 0
-    //录制时间
-    var duration = 0L
-        private set
     //最大时间
     private var mMaxTime: Long = 3600000
     //提醒时间
     private var mRemindTime = (3600000 - 10000).toLong()
     //通知速度，毫秒
     private var speed: Long = 300
-    //当前状态
-    /**
-     * 当前录制状态
-     * @return
-     */
-    var state = RecordState.STOPPED
-        private set
     private var bytesPerSecond: Int = 0  //PCM文件大小=采样率采样时间采样位深/8*通道数（Bytes）
-
     private var is2Channel = true //默认是双声道
     private var bgLevel = 0.30f//背景音乐
     private var isContinue: Boolean = false //是否写在文件末尾
@@ -205,14 +191,13 @@ class MixRecorder : BaseRecorder {
             return mBufferSize
         }
 
-
-    constructor() {}
+    constructor()
 
     /**
      * @param audioSource 最好是  [MediaRecorder.AudioSource.VOICE_COMMUNICATION] 或者 [MediaRecorder.AudioSource.MIC]
      * @param channel 声道数量 (1 或者 2)
      */
-    constructor(audioSource: Int,   channel: Int) {
+    constructor(audioSource: Int = MediaRecorder.AudioSource.MIC,   channel: Int = 2) {
         defaultAudioSource = audioSource
         defaultLameInChannel = when {
             channel < 1 -> 1
@@ -222,7 +207,7 @@ class MixRecorder : BaseRecorder {
         is2Channel = defaultLameInChannel == 2
     }
 
-    fun setMp3Quality(mp3Quality: Int): MixRecorder {
+    override fun setMp3Quality(mp3Quality: Int): MixRecorder {
         this.defaultLameMp3Quality = mp3Quality
         return this
     }
@@ -235,7 +220,7 @@ class MixRecorder : BaseRecorder {
      * 默认循环播放
      * @param url
      */
-    fun setBackgroundMusic(url: String): MixRecorder {
+    override fun setBackgroundMusic(url: String): MixRecorder {
         if (!TextUtils.isEmpty(url)) {
             setBackgroundMusic(url, true)
         } else {
@@ -269,8 +254,7 @@ class MixRecorder : BaseRecorder {
      * 设置录音输出文件
      * @param outputFile
      */
-    @JvmOverloads
-    fun setOutputFile(outputFile: String, isContinue: Boolean = false): MixRecorder {
+    override fun setOutputFile(outputFile: String, isContinue: Boolean ): MixRecorder {
         if (TextUtils.isEmpty(outputFile)) {
             val message = Message.obtain()
             message.what = HANDLER_ERROR
@@ -286,8 +270,7 @@ class MixRecorder : BaseRecorder {
      * 设置录音输出文件
      * @param outputFile
      */
-    @JvmOverloads
-    fun setOutputFile(outputFile: File, isContinue: Boolean = false): MixRecorder {
+    override fun setOutputFile(outputFile: File, isContinue: Boolean ): MixRecorder {
         mRecordFile = outputFile
         this.isContinue = isContinue
         return this
@@ -297,12 +280,12 @@ class MixRecorder : BaseRecorder {
      * 设置回调
      * @param recordListener
      */
-    fun setRecordListener(recordListener: RecordListener?): MixRecorder {
+    override fun setRecordListener(recordListener: RecordListener?): MixRecorder {
         this.mRecordListener = recordListener
         return this
     }
 
-    fun setPermissionListener(permissionListener: PermissionListener?): MixRecorder {
+    override fun setPermissionListener(permissionListener: PermissionListener?): MixRecorder {
         this.mPermissionListener = permissionListener
         return this
     }
@@ -312,7 +295,7 @@ class MixRecorder : BaseRecorder {
      * @param mMaxTime 最大录制时间  默认一个小时？
      * 提示时间时10秒前
      */
-    fun setMaxTime(mMaxTime: Int): MixRecorder {
+    override fun setMaxTime(mMaxTime: Int): MixRecorder {
         this.mMaxTime = mMaxTime.toLong()
         this.mRemindTime = (mMaxTime - 10000).toLong()
         handler.sendEmptyMessage(HANDLER_MAX_TIME)
@@ -323,7 +306,7 @@ class MixRecorder : BaseRecorder {
      * 设置增强系数
      * @param wax
      */
-    fun setWax(wax: Float): MixRecorder {
+    override fun setWax(wax: Float): MixRecorder {
         this.wax = wax
         return this
     }
@@ -337,12 +320,12 @@ class MixRecorder : BaseRecorder {
         return this
     }
 
-    fun setBackgroundMusicListener(playerListener: PlayerListener): MixRecorder {
+    override fun setBackgroundMusicListener(playerListener: PlayerListener): MixRecorder {
         bgPlayer.setBackGroundPlayListener(playerListener)
         return this
     }
 
-    fun setVolume(volume: Float): MixRecorder {
+    override fun setVolume(volume: Float): MixRecorder {
         val volume1 = when {
             volume < 0 -> 0f
             volume > 1 -> 1f
@@ -357,7 +340,7 @@ class MixRecorder : BaseRecorder {
     /**
      * Start recording. Create an encoding thread. Start record from this
      */
-    fun start() {
+    override fun start() {
         if (isRecording) {
             return
         }
@@ -437,7 +420,7 @@ class MixRecorder : BaseRecorder {
 
 
 
-    fun stop() {
+    override fun stop() {
         if (state !== RecordState.STOPPED) {
             isPause = false
             isRecording = false
@@ -453,7 +436,7 @@ class MixRecorder : BaseRecorder {
     /**
      * 重新开始
      */
-    fun onResume() {
+    override fun onResume() {
         if (state === RecordState.PAUSED) {
             this.isPause = false
             state = RecordState.RECORDING
@@ -467,7 +450,7 @@ class MixRecorder : BaseRecorder {
     /**
      * 暂停
      */
-    fun onPause() {
+    override fun onPause() {
         if (state === RecordState.RECORDING) {
             this.isPause = true
             state = RecordState.PAUSED
@@ -477,23 +460,23 @@ class MixRecorder : BaseRecorder {
         }
     }
 
-    fun startPlayMusic(){
+    override fun startPlayMusic(){
         if (!bgPlayer.isPlayingMusic) {
             bgPlayer.startPlayBackMusic()
         }
     }
 
-    fun isPauseMusic(): Boolean {
+    override fun isPauseMusic(): Boolean {
         return bgPlayer.isIsPause
     }
 
-    fun pauseMusic(){
+    override fun pauseMusic(){
         if (!bgPlayer.isIsPause){
             bgPlayer.pause()
         }
     }
 
-    fun resumeMusic(){
+    override fun resumeMusic(){
         if (bgPlayer.isIsPause){
             bgPlayer.resume()
         }
@@ -502,7 +485,7 @@ class MixRecorder : BaseRecorder {
     /**
      * 重置
      */
-    fun onReset() {
+    override fun onReset() {
         isRecording = false
         isPause = false
         state = RecordState.STOPPED
@@ -514,7 +497,7 @@ class MixRecorder : BaseRecorder {
     }
 
 
-    fun onDestroy() {
+    override fun onDestroy() {
         bgPlayer.release()
         release()
     }

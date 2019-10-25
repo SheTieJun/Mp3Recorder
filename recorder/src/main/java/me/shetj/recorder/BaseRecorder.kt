@@ -1,16 +1,53 @@
 package me.shetj.recorder
 
+import me.shetj.player.PermissionListener
+import me.shetj.player.PlayerListener
+import me.shetj.player.RecordListener
 import me.shetj.recorder.util.BytesTransUtil
+import java.io.File
 import kotlin.math.sqrt
 
 
 abstract class BaseRecorder {
 
+    enum class RecorderType(name: String) {
+        SIM("Mp3Recorder"), //
+        MIX("MixRecorder")
+    }
+
     protected var mVolume: Int = 0
-    /**
-     * @return 当前声音大小 db
-     */
+    var isRecording = false
+        protected set
+    //当前状态
+    var state = RecordState.STOPPED
+        protected set
+
+    //录制时间
+    var duration = 0L
+        protected set
+
     abstract val realVolume: Int
+    abstract fun setOutputFile(outputFile: String, isContinue: Boolean = false): BaseRecorder
+    abstract fun setOutputFile(outputFile: File, isContinue: Boolean = false): BaseRecorder
+    abstract fun setRecordListener(recordListener: RecordListener?): BaseRecorder
+    abstract fun setPermissionListener(permissionListener: PermissionListener?): BaseRecorder
+    abstract fun setBackgroundMusic(url:String):BaseRecorder
+    abstract fun setBackgroundMusicListener(listener: PlayerListener) :BaseRecorder
+    abstract fun setMp3Quality(mp3Quality: Int): BaseRecorder
+    abstract fun setMaxTime(mMaxTime: Int): BaseRecorder
+    abstract fun setWax(wax: Float): BaseRecorder
+    abstract fun setVolume(volume: Float): BaseRecorder
+    abstract fun start()
+    abstract fun stop()
+    abstract fun onResume()
+    abstract fun onPause()
+    abstract fun startPlayMusic()
+    abstract fun isPauseMusic():Boolean
+    abstract fun pauseMusic()
+    abstract fun resumeMusic()
+    abstract fun onReset()
+    abstract fun onDestroy()
+
 
     protected fun calculateRealVolume(buffer: ShortArray, readSize: Int) {
         var sum = 0.0
@@ -27,7 +64,6 @@ abstract class BaseRecorder {
                 }
             }
         }
-
     }
     protected fun calculateRealVolume(buffer: ByteArray) {
         val shorts = BytesTransUtil.bytes2Shorts(buffer)

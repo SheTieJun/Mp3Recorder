@@ -9,6 +9,7 @@ import me.shetj.player.AudioPlayer
 import me.shetj.player.PermissionListener
 import me.shetj.player.PlayerListener
 import me.shetj.player.RecordListener
+import me.shetj.recorder.BaseRecorder
 import me.shetj.recorder.MP3Recorder
 import me.shetj.recorder.RecordState
 import java.io.File
@@ -36,7 +37,7 @@ class RecordUtils(private val callBack: RecordCallBack?
     }
 
     private var startTime: Int = 0
-    private var mRecorder: MP3Recorder? = null
+    private var mRecorder: BaseRecorder? = null
     private var saveFile = ""
 
 
@@ -78,11 +79,11 @@ class RecordUtils(private val callBack: RecordCallBack?
     }
 
     fun setBackgroundPlayerListener(listener : PlayerListener) {
-        mRecorder?.setBackgroundMusicPlayerListener(listener)
+        mRecorder?.setBackgroundMusicListener(listener)
     }
 
     fun getBgPlayer(): AudioPlayer {
-        return mRecorder!!.bgPlayer!!
+        return (mRecorder as MP3Recorder).bgPlayer
     }
 
     fun  pause(){

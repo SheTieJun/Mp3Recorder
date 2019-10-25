@@ -66,6 +66,7 @@ class AudioDecoder {
 
     fun release(): AudioDecoder {
         isPCMExtractorEOS = true
+        releaseDecode()
         synchronized(lockPCM) {
             chunkPCMDataContainer.clear()
         }

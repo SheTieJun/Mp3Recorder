@@ -22,7 +22,7 @@
   - 录制中可以中断背景音乐，继续录制声音  建议优化这个思路 MixRecorder
   - 如果如果背景音乐的参数我的库中不一样，需要自行修改库中的参数
 
-#### PCM 文件时间计算
+#### PCM与时间的计算
 
 音频文件大小的计算公式为: 数据量Byte = 采样频率Hz×（采样位数/8）× 声道数 × 时间s
 反之：时间s = 数据量Byte / (采样频率Hz×（采样位数/8）× 声道数)
@@ -44,7 +44,7 @@ Step 2. Add the dependency
 
 ```
 dependencies {
-    implementation 'com.github.SheTieJun:Mp3Recorder:0.0.1'
+    implementation 'com.github.SheTieJun:Mp3Recorder:0.0.2'
 }
 ```
 
@@ -53,7 +53,7 @@ dependencies {
 
 
 
-### 1. 录音方式一：[MixRecorder](/doc/MixRecorder.MD)  带上耳机，可很好的录制背景音乐
+### 1. 录音方式一：[MixRecorder](/doc/MixRecorder.MD) 
 
 ### 2. 录音方式二： [MP3Recorder](/doc/Mp3Recorder.MD)
 
@@ -63,3 +63,4 @@ dependencies {
 
 ### 5. 播放PCM文件：[AudioTrackManager](/doc/AudioTrackManager.MD)
 
+> 人生苦短，请选择科学上网。无限流量，节点多速度快。[电梯直达](https://qwertyuiopzxcvbnm.com/auth/register?code=Sncl)  

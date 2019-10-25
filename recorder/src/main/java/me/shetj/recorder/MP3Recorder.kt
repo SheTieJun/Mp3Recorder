@@ -9,6 +9,7 @@ import android.os.Message
 import android.os.Process
 import android.text.TextUtils
 import android.util.Log
+import me.shetj.mixRecorder.MixRecorder
 import me.shetj.player.AudioPlayer
 import me.shetj.player.PermissionListener
 import me.shetj.player.PlayerListener
@@ -47,8 +48,6 @@ class MP3Recorder : BaseRecorder {
     private var mPermissionListener: PermissionListener? = null
 
     private var mPCMBuffer: ShortArray? = null
-    var isRecording = false
-        private set
     private var mSendError: Boolean = false
     var isPause: Boolean = false
     //缓冲数量
@@ -67,23 +66,13 @@ class MP3Recorder : BaseRecorder {
             }
             field = waveSpeed
         }
-    //录制时间
-    var duration = 0L
-        private set
     //最大时间
     private var mMaxTime: Long = 3600000
     //提醒时间
     private var mRemindTime = (3600000 - 10000).toLong()
-    //当前状态
-    /**
-     * 当前录制状态
-     * @return
-     */
-    var state = RecordState.STOPPED
-        private set
     //声音增强
     private var wax = 1f
-
+    private var bgLevel: Float = 03f
     private var isDebug = false
     private var isContinue = false //是否继续录制
     //背景音乐相关
@@ -167,10 +156,10 @@ class MP3Recorder : BaseRecorder {
      * 返回背景音乐的播放器
      * @return
      */
-    val bgPlayer: AudioPlayer?
+    val bgPlayer: AudioPlayer
         get() {
             initBgMusicPlayer()
-            return backgroundPlayer
+            return backgroundPlayer!!
         }
 
     /**
@@ -199,7 +188,7 @@ class MP3Recorder : BaseRecorder {
         get() = MAX_VOLUME
 
 
-    constructor() {}
+    constructor()
 
     constructor(isDebug: Boolean) {
         this.isDebug = isDebug
@@ -210,7 +199,7 @@ class MP3Recorder : BaseRecorder {
      * @param audioSource MediaRecorder.AudioSource.MIC
      * @param isDebug true or false
      */
-    constructor(audioSource: Int, isDebug: Boolean) {
+    constructor(audioSource: Int = MediaRecorder.AudioSource.MIC, isDebug: Boolean = false) {
         this.defaultAudioSource = audioSource
         this.isDebug = isDebug
     }
@@ -219,8 +208,7 @@ class MP3Recorder : BaseRecorder {
      * 设置录音输出文件
      * @param outputFile
      */
-    @JvmOverloads
-    fun setOutputFile(outputFile: String, isContinue: Boolean = false): MP3Recorder {
+    override fun setOutputFile(outputFile: String, isContinue: Boolean ): MP3Recorder {
         if (TextUtils.isEmpty(outputFile)) {
             val message = Message.obtain()
             message.what = HANDLER_ERROR
@@ -232,7 +220,7 @@ class MP3Recorder : BaseRecorder {
         return this
     }
 
-    fun setMp3Quality(mp3Quality: Int): MP3Recorder {
+    override fun setMp3Quality(mp3Quality: Int): MP3Recorder {
         this.defaultLameMp3Quality = when {
             mp3Quality < 1 -> 1
             mp3Quality > 9 -> 9
@@ -245,8 +233,7 @@ class MP3Recorder : BaseRecorder {
      * 设置录音输出文件
      * @param outputFile
      */
-    @JvmOverloads
-    fun setOutputFile(outputFile: File, isContinue: Boolean = false): MP3Recorder {
+    override fun setOutputFile(outputFile: File, isContinue: Boolean): MP3Recorder {
         mRecordFile = outputFile
         this.isContinue = isContinue
         return this
@@ -256,7 +243,7 @@ class MP3Recorder : BaseRecorder {
      * 设置增强系数
      * @param wax
      */
-    fun setWax(wax: Float): MP3Recorder {
+    override fun setWax(wax: Float): MP3Recorder {
         this.wax = wax
         return this
     }
@@ -265,12 +252,12 @@ class MP3Recorder : BaseRecorder {
      * 设置回调
      * @param recordListener
      */
-    fun setRecordListener(recordListener: RecordListener?): MP3Recorder {
+    override fun setRecordListener(recordListener: RecordListener?): MP3Recorder {
         this.mRecordListener = recordListener
         return this
     }
 
-    fun setPermissionListener(permissionListener: PermissionListener?): MP3Recorder {
+    override fun setPermissionListener(permissionListener: PermissionListener?): MP3Recorder {
         this.mPermissionListener = permissionListener
         return this
     }
@@ -280,7 +267,7 @@ class MP3Recorder : BaseRecorder {
      * @param mMaxTime 最大录制时间  默认一个小时？
      * 提示时间时10秒前
      */
-    fun setMaxTime(mMaxTime: Int): MP3Recorder {
+    override fun setMaxTime(mMaxTime: Int): MP3Recorder {
         this.mMaxTime = mMaxTime.toLong()
         this.mRemindTime = (mMaxTime - 10000).toLong()
         handler.sendEmptyMessage(HANDLER_MAX_TIME)
@@ -290,7 +277,7 @@ class MP3Recorder : BaseRecorder {
     /**
      * Start recording. Create an encoding thread. Start record from this
      */
-    fun start() {
+    override fun start() {
         if (isRecording) {
             return
         }
@@ -368,15 +355,17 @@ class MP3Recorder : BaseRecorder {
         }.start()
     }
 
-    fun setBackgroundMusic(url: String) {
+    override fun setBackgroundMusic(url: String) :MP3Recorder {
         this.backgroundMusicUrl = url
+        return  this
     }
 
-    fun setBackgroundMusicPlayerListener(listener: PlayerListener) {
+    override fun setBackgroundMusicListener(listener: PlayerListener) :MP3Recorder{
         this.backgroundMusicPlayerListener = listener
+        return  this
     }
 
-    fun stop() {
+    override fun stop() {
         if (state !== RecordState.STOPPED) {
             isPause = false
             isRecording = false
@@ -390,7 +379,7 @@ class MP3Recorder : BaseRecorder {
     /**
      * 重新开始
      */
-    fun onResume() {
+    override fun onResume() {
         if (state === RecordState.PAUSED) {
             isPause = false
             state = RecordState.RECORDING
@@ -401,23 +390,35 @@ class MP3Recorder : BaseRecorder {
         }
     }
 
+    override fun setVolume(volume: Float): MP3Recorder {
+        val volume1 = when {
+            volume < 0 -> 0f
+            volume > 1 -> 1f
+            else -> volume
+        }
+        val bgPlayer = bgPlayer
+        bgPlayer.setVolume(volume1)
+        this.bgLevel = volume1
+        return this
+    }
+
     /**
      * 暂停
      */
-    fun onPause() {
+    override fun onPause() {
         if (state === RecordState.RECORDING) {
             isPause = true
             state = RecordState.PAUSED
             handler.sendEmptyMessage(HANDLER_PAUSE)
             backgroundMusicIsPlay = bgPlayer!!.isPlaying
-            bgPlayer!!.pause()
+            bgPlayer.pause()
         }
     }
 
     /**
      * 重置
      */
-    fun onReset() {
+    override fun onReset() {
         isRecording = false
         isPause = false
         state = RecordState.STOPPED
@@ -425,14 +426,36 @@ class MP3Recorder : BaseRecorder {
         mRecordFile = null
         backgroundMusicIsPlay = bgPlayer!!.isPlaying
         handler.sendEmptyMessage(HANDLER_RESET)
-        bgPlayer!!.stopPlay()
+        bgPlayer.stopPlay()
     }
 
 
-    fun onDestroy() {
-        bgPlayer!!.stopPlay()
+    override fun onDestroy() {
+        bgPlayer.stopPlay()
     }
 
+
+    override fun startPlayMusic(){
+        if (!bgPlayer.isPlaying) {
+            bgPlayer.playNoStart(url = backgroundMusicUrl,listener = backgroundMusicPlayerListener)
+        }
+    }
+
+    override fun isPauseMusic(): Boolean {
+        return bgPlayer.isPause
+    }
+
+    override fun pauseMusic(){
+        if (!bgPlayer.isPause){
+            bgPlayer.pause()
+        }
+    }
+
+    override fun resumeMusic(){
+        if (bgPlayer.isPause){
+            bgPlayer.resume()
+        }
+    }
 
     /**
      * Initialize audio recorder

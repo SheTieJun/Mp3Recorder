@@ -9,12 +9,14 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import kotlinx.android.synthetic.main.activity_mix_record.*
 import me.shetj.base.tools.app.ArmsUtils
 import me.shetj.base.tools.file.SDCardUtils
+import me.shetj.kt.simpleRecorderBuilder
 import me.shetj.mixRecorder.MixRecorder
 import me.shetj.mp3recorder.R
 import me.shetj.mp3recorder.record.utils.LocalMusicUtils
 import me.shetj.player.AudioPlayer
 import me.shetj.player.SimPlayerListener
 import me.shetj.player.SimRecordListener
+import me.shetj.recorder.BaseRecorder
 import me.shetj.recorder.RecordState
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
@@ -26,7 +28,7 @@ class MixRecordActivity : AppCompatActivity() {
 
     private var stringBuffer: StringBuffer?=null
     private var musicUrl: String? =null
-    private var mixRecorder: MixRecorder?=null
+    private var mixRecorder: BaseRecorder?=null
     private var position = 0
     private var mp3Url :String ?=null
     private val audioPlayer = AudioPlayer()
@@ -155,8 +157,8 @@ class MixRecordActivity : AppCompatActivity() {
     }
 
     private fun mixRecord() {
+        val  filePath = SDCardUtils.getPath("record") + "/" + System.currentTimeMillis() +  "bg.mp3"
         if (mixRecorder == null) {
-            val  filePath = SDCardUtils.getPath("record") + "/" + System.currentTimeMillis() +  "bg.mp3"
             Timber.i("musicUrl = %s", musicUrl)
             val listener = object : SimRecordListener() {
                 override fun onSuccess(file: String, time: Long) {
@@ -172,12 +174,11 @@ class MixRecordActivity : AppCompatActivity() {
                     Timber.i("time = $time  ,volume = $volume")
                 }
             }
-            mixRecorder = MixRecorder(MediaRecorder.AudioSource.VOICE_COMMUNICATION,2)
-                .setOutputFile(filePath)//设置输出文件
-                .setBackgroundMusic(musicUrl!!, true)//设置默认的背景音乐
+            mixRecorder = simpleRecorderBuilder(MixRecorder::class.java.simpleName,MediaRecorder.AudioSource.VOICE_COMMUNICATION)
+                .setBackgroundMusic(musicUrl!!)//设置默认的背景音乐
                 .setRecordListener(listener)
                 .setPermissionListener(listener)
-                .setWax(2f)
+                .setWax(1f)
                 .setBackgroundMusicListener(object :SimPlayerListener(){
                     override fun onStart(url: String, duration: Int) {
                         super.onStart(url, duration)
@@ -204,8 +205,9 @@ class MixRecordActivity : AppCompatActivity() {
                         Timber.i("current = $current,size = $size")
                     }
                 })
-                .setMaxTime(1800 * 1000)//设置最大时间
+                .setMaxTime(1800 * 1000) //设置最大时间
         }
+        mixRecorder!!.setOutputFile(filePath)//设置输出文件
         if (!mixRecorder!!.isRecording) {
             mixRecorder!!.start()
             mixRecorder!!.startPlayMusic()
