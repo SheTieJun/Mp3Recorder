@@ -13,6 +13,7 @@ import java.io.FileOutputStream
 import java.io.IOException
 import java.util.*
 
+
 class MixEncodeThread
 /**
  * Constructor
@@ -108,22 +109,32 @@ constructor(file: File, bufferSize: Int, isContinue: Boolean, private val is2CHA
             val encodedSize: Int
             val readSize: Int
             if (is2CHANNEL) {
+//                readSize = buffer.size / 2
+//                //因为是双声道所有要对录制的声音进行左右区分
+//                val leftChannelAudioData = ShortArray(readSize)
+//                val rightChannelAudioData = ShortArray(readSize)
+//                //readSize -1 因为有可能 i+1超过了
+//                var i = 0
+//                while (i < readSize - 1) {
+//                    leftChannelAudioData[i] = buffer[2 * i]
+//                    leftChannelAudioData[i + 1] = buffer[2 * i + 1]
+//                    rightChannelAudioData[i] = buffer[2 * i + 2]
+//                    rightChannelAudioData[i + 1] = buffer[2 * i + 3]
+//                    i += 2
+//                }
                 readSize = buffer.size / 2
-                //因为是双声道所有要对录制的声音进行左右区分
-                val leftChannelAudioData = ShortArray(readSize)
-                val rightChannelAudioData = ShortArray(readSize)
-                //readSize -1 因为有可能 i+1超过了
-                var i = 0
-                while (i < readSize - 1) {
-                    leftChannelAudioData[i] = buffer[2 * i]
-                    leftChannelAudioData[i + 1] = buffer[2 * i + 1]
-                    rightChannelAudioData[i] = buffer[2 * i + 2]
-                    rightChannelAudioData[i + 1] = buffer[2 * i + 3]
-                    i += 2
+                val leftData = ShortArray(readSize)
+                val rightData = ShortArray(readSize)
+                for (i in 0 until readSize) {
+                    if (i % 2 == 0) {
+                        System.arraycopy(buffer, i * 2, leftData, i, 2)
+                    } else {
+                        System.arraycopy(buffer, i * 2, rightData, i - 1, 2)
+                    }
                 }
                 encodedSize = LameUtils.encode(
-                    leftChannelAudioData,
-                    rightChannelAudioData,
+                    leftData,
+                    rightData,
                     readSize,
                     mMp3Buffer
                 )

@@ -78,3 +78,16 @@
  mixRecorder?.stop()  //完成录音
 ```
 
+
+```
+  readSize = buffer.size / 2
+                val leftData = ShortArray(readSize)
+                val rightData = ShortArray(readSize)
+                for (i in 0 until readSize) {
+                    if (i % 2 == 0) {
+                        System.arraycopy(buffer, i * 2, leftData, i, 2)
+                    } else {
+                        System.arraycopy(buffer, i * 2, rightData, i - 1, 2)
+                    }
+                }
+```
