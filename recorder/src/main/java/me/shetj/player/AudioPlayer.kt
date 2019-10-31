@@ -163,7 +163,7 @@ class AudioPlayer : MediaPlayer.OnPreparedListener, MediaPlayer.OnErrorListener,
      * @param url 播放的url
      * @param listener 监听变化
      */
-    fun playOrPause(url: String, listener: PlayerListener?) {
+    fun playOrPause(url: String?, listener: PlayerListener?) {
         //判断是否是当前播放的url
         if (url == currentUrl && mediaPlayer != null) {
             if (listener != null) {

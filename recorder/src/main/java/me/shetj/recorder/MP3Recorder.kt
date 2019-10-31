@@ -443,7 +443,7 @@ class MP3Recorder : BaseRecorder {
 
     override fun startPlayMusic(){
         if (!bgPlayer.isPlaying) {
-            bgPlayer.playNoStart(url = backgroundMusicUrl,listener = backgroundMusicPlayerListener)
+            bgPlayer.playOrPause(url = backgroundMusicUrl,listener = backgroundMusicPlayerListener)
         }
     }
 

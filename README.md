@@ -45,7 +45,7 @@ Step 2. Add the dependency
 
 ```
 dependencies {
-    implementation 'com.github.SheTieJun:Mp3Recorder:0.0.2'
+    implementation 'com.github.SheTieJun:Mp3Recorder:0.0.4'
 }
 ```
 

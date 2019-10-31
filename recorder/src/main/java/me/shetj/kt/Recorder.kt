@@ -9,12 +9,12 @@ import me.shetj.recorder.MP3Recorder
 
 @JvmOverloads
 fun recorderBuilder( audioSource: BaseRecorder.AudioSource = BaseRecorder.AudioSource.MIC,
-                    isDebug: Boolean = BuildConfig.DEBUG,
-                    mMaxTime: Int = 1800 * 1000,
-                    mp3Quality: Int = 5,
-                    permissionListener: PermissionListener ? =null,
-                    recordListener: RecordListener ?= null,
-                    wax: Float = 1f
+                     isDebug: Boolean = BuildConfig.DEBUG,
+                     mMaxTime: Int = 1800 * 1000,
+                     mp3Quality: Int = 5,
+                     permissionListener: PermissionListener ? =null,
+                     recordListener: RecordListener ?= null,
+                     wax: Float = 1f
 
 ): MP3Recorder {
     return MP3Recorder(audioSource.type, isDebug)
@@ -28,15 +28,15 @@ fun recorderBuilder( audioSource: BaseRecorder.AudioSource = BaseRecorder.AudioS
 
 @JvmOverloads
 fun mixRecorderBuilder( audioSource: BaseRecorder.AudioSource = BaseRecorder.AudioSource.MIC,
-                       channel: Int = 1,
-                       mMaxTime: Int = 1800 * 1000,
-                       mp3Quality: Int = 5,
-                       permissionListener: PermissionListener ? =null,
-                       recordListener: RecordListener ?= null,
-                       wax: Float = 1f
+                        channel: BaseRecorder.AudioChannel = BaseRecorder.AudioChannel.MONO,
+                        mMaxTime: Int = 1800 * 1000,
+                        mp3Quality: Int = 5,
+                        permissionListener: PermissionListener ? =null,
+                        recordListener: RecordListener ?= null,
+                        wax: Float = 1f
 
 ): MixRecorder {
-    return MixRecorder(audioSource.type,channel)
+    return MixRecorder(audioSource.type,channel.type)
         .setMaxTime(mMaxTime)
         .setMp3Quality(mp3Quality)
         .setPermissionListener(permissionListener)
@@ -44,17 +44,20 @@ fun mixRecorderBuilder( audioSource: BaseRecorder.AudioSource = BaseRecorder.Aud
         .setWax(wax)
 }
 
-
+/**
+ * mix 表示混合
+ * sim 不知道单双声道录制
+ */
 fun simpleRecorderBuilder(simpleName:BaseRecorder.RecorderType = BaseRecorder.RecorderType.MIX,
                           audioSource: BaseRecorder.AudioSource = BaseRecorder.AudioSource.MIC,
                           mMaxTime: Int = 1800 * 1000,
                           mp3Quality: Int = 5,
-                          channel: Int = 1,
+                          channel: BaseRecorder.AudioChannel = BaseRecorder.AudioChannel.MONO,
                           permissionListener: PermissionListener ? =null,
                           recordListener: RecordListener ?= null,
                           wax: Float = 1f
 ): BaseRecorder{
-   return when(simpleName){
+    return when(simpleName){
         BaseRecorder.RecorderType.MIX ->
             mixRecorderBuilder(audioSource = audioSource,
                 channel = channel,
@@ -63,12 +66,12 @@ fun simpleRecorderBuilder(simpleName:BaseRecorder.RecorderType = BaseRecorder.Re
                 permissionListener = permissionListener,
                 recordListener = recordListener,
                 wax = wax)
-       BaseRecorder.RecorderType.SIM  ->
+        BaseRecorder.RecorderType.SIM  ->
             recorderBuilder(audioSource = audioSource,
                 mMaxTime = mMaxTime,
                 mp3Quality = mp3Quality,
                 permissionListener = permissionListener,
                 recordListener = recordListener,
                 wax = wax)
-   }
+    }
 }
