@@ -12,12 +12,28 @@ object LameUtils {
         outBitrate: Int,
         quality: Int
     )
+
+    /**
+     * 如果单声道使用该方法
+     * samples =bufferLeft.size
+     */
     external fun encode(
         bufferLeft: ShortArray,
         bufferRight: ShortArray,
         samples: Int,
         mp3buf: ByteArray
     ): Int
+
+    /**
+     * 双声道使用该方法
+     * samples = pcm.size/2
+     */
+    external fun encodeInterleaved(
+        pcm: ShortArray,
+        samples: Int,
+        mp3buf: ByteArray
+    ): Int
+
 
     external fun encodeByByte(
         bufferLeft: ByteArray,

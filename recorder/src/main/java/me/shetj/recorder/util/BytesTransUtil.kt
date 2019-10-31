@@ -74,20 +74,20 @@ object BytesTransUtil {
      * 改变音量
      */
     fun changeDataWithVolume(buffer: ByteArray, volumeValue: Float): ByteArray {
-
-        var i = 0
-        while (i < buffer.size) {
-            var value = byte2Short(buffer[i + 1], buffer[i])
-            value =  (volumeValue*value).toShort()
-            value = if (value > 0x7fff) 0x7fff else value
-            value = if (value < -0x8000) -0x8000 else value
-            val newValue = value
-            val array = short2Byte(newValue)
-            buffer[i + 1] = array[0]
-            buffer[i] = array[1]
-            i += 2
+        if (volumeValue != 1f) {
+            var i = 0
+            while (i < buffer.size) {
+                var value = byte2Short(buffer[i + 1], buffer[i])
+                value = (volumeValue * value).toShort()
+                value = if (value > 0x7fff) 0x7fff else value
+                value = if (value < -0x8000) -0x8000 else value
+                val newValue = value
+                val array = short2Byte(newValue)
+                buffer[i + 1] = array[0]
+                buffer[i] = array[1]
+                i += 2
+            }
         }
-
         return buffer
     }
 

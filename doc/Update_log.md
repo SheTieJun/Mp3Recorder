@@ -1,3 +1,16 @@
+### 2019年10月31日
+- 优化lame转双声道PCM ,以前的方法存在噪音
+```
+   if (is2CHANNEL) {
+     //双声道
+      readSize = buffer.size / 2
+      encodedSize = LameUtils.encodeInterleaved(buffer,readSize,mMp3Buffer)
+      } else {
+      readSize = buffer.size
+      encodedSize = LameUtils.encode(buffer, buffer, readSize, mMp3Buffer)
+   }
+```
+
 ### 2019年10月19日
 - 尝试修改录制后声音的大小计算
 
