@@ -33,7 +33,6 @@ JNIEXPORT void JNICALL Java_me_shetj_recorder_util_LameUtils_init(
     lame_set_out_samplerate(lame,outSamplerate);//输出采样率
     lame_set_num_channels(lame,inChannel);//声道
     lame_set_brate(lame,outBitrate);//比特率
-//    lame_set_mode(lame,3);
     lame_set_quality(lame,quality);//质量
     lame_init_params(lame);
 }

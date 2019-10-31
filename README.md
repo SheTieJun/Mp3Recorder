@@ -16,7 +16,8 @@
 
 ### 缺点
 
-1. 录制声道数设置，因为合成，所有你需要设置和背景音乐相同的声道数据，背景音乐默认需要是 44k ，双声道，16位
+1. 录制声道数设置，因为合成，所有你需要设置和背景音乐相同的声道数据，背景音乐默认需要是 44k ，单声道，16位
+因为单声道录制的声音比较清脆
 
 #### 录制（可以选择背景音乐）
   - 录制中可以中断背景音乐，继续录制声音  建议优化这个思路 MixRecorder
@@ -65,7 +66,7 @@ dependencies {
                 }
             }
             
-   val mRecorder = simpleRecorderBuilder(BaseRecorder.RecorderType.MIX)
+   val mRecorder  = simpleRecorderBuilder(BaseRecorder.RecorderType.MIX,BaseRecorder.AudioSource.MIC,channel = 2)
                 .setRecordListener(listener)
                 .setPermissionListener(listener)
 ```

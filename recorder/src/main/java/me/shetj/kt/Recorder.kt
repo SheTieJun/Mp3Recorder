@@ -28,7 +28,7 @@ fun recorderBuilder( audioSource: BaseRecorder.AudioSource = BaseRecorder.AudioS
 
 @JvmOverloads
 fun mixRecorderBuilder( audioSource: BaseRecorder.AudioSource = BaseRecorder.AudioSource.MIC,
-                       channel: Int = 2,
+                       channel: Int = 1,
                        mMaxTime: Int = 1800 * 1000,
                        mp3Quality: Int = 5,
                        permissionListener: PermissionListener ? =null,
@@ -49,6 +49,7 @@ fun simpleRecorderBuilder(simpleName:BaseRecorder.RecorderType = BaseRecorder.Re
                           audioSource: BaseRecorder.AudioSource = BaseRecorder.AudioSource.MIC,
                           mMaxTime: Int = 1800 * 1000,
                           mp3Quality: Int = 5,
+                          channel: Int = 1,
                           permissionListener: PermissionListener ? =null,
                           recordListener: RecordListener ?= null,
                           wax: Float = 1f
@@ -56,6 +57,7 @@ fun simpleRecorderBuilder(simpleName:BaseRecorder.RecorderType = BaseRecorder.Re
    return when(simpleName){
         BaseRecorder.RecorderType.MIX ->
             mixRecorderBuilder(audioSource = audioSource,
+                channel = channel,
                 mMaxTime = mMaxTime,
                 mp3Quality = mp3Quality,
                 permissionListener = permissionListener,

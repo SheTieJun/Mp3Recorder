@@ -121,7 +121,6 @@ constructor(file: File, bufferSize: Int, isContinue: Boolean, private val is2CHA
                 } catch (e: IOException) {
                     e.printStackTrace()
                 }
-
             }
             return readSize
         }

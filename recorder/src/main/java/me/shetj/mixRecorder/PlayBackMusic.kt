@@ -14,7 +14,7 @@ import android.util.Log
 import me.shetj.player.PlayerListener
 import java.util.concurrent.LinkedBlockingDeque
 import android.media.AudioAttributes
-import android.media.AudioFormat.CHANNEL_OUT_STEREO
+import android.media.AudioFormat.CHANNEL_OUT_MONO
 
 
 /**
@@ -29,7 +29,7 @@ import android.media.AudioFormat.CHANNEL_OUT_STEREO
  * TODO seekTo 缺失功能
  *
  */
-class PlayBackMusic(private val defaultChannel: Int = CHANNEL_OUT_STEREO) {
+class PlayBackMusic(private var defaultChannel: Int = CHANNEL_OUT_MONO) {
 
     private var mAudioDecoder: AudioDecoder? = null
     private val backGroundBytes =

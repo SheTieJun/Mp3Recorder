@@ -324,7 +324,10 @@ class MP3Recorder : BaseRecorder {
                             if (isPause) {
                                 continue
                             }
-                            val readTime = 1000.0 * readSize.toDouble() * 2.0 / bytesPerSecond
+                            /**
+                             * x2 转成字节做时间计算
+                             */
+                            val readTime = 1000.0 * readSize.toDouble()*2/ bytesPerSecond
                             mEncodeThread!!.addTask(mPCMBuffer!!, readSize)
                             calculateRealVolume(mPCMBuffer!!, readSize)
                             //short 是2个字节 byte 是1个字节8位

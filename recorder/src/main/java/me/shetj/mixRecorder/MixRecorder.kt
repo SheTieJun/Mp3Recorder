@@ -32,8 +32,10 @@ class MixRecorder : BaseRecorder {
 
     private val TAG = this.javaClass.simpleName
     //======================Lame Default Settings=====================
-    private var defaultLameInChannel = 2 //声道数量
+    private var defaultLameInChannel = 1 //声道数量
     private var defaultLameMp3Quality = 5 //音频质量，好像LAME已经不使用它了
+    private var defaultAudioSource = MediaRecorder.AudioSource.VOICE_COMMUNICATION
+    private var defaultChannelConfig = AudioFormat.CHANNEL_IN_MONO
     private var mAudioRecord: AudioRecord? = null
     private var mPlayBackMusic: PlayBackMusic? = null
 
@@ -64,7 +66,7 @@ class MixRecorder : BaseRecorder {
     //通知速度，毫秒
     private var speed: Long = 300
     private var bytesPerSecond: Int = 0  //PCM文件大小=采样率采样时间采样位深/8*通道数（Bytes）
-    private var is2Channel = true //默认是双声道
+    private var is2Channel = false //默认是双声道
     private var bgLevel = 0.30f//背景音乐
     private var isContinue: Boolean = false //是否写在文件末尾
 
@@ -174,22 +176,6 @@ class MixRecorder : BaseRecorder {
     val maxVolume: Int
         get() = MAX_VOLUME
 
-    private val bufferSize: Int
-        get() {
-            mBufferSize = AudioRecord.getMinBufferSize(
-                DEFAULT_SAMPLING_RATE,
-                DEFAULT_CHANNEL_CONFIG, DEFAULT_AUDIO_FORMAT.audioFormat
-            )
-            val bytesPerFrame = DEFAULT_AUDIO_FORMAT.bytesPerFrame
-            Log.i(TAG, "mBufferSize = $mBufferSize")
-            var frameSize = mBufferSize / bytesPerFrame
-            if (frameSize % FRAME_COUNT != 0) {
-                frameSize += FRAME_COUNT - frameSize % FRAME_COUNT
-                mBufferSize = frameSize * bytesPerFrame
-            }
-            Log.i(TAG, "mBufferSize = $mBufferSize")
-            return mBufferSize
-        }
 
     constructor()
 
@@ -197,14 +183,25 @@ class MixRecorder : BaseRecorder {
      * @param audioSource 最好是  [MediaRecorder.AudioSource.VOICE_COMMUNICATION] 或者 [MediaRecorder.AudioSource.MIC]
      * @param channel 声道数量 (1 或者 2)
      */
-    constructor(audioSource: Int = MediaRecorder.AudioSource.MIC,   channel: Int = 2) {
+    constructor(audioSource: Int = MediaRecorder.AudioSource.MIC,  channel: Int = 1) {
         defaultAudioSource = audioSource
+        is2Channel = channel == 2
         defaultLameInChannel = when {
-            channel < 1 -> 1
-            channel > 2 -> 2
-            else -> channel
+            channel <= 1 -> {
+                defaultChannelConfig = AudioFormat.CHANNEL_IN_MONO
+                release()
+                initPlayer()
+                1
+            }
+            channel >= 2 -> {
+                defaultChannelConfig = AudioFormat.CHANNEL_IN_STEREO
+                release()
+                initPlayer()
+                2
+            }
+            else -> defaultAudioSource
         }
-        is2Channel = defaultLameInChannel == 2
+
     }
 
     override fun setMp3Quality(mp3Quality: Int): MixRecorder {
@@ -243,9 +240,9 @@ class MixRecorder : BaseRecorder {
     private fun initPlayer() {
         if (mPlayBackMusic == null) {
             mPlayBackMusic = PlayBackMusic(
-                when (defaultLameInChannel == 2) {
+                when (is2Channel) {
                     true -> AudioFormat.CHANNEL_OUT_STEREO
-                    else -> AudioFormat.CHANNEL_IN_LEFT
+                    else -> AudioFormat.CHANNEL_OUT_MONO
                 }
             )
         }
@@ -371,9 +368,9 @@ class MixRecorder : BaseRecorder {
                 Process.setThreadPriority(Process.THREAD_PRIORITY_URGENT_AUDIO)
                 onStart()
                 while (isRecording) {
-                    val samplesPerFrame = bgPlayer.bufferSize // 这里需要与 背景音乐读取出来的数据长度 一样
-                    val buffer: ByteArray? = ByteArray(samplesPerFrame)
-                    val readSize = mAudioRecord!!.read(buffer!!, 0, buffer.size)
+                    val samplesPerFrame =   bgPlayer.bufferSize  // 这里需要与 背景音乐读取出来的数据长度 一样
+                    var buffer: ByteArray? = ByteArray(samplesPerFrame)
+                    val readSize = mAudioRecord!!.read(buffer!!, 0, samplesPerFrame)
                     if (readSize == AudioRecord.ERROR_INVALID_OPERATION || readSize == AudioRecord.ERROR_BAD_VALUE) {
                         if (!mSendError) {
                             mSendError = true
@@ -387,7 +384,7 @@ class MixRecorder : BaseRecorder {
                                 continue
                             }
                             val readTime =
-                                1000.0 * readSize.toDouble() * (if (is2Channel) 1 else 2).toDouble() / bytesPerSecond  //双声道和单声道的计算不一样
+                                1000.0 * readSize.toDouble() / bytesPerSecond
                             onRecording(readTime) //计算时间长度
                             mEncodeThread!!.addTask(buffer, wax, mPlayBackMusic!!.getBackGroundBytes(),bgLevel)
                             calculateRealVolume(buffer)
@@ -419,6 +416,7 @@ class MixRecorder : BaseRecorder {
 
         }.start()
     }
+
 
 
 
@@ -510,11 +508,23 @@ class MixRecorder : BaseRecorder {
      */
     @Throws(IOException::class)
     private fun initAudioRecorder() {
-        bufferSize  //获取合适的buffer大小
+        mBufferSize = AudioRecord.getMinBufferSize(
+            DEFAULT_SAMPLING_RATE,
+            defaultChannelConfig, DEFAULT_AUDIO_FORMAT.audioFormat
+        )
+        val bytesPerFrame = DEFAULT_AUDIO_FORMAT.bytesPerFrame
+        Log.i(TAG, "mBufferSize = $mBufferSize")
+        var frameSize = mBufferSize / bytesPerFrame
+        if (frameSize % FRAME_COUNT != 0) {
+            frameSize += FRAME_COUNT - frameSize % FRAME_COUNT
+            mBufferSize = frameSize * bytesPerFrame
+        }
+        Log.i(TAG, "mBufferSize = $mBufferSize")
+        //获取合适的buffer大小
         /* Setup audio recorder */
         mAudioRecord = AudioRecord(
             defaultAudioSource,
-            DEFAULT_SAMPLING_RATE, DEFAULT_CHANNEL_CONFIG, DEFAULT_AUDIO_FORMAT.audioFormat,
+            DEFAULT_SAMPLING_RATE, defaultChannelConfig, DEFAULT_AUDIO_FORMAT.audioFormat,
             mBufferSize
         )
         //1秒时间需要多少字节，用来计算已经录制了多久
@@ -532,6 +542,27 @@ class MixRecorder : BaseRecorder {
         mEncodeThread!!.start()
         mAudioRecord!!.setRecordPositionUpdateListener(mEncodeThread, mEncodeThread!!.handler)
         mAudioRecord!!.positionNotificationPeriod = FRAME_COUNT
+    }
+
+
+    /**
+     * 混合 音频,
+     */
+    private fun mixBuffer(buffer: ByteArray,bgData :ByteArray?): ByteArray? {
+        try {
+            if (bgData !=null) {
+                //如果有背景音乐
+                val bytes = BytesTransUtil.changeDataWithVolume(
+                    bgData,
+                    bgLevel
+                )
+                return BytesTransUtil.averageMix(arrayOf(buffer, bytes))
+            }
+            return buffer
+        }catch (e: Exception){
+            Log.e("mixRecorder","mixBuffer error : ${e.message}")
+            return buffer
+        }
     }
 
     /***************************private method  */
@@ -682,21 +713,10 @@ class MixRecorder : BaseRecorder {
         private val HANDLER_PERMISSION = 0x107//需要权限
         private val HANDLER_MAX_TIME = 0x110//设置了最大时间
         //=======================AudioRecord Default Settings=======================
-        private var defaultAudioSource = MediaRecorder.AudioSource.VOICE_COMMUNICATION
-        /**
-         * 以下三项为默认配置参数。Google Android文档明确表明只有以下3个参数是可以在所有设备上保证支持的。
-         */
         private val DEFAULT_SAMPLING_RATE = 44100
-        private val DEFAULT_CHANNEL_CONFIG = AudioFormat.CHANNEL_IN_STEREO
-        /**
-         * 下面是对此的封装
-         * private static final int DEFAULT_AUDIO_FORMAT = AudioFormat.ENCODING_PCM_16BIT;
-         */
         private val DEFAULT_AUDIO_FORMAT = PCMFormat.PCM_16BIT
-        /**
-         * Encoded bit rate. MP3 file will be encoded with bit rate 32kbps
-         */
         private val DEFAULT_LAME_MP3_BIT_RATE = 32
+
         //==================================================================
         /**
          * 自定义 每160帧作为一个周期，通知一下需要进行编码
