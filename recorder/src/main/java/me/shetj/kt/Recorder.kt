@@ -1,6 +1,5 @@
 package me.shetj.kt
 
-import android.media.MediaRecorder
 import me.shetj.mixRecorder.MixRecorder
 import me.shetj.player.PermissionListener
 import me.shetj.player.RecordListener
@@ -9,7 +8,7 @@ import me.shetj.recorder.BuildConfig
 import me.shetj.recorder.MP3Recorder
 
 @JvmOverloads
-fun recorderBuilder(audioSource: Int = MediaRecorder.AudioSource.VOICE_COMMUNICATION,
+fun recorderBuilder( audioSource: BaseRecorder.AudioSource = BaseRecorder.AudioSource.MIC,
                     isDebug: Boolean = BuildConfig.DEBUG,
                     mMaxTime: Int = 1800 * 1000,
                     mp3Quality: Int = 5,
@@ -18,7 +17,7 @@ fun recorderBuilder(audioSource: Int = MediaRecorder.AudioSource.VOICE_COMMUNICA
                     wax: Float = 1f
 
 ): MP3Recorder {
-    return MP3Recorder(audioSource, isDebug)
+    return MP3Recorder(audioSource.type, isDebug)
         .setMaxTime(mMaxTime)
         .setMp3Quality(mp3Quality)
         .setPermissionListener(permissionListener)
@@ -28,7 +27,7 @@ fun recorderBuilder(audioSource: Int = MediaRecorder.AudioSource.VOICE_COMMUNICA
 
 
 @JvmOverloads
-fun mixRecorderBuilder(audioSource: Int = MediaRecorder.AudioSource.VOICE_COMMUNICATION,
+fun mixRecorderBuilder( audioSource: BaseRecorder.AudioSource = BaseRecorder.AudioSource.MIC,
                        channel: Int = 2,
                        mMaxTime: Int = 1800 * 1000,
                        mp3Quality: Int = 5,
@@ -37,7 +36,7 @@ fun mixRecorderBuilder(audioSource: Int = MediaRecorder.AudioSource.VOICE_COMMUN
                        wax: Float = 1f
 
 ): MixRecorder {
-    return MixRecorder(audioSource,channel)
+    return MixRecorder(audioSource.type,channel)
         .setMaxTime(mMaxTime)
         .setMp3Quality(mp3Quality)
         .setPermissionListener(permissionListener)
@@ -47,7 +46,7 @@ fun mixRecorderBuilder(audioSource: Int = MediaRecorder.AudioSource.VOICE_COMMUN
 
 
 fun simpleRecorderBuilder(simpleName:BaseRecorder.RecorderType = BaseRecorder.RecorderType.MIX,
-                          audioSource: Int = MediaRecorder.AudioSource.VOICE_COMMUNICATION,
+                          audioSource: BaseRecorder.AudioSource = BaseRecorder.AudioSource.MIC,
                           mMaxTime: Int = 1800 * 1000,
                           mp3Quality: Int = 5,
                           permissionListener: PermissionListener ? =null,

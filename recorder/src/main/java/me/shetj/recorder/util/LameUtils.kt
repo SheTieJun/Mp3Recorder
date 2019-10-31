@@ -5,6 +5,7 @@ object LameUtils {
         System.loadLibrary("shetj_mp3lame")
     }
     external fun version(): String
+
     external fun init(
         inSampleRate: Int,
         inChannel: Int,

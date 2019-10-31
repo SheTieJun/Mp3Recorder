@@ -65,7 +65,7 @@ dependencies {
                 }
             }
             
-   val mRecorder = simpleRecorderBuilder()
+   val mRecorder = simpleRecorderBuilder(BaseRecorder.RecorderType.MIX)
                 .setRecordListener(listener)
                 .setPermissionListener(listener)
 ```
@@ -124,13 +124,13 @@ dependencies {
 
 
 ### 1. 录音方式一：[MixRecorder](/doc/MixRecorder.MD) 
-
 ### 2. 录音方式二： [MP3Recorder](/doc/Mp3Recorder.MD)
-
 ### 3. 播放音乐：[AudioPlayer](/doc/AudioPlayer.MD)
-
 ### 4. 播放音乐,可以得到PCM：[PlayBackMusic](/doc/PlayBackMusic.MD)
-
 ### 5. 播放PCM文件：[AudioTrackManager](/doc/AudioTrackManager.MD)
+
+## 其他
+
+##### 开发的一些记录[Update_log](/doc/Update_log.md)
 
 > 人生苦短，请选择科学上网。[电梯直达](https://qwertyuiopzxcvbnm.com/auth/register?code=Sncl)  

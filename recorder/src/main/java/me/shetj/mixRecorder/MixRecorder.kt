@@ -291,11 +291,14 @@ class MixRecorder : BaseRecorder {
     }
 
     /**
-     * 设置最大录制时间
+     * 设置最大录制时间，小于0无效
      * @param mMaxTime 最大录制时间  默认一个小时？
      * 提示时间时10秒前
      */
     override fun setMaxTime(mMaxTime: Int): MixRecorder {
+        if (mMaxTime < 0){
+            return this
+        }
         this.mMaxTime = mMaxTime.toLong()
         this.mRemindTime = (mMaxTime - 10000).toLong()
         handler.sendEmptyMessage(HANDLER_MAX_TIME)
@@ -529,24 +532,6 @@ class MixRecorder : BaseRecorder {
         mEncodeThread!!.start()
         mAudioRecord!!.setRecordPositionUpdateListener(mEncodeThread, mEncodeThread!!.handler)
         mAudioRecord!!.positionNotificationPeriod = FRAME_COUNT
-    }
-
-    /**
-     * 混合 音频
-     */
-    private fun mixBuffer(buffer: ByteArray): ByteArray? {
-        try {
-            if (mPlayBackMusic != null && mPlayBackMusic!!.hasFrameBytes()) {
-                val bytes = BytesTransUtil.changeDataWithVolume(
-                    mPlayBackMusic!!.getBackGroundBytes()!!,
-                    bgLevel
-                )
-                return BytesTransUtil.averageMix(arrayOf(buffer, bytes))
-            }
-            return buffer
-        }catch (e: Exception){
-            return buffer
-        }
     }
 
     /***************************private method  */

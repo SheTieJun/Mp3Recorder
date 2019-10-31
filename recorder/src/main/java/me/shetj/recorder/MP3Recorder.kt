@@ -263,11 +263,14 @@ class MP3Recorder : BaseRecorder {
     }
 
     /**
-     * 设置最大录制时间
+     * 设置最大录制时间,设置小于0无效，使用默认
      * @param mMaxTime 最大录制时间  默认一个小时？
      * 提示时间时10秒前
      */
     override fun setMaxTime(mMaxTime: Int): MP3Recorder {
+        if (mMaxTime < 0){
+            return this
+        }
         this.mMaxTime = mMaxTime.toLong()
         this.mRemindTime = (mMaxTime - 10000).toLong()
         handler.sendEmptyMessage(HANDLER_MAX_TIME)
@@ -372,7 +375,7 @@ class MP3Recorder : BaseRecorder {
             handler.sendEmptyMessage(HANDLER_COMPLETE)
             state = RecordState.STOPPED
             backgroundMusicIsPlay = false
-            bgPlayer!!.stopPlay()
+            bgPlayer.stopPlay()
         }
     }
 
@@ -385,7 +388,7 @@ class MP3Recorder : BaseRecorder {
             state = RecordState.RECORDING
             handler.sendEmptyMessage(HANDLER_RESUME)
             if (backgroundMusicIsPlay) {
-                bgPlayer!!.resume()
+                bgPlayer.resume()
             }
         }
     }

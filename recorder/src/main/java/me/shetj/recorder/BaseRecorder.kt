@@ -1,5 +1,6 @@
 package me.shetj.recorder
 
+import android.media.MediaRecorder
 import me.shetj.player.PermissionListener
 import me.shetj.player.PlayerListener
 import me.shetj.player.RecordListener
@@ -13,6 +14,11 @@ abstract class BaseRecorder {
     enum class RecorderType(name: String) {
         SIM("Mp3Recorder"), //
         MIX("MixRecorder")
+    }
+
+    enum class AudioSource(var type:Int){
+        MIC(MediaRecorder.AudioSource.MIC),
+        VOICE_COMMUNICATION(MediaRecorder.AudioSource.VOICE_COMMUNICATION)
     }
 
     protected var mVolume: Int = 0
