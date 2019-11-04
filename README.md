@@ -18,6 +18,7 @@
 
 1. 录制声道数设置，因为合成，所有你需要设置和背景音乐相同的声道数据，背景音乐默认需要是 44k ，单声道，16位
 因为单声道录制的声音比较清脆
+2. 如果设置单声道，播放的是双声道，（MIX）会让音乐拉长，反正节奏会变快
 
 #### 录制（可以选择背景音乐）
   - 录制中可以中断背景音乐，继续录制声音  建议优化这个思路 MixRecorder
@@ -45,7 +46,7 @@ Step 2. Add the dependency
 
 ```
 dependencies {
-    implementation 'com.github.SheTieJun:Mp3Recorder:0.0.4'
+    implementation 'com.github.SheTieJun:Mp3Recorder:0.0.5'
 }
 ```
 

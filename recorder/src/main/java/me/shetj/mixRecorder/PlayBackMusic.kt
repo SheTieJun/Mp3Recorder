@@ -239,6 +239,7 @@ class PlayBackMusic(private var defaultChannel: Int = CHANNEL_OUT_MONO) {
                 }
                 // 开始播放
                 audioTrack!!.play()
+                //音乐实际开始会慢一点
                 repeat(10) {
                     listener?.onFrameArrive(ByteArray(2048))
                 }

@@ -175,7 +175,9 @@ class MixRecordActivity : AppCompatActivity() {
                 }
             }
 //            mixRecorder = simpleRecorderBuilder(BaseRecorder.RecorderType.MIX,BaseRecorder.AudioSource.VOICE_COMMUNICATION)
-            mixRecorder = simpleRecorderBuilder(BaseRecorder.RecorderType.MIX,BaseRecorder.AudioSource.MIC,channel = 2)
+            mixRecorder = simpleRecorderBuilder(BaseRecorder.RecorderType.MIX,
+                BaseRecorder.AudioSource.MIC,
+                channel = BaseRecorder.AudioChannel.STEREO)
                 .setBackgroundMusic(musicUrl!!)//设置默认的背景音乐
                 .setRecordListener(listener)
                 .setPermissionListener(listener)
