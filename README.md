@@ -1,6 +1,6 @@
 # 录音工具-Mp3Recorder
 
-
+[![](https://jitpack.io/v/SheTieJun/Mp3Recorder.svg)](https://jitpack.io/#SheTieJun/Mp3Recorder)
 #### 功能点：
 
 1. 边录边转码,没有额外转码时间,录制音频为MP3保存本地。

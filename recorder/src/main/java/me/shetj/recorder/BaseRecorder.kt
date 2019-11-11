@@ -1,6 +1,5 @@
 package me.shetj.recorder
 
-import android.media.AudioFormat
 import android.media.MediaRecorder
 import me.shetj.player.PermissionListener
 import me.shetj.player.PlayerListener
@@ -22,6 +21,10 @@ abstract class BaseRecorder {
         VOICE_COMMUNICATION(MediaRecorder.AudioSource.VOICE_COMMUNICATION)
     }
 
+    /**
+     *   MONO(1), //单声道
+     *   STEREO(2) //双声道
+     */
     enum class AudioChannel(var type: Int){
         MONO(1), //单声道
         STEREO(2) //双声道

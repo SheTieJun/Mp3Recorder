@@ -1,6 +1,5 @@
 package me.shetj.mp3recorder.record
 
-import android.media.MediaRecorder
 import android.os.Bundle
 import android.widget.SeekBar
 import androidx.appcompat.app.AppCompatActivity
@@ -9,13 +8,12 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import kotlinx.android.synthetic.main.activity_mix_record.*
 import me.shetj.base.tools.app.ArmsUtils
 import me.shetj.base.tools.file.SDCardUtils
+import me.shetj.kt.setRecordListener
+import me.shetj.kt.setPlayListener
 import me.shetj.kt.simpleRecorderBuilder
-import me.shetj.mixRecorder.MixRecorder
 import me.shetj.mp3recorder.R
 import me.shetj.mp3recorder.record.utils.LocalMusicUtils
 import me.shetj.player.AudioPlayer
-import me.shetj.player.SimPlayerListener
-import me.shetj.player.SimRecordListener
 import me.shetj.recorder.BaseRecorder
 import me.shetj.recorder.RecordState
 import timber.log.Timber
@@ -159,55 +157,20 @@ class MixRecordActivity : AppCompatActivity() {
     private fun mixRecord() {
         val  filePath = SDCardUtils.getPath("record") + "/" + System.currentTimeMillis() +  "bg.mp3"
         if (mixRecorder == null) {
-            Timber.i("musicUrl = %s", musicUrl)
-            val listener = object : SimRecordListener() {
-                override fun onSuccess(file: String, time: Long) {
-                    super.onSuccess(file, time)
-                    Timber.i("file= %s", file)
-                    mp3Url = file
-                    stringBuffer?.append(file+"\n")
-                    tv_msg_foot.text = stringBuffer.toString()
-                }
-
-                override fun onRecording(time: Long, volume: Int) {
-                    super.onRecording(time, volume)
-                    Timber.i("time = $time  ,volume = $volume")
-                }
-            }
 //            mixRecorder = simpleRecorderBuilder(BaseRecorder.RecorderType.MIX,BaseRecorder.AudioSource.VOICE_COMMUNICATION)
             mixRecorder = simpleRecorderBuilder(BaseRecorder.RecorderType.MIX,
                 BaseRecorder.AudioSource.MIC,
                 channel = BaseRecorder.AudioChannel.STEREO)
                 .setBackgroundMusic(musicUrl!!)//设置默认的背景音乐
-                .setRecordListener(listener)
-                .setPermissionListener(listener)
-                .setWax(1f)
-                .setBackgroundMusicListener(object :SimPlayerListener(){
-                    override fun onStart(url: String, duration: Int) {
-                        super.onStart(url, duration)
-                        showMsg("开始播放")
-                    }
-
-                    override fun onPause() {
-                        super.onPause()
-                        showMsg("onPause")
-                    }
-
-                    override fun onResume() {
-                        super.onResume()
-                        showMsg("onResume")
-                    }
-
-                    override fun onCompletion() {
-                        super.onCompletion()
-                        showMsg("结束")
-                    }
-
-                    override fun onProgress(current: Int, size: Int) {
-                        super.onProgress(current, size)
-                        Timber.i("current = $current,size = $size")
-                    }
+                .setRecordListener(onRecording = { time, volume ->
+                    Timber.i("time = $time  ,volume = $volume")
+                },onSuccess = {file, time ->
+                    Timber.i("file= %s", file)
                 })
+                .setPlayListener(onProgress = {current: Int, duration: Int ->
+                    Timber.i("current = $current  ,duration = $duration")
+                })
+                .setWax(1f)
                 .setMaxTime(1800 * 1000) //设置最大时间
         }
         mixRecorder!!.setOutputFile(filePath)//设置输出文件
@@ -216,7 +179,6 @@ class MixRecordActivity : AppCompatActivity() {
             mixRecorder!!.startPlayMusic()
             ArmsUtils.makeText("开始录音")
         }
-
     }
 
     override fun onDestroy() {

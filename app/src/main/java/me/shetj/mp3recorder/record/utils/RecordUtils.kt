@@ -4,7 +4,7 @@ import me.shetj.base.tools.app.ArmsUtils
 import me.shetj.base.tools.file.FileUtils
 import me.shetj.base.tools.file.SDCardUtils
 import me.shetj.base.tools.json.EmptyUtils
-import me.shetj.kt.recorderBuilder
+import me.shetj.kt.simRecorderBuilder
 import me.shetj.player.AudioPlayer
 import me.shetj.player.PermissionListener
 import me.shetj.player.PlayerListener
@@ -71,7 +71,7 @@ class RecordUtils(private val callBack: RecordCallBack?
      * MIC 麦克风- 因为有噪音问题
      */
     private fun initRecorder() {
-        mRecorder = recorderBuilder(permissionListener = this, recordListener = this)
+        mRecorder = simRecorderBuilder(permissionListener = this, recordListener = this)
     }
 
     fun setBackgroundMusic(url:String){
