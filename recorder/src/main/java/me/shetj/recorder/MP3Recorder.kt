@@ -416,7 +416,7 @@ class MP3Recorder : BaseRecorder {
             isPause = true
             state = RecordState.PAUSED
             handler.sendEmptyMessage(HANDLER_PAUSE)
-            backgroundMusicIsPlay = bgPlayer!!.isPlaying
+            backgroundMusicIsPlay = bgPlayer.isPlaying
             bgPlayer.pause()
         }
     }
@@ -430,7 +430,7 @@ class MP3Recorder : BaseRecorder {
         state = RecordState.STOPPED
         duration = 0L
         mRecordFile = null
-        backgroundMusicIsPlay = bgPlayer!!.isPlaying
+        backgroundMusicIsPlay = bgPlayer.isPlaying
         handler.sendEmptyMessage(HANDLER_RESET)
         bgPlayer.stopPlay()
     }
@@ -566,7 +566,7 @@ class MP3Recorder : BaseRecorder {
             state = RecordState.RECORDING
             duration = 0L
             if (backgroundMusicIsPlay) {
-                bgPlayer!!.playNoStart(backgroundMusicUrl, backgroundMusicPlayerListener)
+                bgPlayer.playNoStart(backgroundMusicUrl, backgroundMusicPlayerListener)
             }
         }
     }
@@ -578,7 +578,7 @@ class MP3Recorder : BaseRecorder {
         handler.sendEmptyMessage(HANDLER_ERROR)
         state = RecordState.STOPPED
         backgroundMusicIsPlay = false
-        bgPlayer!!.stopPlay()
+        bgPlayer.stopPlay()
     }
 
 
@@ -601,7 +601,7 @@ class MP3Recorder : BaseRecorder {
             handler.sendEmptyMessageDelayed(HANDLER_AUTO_COMPLETE, waveSpeed.toLong())
             state = RecordState.STOPPED
             backgroundMusicIsPlay = false
-            bgPlayer!!.stopPlay()
+            bgPlayer.stopPlay()
         }
     }
 

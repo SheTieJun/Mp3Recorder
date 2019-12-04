@@ -33,7 +33,7 @@ open class SimPlayerListener : PlayerListener {
     }
 
 
-    override fun onProgress(current: Int, size: Int) {
+    override fun onProgress(current: Int, duration: Int) {
 
     }
 }

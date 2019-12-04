@@ -1,24 +1,22 @@
 # 录音工具-Mp3Recorder
 
-[![](https://jitpack.io/v/SheTieJun/Mp3Recorder.svg)](https://jitpack.io/#SheTieJun/Mp3Recorder)
 #### 功能点：
 
 1. 边录边转码,没有额外转码时间,录制音频为MP3保存本地。
-2. 录制中添加背景音乐（文件写入，所有支持耳机）， 可以控制写入背景音乐声音的大小
-3. 去噪音：MixRecorder使用VOICE_COMMUNICATION ,使用系统自带的AEC
-4. 录制过程中**暂停**,已录制的那段音频是**可以播放**的.
-6. 可以设置继续录制功能，使用的是Lame,可以直接文件末尾继续录制
-7. 音频权限提示，权限获取回调
-7. 支持获取声音大小
-10. 支持返回已经录制时长和当前声音大小
-11. 设置最大录制时间，达到最大时间触发自动完成
-10. 录音可以设置声音增强，但是可能会加大噪音~
+2. 添加背景音乐,背景音乐声音的大小
+3. 录制过程中**暂停**,已录制的那段音频是**可以播放**的.
+4. 可以设置继续录制功能，使用的是Lame,可以直接文件末尾继续录制
+5. 支持返回当前已录制时长和当前声音大小
+6. 设置最大录制时间，达到最大时间触发自动完成回调
+
 
 ### 缺点
 
 1. 录制声道数设置，因为合成，所有你需要设置和背景音乐相同的声道数据，背景音乐默认需要是 44k ，单声道，16位
 因为单声道录制的声音比较清脆
 2. 如果设置单声道，播放的是双声道，（MIX）会让音乐拉长，反正节奏会变快
+3. 去噪音：MixRecorder使用VOICE_COMMUNICATION ,使用系统自带的AEC,声音会变小、
+4. 录音可以设置声音增强，但是可能会加大噪音~
 
 #### 录制（可以选择背景音乐）
   - 录制中可以中断背景音乐，继续录制声音  建议优化这个思路 MixRecorder
@@ -44,6 +42,7 @@ allprojects {
 
 Step 2. Add the dependency
 
+[![](https://jitpack.io/v/SheTieJun/Mp3Recorder.svg)](https://jitpack.io/#SheTieJun/Mp3Recorder)
 ```
 dependencies {
     implementation 'com.github.SheTieJun:Mp3Recorder:0.0.5'
@@ -67,10 +66,12 @@ dependencies {
                 }
             }
             
-   val mRecorder  = simpleRecorderBuilder(BaseRecorder.RecorderType.MIX,BaseRecorder.AudioSource.MIC,channel = 2)
+   val mRecorder  = simpleRecorderBuilder(BaseRecorder.RecorderType.MIX,
+                   BaseRecorder.AudioSource.MIC,channel = 2)
                 .setRecordListener(listener)
                 .setPermissionListener(listener)
 ```
+#### 1.录音控制
 ```
       when {
             mRecorder?.state == RecordState.STOPPED -> {
@@ -92,7 +93,7 @@ dependencies {
         }  
 ```
 
-   #### 2. 开始录音
+#### 2. 开始录音
 
 ```kotlin
   mRecorder!!.start()

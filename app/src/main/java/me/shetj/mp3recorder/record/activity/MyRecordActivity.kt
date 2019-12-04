@@ -31,15 +31,12 @@ class MyRecordActivity : BaseActivity<BasePresenter<*>>(), Callback {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_my_record)
-        ArmsUtils.statuInScreen(this, true)
-        canRecord()
-        //展示界面
-        initView()
-        initData()
     }
 
 
     override fun initView() {
+        ArmsUtils.statuInScreen(this, true)
+        canRecord()
         mFrameLayout = findViewById(R.id.frameLayout)
         myRecordAction = MyRecordPage(this, mFrameLayout, this)
         recordAction = RecordPage(this, mFrameLayout, this)

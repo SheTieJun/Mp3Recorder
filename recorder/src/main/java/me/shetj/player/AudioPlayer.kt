@@ -346,6 +346,7 @@ class AudioPlayer : MediaPlayer.OnPreparedListener, MediaPlayer.OnErrorListener,
     /**
      * 设置媒体
      */
+    @Suppress("DEPRECATION")
     private fun initMedia() {
         if (mediaPlayer == null) {
             mediaPlayer = MediaPlayer()
