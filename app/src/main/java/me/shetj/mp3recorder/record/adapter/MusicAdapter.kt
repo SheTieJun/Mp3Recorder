@@ -13,7 +13,7 @@ class MusicAdapter(date: ArrayList<Music>) :BaseQuickAdapter<Music,BaseViewHolde
 
     private var playPosition = -1 //播放的谁
 
-    override fun convert(helper: BaseViewHolder?, item: Music?) {
+    override fun convert(helper: BaseViewHolder, item: Music) {
         item?.apply {
             helper?.setText(R.id.tv_name,name)
                     ?.setText(R.id.tv_time, Util.formatSeconds3((duration/1000).toInt()))

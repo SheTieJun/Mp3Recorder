@@ -9,7 +9,7 @@ import android.widget.FrameLayout
 import com.tbruyelle.rxpermissions2.RxPermissions
 import me.shetj.base.base.BaseActivity
 import me.shetj.base.base.BasePresenter
-import me.shetj.base.tools.app.ArmsUtils
+import me.shetj.base.tools.app.ArmsUtils.Companion.statuInScreen
 import me.shetj.mp3recorder.R
 import me.shetj.mp3recorder.record.RecordingNotification
 import me.shetj.mp3recorder.record.utils.Callback
@@ -35,7 +35,7 @@ class MyRecordActivity : BaseActivity<BasePresenter<*>>(), Callback {
 
 
     override fun initView() {
-        ArmsUtils.statuInScreen(this, true)
+        statuInScreen( true)
         canRecord()
         mFrameLayout = findViewById(R.id.frameLayout)
         myRecordAction = MyRecordPage(this, mFrameLayout, this)
