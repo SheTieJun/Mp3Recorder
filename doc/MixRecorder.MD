@@ -7,9 +7,11 @@
 ```
  44k ，双声道，16位   
  必须保持和录音的参数一样，如果不一样需要自行转码音频或者修改库代码
+```
  
- fix : 已经添加参数设置声道数量，如果设置单声道，然后播放的双声道音乐，音乐会被拉长
- 
+```
+ fix : 已经添加参数设置声道数量
+ 但是如果设置单声道，然后播放的双声道音乐，音乐会被拉长 
 ```
 
 ### 背景音乐实现思路
@@ -35,13 +37,16 @@
                     //录音完成
                     Timber.i("file= %s", file)
               }
+              
      //设置录音来源和单双声道  ，录制中无法改变属性 AudioRecord 的相关属性
      mixRecorder = MixRecorder(MediaRecorder.AudioSource.VOICE_COMMUNICATION,2)
-                .setOutputFile(filePath)//设置输出文件
+     
+     //设置相关参数和回调
+                mixRecorder.setOutputFile(filePath)//设置输出文件
                 .setBackgroundMusic(musicUrl, true)//设置默认的背景音乐
                 .setRecordListener(listener)
                 .setPermissionListener(listener)
-                setWax(wax)//声音增强
+                .setWax(wax)//声音增强,增大噪音
                 .setMaxTime(1800 * 1000)//设置最大时间
 ```
 

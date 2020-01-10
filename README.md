@@ -14,7 +14,7 @@
 
 1. 录制声道数设置，因为合成，所有你需要设置和背景音乐相同的声道数据，背景音乐默认需要是 44k ，单声道，16位
 因为单声道录制的声音比较清脆
-2. 如果设置单声道，播放的是双声道，（MIX）会让音乐拉长，反正节奏会变快
+2. 如果设置单声道，播放的背景是双声道，（MIX）会让音乐拉长；反之双声音合成，背景音乐是单声音，节奏会变快
 3. 去噪音：MixRecorder使用VOICE_COMMUNICATION ,使用系统自带的AEC,声音会变小、
 4. 录音可以设置声音增强，但是可能会加大噪音~
 
@@ -52,7 +52,8 @@ dependencies {
 
 #### [demo](https://github.com/SheTieJun/Mp3Recorder/tree/master/app) 中继续录制 
 - 继续录制，是通过音频文件合并，因为重录希望上次录制的没有丢掉,所有采用的文件拼接
-
+- [MixRecordUtils](/app/src/main/java/me/shetj/mp3recorder/record\utils/MixRecordUtils.kt) 
+- [RecordUtils](/app/src/main/java/me/shetj/mp3recorder/record\utils/RecordUtils.kt) 
 ### 初始化
 ```
    val listener = object : SimRecordListener() {
@@ -105,7 +106,7 @@ dependencies {
 ```kotlin
  mRecorder?.onPause() //暂停
  mRecorder?.onResume() //重新开始
- mRecorder?.state //当前录音的状态 3个专题，停止，录音中，暂停
+ mRecorder?.state     //获取当前录音的状态 3个状态，停止，录音中，暂停
 ```
 
 #### 4. 背景音乐相关
@@ -126,11 +127,10 @@ dependencies {
 ```
    
 
-
 ### 1. 录音方式一：[MixRecorder](/doc/MixRecorder.MD) 
 ### 2. 录音方式二： [MP3Recorder](/doc/Mp3Recorder.MD)
 ### 3. 播放音乐：[AudioPlayer](/doc/AudioPlayer.MD)
-### 4. 播放音乐,可以得到PCM：[PlayBackMusic](/doc/PlayBackMusic.MD)
+### 4. 播放音乐,解码成PCM进行播放：[PlayBackMusic](/doc/PlayBackMusic.MD)
 ### 5. 播放PCM文件：[AudioTrackManager](/doc/AudioTrackManager.MD)
 
 ## 其他

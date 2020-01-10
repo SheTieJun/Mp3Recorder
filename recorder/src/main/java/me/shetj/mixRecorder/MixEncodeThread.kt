@@ -13,8 +13,6 @@ import java.io.FileOutputStream
 import java.io.IOException
 import java.util.*
 
-
-class MixEncodeThread
 /**
  * Constructor
  *
@@ -23,9 +21,10 @@ class MixEncodeThread
  * @param isContinue 是否写在文件末尾
  * @throws FileNotFoundException file not found
  */
+class MixEncodeThread
 @Throws(FileNotFoundException::class)
 constructor(file: File, bufferSize: Int, isContinue: Boolean, private val is2CHANNEL: Boolean) :
-    HandlerThread("DataEncodeThread"), AudioRecord.OnRecordPositionUpdateListener {
+    HandlerThread("MixEncodeThread"), AudioRecord.OnRecordPositionUpdateListener {
     private var mHandler: StopHandler? = null
     private val mMp3Buffer: ByteArray
     private val mFileOutputStream: FileOutputStream?

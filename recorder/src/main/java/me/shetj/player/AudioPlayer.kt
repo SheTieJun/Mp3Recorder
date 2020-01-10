@@ -24,7 +24,7 @@ import java.util.concurrent.atomic.AtomicBoolean
  * ** 暂停  [AudioPlayer.pause] <br></br>
  * ** 恢复  [AudioPlayer.resume] <br></br>
  * ** 停止  [AudioPlayer.stopPlay] <br></br>
- * ** 停止计时  [AudioPlayer.stopProgress]   <br></br>
+ * ** 滑动seekBar 停止计时  [AudioPlayer.stopProgress]   <br></br>
  * ** 开始计时  [AudioPlayer.startProgress]   <br></br>
  * <br></br>
  ********** */
@@ -71,7 +71,10 @@ class AudioPlayer : MediaPlayer.OnPreparedListener, MediaPlayer.OnErrorListener,
         override fun handleMessage(msg: Message) {
             super.handleMessage(msg)
             when (msg.what) {
-                HANDLER_PLAYING -> if (listener != null && mediaPlayer != null && mediaPlayer!!.isPlaying) {
+                HANDLER_PLAYING -> if (listener != null
+                    && mediaPlayer != null
+                    && mediaPlayer!!.isPlaying
+                    && !hasMessages(HANDLER_PLAYING) ) {
                     listener!!.onProgress(mediaPlayer!!.currentPosition, mediaPlayer!!.duration)
                     this.sendEmptyMessageDelayed(HANDLER_PLAYING, 300)
                 }
@@ -111,7 +114,7 @@ class AudioPlayer : MediaPlayer.OnPreparedListener, MediaPlayer.OnErrorListener,
     val isPlaying: Boolean
         get() = mediaPlayer != null && mediaPlayer!!.isPlaying
 
-    val duration: Int
+    val currentPosition: Int
         get() = if (mediaPlayer != null) {
             mediaPlayer!!.duration
         } else 0
@@ -134,20 +137,6 @@ class AudioPlayer : MediaPlayer.OnPreparedListener, MediaPlayer.OnErrorListener,
         mAudioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
     }
 
-    //	/**
-    //	 * 如果想使用边下载边播放 就使用该方法获取到新的url 再进行播放
-    //	 * @param context 上下文
-    //	 * @param urlString 播放的URL,必须是HTTP
-    //	 * @return 下载的链接地址
-    //	 */
-    //	public String getCacheUrl(Context context, String urlString){
-    //		if (context != null  && !TextUtils.isEmpty(urlString) && urlString.startsWith("http")) {
-    //			return  Manager.newInstance().getProxy(context).getProxyUrl(urlString);
-    //		}
-    //		return urlString;
-    //	}
-
-
     /**
      * 设置声音
      * @param volume
@@ -159,7 +148,10 @@ class AudioPlayer : MediaPlayer.OnPreparedListener, MediaPlayer.OnErrorListener,
     }
 
     /**
-     * 通过url 比较 进行播放 还是暂停操作
+     * 通过url比较
+     * 1.进行播放
+     * 2.暂停操作
+     * 每一个url 和 [PlayerListener] 是一对一存在的
      * @param url 播放的url
      * @param listener 监听变化
      */
@@ -175,12 +167,30 @@ class AudioPlayer : MediaPlayer.OnPreparedListener, MediaPlayer.OnErrorListener,
                 resume()
             }
         } else {
+            //先让当前url回调结束
+            this.listener?.onCompletion()
             //直接播放
             play(url, listener)
         }
     }
 
+    /**
+     * 只有在不播放的时候设置起效
+     */
+    fun setSeekToPlay(seekTo: Int){
+        if (isPause) {
+            seekToPlay = seekTo
+        }
+    }
 
+    /**
+     * 只更新listener
+     */
+    fun updateListener(listener: PlayerListener?) {
+        if (listener != null) {
+            this.listener = listener
+        }
+    }
     /**
      * 播放url
      * @param url 播放的url
@@ -207,7 +217,6 @@ class AudioPlayer : MediaPlayer.OnPreparedListener, MediaPlayer.OnErrorListener,
      * @param listener 回调监听
      */
     fun playNoStart(url: String?, listener: PlayerListener? = null) {
-
         if (TextUtils.isEmpty(url)){
             listener?.onError(Exception("url can not be null"))
         }
@@ -222,21 +231,6 @@ class AudioPlayer : MediaPlayer.OnPreparedListener, MediaPlayer.OnErrorListener,
         }
     }
 
-    private fun configMediaPlayer() {
-        try {
-            mediaPlayer!!.reset()
-            mediaPlayer!!.setDataSource(currentUrl)
-            mediaPlayer!!.prepareAsync()
-            mediaPlayer!!.setOnPreparedListener(this)
-            mediaPlayer!!.setOnErrorListener(this)
-            mediaPlayer!!.setOnCompletionListener(this)
-            mediaPlayer!!.setOnSeekCompleteListener(this)
-            mediaPlayer!!.isLooping = isLoop
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-
-    }
 
     /**
      * 暂停，并且停止计时
@@ -257,6 +251,10 @@ class AudioPlayer : MediaPlayer.OnPreparedListener, MediaPlayer.OnErrorListener,
     fun resume() {
         if (isPause && !TextUtils.isEmpty(currentUrl)) {
             mediaPlayer!!.start()
+            if (seekToPlay != 0) {
+                mediaPlayer!!.seekTo(seekToPlay)
+                seekToPlay = 0
+            }
             handler.sendEmptyMessage(HANDLER_RESUME)
             startProgress()
         }
@@ -304,6 +302,37 @@ class AudioPlayer : MediaPlayer.OnPreparedListener, MediaPlayer.OnErrorListener,
         }
     }
 
+    /**
+     * 开始计时
+     * 使用场景：拖动结束
+     */
+    fun startProgress() {
+        handler.sendEmptyMessage(HANDLER_PLAYING)
+    }
+
+    /**
+     * 停止计时
+     * 使用场景：拖动进度条
+     */
+    fun stopProgress() {
+        handler.removeMessages(HANDLER_PLAYING)
+    }
+
+
+    private fun configMediaPlayer() {
+        try {
+            mediaPlayer!!.reset()
+            mediaPlayer!!.setDataSource(currentUrl)
+            mediaPlayer!!.prepareAsync()
+            mediaPlayer!!.setOnPreparedListener(this)
+            mediaPlayer!!.setOnErrorListener(this)
+            mediaPlayer!!.setOnCompletionListener(this)
+            mediaPlayer!!.setOnSeekCompleteListener(this)
+            mediaPlayer!!.isLooping = isLoop
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
 
     /**
      * 清空播放信息
@@ -324,24 +353,6 @@ class AudioPlayer : MediaPlayer.OnPreparedListener, MediaPlayer.OnErrorListener,
     private fun setIsPlay(isPlay: Boolean) {
         this.isPlay.set(isPlay)
     }
-
-
-    /**
-     * 开始计时
-     * 使用场景：拖动结束
-     */
-    fun startProgress() {
-        handler.sendEmptyMessage(HANDLER_PLAYING)
-    }
-
-    /**
-     * 停止计时
-     * 使用场景：拖动进度条
-     */
-    fun stopProgress() {
-        handler.removeMessages(HANDLER_PLAYING)
-    }
-
 
     /**
      * 设置媒体
@@ -370,8 +381,8 @@ class AudioPlayer : MediaPlayer.OnPreparedListener, MediaPlayer.OnErrorListener,
             return
         }
         mp.start()
-        startProgress()
         handler.sendEmptyMessage(HANDLER_START)
+        startProgress()
     }
 
     override fun onError(mp: MediaPlayer, what: Int, extra: Int): Boolean {

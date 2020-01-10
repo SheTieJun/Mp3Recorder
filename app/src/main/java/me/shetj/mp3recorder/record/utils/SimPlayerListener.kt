@@ -1,4 +1,4 @@
-package me.shetj.audio.record.utils
+package me.shetj.mp3recorder.record.utils
 
 import android.util.Log
 import android.widget.SeekBar

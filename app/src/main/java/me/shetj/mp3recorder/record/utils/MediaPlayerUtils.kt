@@ -186,7 +186,7 @@ class MediaPlayerUtils : LifecycleListener,
     /**
      * 开始计时
      */
-    private fun startProgress() {
+      fun startProgress() {
         if (mediaPlayer != null && mediaPlayer!!.isPlaying) {
             timeDisposable = Flowable.interval(0, 150, TimeUnit.MILLISECONDS)
                     .subscribeOn(Schedulers.io())
@@ -203,7 +203,7 @@ class MediaPlayerUtils : LifecycleListener,
     /**
      * 停止计时
      */
-    private fun stopProgress() {
+      fun stopProgress() {
         if (timeDisposable != null && !timeDisposable!!.isDisposed) {
             timeDisposable!!.dispose()
             timeDisposable = null
