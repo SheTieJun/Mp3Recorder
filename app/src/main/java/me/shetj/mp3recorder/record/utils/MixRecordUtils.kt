@@ -39,16 +39,15 @@ class MixRecordUtils(private val callBack: RecordCallBack?
 
     private var startTime: Long = 0 //秒 s
     private var mRecorder: MixRecorder? = null
-    var saveFile = ""
-    private val remindTime = 3480000 //毫秒
+    private var saveFile = ""
 
     @JvmOverloads
     fun startOrPause(file :String = "") {
         if (mRecorder == null) {
             initRecorder()
         }
-        when {
-            mRecorder?.state == RecordState.STOPPED -> {
+        when (mRecorder?.state) {
+            RecordState.STOPPED -> {
                 if (TextUtils.isEmpty(file)) {
                     val mRecordFile = SDCardUtils.getPath("record") + "/" + System.currentTimeMillis() + ".mp3"
                     this.saveFile = mRecordFile
@@ -59,10 +58,10 @@ class MixRecordUtils(private val callBack: RecordCallBack?
                 mRecorder?.setOutputFile(saveFile,!TextUtils.isEmpty(file))
                 mRecorder?.start()
             }
-            mRecorder?.state == RecordState.PAUSED ->{
+            RecordState.PAUSED -> {
                 mRecorder?.onResume()
             }
-            mRecorder?.state == RecordState.RECORDING ->{
+            RecordState.RECORDING -> {
                 mRecorder?.onPause()
             }
         }

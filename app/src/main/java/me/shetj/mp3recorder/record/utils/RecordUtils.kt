@@ -46,8 +46,8 @@ class RecordUtils(private val callBack: RecordCallBack?
         if (mRecorder == null) {
             initRecorder()
         }
-        when {
-            mRecorder?.state == RecordState.STOPPED -> {
+        when (mRecorder?.state) {
+            RecordState.STOPPED -> {
                 if (EmptyUtils.isEmpty(file)) {
                     val mRecordFile = SDCardUtils.getPath("record") + "/" + System.currentTimeMillis() + ".mp3"
                     this.saveFile = mRecordFile
@@ -57,10 +57,10 @@ class RecordUtils(private val callBack: RecordCallBack?
                 mRecorder?.setOutputFile(saveFile,isContinue)
                 mRecorder?.start()
             }
-            mRecorder?.state == RecordState.PAUSED->{
+            RecordState.PAUSED -> {
                 mRecorder?.onResume()
             }
-            mRecorder?.state == RecordState.RECORDING ->{
+            RecordState.RECORDING -> {
                 mRecorder?.onPause()
             }
         }

@@ -4,7 +4,7 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import androidx.recyclerview.widget.RecyclerView
-import com.chad.library.adapter.base.BaseQuickAdapter
+import com.chad.library.adapter.base.listener.OnItemClickListener
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import io.reactivex.android.schedulers.AndroidSchedulers
 import me.shetj.mp3recorder.R
@@ -21,7 +21,7 @@ class MusicListBottomSheetDialog (context: Context) : View.OnClickListener {
 
 
     private val easyBottomSheetDialog: BottomSheetDialog?
-    private var onItemClickListener: BaseQuickAdapter.OnItemClickListener? = null
+    private var onItemClickListener: OnItemClickListener? = null
     private val audioPlayer: AudioPlayer
     init {
         this.easyBottomSheetDialog = buildBottomSheetDialog(context)
@@ -71,12 +71,14 @@ class MusicListBottomSheetDialog (context: Context) : View.OnClickListener {
                     }
                 }
             }
+            recyclerView.adapter = this
+            setEmptyView(R.layout.base_empty_date_view)
         }
-        recyclerView.adapter = musicAdapter
+
         LocalMusicUtils.loadFileData(context)
                 ?.observeOn(AndroidSchedulers.mainThread())
                 ?.subscribe ({
-            musicAdapter.setNewData(it)
+            musicAdapter.setNewData(it.toMutableList())
         },{ Timber.e(it) })
         musicAdapter.setOnItemClickListener { adapter, view, position ->
             musicAdapter.setSelectPosition(position)
@@ -105,7 +107,7 @@ class MusicListBottomSheetDialog (context: Context) : View.OnClickListener {
         }
     }
 
-    fun setOnItemClickListener(onItemClickListener: BaseQuickAdapter.OnItemClickListener) {
+    fun setOnItemClickListener(onItemClickListener: OnItemClickListener) {
         this.onItemClickListener = onItemClickListener
     }
 }

@@ -12,8 +12,8 @@ import android.widget.ImageView
 import android.widget.RelativeLayout
 import androidx.recyclerview.widget.RecyclerView
 import com.chad.library.adapter.base.BaseQuickAdapter
-import com.chad.library.adapter.base.BaseViewHolder
-import me.shetj.audio.record.view.RecordBottomSheetDialog
+import com.chad.library.adapter.base.viewholder.BaseViewHolder
+import me.shetj.mp3recorder.record.view.RecordBottomSheetDialog
 import me.shetj.base.tools.app.ArmsUtils
 import me.shetj.mp3recorder.R
 import me.shetj.mp3recorder.record.adapter.RecordAdapter
@@ -56,7 +56,7 @@ class MyRecordPage(private val context: Activity, mRoot: ViewGroup, private var 
 
     private fun initData() {
         val allRecord = RecordDbUtils.getInstance().allRecord
-        recordAdapter.setNewData(allRecord)
+        recordAdapter.setNewData(allRecord.toMutableList())
         checkShow(allRecord)
     }
 
@@ -80,7 +80,7 @@ class MyRecordPage(private val context: Activity, mRoot: ViewGroup, private var 
         mRlRecordView = view.findViewById(R.id.rl_record_view)
         //设置界面
         recordAdapter = RecordAdapter(ArrayList())
-        recordAdapter.bindToRecyclerView(mRecyclerView)
+        mRecyclerView?.adapter = recordAdapter
         //设置点击
         recordAdapter.setOnItemClickListener { _, _, position -> recordAdapter.setPlayPosition(position) }
         recordAdapter.setOnItemChildClickListener { adapter, view1, position ->
@@ -90,13 +90,10 @@ class MyRecordPage(private val context: Activity, mRoot: ViewGroup, private var 
                         val dialog = showBottomDialog(position, adapter)
                         dialog?.showBottomSheet()
                     }
-                    else -> {
-                    }
                 }
             }
         }
         recordAdapter.setOnItemLongClickListener { adapter, _, position ->
-            recordAdapter.setPlayPosition(position)
             val dialog = showBottomDialog(position, adapter)
             dialog?.showBottomSheet()
             true
@@ -104,7 +101,7 @@ class MyRecordPage(private val context: Activity, mRoot: ViewGroup, private var 
 
         //设置空界面
         val emptyView = LayoutInflater.from(context).inflate(R.layout.empty_view, null)
-        recordAdapter.emptyView = emptyView
+        recordAdapter.setEmptyView(emptyView)
         //空界面点击开启
         emptyView.findViewById<View>(R.id.cd_start_record).setOnClickListener { v ->
             if (!recordAdapter.isUploading) {
@@ -127,7 +124,7 @@ class MyRecordPage(private val context: Activity, mRoot: ViewGroup, private var 
 
     }
 
-    private fun showBottomDialog(position: Int, adapter: BaseQuickAdapter<Any, BaseViewHolder>): RecordBottomSheetDialog? {
+    private fun showBottomDialog(position: Int, adapter: BaseQuickAdapter<*, BaseViewHolder>): RecordBottomSheetDialog? {
         recordAdapter.onPause()
         return recordAdapter.getItem(position)?.let {
             (mRecyclerView!!.findViewHolderForAdapterPosition(position + adapter.headerLayoutCount) as BaseViewHolder).let { it1 ->
@@ -146,7 +143,6 @@ class MyRecordPage(private val context: Activity, mRoot: ViewGroup, private var 
                 val lastRecord = RecordDbUtils.getInstance().lastRecord
                 if (null != lastRecord) {
                     recordAdapter.addData(0, lastRecord)
-                    recordAdapter.setPlayPosition(0)
                     mRecyclerView!!.scrollToPosition(0)
                     checkShow(recordAdapter.data)
                 }

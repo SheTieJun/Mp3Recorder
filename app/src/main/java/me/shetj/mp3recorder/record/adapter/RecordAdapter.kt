@@ -7,18 +7,15 @@ import android.view.animation.AccelerateDecelerateInterpolator
 import android.widget.ProgressBar
 import android.widget.SeekBar
 import android.widget.TextView
+import androidx.core.animation.doOnEnd
 import com.chad.library.adapter.base.BaseQuickAdapter
-import com.chad.library.adapter.base.BaseViewHolder
+import com.chad.library.adapter.base.viewholder.BaseViewHolder
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
-import me.shetj.mp3recorder.record.utils.SimPlayerListener
 import me.shetj.base.tools.app.ArmsUtils
 import me.shetj.mp3recorder.R
 import me.shetj.mp3recorder.record.bean.Record
-import me.shetj.mp3recorder.record.utils.LifecycleListener
-import me.shetj.mp3recorder.record.utils.MediaPlayerUtils
-import me.shetj.mp3recorder.record.utils.SPlayerListener
-import me.shetj.mp3recorder.record.utils.Util
+import me.shetj.mp3recorder.record.utils.*
 import java.io.File
 
 
@@ -32,12 +29,12 @@ import java.io.File
  * 5.上传成功后重置
  * @author shetj
  */
-class RecordAdapter(data: List<Record>?) : BaseQuickAdapter<Record, BaseViewHolder>(R.layout.item_record_view, data),
+class RecordAdapter(data: MutableList<Record>?) : BaseQuickAdapter<Record, BaseViewHolder>(R.layout.item_record_view, data),
     LifecycleListener {
 
     var curPosition = -1
         private set
-    private val mediaUtils: MediaPlayerUtils?//播放
+    private val mediaUtils: MediaPlayerUtils= MediaPlayerUtils()
     private var mCompositeDisposable: CompositeDisposable? = null
     /**
      * 是否是上传中,上传的时候不能点击其他区域，可以返回
@@ -45,55 +42,30 @@ class RecordAdapter(data: List<Record>?) : BaseQuickAdapter<Record, BaseViewHold
     var isUploading = false
         private set
 
-    init {
-        mediaUtils = MediaPlayerUtils()
-    }
+    override fun convert(helper: BaseViewHolder, item: Record?) {
+        item?.let {
+            val itemPosition = helper.layoutPosition - headerLayoutCount
+            val seekBar = helper.getView<SeekBar>(R.id.seekBar_record)
+            seekBar.max = item.audioLength * 1000
+            seekBar.tag = item.audio_url
+            val listener = RecordPlayerListener(helper, mediaUtils)
+            val isCurrent: Boolean = mediaUtils.currentUrl == item.audio_url
+            if (isCurrent) {
+                mediaUtils.updateListener(listener)
+            }
 
-    override fun convert(helper: BaseViewHolder, item: Record) {
-        val itemPosition = helper.layoutPosition - headerLayoutCount
-        helper.setText(R.id.tv_name, item.audioName)
-                .setGone(R.id.tv_time, curPosition != itemPosition)
-                .setGone(R.id.rl_record_view2, curPosition == itemPosition)
+            helper.setText(R.id.tv_name, item.audioName)
+                .setGone(R.id.rl_record_view2, curPosition != itemPosition)
                 .setText(R.id.tv_time_all, Util.formatSeconds3(item.audioLength))
                 .setText(R.id.tv_read_time, Util.formatSeconds3(0))
-                .setProgress(R.id.progressbar_upload, 0)
                 .setText(R.id.tv_time, Util.formatSeconds2(item.audioLength))
-                .addOnClickListener(R.id.tv_more)
-        val seekBar = helper.getView<SeekBar>(R.id.seekBar_record)
-        seekBar.max = item.audioLength * 1000
-        val listener = SimPlayerListener(helper)
-        //拖动
-        seekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-            override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
+                addChildClickViewIds(R.id.tv_more)
 
-            }
-
-            override fun onStartTrackingTouch(seekBar: SeekBar) {
-
-            }
-
-            override fun onStopTrackingTouch(seekBar: SeekBar) {
-                if (null != mediaUtils) {
-                    if (mediaUtils.currentUrl == item.audio_url) {
-                        mediaUtils.seekTo(seekBar.progress)
-                    }
-                }
-                helper.setText(R.id.tv_read_time, Util.formatSeconds3(seekBar.progress / 1000))
-            }
-        })
-
-        if (curPosition == itemPosition) {
-            //每次点击就切换播放源
-            if (File(item.audio_url!!).exists()) {
-                mediaUtils!!.playNoStart(item.audio_url!!, listener)
-            } else {
-                ArmsUtils.makeText("当前选中文件已经丢失~，请删除该记录后重新录制！")
-            }
+            //播放
+            helper.getView<View>(R.id.iv_play).setOnClickListener { playMusic(item.audio_url, listener) }
+            //上传
+            helper.getView<View>(R.id.tv_upload).setOnClickListener { startUpload(helper, item) }
         }
-        //播放
-        helper.getView<View>(R.id.iv_play).setOnClickListener { view -> playMusic(item.audio_url, listener) }
-        //上传
-        helper.getView<View>(R.id.tv_upload).setOnClickListener { v -> startUpload(helper, item) }
     }
 
     /**
@@ -118,8 +90,15 @@ class RecordAdapter(data: List<Record>?) : BaseQuickAdapter<Record, BaseViewHold
             return
         }
         isUploading = true
-        recyclerView.alpha = 0.7f
-        val valueAnimator = showAnimator(progressBar, tvProgress, 0, 100, 1500)
+        weakRecyclerView.get()?.alpha = 0.7f
+        val valueAnimator = showAnimator(progressBar, tvProgress, 0, 100, 2500).apply {
+            doOnEnd {
+                isUploading = false
+                progressBar.progress = 0
+                progressBar.alpha = 0f
+                tvProgress.text = ""
+            }
+        }
         progressBar.alpha = 1f
         //开始执行进度动画
         valueAnimator.start()
@@ -153,7 +132,7 @@ class RecordAdapter(data: List<Record>?) : BaseQuickAdapter<Record, BaseViewHold
         }
         //停止音乐
         if (targetPos == -1 || curPosition != targetPos) {
-            if (null != mediaUtils && !mediaUtils.isPause) {
+            if (!mediaUtils.isPause) {
                 mediaUtils.pause()
             }
         }
@@ -169,15 +148,11 @@ class RecordAdapter(data: List<Record>?) : BaseQuickAdapter<Record, BaseViewHold
                 notifyItemChanged(targetPos + headerLayoutCount)
             }
         }
-        if (curPosition != -1) {
-            recyclerView.smoothScrollToPosition(targetPos + 1)
-        }
-
     }
 
 
     fun playMusic(url: String?, listener: SPlayerListener) {
-        mediaUtils?.playOrStop(url!!, listener)
+        mediaUtils.playOrStop(url!!, listener)
     }
 
     override fun onStart() {}

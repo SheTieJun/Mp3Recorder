@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.jakewharton.rxbinding3.view.clicks
 import io.reactivex.android.schedulers.AndroidSchedulers
 import kotlinx.android.synthetic.main.activity_mix_record.*
+import me.shetj.base.kt.showToast
 import me.shetj.base.tools.app.ArmsUtils
 import me.shetj.base.tools.file.SDCardUtils
 import me.shetj.kt.setRecordListener
@@ -24,7 +25,6 @@ import java.util.concurrent.TimeUnit
  */
 class MixRecordActivity : AppCompatActivity() {
 
-    private var stringBuffer: StringBuffer?=null
     private var musicUrl: String? =null
     private var mixRecorder: BaseRecorder?=null
     private var position = 0
@@ -51,7 +51,7 @@ class MixRecordActivity : AppCompatActivity() {
         }
 
         bt_stop.setOnClickListener {
-            stop()
+            stopRecord()
         }
 
         bt_change_bg.setOnClickListener {
@@ -72,7 +72,7 @@ class MixRecordActivity : AppCompatActivity() {
         bt_audition.setOnClickListener {
             mp3Url?.let {
                 //先暂停再开始播放
-                stop()
+                stopRecord()
                 audioPlayer.playOrPause(mp3Url!!,null)
             }
         }
@@ -90,7 +90,6 @@ class MixRecordActivity : AppCompatActivity() {
 
             }
         })
-        stringBuffer = StringBuffer()
     }
 
     private fun changeMusic() {
@@ -111,7 +110,7 @@ class MixRecordActivity : AppCompatActivity() {
         mixRecorder?.startPlayMusic()
     }
 
-    private fun stop() {
+    private fun stopRecord() {
         mixRecorder?.let {
             if (mixRecorder!!.isRecording) {
                 mixRecorder?.stop()
@@ -164,7 +163,8 @@ class MixRecordActivity : AppCompatActivity() {
                 .setBackgroundMusic(musicUrl!!)//设置默认的背景音乐
                 .setRecordListener(onRecording = { time, volume ->
                     Timber.i("time = $time  ,volume = $volume")
-                },onSuccess = {file, time ->
+                },onSuccess = { file, _ ->
+                    "录制成功：$file".showToast()
                     Timber.i("file= %s", file)
                 })
                 .setPlayListener(onProgress = {current: Int, duration: Int ->
@@ -182,7 +182,7 @@ class MixRecordActivity : AppCompatActivity() {
     }
 
     override fun onDestroy() {
-        stop()
+        stopRecord()
         super.onDestroy()
     }
 }

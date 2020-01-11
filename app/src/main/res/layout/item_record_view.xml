@@ -14,17 +14,7 @@
         android:visibility="gone"
         android:progressDrawable="@drawable/progressbar_upload_loading"
         style="?android:attr/progressBarStyleHorizontal"/>
-    <TextView
-        android:id="@+id/tv_progress"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textColor="#FFFFBB22"
-        android:layout_gravity="right|center_vertical"
-        android:text="90%"
-        android:visibility="gone"
-        android:layout_marginRight="20dp"
-        android:textSize="18sp"
-        />
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -63,6 +53,7 @@
             android:id="@+id/rl_record_view2"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:visibility="gone"
             android:layout_alignParentBottom="true"
             >
             <SeekBar
@@ -146,4 +137,15 @@
             android:layout_height="1px"
             android:background="#FFE1E1E1"/>
     </LinearLayout>
+    <TextView
+        android:id="@+id/tv_progress"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="#FFFFBB22"
+        android:layout_gravity="right|center_vertical"
+        android:text="90%"
+        android:visibility="gone"
+        android:layout_marginRight="20dp"
+        android:textSize="18sp"
+        />
 </FrameLayout>

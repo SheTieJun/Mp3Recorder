@@ -183,6 +183,19 @@ class MediaPlayerUtils : LifecycleListener,
         }
     }
 
+    fun updateListener(listener: SPlayerListener?) {
+        if (listener != null) {
+            this.listener = listener
+        }
+    }
+
+    fun getCurrentPosition(): Int {
+        return if (mediaPlayer != null) {
+            mediaPlayer!!.currentPosition
+        } else 0
+    }
+
+
     /**
      * 开始计时
      */

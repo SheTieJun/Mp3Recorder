@@ -136,5 +136,4 @@ dependencies {
 ## 其他
 
 ##### 开发的一些记录[Update_log](/doc/Update_log.md)
-
-> 人生苦短，请选择科学上网。[电梯直达](https://qwertyuiopzxcvbnm.com/auth/register?code=Sncl)  
+ 

@@ -16,7 +16,7 @@ import android.view.inputmethod.EditorInfo
 import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import com.chad.library.adapter.base.BaseQuickAdapter
+import com.chad.library.adapter.base.listener.OnItemClickListener
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Flowable
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -85,7 +85,7 @@ open class RecordPage(private val context: AppCompatActivity, mRoot: ViewGroup, 
         initView(root)
         initData()
         musicDialog = MusicListBottomSheetDialog(context)
-        musicDialog.setOnItemClickListener(BaseQuickAdapter.OnItemClickListener { adapter, _, position ->
+        musicDialog.setOnItemClickListener( OnItemClickListener { adapter, _, position ->
             val music = adapter.getItem(position) as Music
             musicView?.setMusic(music)
             addMusic?.visibility = View.GONE

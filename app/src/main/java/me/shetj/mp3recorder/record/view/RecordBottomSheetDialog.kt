@@ -1,9 +1,9 @@
-package me.shetj.audio.record.view
+package me.shetj.mp3recorder.record.view
 
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
-import com.chad.library.adapter.base.BaseViewHolder
+import com.chad.library.adapter.base.viewholder.BaseViewHolder
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import me.shetj.mp3recorder.R
 import me.shetj.mp3recorder.record.bean.Record

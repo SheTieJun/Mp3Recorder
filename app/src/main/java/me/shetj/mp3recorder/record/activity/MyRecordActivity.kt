@@ -16,7 +16,6 @@ import me.shetj.mp3recorder.record.utils.Callback
 
 
 /**
- * 讲师工具
  * 我的录音界面
  */
 class MyRecordActivity : BaseActivity<BasePresenter<*>>(), Callback {
