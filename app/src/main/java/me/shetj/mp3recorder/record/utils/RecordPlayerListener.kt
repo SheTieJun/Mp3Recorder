@@ -4,29 +4,15 @@ import android.transition.TransitionManager
 import android.view.View
 import android.view.ViewGroup
 import android.widget.SeekBar
-import android.widget.SeekBar.OnSeekBarChangeListener
 import com.chad.library.adapter.base.viewholder.BaseViewHolder
 import me.shetj.mp3recorder.R
+import me.shetj.player.PlayerListener
 import timber.log.Timber
 
 
-class RecordPlayerListener(private val helper: BaseViewHolder, private val mediaUtils: MediaPlayerUtils) : SPlayerListener {
+class RecordPlayerListener(private val helper: BaseViewHolder, private val mediaUtils: MediaPlayerUtils) : PlayerListener {
     private val seekBar: SeekBar = helper.getView<SeekBar>(R.id.seekBar_record).apply{
-        setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
-            override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {}
-            override fun onStartTrackingTouch(seekBar: SeekBar) {
-                mediaUtils.stopProgress()
-            }
-
-            override fun onStopTrackingTouch(seekBar: SeekBar) {
-                if (canChange) {
-                    mediaUtils.seekTo(seekBar.progress)
-                    if (!mediaUtils.isPause) {
-                        mediaUtils.startProgress()
-                    }
-                }
-            }
-        })
+        mediaUtils.setSeekBar(this)
     }
 
     init {
@@ -49,11 +35,9 @@ class RecordPlayerListener(private val helper: BaseViewHolder, private val media
         }
     }
 
-    override val isLoop: Boolean
-        get() = false
 
 
-    override fun onStart(url: String) {
+    override fun onStart(url: String, duration: Int) {
         if (canChange) {
             statePlaying(true)
         }
@@ -77,14 +61,10 @@ class RecordPlayerListener(private val helper: BaseViewHolder, private val media
         stateStop()
     }
 
-    override fun onError(throwable: Throwable) {
+    override fun onError(throwable: Exception) {
         Timber.e("ClassroomPlayerListener ${throwable.message}")
     }
 
-
-    override fun isNext(mp: MediaPlayerUtils): Boolean {
-        return false
-    }
 
     override fun onProgress(current: Int, size: Int) {
         if (canChange) {

@@ -56,7 +56,7 @@ abstract class BaseRecorder {
     abstract fun setBackgroundMusicListener(listener: PlayerListener) :BaseRecorder
     //初始录音质量
     abstract fun setMp3Quality(mp3Quality: Int): BaseRecorder
-    // 初始最大声音
+    //初始最大录制时间
     abstract fun setMaxTime(mMaxTime: Int): BaseRecorder
     //设置增强系数
     abstract fun setWax(wax: Float): BaseRecorder
@@ -83,7 +83,9 @@ abstract class BaseRecorder {
     //结束
     abstract fun onDestroy()
 
-
+    /**
+     * 计算真正的时间，如果过程中有些数据太小，就直接置0，防止噪音
+     */
     protected fun calculateRealVolume(buffer: ShortArray, readSize: Int) {
         var sum = 0.0
         for (i in 0 until readSize) {

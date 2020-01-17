@@ -16,6 +16,7 @@ import me.shetj.base.tools.app.ArmsUtils
 import me.shetj.mp3recorder.R
 import me.shetj.mp3recorder.record.bean.Record
 import me.shetj.mp3recorder.record.utils.*
+import me.shetj.player.PlayerListener
 import java.io.File
 
 
@@ -75,7 +76,7 @@ class RecordAdapter(data: MutableList<Record>?) : BaseQuickAdapter<Record, BaseV
         helper.setGone(R.id.rl_record_view2, false)
                 .setVisible(R.id.tv_time, true)
         curPosition = -1
-        if (null != mediaUtils && !mediaUtils.isPause) {
+        if (!mediaUtils.isPause) {
             mediaUtils.pause()
         }
         uploadMusic(item.audio_url, helper.getView(R.id.progressbar_upload), helper.getView(R.id.tv_progress))
@@ -151,29 +152,28 @@ class RecordAdapter(data: MutableList<Record>?) : BaseQuickAdapter<Record, BaseV
     }
 
 
-    fun playMusic(url: String?, listener: SPlayerListener) {
+    private fun playMusic(url: String?, listener: PlayerListener) {
         mediaUtils.playOrStop(url!!, listener)
     }
 
     override fun onStart() {}
 
     override fun onStop() {
-        mediaUtils?.stopPlay()
+        mediaUtils.stopPlay()
     }
 
     override fun onResume() {
-        mediaUtils?.onResume()
+        mediaUtils.resume()
     }
 
+
     override fun onPause() {
-        mediaUtils?.onPause()
+        mediaUtils.pause()
     }
 
     override fun onDestroy() {
-        if (null != mediaUtils) {
-            mediaUtils.onDestroy()
-            unDispose()
-        }
+        mediaUtils.resume()
+        unDispose()
     }
 
     /**

@@ -19,7 +19,6 @@ import me.shetj.player.RecordListener
 import me.shetj.recorder.BaseRecorder
 import me.shetj.recorder.PCMFormat
 import me.shetj.recorder.RecordState
-import me.shetj.recorder.util.BytesTransUtil
 import me.shetj.recorder.util.LameUtils
 import java.io.File
 import java.io.IOException
@@ -513,13 +512,11 @@ class MixRecorder : BaseRecorder {
             defaultChannelConfig, DEFAULT_AUDIO_FORMAT.audioFormat
         )
         val bytesPerFrame = DEFAULT_AUDIO_FORMAT.bytesPerFrame
-        Log.i(TAG, "mBufferSize = $mBufferSize")
         var frameSize = mBufferSize / bytesPerFrame
         if (frameSize % FRAME_COUNT != 0) {
             frameSize += FRAME_COUNT - frameSize % FRAME_COUNT
             mBufferSize = frameSize * bytesPerFrame
         }
-        Log.i(TAG, "mBufferSize = $mBufferSize")
         //获取合适的buffer大小
         /* Setup audio recorder */
         mAudioRecord = AudioRecord(
@@ -542,27 +539,6 @@ class MixRecorder : BaseRecorder {
         mEncodeThread!!.start()
         mAudioRecord!!.setRecordPositionUpdateListener(mEncodeThread, mEncodeThread!!.handler)
         mAudioRecord!!.positionNotificationPeriod = FRAME_COUNT
-    }
-
-
-    /**
-     * 混合 音频,
-     */
-    private fun mixBuffer(buffer: ByteArray,bgData :ByteArray?): ByteArray? {
-        try {
-            if (bgData !=null) {
-                //如果有背景音乐
-                val bytes = BytesTransUtil.changeDataWithVolume(
-                    bgData,
-                    bgLevel
-                )
-                return BytesTransUtil.averageMix(arrayOf(buffer, bytes))
-            }
-            return buffer
-        }catch (e: Exception){
-            Log.e("mixRecorder","mixBuffer error : ${e.message}")
-            return buffer
-        }
     }
 
     /***************************private method  */
@@ -637,7 +613,7 @@ class MixRecorder : BaseRecorder {
                 if (mNoiseSuppressor != null) {
                     mNoiseSuppressor!!.enabled = true
                 } else {
-                    Log.i(TAG, "Failed to create NoiseSuppressor.")
+                    Log.i( TAG,"Failed to create NoiseSuppressor.")
                 }
             } else {
                 Log.i(TAG, "Doesn't support NoiseSuppressor")

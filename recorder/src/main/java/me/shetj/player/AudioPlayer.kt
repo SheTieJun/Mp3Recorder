@@ -212,7 +212,9 @@ class AudioPlayer : MediaPlayer.OnPreparedListener, MediaPlayer.OnErrorListener,
     }
 
     /**
-     * 设置 但是不播放
+     * 设置 但是 【不播放】
+     * 作用：用来记录还没开始播放，就拖动了【注意是为了列表播放】
+     * 可以用 [seekToPlay] 代替，但是在列表时，需要处理好情况
      * @param url 文件路径
      * @param listener 回调监听
      */

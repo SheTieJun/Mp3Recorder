@@ -26,6 +26,54 @@
  停止计时（和是否播放无关）      AudioPlayer.stopProgress() 
  
  开始计时      AudioPlayer.startProgress()  
+ 
+ ```
+###  新增kt方法
+ ``` kotlin
+
+fun AudioPlayer.setSeekBar(seekBar: SeekBar?)  
+/**
+ * 播放和暂停相互切换
+ * 如果切换了URL,会先执行上一个[PlayerListener.onCompletion]
+ */
+fun AudioPlayer.playOrPause(url:String,
+                            onStart:(url: String, duration: Int)->Unit = { _: String, _: Int ->},
+                            onPause:()->Unit = {},
+                            onResume:()->Unit = {},
+                            onStop:()->Unit = {},
+                            onCompletion:()->Unit = {},
+                            onError:(throwable: Exception)->Unit = {},
+                            onProgress:(current: Int, duration: Int)->Unit = { _: Int, _: Int->})
+                            
+                            
+    /**
+     * 设置设置URL 但是 【不播放】
+     * 作用：用来记录还没开始播放，就拖动了【注意是为了列表播放】
+     * 可以用 [seekToPlay] 代替，但是在列表时，需要处理好情况
+    */
+fun AudioPlayer.playNoStart(url:String,
+                            onStart:(url: String, duration: Int)->Unit = { _: String, _: Int ->},
+                            onPause:()->Unit = {},
+                            onResume:()->Unit = {},
+                            onStop:()->Unit = {},
+                            onCompletion:()->Unit = {},
+                            onError:(throwable: Exception)->Unit = {},
+                            onProgress:(current: Int, duration: Int)->Unit = { _: Int, _: Int->})                        
+ 
+ 
+ /**
+ * 1.播放和暂停相互切换
+ * 2.如果切换了URL,会先执行上一个[PlayerListener.onCompletion] ，然后开始播放新的url
+ */
+fun AudioPlayer.playOrPause(url:String,
+                            onStart:(url: String, duration: Int)->Unit = { _: String, _: Int ->},
+                            onPause:()->Unit = {},
+                            onResume:()->Unit = {},
+                            onStop:()->Unit = {},
+                            onCompletion:()->Unit = {},
+                            onError:(throwable: Exception)->Unit = {},
+                            onProgress:(current: Int, duration: Int)->Unit = { _: Int, _: Int->})
+ 
 ```
 #### 添加缓存播放
 [AndroidVideoCache](https://github.com/danikula/AndroidVideoCache)

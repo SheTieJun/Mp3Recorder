@@ -9,10 +9,10 @@ import me.shetj.mp3recorder.R
 import me.shetj.player.AudioPlayer
 import me.shetj.player.SimPlayerListener
 
-open class PlayerListener(private val mContext: Context, private val helper: BaseViewHolder, private val mediaUtils: AudioPlayer) :
+open class MPlayerListener(private val mContext: Context, private val helper: BaseViewHolder, private val mediaUtils: AudioPlayer) :
     SimPlayerListener() {
     private val seekBar: SeekBar = helper.getView<SeekBar>(R.id.seekBar).apply{
-        helper.getView<View>(R.id.content)?.setOnClickListener { mediaUtils.playOrPause(tag.toString(), this@PlayerListener) }
+        helper.getView<View>(R.id.content)?.setOnClickListener { mediaUtils.playOrPause(tag.toString(), this@MPlayerListener) }
          setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {}
             override fun onStartTrackingTouch(seekBar: SeekBar) {

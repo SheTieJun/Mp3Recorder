@@ -40,8 +40,9 @@ class AudioDecoder {
 
     /**
      * 测试时发现 播放音频的 MediaCodec.BufferInfo.size 是变换的
+     * 会出现不一样的数据
      */
-    internal//记得加锁
+    internal
     val bufferSize: Int
         get() = synchronized(lockPCM) {
             if (chunkPCMDataContainer.isEmpty()) {
@@ -125,7 +126,7 @@ class AudioDecoder {
         var sawInputEOS = false
         try {
             while (!isPCMExtractorEOS && mediaExtractor !=null && mediaDecode!=null) {
-                //加入限制，防止垃圾手机卡顿
+                //加入限制，防止垃圾手机卡顿，- - 防止歌曲太大内存不够用了
                 if(chunkPCMDataContainer.size > 40){
                     try {
                         //防止死循环ANR
@@ -135,6 +136,7 @@ class AudioDecoder {
                     }
                    continue
                 }
+
                 if (!sawInputEOS) {
                     val inputIndex =
                         mediaDecode!!.dequeueInputBuffer(-1)//获取可用的inputBuffer -1代表一直等待，0表示不等待 建议-1,避免丢帧
@@ -254,6 +256,6 @@ class AudioDecoder {
          * 初始化解码器
          */
         private val lockPCM = Any()
-        val BUFFER_SIZE = 2048
+        const val BUFFER_SIZE = 2048
     }
 }
