@@ -15,8 +15,8 @@ import me.shetj.kt.simpleRecorderBuilder
 import me.shetj.mp3recorder.R
 import me.shetj.mp3recorder.record.utils.LocalMusicUtils
 import me.shetj.player.AudioPlayer
-import me.shetj.recorder.BaseRecorder
-import me.shetj.recorder.RecordState
+import me.shetj.recorder.simRecorder.BaseRecorder
+import me.shetj.recorder.simRecorder.RecordState
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
 
@@ -135,7 +135,7 @@ class MixRecordActivity : AppCompatActivity() {
 
     private fun startOrPause() {
         if (mixRecorder!=null && !mixRecorder!!.isRecording) {
-            ArmsUtils.makeText(   "请先开始录音")
+            ArmsUtils.makeText(  "请先开始录音")
             return
         }
         mixRecorder?.let {

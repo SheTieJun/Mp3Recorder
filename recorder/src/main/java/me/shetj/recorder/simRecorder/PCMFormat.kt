@@ -1,4 +1,4 @@
-package me.shetj.recorder
+package me.shetj.recorder.simRecorder
 
 import android.media.AudioFormat
 

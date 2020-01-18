@@ -1,6 +1,6 @@
 @file:Suppress("DEPRECATION")
 
-package me.shetj.mixRecorder
+package me.shetj.recorder.mixRecorder
 
 import android.media.*
 import android.os.Build
@@ -11,8 +11,6 @@ import android.util.Log
 import me.shetj.player.PlayerListener
 import java.util.concurrent.LinkedBlockingDeque
 import android.media.AudioFormat.CHANNEL_OUT_STEREO
-import android.media.MediaExtractor.SEEK_TO_PREVIOUS_SYNC
-import java.io.IOException
 import java.nio.ByteBuffer
 
 

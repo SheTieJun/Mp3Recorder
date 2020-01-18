@@ -1,4 +1,4 @@
-package me.shetj.mixRecorder
+package me.shetj.recorder.mixRecorder
 
 
 import android.util.Log

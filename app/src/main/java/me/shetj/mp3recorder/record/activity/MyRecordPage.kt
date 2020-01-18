@@ -160,17 +160,6 @@ class MyRecordPage(private val context: Activity, mRoot: ViewGroup, private var 
                     recordAdapter.notifyItemChanged(i + recordAdapter.headerLayoutCount)
                 }
             }
-            MainThreadEvent.RECORD_POST_URL -> {
-                //上传录音成功后，通知直接做其他操作
-                val mp3Url = event.content!!.toString()
-                //如果需要关闭说明是来之发布界面的上传视频
-                if (context.intent.getBooleanExtra(MyRecordActivity.NEED_CLOSE, false)) {
-                    val intent = Intent()
-                    intent.putExtra(MyRecordActivity.POST_URL, mp3Url)
-                    context.setResult(Activity.RESULT_OK, intent)
-                    context.finish()//需要
-                }
-            }
         }
     }
 

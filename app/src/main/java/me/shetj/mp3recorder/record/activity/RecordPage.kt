@@ -279,7 +279,7 @@ open class RecordPage(private val context: AppCompatActivity, mRoot: ViewGroup, 
     private fun showRecordNewDialog() {
         AlertDialog.Builder(context)
                 .setTitle("录音已保存")
-                .setMessage("已成功录满60分钟，录音已保存。是否继续录制下一条？")
+                .setMessage("已成功录满${1200/60}分钟，录音已保存。是否继续录制下一条？")
                 .setNegativeButton("查看本条") { _, _ -> callback.onEvent(1) }
                 .setPositiveButton("录下一条") { _, _ ->
                     setRecord(null)

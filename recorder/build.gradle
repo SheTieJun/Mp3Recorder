@@ -48,16 +48,16 @@ android {
 
 }
 
-//本地上传
-uploadArchives{
-    repositories.mavenDeployer{
-        //http://localhost:8080/maven/
-        repository(url:"file://C://maven/shetj")
-        pom.groupId = "me.shetj"
-        pom.artifactId = "record"
-        pom.version ="6.1"
-    }
-}
+////本地上传
+//uploadArchives{
+//    repositories.mavenDeployer{
+//        //http://localhost:8080/maven/
+//        repository(url:"file://C://maven/shetj")
+//        pom.groupId = "me.shetj"
+//        pom.artifactId = "record"
+//        pom.version ="6.1"
+//    }
+//}
 
 dependencies {
     api fileTree(dir: 'libs', include: ['*.jar'])

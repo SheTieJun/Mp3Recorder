@@ -7,12 +7,14 @@ import android.transition.TransitionInflater
 import android.transition.TransitionManager
 import android.widget.FrameLayout
 import com.tbruyelle.rxpermissions2.RxPermissions
+import io.reactivex.android.schedulers.AndroidSchedulers
 import me.shetj.base.base.BaseActivity
 import me.shetj.base.base.BasePresenter
 import me.shetj.base.tools.app.ArmsUtils.Companion.statuInScreen
 import me.shetj.mp3recorder.R
 import me.shetj.mp3recorder.record.RecordingNotification
 import me.shetj.mp3recorder.record.utils.Callback
+import java.util.concurrent.TimeUnit
 
 
 /**
@@ -63,7 +65,9 @@ class MyRecordActivity : BaseActivity<BasePresenter<*>>(), Callback {
                 setTitle(R.string.my_record)
                 recordAction!!.setRecord(null)
                 recordAction?.clearMusic()
-                TransitionManager.go(myRecordAction!!.scene, myRecordTransition)
+                AndroidSchedulers.mainThread().scheduleDirect({
+                    TransitionManager.go(myRecordAction!!.scene, myRecordTransition)
+                },200,TimeUnit.MICROSECONDS)
                 isRecord = false
             }
             2 -> {

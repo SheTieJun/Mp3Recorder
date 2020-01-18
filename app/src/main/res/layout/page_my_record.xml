@@ -25,7 +25,7 @@
         android:padding="8dp"
         android:alpha="0.95"
         android:background="#FFF4F4F4"
-        android:text="用录音创建录播音频课，可分享给好友"
+        android:text="如果背景音乐为空，请先下载一些音乐到本地"
         android:textColor="#FF999999"
         android:textSize="14sp"/>
     <FrameLayout

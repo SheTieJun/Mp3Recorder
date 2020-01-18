@@ -13,8 +13,7 @@ import android.widget.TextView
 import androidx.appcompat.widget.AppCompatImageView
 import io.reactivex.android.schedulers.AndroidSchedulers
 import me.shetj.base.tools.app.ArmsUtils
-import me.shetj.mixRecorder.PlayBackMusic
-import me.shetj.mixRecorder.PlayPCMMusic
+import me.shetj.recorder.mixRecorder.PlayBackMusic
 import me.shetj.mp3recorder.R
 import me.shetj.mp3recorder.record.bean.Music
 import me.shetj.mp3recorder.record.utils.MixRecordUtils

@@ -121,7 +121,8 @@ class RecordService : BaseService() {
                 callBacks?.needPermission()
             }
         })
-        createRecordUtils?.setMaxTime(60)
+        //用秒，内部有*1000
+        createRecordUtils?.setMaxTime(1200)
     }
 
     override fun onDestroy() {

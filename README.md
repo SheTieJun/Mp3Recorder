@@ -3,9 +3,9 @@
 #### 功能点：
 
 1. 边录边转码,没有额外转码时间,录制音频为MP3保存本地。
-2. 添加背景音乐,背景音乐声音的大小
+2. 添加背景音乐,可以背景音乐声音的大小
 3. 录制过程中**暂停**,已录制的那段音频是**可以播放**的.
-4. 可以设置继续录制功能，使用的是Lame,可以直接文件末尾继续录制
+4. 可以设置同文件继续录制功能
 5. 支持返回当前已录制时长和当前声音大小
 6. 设置最大录制时间，达到最大时间触发自动完成回调
 
@@ -46,7 +46,7 @@ Step 2. Add the dependency
 [![](https://jitpack.io/v/SheTieJun/Mp3Recorder.svg)](https://jitpack.io/#SheTieJun/Mp3Recorder)
 ```
 dependencies {
-    implementation 'com.github.SheTieJun:Mp3Recorder:0.0.5'
+    implementation 'com.github.SheTieJun:Mp3Recorder:+'
 }
 ```
 
@@ -63,16 +63,20 @@ dependencies {
             mRecorder = simpleRecorderBuilder(BaseRecorder.RecorderType.MIX,
                 BaseRecorder.AudioSource.MIC,
                 channel = BaseRecorder.AudioChannel.STEREO)
-                .setBackgroundMusic(musicUrl!!)//设置默认的背景音乐
+                
+                mRecorder.setBackgroundMusic(musicUrl!!)//设置默认的背景音乐
                 .setRecordListener(onRecording = { time, volume ->
+                    //当前已录制时长 和 当前声音大小
                     Timber.i("time = $time  ,volume = $volume")
                 },onSuccess = { file, _ ->
+                    //录制成功
                     Timber.i("file= %s", file)
                 })
                 .setPlayListener(onProgress = {current: Int, duration: Int ->
+                    //背景音乐播放
                     Timber.i("current = $current  ,duration = $duration")
                 })
-                .setWax(1f)
+                .setWax(1f) //超过1f 就是加大声音，但是同时会加大噪音
                 .setMaxTime(1800 * 1000) //设置最大时间
         }
 ```

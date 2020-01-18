@@ -1,12 +1,12 @@
 package me.shetj.kt
 
-import me.shetj.mixRecorder.MixRecorder
+import me.shetj.recorder.mixRecorder.MixRecorder
 import me.shetj.player.PermissionListener
 import me.shetj.player.PlayerListener
 import me.shetj.player.RecordListener
-import me.shetj.recorder.BaseRecorder
+import me.shetj.recorder.simRecorder.BaseRecorder
 import me.shetj.recorder.BuildConfig
-import me.shetj.recorder.MP3Recorder
+import me.shetj.recorder.simRecorder.MP3Recorder
 
 /**
  * 通过背景音乐录制的背景音乐
@@ -34,13 +34,13 @@ fun simRecorderBuilder(audioSource: BaseRecorder.AudioSource = BaseRecorder.Audi
  * 混合音频的录制
  */
 @JvmOverloads
-fun mixRecorderBuilder( audioSource: BaseRecorder.AudioSource = BaseRecorder.AudioSource.MIC,
-                        channel: BaseRecorder.AudioChannel = BaseRecorder.AudioChannel.MONO,
-                        mMaxTime: Int = 1800 * 1000,
-                        mp3Quality: Int = 5,
-                        permissionListener: PermissionListener ? =null,
-                        recordListener: RecordListener ?= null,
-                        wax: Float = 1f
+fun mixRecorderBuilder(audioSource: BaseRecorder.AudioSource = BaseRecorder.AudioSource.MIC,
+                       channel: BaseRecorder.AudioChannel = BaseRecorder.AudioChannel.MONO,
+                       mMaxTime: Int = 1800 * 1000,
+                       mp3Quality: Int = 5,
+                       permissionListener: PermissionListener ? =null,
+                       recordListener: RecordListener ?= null,
+                       wax: Float = 1f
 
 ): MixRecorder {
     return MixRecorder(audioSource.type,channel.type)
@@ -56,7 +56,7 @@ fun mixRecorderBuilder( audioSource: BaseRecorder.AudioSource = BaseRecorder.Aud
  * sim 不支持单双声道录制
  */
 @JvmOverloads
-fun simpleRecorderBuilder(simpleName:BaseRecorder.RecorderType = BaseRecorder.RecorderType.MIX,
+fun simpleRecorderBuilder(simpleName: BaseRecorder.RecorderType = BaseRecorder.RecorderType.MIX,
                           audioSource: BaseRecorder.AudioSource = BaseRecorder.AudioSource.MIC,
                           mMaxTime: Int = 1800 * 1000,
                           mp3Quality: Int = 5,
@@ -64,7 +64,7 @@ fun simpleRecorderBuilder(simpleName:BaseRecorder.RecorderType = BaseRecorder.Re
                           permissionListener: PermissionListener ? =null,
                           recordListener: RecordListener ?= null,
                           wax: Float = 1f
-): BaseRecorder{
+): BaseRecorder {
     return when(simpleName){
         BaseRecorder.RecorderType.MIX ->
             mixRecorderBuilder(audioSource = audioSource,
@@ -95,7 +95,7 @@ fun BaseRecorder.onSuccess(onSuccess:(file: String, time: Long)->Unit = { _: Str
  * 设置背景音乐播放,暂停和重新开始播放的监听
  */
 fun BaseRecorder.onPlayChange(onPause:()->Unit = {},
-                              onResume:()->Unit = {}): BaseRecorder {
+                                                            onResume:()->Unit = {}): BaseRecorder {
     return setPlayListener(onPause = onPause,onResume = onResume)
 }
 
@@ -103,12 +103,12 @@ fun BaseRecorder.onPlayChange(onPause:()->Unit = {},
  * 设置背景音乐播放的监听
  */
 fun BaseRecorder.setPlayListener(onStart:(url: String, duration: Int)->Unit = { _: String, _: Int ->},
-                                 onPause:()->Unit = {},
-                                 onResume:()->Unit = {},
-                                 onStop:()->Unit = {},
-                                 onCompletion:()->Unit = {},
-                                 onError:(throwable: Exception)->Unit = {},
-                                 onProgress:(current: Int, duration: Int)->Unit = { _: Int, _: Int->}):BaseRecorder{
+                                                               onPause:()->Unit = {},
+                                                               onResume:()->Unit = {},
+                                                               onStop:()->Unit = {},
+                                                               onCompletion:()->Unit = {},
+                                                               onError:(throwable: Exception)->Unit = {},
+                                                               onProgress:(current: Int, duration: Int)->Unit = { _: Int, _: Int->}): BaseRecorder {
     setBackgroundMusicListener(object :PlayerListener{
         override fun onStart(url: String, duration: Int) {
             onStart(url, duration)
@@ -145,16 +145,16 @@ fun BaseRecorder.setPlayListener(onStart:(url: String, duration: Int)->Unit = { 
  * 设置录制监听
  */
 fun BaseRecorder.setRecordListener(onStart:()->Unit = {},
-                                   onResume:()->Unit = {},
-                                   onReset:()->Unit = {},
-                                   onRecording:(time: Long, volume: Int)->Unit = { _: Long, _: Int -> },
-                                   onPause:()->Unit = {},
-                                   onRemind:(mDuration: Long)->Unit = {},
-                                   onSuccess:(file: String, time: Long)->Unit = { _: String, _: Long-> },
-                                   setMaxProgress:(time: Long)->Unit = {},
-                                   onError:(e: Exception)->Unit = {},
-                                   autoComplete:(file: String, time: Long)->Unit = { _: String, _: Long -> },
-                                   needPermission:()->Unit = {}):BaseRecorder{
+                                                                 onResume:()->Unit = {},
+                                                                 onReset:()->Unit = {},
+                                                                 onRecording:(time: Long, volume: Int)->Unit = { _: Long, _: Int -> },
+                                                                 onPause:()->Unit = {},
+                                                                 onRemind:(mDuration: Long)->Unit = {},
+                                                                 onSuccess:(file: String, time: Long)->Unit = { _: String, _: Long-> },
+                                                                 setMaxProgress:(time: Long)->Unit = {},
+                                                                 onError:(e: Exception)->Unit = {},
+                                                                 autoComplete:(file: String, time: Long)->Unit = { _: String, _: Long -> },
+                                                                 needPermission:()->Unit = {}): BaseRecorder {
 
     setRecordListener(object :RecordListener{
         override fun onStart() {

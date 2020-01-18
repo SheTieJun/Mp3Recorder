@@ -1,4 +1,4 @@
-package me.shetj.recorder
+package me.shetj.recorder.simRecorder
 
 import android.media.AudioFormat
 import android.media.AudioRecord
@@ -9,12 +9,10 @@ import android.os.Message
 import android.os.Process
 import android.text.TextUtils
 import android.util.Log
-import me.shetj.mixRecorder.MixRecorder
 import me.shetj.player.AudioPlayer
 import me.shetj.player.PermissionListener
 import me.shetj.player.PlayerListener
 import me.shetj.player.RecordListener
-import me.shetj.recorder.util.FileUtils
 import me.shetj.recorder.util.LameUtils
 import java.io.File
 import java.io.IOException
@@ -361,12 +359,12 @@ class MP3Recorder : BaseRecorder {
         }.start()
     }
 
-    override fun setBackgroundMusic(url: String) :MP3Recorder {
+    override fun setBackgroundMusic(url: String) : MP3Recorder {
         this.backgroundMusicUrl = url
         return  this
     }
 
-    override fun setBackgroundMusicListener(listener: PlayerListener) :MP3Recorder{
+    override fun setBackgroundMusicListener(listener: PlayerListener) : MP3Recorder {
         this.backgroundMusicPlayerListener = listener
         return  this
     }
@@ -396,6 +394,9 @@ class MP3Recorder : BaseRecorder {
         }
     }
 
+    /**
+     * 设置背景音乐的大小
+     */
     override fun setVolume(volume: Float): MP3Recorder {
         val volume1 = when {
             volume < 0 -> 0f
@@ -469,8 +470,8 @@ class MP3Recorder : BaseRecorder {
     @Throws(IOException::class)
     private fun initAudioRecorder() {
         mBufferSize = AudioRecord.getMinBufferSize(
-            DEFAULT_SAMPLING_RATE,
-            DEFAULT_CHANNEL_CONFIG, DEFAULT_AUDIO_FORMAT.audioFormat
+                DEFAULT_SAMPLING_RATE,
+                DEFAULT_CHANNEL_CONFIG, DEFAULT_AUDIO_FORMAT.audioFormat
         )
         val bytesPerFrame = DEFAULT_AUDIO_FORMAT.bytesPerFrame
         /* Get number of samples. Calculate the buffer size
@@ -486,7 +487,7 @@ class MP3Recorder : BaseRecorder {
         /* Setup audio recorder */
         mAudioRecord = AudioRecord(
             defaultAudioSource,
-            DEFAULT_SAMPLING_RATE, DEFAULT_CHANNEL_CONFIG, DEFAULT_AUDIO_FORMAT.audioFormat,
+                DEFAULT_SAMPLING_RATE, DEFAULT_CHANNEL_CONFIG, DEFAULT_AUDIO_FORMAT.audioFormat,
             mBufferSize
         )
         mPCMBuffer = ShortArray(mBufferSize)
@@ -496,10 +497,10 @@ class MP3Recorder : BaseRecorder {
          * The bit rate is 32kbps
          */
         LameUtils.init(
-            DEFAULT_SAMPLING_RATE,
-            DEFAULT_LAME_IN_CHANNEL,
-            DEFAULT_SAMPLING_RATE,
-            DEFAULT_LAME_MP3_BIT_RATE,
+                DEFAULT_SAMPLING_RATE,
+                DEFAULT_LAME_IN_CHANNEL,
+                DEFAULT_SAMPLING_RATE,
+                DEFAULT_LAME_MP3_BIT_RATE,
             defaultLameMp3Quality
         )
         mEncodeThread = DataEncodeThread(mRecordFile!!, mBufferSize, isContinue)

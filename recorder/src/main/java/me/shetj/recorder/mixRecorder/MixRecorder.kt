@@ -1,4 +1,4 @@
-package me.shetj.mixRecorder
+package me.shetj.recorder.mixRecorder
 
 
 import android.media.AudioFormat
@@ -16,9 +16,9 @@ import android.util.Log
 import me.shetj.player.PermissionListener
 import me.shetj.player.PlayerListener
 import me.shetj.player.RecordListener
-import me.shetj.recorder.BaseRecorder
-import me.shetj.recorder.PCMFormat
-import me.shetj.recorder.RecordState
+import me.shetj.recorder.simRecorder.BaseRecorder
+import me.shetj.recorder.simRecorder.PCMFormat
+import me.shetj.recorder.simRecorder.RecordState
 import me.shetj.recorder.util.LameUtils
 import java.io.File
 import java.io.IOException

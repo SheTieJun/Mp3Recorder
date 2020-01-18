@@ -9,7 +9,7 @@ import java.io.File
 import java.util.*
 
 class RecordDbUtils private constructor() {
-    private val dbManager: DbManager = DbUtils.getDbManager("record", 3)
+    private val dbManager: DbManager = DbUtils.getDbManager("record", 1)
 
     /**
      * 获取全部的录音
@@ -18,7 +18,8 @@ class RecordDbUtils private constructor() {
         get() {
             try {
                 val all = dbManager.selector(Record::class.java)
-                        .where("user_id", "=", "1").orderBy("id", true)
+                        .where("user_id", "=", "1")
+                        .orderBy("id", true)
                         .findAll()
                 if (all != null) {
                     return all
@@ -38,7 +39,8 @@ class RecordDbUtils private constructor() {
         get() {
             try {
                 val record = dbManager.selector(Record::class.java)
-                        .where("user_id", "=", "1").orderBy("id", true)
+                        .where("user_id", "=", "1")
+                        .orderBy("id", true)
                         .findFirst()
                 if (record != null) {
                     return record

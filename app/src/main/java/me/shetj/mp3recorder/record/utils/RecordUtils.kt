@@ -9,9 +9,9 @@ import me.shetj.player.AudioPlayer
 import me.shetj.player.PermissionListener
 import me.shetj.player.PlayerListener
 import me.shetj.player.RecordListener
-import me.shetj.recorder.BaseRecorder
-import me.shetj.recorder.MP3Recorder
-import me.shetj.recorder.RecordState
+import me.shetj.recorder.simRecorder.BaseRecorder
+import me.shetj.recorder.simRecorder.MP3Recorder
+import me.shetj.recorder.simRecorder.RecordState
 import java.io.File
 
 class RecordUtils(private val callBack: RecordCallBack?

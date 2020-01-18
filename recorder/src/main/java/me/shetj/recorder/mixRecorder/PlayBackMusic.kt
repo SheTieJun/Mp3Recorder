@@ -1,6 +1,6 @@
 @file:Suppress("DEPRECATION")
 
-package me.shetj.mixRecorder
+package me.shetj.recorder.mixRecorder
 
 import android.media.AudioFormat
 import android.media.AudioManager

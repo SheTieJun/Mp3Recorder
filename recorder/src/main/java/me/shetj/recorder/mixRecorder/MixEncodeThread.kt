@@ -1,5 +1,4 @@
-package me.shetj.recorder
-
+package me.shetj.recorder.mixRecorder
 
 import android.media.AudioRecord
 import android.os.Handler
@@ -14,16 +13,18 @@ import java.io.FileOutputStream
 import java.io.IOException
 import java.util.*
 
-class DataEncodeThread
 /**
+ * Constructor
+ *
  * @param file       file
  * @param bufferSize bufferSize
  * @param isContinue 是否写在文件末尾
  * @throws FileNotFoundException file not found
  */
+class MixEncodeThread
 @Throws(FileNotFoundException::class)
-constructor(file: File, bufferSize: Int, isContinue: Boolean) : HandlerThread("DataEncodeThread"),
-    AudioRecord.OnRecordPositionUpdateListener {
+constructor(file: File, bufferSize: Int, isContinue: Boolean, private val is2CHANNEL: Boolean) :
+    HandlerThread("MixEncodeThread"), AudioRecord.OnRecordPositionUpdateListener {
     private var mHandler: StopHandler? = null
     private val mMp3Buffer: ByteArray
     private val mFileOutputStream: FileOutputStream?
@@ -35,9 +36,9 @@ constructor(file: File, bufferSize: Int, isContinue: Boolean) : HandlerThread("D
             return mHandler
         }
 
-    private val mTasks = Collections.synchronizedList(ArrayList<ReadTask>())
+    private val mTasks = Collections.synchronizedList(ArrayList<ReadMixTask>())
 
-    private class StopHandler(looper: Looper, private val encodeThread: DataEncodeThread) :
+    private class StopHandler(looper: Looper, private val encodeThread: MixEncodeThread) :
         Handler(looper) {
 
         override fun handleMessage(msg: Message) {
@@ -103,16 +104,22 @@ constructor(file: File, bufferSize: Int, isContinue: Boolean) : HandlerThread("D
     private fun processData(): Int {
         if (mTasks.size > 0) {
             val task = mTasks.removeAt(0)
-            val buffer = task.data
-            val readSize = task.readSize
-            val encodedSize = LameUtils.encode(buffer, buffer, readSize, mMp3Buffer)
+            val buffer = task.getData()
+            val encodedSize: Int
+            val readSize: Int
+            if (is2CHANNEL) {
+                readSize = buffer.size / 2
+                encodedSize = LameUtils.encodeInterleaved(buffer,readSize,mMp3Buffer)
+            } else {
+                readSize = buffer.size
+                encodedSize = LameUtils.encode(buffer, buffer, readSize, mMp3Buffer)
+            }
             if (encodedSize > 0) {
                 try {
                     mFileOutputStream!!.write(mMp3Buffer, 0, encodedSize)
                 } catch (e: IOException) {
                     e.printStackTrace()
                 }
-
             }
             return readSize
         }
@@ -144,8 +151,8 @@ constructor(file: File, bufferSize: Int, isContinue: Boolean) : HandlerThread("D
         }
     }
 
-    fun addTask(rawData: ShortArray, readSize: Int) {
-        mTasks.add(ReadTask(rawData, readSize))
+    fun addTask(rawData: ByteArray, wax: Float,bgData: ByteArray?, bgWax: Float) {
+        mTasks.add(ReadMixTask(rawData, wax,bgData,bgWax))
     }
 
     companion object {

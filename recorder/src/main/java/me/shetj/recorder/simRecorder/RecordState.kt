@@ -1,4 +1,4 @@
-package me.shetj.recorder
+package me.shetj.recorder.simRecorder
 
 /**
  * 录音的状态

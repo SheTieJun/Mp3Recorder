@@ -1,4 +1,4 @@
-package me.shetj.recorder
+package me.shetj.recorder.simRecorder
 
 import android.media.MediaRecorder
 import me.shetj.player.PermissionListener
@@ -51,9 +51,9 @@ abstract class BaseRecorder {
     //设置权限监听
     abstract fun setPermissionListener(permissionListener: PermissionListener?): BaseRecorder
     //设计背景音乐的url,本地的
-    abstract fun setBackgroundMusic(url:String):BaseRecorder
+    abstract fun setBackgroundMusic(url:String): BaseRecorder
     //设置背景音乐的监听
-    abstract fun setBackgroundMusicListener(listener: PlayerListener) :BaseRecorder
+    abstract fun setBackgroundMusicListener(listener: PlayerListener) : BaseRecorder
     //初始录音质量
     abstract fun setMp3Quality(mp3Quality: Int): BaseRecorder
     //初始最大录制时间
