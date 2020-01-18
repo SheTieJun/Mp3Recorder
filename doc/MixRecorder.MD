@@ -42,7 +42,7 @@
      mixRecorder = MixRecorder(MediaRecorder.AudioSource.VOICE_COMMUNICATION,2)
      
      //设置相关参数和回调
-                mixRecorder.setOutputFile(filePath)//设置输出文件
+     mixRecorder.setOutputFile(filePath)//设置输出文件
                 .setBackgroundMusic(musicUrl, true)//设置默认的背景音乐
                 .setRecordListener(listener)
                 .setPermissionListener(listener)
@@ -86,16 +86,17 @@
  mixRecorder?.stop()  //完成录音
 ```
 
+#### 单双声道
+Lame 在使用lame_encode_buffer 在转码双声道时 会出现噪音
 
+解决方法 
 ```
-  readSize = buffer.size / 2
-                val leftData = ShortArray(readSize)
-                val rightData = ShortArray(readSize)
-                for (i in 0 until readSize) {
-                    if (i % 2 == 0) {
-                        System.arraycopy(buffer, i * 2, leftData, i, 2)
-                    } else {
-                        System.arraycopy(buffer, i * 2, rightData, i - 1, 2)
-                    }
-                }
+     if (is2CHANNEL) {
+                readSize = buffer.size / 2
+                encodedSize = LameUtils.encodeInterleaved(buffer,readSize,mMp3Buffer)
+     } else {
+                readSize = buffer.size
+                encodedSize = LameUtils.encode(buffer, buffer, readSize, mMp3Buffer)
+      }
 ```
+https://www.jianshu.com/p/87095c155ea5

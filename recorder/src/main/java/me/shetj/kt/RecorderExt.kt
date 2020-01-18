@@ -53,7 +53,7 @@ fun mixRecorderBuilder( audioSource: BaseRecorder.AudioSource = BaseRecorder.Aud
 
 /**
  * mix 表示混合
- * sim 不知道单双声道录制
+ * sim 不支持单双声道录制
  */
 @JvmOverloads
 fun simpleRecorderBuilder(simpleName:BaseRecorder.RecorderType = BaseRecorder.RecorderType.MIX,

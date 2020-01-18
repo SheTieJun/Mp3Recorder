@@ -52,29 +52,32 @@ dependencies {
 
 #### [demo](https://github.com/SheTieJun/Mp3Recorder/tree/master/app) 中继续录制 
 - 继续录制，是通过音频文件合并，因为重录希望上次录制的没有丢掉,所有采用的文件拼接
-- [MixRecordUtils](/app/src/main/java/me/shetj/mp3recorder/record\utils/MixRecordUtils.kt) 
-- [RecordUtils](/app/src/main/java/me/shetj/mp3recorder/record\utils/RecordUtils.kt) 
-### 初始化
-```
-   val listener = object : SimRecordListener() {
-                override fun onSuccess(file: String, time: Long) {
-                    super.onSuccess(file, time)
-                    Timber.i("file= %s", file)
-                }
+- [MixRecordUtils](/app/src/main/java/me/shetj/mp3recorder/record/utils/MixRecordUtils.kt) 
+- [RecordUtils](/app/src/main/java/me/shetj/mp3recorder/record/utils/RecordUtils.kt)
+- [MixRecordActivity](/app/src/main/java/me/shetj/mp3recorder/record/MixRecordActivity.kt) 
 
-                override fun onRecording(time: Long, volume: Int) {
-                    super.onRecording(time, volume)
+### 初始化
+```kotlin
+         if (mRecorder == null) {
+//          mRecorder = simpleRecorderBuilder(BaseRecorder.RecorderType.MIX,BaseRecorder.AudioSource.VOICE_COMMUNICATION)
+            mRecorder = simpleRecorderBuilder(BaseRecorder.RecorderType.MIX,
+                BaseRecorder.AudioSource.MIC,
+                channel = BaseRecorder.AudioChannel.STEREO)
+                .setBackgroundMusic(musicUrl!!)//设置默认的背景音乐
+                .setRecordListener(onRecording = { time, volume ->
                     Timber.i("time = $time  ,volume = $volume")
-                }
-            }
-            
-   val mRecorder  = simpleRecorderBuilder(BaseRecorder.RecorderType.MIX,
-                   BaseRecorder.AudioSource.MIC,channel = 2)
-                .setRecordListener(listener)
-                .setPermissionListener(listener)
+                },onSuccess = { file, _ ->
+                    Timber.i("file= %s", file)
+                })
+                .setPlayListener(onProgress = {current: Int, duration: Int ->
+                    Timber.i("current = $current  ,duration = $duration")
+                })
+                .setWax(1f)
+                .setMaxTime(1800 * 1000) //设置最大时间
+        }
 ```
 #### 1.录音控制
-```
+``` kotlin
       when {
             mRecorder?.state == RecordState.STOPPED -> {
                 if (EmptyUtils.isEmpty(file)) {
@@ -133,7 +136,5 @@ dependencies {
 ### 4. 播放音乐,解码成PCM进行播放：[PlayBackMusic](/doc/PlayBackMusic.MD)
 ### 5. 播放PCM文件：[AudioTrackManager](/doc/AudioTrackManager.MD)
 
-## 其他
 
-##### 开发的一些记录[Update_log](/doc/Update_log.md)
  

@@ -102,6 +102,7 @@ abstract class BaseRecorder {
             }
         }
     }
+
     protected fun calculateRealVolume(buffer: ByteArray) {
         val shorts = BytesTransUtil.bytes2Shorts(buffer)
         val readSize = shorts.size
