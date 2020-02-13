@@ -237,6 +237,11 @@ class MP3Recorder : BaseRecorder {
         return this
     }
 
+    fun updateDataEncode(outputFilePath: String) {
+        setOutputFile(outputFilePath,false)
+        mEncodeThread?.update(outputFilePath)
+    }
+
     /**
      * 设置增强系数
      * @param wax
