@@ -19,6 +19,7 @@
 1.  播放音乐,可以得到PCM：[PlayBackMusic](https://github.com/SheTieJun/Mp3Recorder/blob/master/doc/PlayBackMusic.MD)
 2.  AudioRecord 得到麦克风的声音：PCM
 3.  2个PCM进行声音混合，然后Lame转码成MP3 写入到文件
+4.  支持耳机
 
 #### 1. 初始化
 
