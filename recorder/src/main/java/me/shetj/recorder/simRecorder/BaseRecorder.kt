@@ -11,6 +11,7 @@ import kotlin.math.sqrt
 
 abstract class BaseRecorder {
 
+    //region 录音的方式 /来源 Record Type
     enum class RecorderType(name: String) {
         SIM("Mp3Recorder"), //
         MIX("MixRecorder")
@@ -29,18 +30,22 @@ abstract class BaseRecorder {
         MONO(1), //单声道
         STEREO(2) //双声道
     }
+    //endregion Record Type
 
+
+    //region 录音的状态，声音和时间
     protected var mVolume: Int = 0
     var isRecording = false
         protected set
     //当前状态
     var state = RecordState.STOPPED
         protected set
-
     //录制时间
     var duration = 0L
         protected set
+    //endregion 录音的状态和时间
 
+    //region public method 公开的方法
     abstract val realVolume: Int
     //设置输出路径
     abstract fun setOutputFile(outputFile: String, isContinue: Boolean = false): BaseRecorder
@@ -54,8 +59,10 @@ abstract class BaseRecorder {
     abstract fun setBackgroundMusic(url:String): BaseRecorder
     //设置背景音乐的监听
     abstract fun setBackgroundMusicListener(listener: PlayerListener) : BaseRecorder
-    //初始录音质量
+    //初始Lame录音输出质量
     abstract fun setMp3Quality(mp3Quality: Int): BaseRecorder
+    //设置比特率，关系声音的质量
+    abstract fun setMp3BitRate(mp3BitRate :Int) :BaseRecorder
     //初始最大录制时间
     abstract fun setMaxTime(mMaxTime: Int): BaseRecorder
     //设置增强系数
@@ -82,10 +89,9 @@ abstract class BaseRecorder {
     abstract fun onReset()
     //结束
     abstract fun onDestroy()
+    //endregion public method
 
-    /**
-     * 计算真正的时间，如果过程中有些数据太小，就直接置0，防止噪音
-     */
+    //region  计算真正的时间，如果过程中有些数据太小，就直接置0，防止噪音
     protected fun calculateRealVolume(buffer: ShortArray, readSize: Int) {
         var sum = 0.0
         for (i in 0 until readSize) {
@@ -108,4 +114,5 @@ abstract class BaseRecorder {
         val readSize = shorts.size
         calculateRealVolume(shorts,readSize)
     }
+    //endregion  计算真正的时间，如果过程中有些数据太小，就直接置0，防止噪音
 }

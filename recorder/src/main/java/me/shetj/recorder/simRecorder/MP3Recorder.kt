@@ -32,7 +32,8 @@ class MP3Recorder : BaseRecorder {
     //    private static final int DEFAULT_AUDIO_SOURCE = MediaRecorder.AudioSource.VOICE_COMMUNICATION;//**对麦克风中类似ip通话的交流声音进行识别，默认会开启回声消除和自动增益*/
     private var defaultAudioSource = MediaRecorder.AudioSource.MIC
     //======================Lame Default Settings=====================
-    private var defaultLameMp3Quality = 5
+    private var defaultLameMp3Quality = 3
+    private var defaultLameMp3BitRate = 128 //32 太低，96,128 比较合适  不要问为什么，产品说好
     private var mAudioRecord: AudioRecord? = null
     private var mEncodeThread: DataEncodeThread? = null
     private var backgroundPlayer: AudioPlayer? = null
@@ -220,10 +221,15 @@ class MP3Recorder : BaseRecorder {
 
     override fun setMp3Quality(mp3Quality: Int): MP3Recorder {
         this.defaultLameMp3Quality = when {
-            mp3Quality < 1 -> 1
+            mp3Quality < 0 -> 0
             mp3Quality > 9 -> 9
             else -> mp3Quality
         }
+        return this
+    }
+
+    override fun setMp3BitRate(mp3BitRate: Int): BaseRecorder {
+
         return this
     }
 
@@ -280,9 +286,7 @@ class MP3Recorder : BaseRecorder {
         return this
     }
 
-    /**
-     * Start recording. Create an encoding thread. Start record from this
-     */
+    // region Start recording. Create an encoding thread. Start record from this
     override fun start() {
         if (isRecording) {
             return
@@ -363,6 +367,7 @@ class MP3Recorder : BaseRecorder {
 
         }.start()
     }
+    // endregion Start recording. Create an encoding thread. Start record from this
 
     override fun setBackgroundMusic(url: String) : MP3Recorder {
         this.backgroundMusicUrl = url
@@ -505,7 +510,7 @@ class MP3Recorder : BaseRecorder {
                 DEFAULT_SAMPLING_RATE,
                 DEFAULT_LAME_IN_CHANNEL,
                 DEFAULT_SAMPLING_RATE,
-                DEFAULT_LAME_MP3_BIT_RATE,
+                defaultLameMp3BitRate,
             defaultLameMp3Quality
         )
         mEncodeThread = DataEncodeThread(mRecordFile!!, mBufferSize, isContinue)
@@ -637,36 +642,20 @@ class MP3Recorder : BaseRecorder {
         private val HANDLER_RESUME = 108//暂停后开始
         private val HANDLER_RESET = 109//暂停
         private val HANDLER_MAX_TIME = 110//设置了最大时间
-        /**
-         * 以下三项为默认配置参数。Google Android文档明确表明只有以下3个参数是可以在所有设备上保证支持的。
-         */
+
+        //region 以下三项为默认配置参数。Google Android文档明确表明只有以下3个参数是可以在所有设备上保证支持的。
         private val DEFAULT_SAMPLING_RATE = 44100
         private val DEFAULT_CHANNEL_CONFIG = AudioFormat.CHANNEL_IN_MONO
-        /**
-         * 下面是对此的封装
-         * private static final int DEFAULT_AUDIO_FORMAT = AudioFormat.ENCODING_PCM_16BIT;
-         */
-
         private val DEFAULT_AUDIO_FORMAT = PCMFormat.PCM_16BIT
+        //endregion
+
         /**
          * 与DEFAULT_CHANNEL_CONFIG相关，因为是mono单声，所以是1
          */
         private val DEFAULT_LAME_IN_CHANNEL = 1
-        /**
-         * Encoded bit rate. MP3 file will be encoded with bit rate 32kbps
-         */
-        private val DEFAULT_LAME_MP3_BIT_RATE = 32
 
-        //==================================================================
-
-        /**
-         * 自定义 每160帧作为一个周期，通知一下需要进行编码
-         */
         private val FRAME_COUNT = 160
-
         private val MAX_VOLUME = 2000
-
-
     }
 
 

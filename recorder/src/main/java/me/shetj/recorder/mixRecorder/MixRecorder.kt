@@ -30,48 +30,60 @@ import java.io.IOException
 class MixRecorder : BaseRecorder {
 
     private val TAG = this.javaClass.simpleName
-    //======================Lame Default Settings=====================
+    //region public 公开方法1
+    var isPause: Boolean = false //暂停录制
+    //endregion public
+    //region 参数
+
+    //region  Lame Default Setting （Lame的设置）
     private var defaultLameInChannel = 1 //声道数量
-    private var defaultLameMp3Quality = 5 //音频质量，好像LAME已经不使用它了
+    private var defaultLameMp3Quality = 3 //音频质量，好像LAME已经不使用它了
+    private var defaultLameMp3BitRate = 128 //32 太低，96,128 比较合适
+    private var defaultSamplingRate = 44100
+    private var is2Channel = false //默认是双声道
     private var defaultAudioSource = MediaRecorder.AudioSource.VOICE_COMMUNICATION
     private var defaultChannelConfig = AudioFormat.CHANNEL_IN_MONO
     private var mAudioRecord: AudioRecord? = null
     private var mPlayBackMusic: PlayBackMusic? = null
+    private var mEncodeThread: MixEncodeThread? = null
+    private var mRecordFile: File? = null //文件输出，中途可以替换
+    //endregion Lame Default Settings
 
-    /**
-     * 系统自带的去噪音，增强以及回音问题
-     */
+    //region 系统自带的去噪音，增强以及回音问题
     private var mNoiseSuppressor: NoiseSuppressor? = null
     private var mAcousticEchoCanceler: AcousticEchoCanceler? = null
     private var mAutomaticGainControl: AutomaticGainControl? = null
+    //endregion 系统自带的去噪音，增强以及回音问题
 
-    /**
-     * 输出的文件
-     */
-    private var mRecordFile: File? = null
-    private var mEncodeThread: MixEncodeThread? = null
+    //region 回调接口
     private var mRecordListener: RecordListener? = null
     private var mPermissionListener: PermissionListener? = null
-    //背景音乐相关
+    //endregion 回调接口
+
+    //region 背景音乐相关
     private var backgroundMusicIsPlay: Boolean = false //记录是否暂停
+    private var bgLevel = 0.30f//背景音乐
+    //endregion 背景音乐相关
+
+    //region 其他
     private var mSendError: Boolean = false
-    var isPause: Boolean = false //暂停录制
-    //缓冲数量
-    private var mBufferSize: Int = 0
     //最大时间
     private var mMaxTime: Long = 3600000
     //提醒时间
     private var mRemindTime = (3600000 - 10000).toLong()
     //通知速度，毫秒
     private var speed: Long = 300
+
+    //缓冲数量
+    private var mBufferSize: Int = 0
     private var bytesPerSecond: Int = 0  //PCM文件大小=采样率采样时间采样位深/8*通道数（Bytes）
-    private var is2Channel = false //默认是双声道
-    private var bgLevel = 0.30f//背景音乐
     private var isContinue: Boolean = false //是否写在文件末尾
 
     //声音增强
     private var wax = 1f
+    //endregion 其他
 
+    //endregion 参数
     private val handler = object : Handler(Looper.getMainLooper()) {
         override fun handleMessage(msg: Message) {
             super.handleMessage(msg)
@@ -143,7 +155,7 @@ class MixRecorder : BaseRecorder {
             }
         }
     }
-
+   //region 公开方法！
     /**
      * 返回背景音乐的
      * @return
@@ -208,6 +220,10 @@ class MixRecorder : BaseRecorder {
         return this
     }
 
+    override fun setMp3BitRate(mp3BitRate: Int): BaseRecorder {
+        this.defaultLameMp3BitRate = mp3BitRate
+        return this
+    }
 
     /***************************public method  */
 
@@ -319,6 +335,11 @@ class MixRecorder : BaseRecorder {
         return this
     }
 
+    fun setSamplingRate(rate:Int): MixRecorder {
+        this.defaultSamplingRate = rate
+        return this
+    }
+
     override fun setBackgroundMusicListener(playerListener: PlayerListener): MixRecorder {
         bgPlayer.setBackGroundPlayListener(playerListener)
         return this
@@ -368,7 +389,7 @@ class MixRecorder : BaseRecorder {
                 onStart()
                 while (isRecording) {
                     val samplesPerFrame =   bgPlayer.bufferSize  // 这里需要与 背景音乐读取出来的数据长度 一样
-                    var buffer: ByteArray? = ByteArray(samplesPerFrame)
+                    val buffer: ByteArray? = ByteArray(samplesPerFrame)
                     val readSize = mAudioRecord!!.read(buffer!!, 0, samplesPerFrame)
                     if (readSize == AudioRecord.ERROR_INVALID_OPERATION || readSize == AudioRecord.ERROR_BAD_VALUE) {
                         if (!mSendError) {
@@ -501,14 +522,13 @@ class MixRecorder : BaseRecorder {
         bgPlayer.release()
         release()
     }
+    //endregion 公开方法！
 
-    /**
-     * Initialize audio recorder
-     */
+    //region 初始化 Initialize audio recorder
     @Throws(IOException::class)
     private fun initAudioRecorder() {
         mBufferSize = AudioRecord.getMinBufferSize(
-            DEFAULT_SAMPLING_RATE,
+            defaultSamplingRate,
             defaultChannelConfig, DEFAULT_AUDIO_FORMAT.audioFormat
         )
         val bytesPerFrame = DEFAULT_AUDIO_FORMAT.bytesPerFrame
@@ -521,7 +541,7 @@ class MixRecorder : BaseRecorder {
         /* Setup audio recorder */
         mAudioRecord = AudioRecord(
             defaultAudioSource,
-            DEFAULT_SAMPLING_RATE, defaultChannelConfig, DEFAULT_AUDIO_FORMAT.audioFormat,
+            defaultSamplingRate, defaultChannelConfig, DEFAULT_AUDIO_FORMAT.audioFormat,
             mBufferSize
         )
         //1秒时间需要多少字节，用来计算已经录制了多久
@@ -529,10 +549,10 @@ class MixRecorder : BaseRecorder {
             mAudioRecord!!.sampleRate * mapFormat(mAudioRecord!!.audioFormat) / 8 * mAudioRecord!!.channelCount
         initAEC(mAudioRecord!!.audioSessionId)
         LameUtils.init(
-            DEFAULT_SAMPLING_RATE,
+            defaultSamplingRate,
             defaultLameInChannel,
-            DEFAULT_SAMPLING_RATE,
-            DEFAULT_LAME_MP3_BIT_RATE,
+            defaultSamplingRate,
+            defaultLameMp3BitRate,
             defaultLameMp3Quality
         )
         mEncodeThread = MixEncodeThread(mRecordFile!!, mBufferSize, isContinue, is2Channel)
@@ -540,8 +560,9 @@ class MixRecorder : BaseRecorder {
         mAudioRecord!!.setRecordPositionUpdateListener(mEncodeThread, mEncodeThread!!.handler)
         mAudioRecord!!.positionNotificationPeriod = FRAME_COUNT
     }
+    //endregion
 
-    /***************************private method  */
+    //region private method  私有方法
     private fun onStart() {
         if (state !== RecordState.RECORDING) {
             handler.sendEmptyMessage(HANDLER_START)
@@ -673,11 +694,11 @@ class MixRecorder : BaseRecorder {
             mNoiseSuppressor!!.release()
             mNoiseSuppressor = null
         }
-
     }
+    //endregion
 
     companion object {
-
+        //region Handle 通知的Code
         private val HANDLER_RECORDING = 0x101 //正在录音
         private val HANDLER_START = 0x102//开始了
         private val HANDLER_RESUME = 0x108//暂停后开始
@@ -688,15 +709,11 @@ class MixRecorder : BaseRecorder {
         private val HANDLER_RESET = 0x109//暂停
         private val HANDLER_PERMISSION = 0x107//需要权限
         private val HANDLER_MAX_TIME = 0x110//设置了最大时间
-        //=======================AudioRecord Default Settings=======================
-        private val DEFAULT_SAMPLING_RATE = 44100
-        private val DEFAULT_AUDIO_FORMAT = PCMFormat.PCM_16BIT
-        private val DEFAULT_LAME_MP3_BIT_RATE = 32
+        //endregion Handle 通知的Code
 
+        //=======================AudioRecord Default Settings=======================
+        private val DEFAULT_AUDIO_FORMAT = PCMFormat.PCM_16BIT
         //==================================================================
-        /**
-         * 自定义 每160帧作为一个周期，通知一下需要进行编码
-         */
         private val FRAME_COUNT = 160
         private val MAX_VOLUME = 2000
     }

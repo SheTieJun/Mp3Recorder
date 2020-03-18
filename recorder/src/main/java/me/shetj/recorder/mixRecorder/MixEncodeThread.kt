@@ -27,8 +27,9 @@ constructor(file: File, bufferSize: Int, isContinue: Boolean, private val is2CHA
     HandlerThread("MixEncodeThread"), AudioRecord.OnRecordPositionUpdateListener {
     private var mHandler: StopHandler? = null
     private val mMp3Buffer: ByteArray
-    private val mFileOutputStream: FileOutputStream?
+    private var mFileOutputStream: FileOutputStream?
     private val path: String
+    private var needUpdate = false
 
     val handler: Handler?
         get() {
@@ -37,6 +38,7 @@ constructor(file: File, bufferSize: Int, isContinue: Boolean, private val is2CHA
         }
 
     private val mTasks = Collections.synchronizedList(ArrayList<ReadMixTask>())
+    private val mOldTasks = Collections.synchronizedList(ArrayList<ReadMixTask>())
 
     private class StopHandler(looper: Looper, private val encodeThread: MixEncodeThread) :
         Handler(looper) {
@@ -104,6 +106,7 @@ constructor(file: File, bufferSize: Int, isContinue: Boolean, private val is2CHA
     private fun processData(): Int {
         if (mTasks.size > 0) {
             val task = mTasks.removeAt(0)
+            addOldData(task)
             val buffer = task.getData()
             val encodedSize: Int
             val readSize: Int
@@ -117,6 +120,7 @@ constructor(file: File, bufferSize: Int, isContinue: Boolean, private val is2CHA
             if (encodedSize > 0) {
                 try {
                     mFileOutputStream!!.write(mMp3Buffer, 0, encodedSize)
+                    checkCut()
                 } catch (e: IOException) {
                     e.printStackTrace()
                 }
@@ -140,16 +144,67 @@ constructor(file: File, bufferSize: Int, isContinue: Boolean, private val is2CHA
             } finally {
                 if (mFileOutputStream != null) {
                     try {
-                        mFileOutputStream.close()
+                        mFileOutputStream?.close()
                     } catch (e: IOException) {
                         e.printStackTrace()
                     }
 
                 }
+                mOldTasks.clear()
                 LameUtils.close()
             }
         }
     }
+
+
+    private fun checkCut() {
+        if (needUpdate) {
+            val flushResult = LameUtils.flush(mMp3Buffer)
+            if (flushResult > 0) {
+                mFileOutputStream!!.write(mMp3Buffer, 0, flushResult)
+            }
+            mFileOutputStream?.close()
+            mFileOutputStream = null
+            mFileOutputStream = FileOutputStream(path, true)
+            while (setOldDateToFile() > 0)
+                needUpdate = false
+        }
+    }
+
+    private fun setOldDateToFile() : Int{
+        if (mOldTasks.size > 0 && mFileOutputStream !=null) {
+            val task = mOldTasks.removeAt(0)
+            val buffer = task.getData()
+            val encodedSize: Int
+            val readSize: Int
+            if (is2CHANNEL) {
+                readSize = buffer.size / 2
+                encodedSize = LameUtils.encodeInterleaved(buffer,readSize,mMp3Buffer)
+            } else {
+                readSize = buffer.size
+                encodedSize = LameUtils.encode(buffer, buffer, readSize, mMp3Buffer)
+            }
+            if (encodedSize > 0) {
+                try {
+                    mFileOutputStream!!.write(mMp3Buffer, 0, encodedSize)
+                } catch (e: IOException) {
+                    e.printStackTrace()
+                }
+            }
+            return readSize
+        }
+        return 0
+    }
+
+
+    private fun addOldData(task : ReadMixTask) {
+        if (mOldTasks.size > 10) {
+            //自己调整数量多少合适，我写的是10
+            mOldTasks.removeAt(0)
+        }
+        mOldTasks.add(task)
+    }
+
 
     fun addTask(rawData: ByteArray, wax: Float,bgData: ByteArray?, bgWax: Float) {
         mTasks.add(ReadMixTask(rawData, wax,bgData,bgWax))
