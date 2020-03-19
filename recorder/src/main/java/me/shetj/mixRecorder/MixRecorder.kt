@@ -34,6 +34,7 @@ class MixRecorder : BaseRecorder {
     //======================Lame Default Settings=====================
     private var defaultLameInChannel = 1 //声道数量
     private var defaultLameMp3Quality = 5 //音频质量，好像LAME已经不使用它了
+    private var defaultLameMp3BitRate = 128 //无损音质
     private var defaultAudioSource = MediaRecorder.AudioSource.VOICE_COMMUNICATION
     private var defaultChannelConfig = AudioFormat.CHANNEL_IN_MONO
     private var mAudioRecord: AudioRecord? = null
@@ -205,10 +206,18 @@ class MixRecorder : BaseRecorder {
     }
 
     override fun setMp3Quality(mp3Quality: Int): MixRecorder {
-        this.defaultLameMp3Quality = mp3Quality
+        this.defaultLameMp3Quality = when {
+            mp3Quality < 0 -> 0
+            mp3Quality > 9 -> 9
+            else -> mp3Quality
+        }
         return this
     }
 
+    fun setMp3BitRate(mp3BitRate: Int): MixRecorder {
+        this.defaultLameMp3BitRate = mp3BitRate
+        return this
+    }
 
     /***************************public method  */
 
@@ -535,7 +544,7 @@ class MixRecorder : BaseRecorder {
             DEFAULT_SAMPLING_RATE,
             defaultLameInChannel,
             DEFAULT_SAMPLING_RATE,
-            DEFAULT_LAME_MP3_BIT_RATE,
+            defaultLameMp3BitRate,
             defaultLameMp3Quality
         )
         mEncodeThread = MixEncodeThread(mRecordFile!!, mBufferSize, isContinue, is2Channel)
@@ -715,7 +724,6 @@ class MixRecorder : BaseRecorder {
         //=======================AudioRecord Default Settings=======================
         private val DEFAULT_SAMPLING_RATE = 44100
         private val DEFAULT_AUDIO_FORMAT = PCMFormat.PCM_16BIT
-        private val DEFAULT_LAME_MP3_BIT_RATE = 32
 
         //==================================================================
         /**
