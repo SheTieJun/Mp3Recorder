@@ -2,10 +2,8 @@
 
 package me.shetj.recorder.mixRecorder
 
-import android.media.AudioFormat
-import android.media.AudioManager
-import android.media.AudioTrack
-import android.media.MediaFormat
+import android.media.*
+import android.media.AudioFormat.CHANNEL_OUT_MONO
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
@@ -13,8 +11,6 @@ import android.os.Message
 import android.util.Log
 import me.shetj.player.PlayerListener
 import java.util.concurrent.LinkedBlockingDeque
-import android.media.AudioAttributes
-import android.media.AudioFormat.CHANNEL_OUT_MONO
 
 
 /**

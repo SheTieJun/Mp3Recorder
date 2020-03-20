@@ -8,11 +8,11 @@ import android.os.Looper
 import android.os.Message
 import android.os.Process
 import android.text.TextUtils
-import android.util.Log
 import me.shetj.player.AudioPlayer
 import me.shetj.player.PermissionListener
 import me.shetj.player.PlayerListener
 import me.shetj.player.RecordListener
+import me.shetj.recorder.mixRecorder.MixRecorder
 import me.shetj.recorder.util.LameUtils
 import java.io.File
 import java.io.IOException
@@ -34,6 +34,7 @@ class MP3Recorder : BaseRecorder {
     //======================Lame Default Settings=====================
     private var defaultLameMp3Quality = 3
     private var defaultLameMp3BitRate = 128 //32 太低，96,128 比较合适  不要问为什么，产品说好
+    private var defaultSamplingRate = 44100
     private var mAudioRecord: AudioRecord? = null
     private var mEncodeThread: DataEncodeThread? = null
     private var backgroundPlayer: AudioPlayer? = null
@@ -48,7 +49,6 @@ class MP3Recorder : BaseRecorder {
 
     private var mPCMBuffer: ShortArray? = null
     private var mSendError: Boolean = false
-    var isPause: Boolean = false
     //缓冲数量
     private var mBufferSize: Int = 0
     //最大数量
@@ -72,7 +72,6 @@ class MP3Recorder : BaseRecorder {
     //声音增强
     private var wax = 1f
     private var bgLevel: Float = 03f
-    private var isDebug = false
     private var isContinue = false //是否继续录制
     //背景音乐相关
     private var backgroundMusicIsPlay: Boolean = false //记录是否暂停
@@ -84,7 +83,7 @@ class MP3Recorder : BaseRecorder {
             super.handleMessage(msg)
             when (msg.what) {
                 HANDLER_RECORDING -> {
-                    log("msg.what = HANDLER_RECORDING  \n mDuration = ", duration)
+                    logInfo("msg.what = HANDLER_RECORDING  \n mDuration = $duration ")
                     if (mRecordListener != null) {
                         //录制回调
                         mRecordListener!!.onRecording(duration, realVolume)
@@ -95,49 +94,49 @@ class MP3Recorder : BaseRecorder {
                     }
                 }
                 HANDLER_START -> {
-                    log("msg.what = HANDLER_START  \n mDuration = ", duration)
+                    logInfo("msg.what = HANDLER_START  \n mDuration =$duration ")
                     if (mRecordListener != null) {
                         mRecordListener!!.onStart()
                     }
                 }
                 HANDLER_RESUME -> {
-                    log("msg.what = HANDLER_RESUME  \n mDuration = ", duration)
+                    logInfo("msg.what = HANDLER_RESUME  \n mDuration = $duration ")
                     if (mRecordListener != null) {
                         mRecordListener!!.onResume()
                     }
                 }
                 HANDLER_COMPLETE -> {
-                    log("msg.what = HANDLER_COMPLETE  \n mDuration = ", duration)
+                    logInfo("msg.what = HANDLER_COMPLETE  \n mDuration = $duration ")
                     if (mRecordListener != null) {
                         mRecordListener!!.onSuccess(mRecordFile!!.absolutePath, duration)
                     }
                 }
                 HANDLER_AUTO_COMPLETE -> {
-                    log("msg.what = HANDLER_AUTO_COMPLETE  \n mDuration = ", duration)
+                    logInfo("msg.what = HANDLER_AUTO_COMPLETE  \n mDuration = $duration ")
                     if (mRecordListener != null) {
                         mRecordListener!!.autoComplete(mRecordFile!!.absolutePath, duration)
                     }
                 }
                 HANDLER_ERROR -> {
-                    log("msg.what = HANDLER_ERROR  \n mDuration = ", duration)
+                    logInfo("msg.what = HANDLER_ERROR  \n mDuration = $duration ")
                     if (mRecordListener != null) {
                         mRecordListener!!.onError(Exception("record error!"))
                     }
                 }
                 HANDLER_PAUSE -> {
-                    log("msg.what = HANDLER_PAUSE  \n mDuration = ", duration)
+                    logInfo("msg.what = HANDLER_PAUSE  \n mDuration = $duration ")
                     if (mRecordListener != null) {
                         mRecordListener!!.onPause()
                     }
                 }
                 HANDLER_PERMISSION -> {
-                    log("msg.what = HANDLER_PERMISSION  \n mDuration = ", duration)
+                    logInfo("msg.what = HANDLER_PERMISSION  \n mDuration = $duration ")
                     if (mPermissionListener != null) {
                         mPermissionListener!!.needPermission()
                     }
                 }
                 HANDLER_RESET -> {
-                    log("msg.what = HANDLER_RESET  \n mDuration = ", duration)
+                    logInfo("msg.what = HANDLER_RESET  \n mDuration = $duration ")
                     if (mRecordListener != null) {
                         mRecordListener!!.onReset()
                     }
@@ -188,19 +187,13 @@ class MP3Recorder : BaseRecorder {
 
 
     constructor()
-
-    constructor(isDebug: Boolean) {
-        this.isDebug = isDebug
-    }
-
     /**
      *
      * @param audioSource MediaRecorder.AudioSource.MIC
      * @param isDebug true or false
      */
-    constructor(audioSource: Int = MediaRecorder.AudioSource.MIC, isDebug: Boolean = false) {
+    constructor(audioSource: Int = MediaRecorder.AudioSource.MIC) {
         this.defaultAudioSource = audioSource
-        this.isDebug = isDebug
     }
 
     /**
@@ -228,10 +221,19 @@ class MP3Recorder : BaseRecorder {
         return this
     }
 
-    override fun setMp3BitRate(mp3BitRate: Int): BaseRecorder {
-
+    override fun setSamplingRate(rate:Int): MP3Recorder {
+        if (defaultSamplingRate < 8000 ) return  this
+        this.defaultSamplingRate = rate
         return this
     }
+
+
+    override fun setMp3BitRate(mp3BitRate: Int): BaseRecorder {
+        if (mp3BitRate <32 ) return  this
+        this.defaultLameMp3BitRate = mp3BitRate
+        return this
+    }
+
 
     /**
      * 设置录音输出文件
@@ -243,7 +245,7 @@ class MP3Recorder : BaseRecorder {
         return this
     }
 
-    fun updateDataEncode(outputFilePath: String) {
+    override fun updateDataEncode(outputFilePath: String) {
         setOutputFile(outputFilePath,false)
         mEncodeThread?.update(outputFilePath)
     }
@@ -480,8 +482,8 @@ class MP3Recorder : BaseRecorder {
     @Throws(IOException::class)
     private fun initAudioRecorder() {
         mBufferSize = AudioRecord.getMinBufferSize(
-                DEFAULT_SAMPLING_RATE,
-                DEFAULT_CHANNEL_CONFIG, DEFAULT_AUDIO_FORMAT.audioFormat
+            defaultSamplingRate,
+            DEFAULT_CHANNEL_CONFIG, DEFAULT_AUDIO_FORMAT.audioFormat
         )
         val bytesPerFrame = DEFAULT_AUDIO_FORMAT.bytesPerFrame
         /* Get number of samples. Calculate the buffer size
@@ -497,7 +499,7 @@ class MP3Recorder : BaseRecorder {
         /* Setup audio recorder */
         mAudioRecord = AudioRecord(
             defaultAudioSource,
-                DEFAULT_SAMPLING_RATE, DEFAULT_CHANNEL_CONFIG, DEFAULT_AUDIO_FORMAT.audioFormat,
+            defaultSamplingRate, DEFAULT_CHANNEL_CONFIG, DEFAULT_AUDIO_FORMAT.audioFormat,
             mBufferSize
         )
         mPCMBuffer = ShortArray(mBufferSize)
@@ -507,10 +509,10 @@ class MP3Recorder : BaseRecorder {
          * The bit rate is 32kbps
          */
         LameUtils.init(
-                DEFAULT_SAMPLING_RATE,
-                DEFAULT_LAME_IN_CHANNEL,
-                DEFAULT_SAMPLING_RATE,
-                defaultLameMp3BitRate,
+            defaultSamplingRate,
+            DEFAULT_LAME_IN_CHANNEL,
+            defaultSamplingRate,
+            defaultLameMp3BitRate,
             defaultLameMp3Quality
         )
         mEncodeThread = DataEncodeThread(mRecordFile!!, mBufferSize, isContinue)
@@ -616,11 +618,6 @@ class MP3Recorder : BaseRecorder {
         }
     }
 
-    private fun log(s: String, mDuration: Long) {
-        if (isDebug) {
-            Log.d(TAG, s + mDuration)
-        }
-    }
 
     private fun mapFormat(format: Int): Int {
         return when (format) {
@@ -644,7 +641,7 @@ class MP3Recorder : BaseRecorder {
         private val HANDLER_MAX_TIME = 110//设置了最大时间
 
         //region 以下三项为默认配置参数。Google Android文档明确表明只有以下3个参数是可以在所有设备上保证支持的。
-        private val DEFAULT_SAMPLING_RATE = 44100
+
         private val DEFAULT_CHANNEL_CONFIG = AudioFormat.CHANNEL_IN_MONO
         private val DEFAULT_AUDIO_FORMAT = PCMFormat.PCM_16BIT
         //endregion

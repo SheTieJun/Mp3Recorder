@@ -8,6 +8,8 @@
 4. 可以设置同文件继续录制功能
 5. 支持返回当前已录制时长和当前声音大小
 6. 设置最大录制时间，达到最大时间触发自动完成回调
+7. 可以在开始录音前，设置录音的相关参数
+8. 录音中途可以替换输出文件，比如每60秒替换一个输出文件
 
 
 ### 缺点
@@ -15,7 +17,7 @@
 1. 录制声道数设置，因为合成，所有你需要设置和背景音乐相同的声道数据，背景音乐默认需要是 44k ，单声道，16位
 因为单声道录制的声音比较清脆
 2. 如果设置单声道，播放的背景是双声道，（MIX）会让音乐拉长；反之双声音合成，背景音乐是单声音，节奏会变快
-3. 去噪音：MixRecorder使用VOICE_COMMUNICATION ,使用系统自带的AEC,声音会变小、
+3. 使用VOICE_COMMUNICATION ,使用系统自带的AEC,声音会变小、
 4. 录音可以设置声音增强，但是可能会加大噪音~
 
 #### 录制（可以选择背景音乐）
@@ -63,7 +65,6 @@ dependencies {
             mRecorder = simpleRecorderBuilder(BaseRecorder.RecorderType.MIX,
                 BaseRecorder.AudioSource.MIC,
                 channel = BaseRecorder.AudioChannel.STEREO)
-                
                 mRecorder.setBackgroundMusic(musicUrl!!)//设置默认的背景音乐
                 .setRecordListener(onRecording = { time, volume ->
                     //当前已录制时长 和 当前声音大小

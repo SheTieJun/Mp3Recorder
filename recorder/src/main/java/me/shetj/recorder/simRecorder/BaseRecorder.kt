@@ -1,9 +1,11 @@
 package me.shetj.recorder.simRecorder
 
 import android.media.MediaRecorder
+import android.util.Log
 import me.shetj.player.PermissionListener
 import me.shetj.player.PlayerListener
 import me.shetj.player.RecordListener
+import me.shetj.recorder.mixRecorder.MixRecorder
 import me.shetj.recorder.util.BytesTransUtil
 import java.io.File
 import kotlin.math.sqrt
@@ -43,6 +45,8 @@ abstract class BaseRecorder {
     //录制时间
     var duration = 0L
         protected set
+    var isPause: Boolean = false
+    private var isDebug = false
     //endregion 录音的状态和时间
 
     //region public method 公开的方法
@@ -63,6 +67,8 @@ abstract class BaseRecorder {
     abstract fun setMp3Quality(mp3Quality: Int): BaseRecorder
     //设置比特率，关系声音的质量
     abstract fun setMp3BitRate(mp3BitRate :Int) :BaseRecorder
+    //设置采样率
+    abstract fun setSamplingRate(rate:Int): BaseRecorder
     //初始最大录制时间
     abstract fun setMaxTime(mMaxTime: Int): BaseRecorder
     //设置增强系数
@@ -75,6 +81,8 @@ abstract class BaseRecorder {
     abstract fun stop()
     //重新开始录音
     abstract fun onResume()
+    //替换输出文件
+    abstract fun updateDataEncode(outputFilePath: String)
     //暂停录音
     abstract fun onPause()
     //开始播放音乐
@@ -92,6 +100,11 @@ abstract class BaseRecorder {
     //endregion public method
 
     //region  计算真正的时间，如果过程中有些数据太小，就直接置0，防止噪音
+
+    fun <T :BaseRecorder> setDebug(isDebug:Boolean) :T{
+        this.isDebug = isDebug
+        return this as T
+    }
     protected fun calculateRealVolume(buffer: ShortArray, readSize: Int) {
         var sum = 0.0
         for (i in 0 until readSize) {
@@ -113,6 +126,12 @@ abstract class BaseRecorder {
         val shorts = BytesTransUtil.bytes2Shorts(buffer)
         val readSize = shorts.size
         calculateRealVolume(shorts,readSize)
+    }
+
+    protected fun logInfo(info:String) {
+        if (isDebug) {
+            Log.d(this.javaClass.simpleName,info )
+        }
     }
     //endregion  计算真正的时间，如果过程中有些数据太小，就直接置0，防止噪音
 }

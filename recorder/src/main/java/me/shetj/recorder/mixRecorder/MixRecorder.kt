@@ -17,6 +17,7 @@ import me.shetj.player.PermissionListener
 import me.shetj.player.PlayerListener
 import me.shetj.player.RecordListener
 import me.shetj.recorder.simRecorder.BaseRecorder
+import me.shetj.recorder.simRecorder.MP3Recorder
 import me.shetj.recorder.simRecorder.PCMFormat
 import me.shetj.recorder.simRecorder.RecordState
 import me.shetj.recorder.util.LameUtils
@@ -30,9 +31,6 @@ import java.io.IOException
 class MixRecorder : BaseRecorder {
 
     private val TAG = this.javaClass.simpleName
-    //region public 公开方法1
-    var isPause: Boolean = false //暂停录制
-    //endregion public
     //region 参数
 
     //region  Lame Default Setting （Lame的设置）
@@ -89,7 +87,7 @@ class MixRecorder : BaseRecorder {
             super.handleMessage(msg)
             when (msg.what) {
                 HANDLER_RECORDING -> {
-                    Log.d(TAG, "msg.what = HANDLER_RECORDING  \n mDuration = $duration")
+                    logInfo("msg.what = HANDLER_RECORDING  \n mDuration = $duration")
                     if (mRecordListener != null) {
                         //录制回调
                         mRecordListener!!.onRecording(duration, realVolume)
@@ -100,49 +98,49 @@ class MixRecorder : BaseRecorder {
                     }
                 }
                 HANDLER_START -> {
-                    Log.d(TAG, "msg.what = HANDLER_START  \n mDuration = $duration")
+                    logInfo("msg.what = HANDLER_START  \n mDuration = $duration")
                     if (mRecordListener != null) {
                         mRecordListener!!.onStart()
                     }
                 }
                 HANDLER_RESUME -> {
-                    Log.d(TAG, "msg.what = HANDLER_RESUME  \n mDuration = $duration")
+                    logInfo("msg.what = HANDLER_RESUME  \n mDuration = $duration")
                     if (mRecordListener != null) {
                         mRecordListener!!.onResume()
                     }
                 }
                 HANDLER_COMPLETE -> {
-                    Log.d(TAG, "msg.what = HANDLER_COMPLETE  \n mDuration = $duration")
+                    logInfo( "msg.what = HANDLER_COMPLETE  \n mDuration = $duration")
                     if (mRecordListener != null) {
                         mRecordListener!!.onSuccess(mRecordFile!!.absolutePath, duration)
                     }
                 }
                 HANDLER_AUTO_COMPLETE -> {
-                    Log.d(TAG, "msg.what = HANDLER_AUTO_COMPLETE  \n mDuration = $duration")
+                    logInfo("msg.what = HANDLER_AUTO_COMPLETE  \n mDuration = $duration")
                     if (mRecordListener != null) {
                         mRecordListener!!.autoComplete(mRecordFile!!.absolutePath, duration)
                     }
                 }
                 HANDLER_ERROR -> {
-                    Log.d(TAG, "msg.what = HANDLER_ERROR  \n mDuration = $duration")
+                    logInfo("msg.what = HANDLER_ERROR  \n mDuration = $duration")
                     if (mRecordListener != null) {
                         mRecordListener!!.onError(Exception("record error!"))
                     }
                 }
                 HANDLER_PAUSE -> {
-                    Log.d(TAG, "msg.what = HANDLER_PAUSE  \n mDuration = $duration")
+                    logInfo("msg.what = HANDLER_PAUSE  \n mDuration = $duration")
                     if (mRecordListener != null) {
                         mRecordListener!!.onPause()
                     }
                 }
                 HANDLER_PERMISSION -> {
-                    Log.d(TAG, "msg.what = HANDLER_PERMISSION  \n mDuration = $duration")
+                    logInfo("msg.what = HANDLER_PERMISSION  \n mDuration = $duration")
                     if (mPermissionListener != null) {
                         mPermissionListener!!.needPermission()
                     }
                 }
                 HANDLER_RESET -> {
-                    Log.d(TAG, "msg.what = HANDLER_RESET  \n mDuration = $duration")
+                    logInfo("msg.what = HANDLER_RESET  \n mDuration = $duration")
                     if (mRecordListener != null) {
                         mRecordListener!!.onReset()
                     }
@@ -216,11 +214,22 @@ class MixRecorder : BaseRecorder {
     }
 
     override fun setMp3Quality(mp3Quality: Int): MixRecorder {
-        this.defaultLameMp3Quality = mp3Quality
+        this.defaultLameMp3Quality = when {
+            mp3Quality < 0 -> 0
+            mp3Quality > 9 -> 9
+            else -> mp3Quality
+        }
         return this
     }
 
-    override fun setMp3BitRate(mp3BitRate: Int): BaseRecorder {
+    override fun setSamplingRate(rate:Int): MixRecorder {
+        if (defaultSamplingRate < 8000 ) return  this //低于8000 没有意义
+        this.defaultSamplingRate = rate
+        return this
+    }
+
+    override fun setMp3BitRate(mp3BitRate: Int): MixRecorder {
+        if (mp3BitRate <32 ) return  this //低于32 也没有意义
         this.defaultLameMp3BitRate = mp3BitRate
         return this
     }
@@ -288,6 +297,12 @@ class MixRecorder : BaseRecorder {
         return this
     }
 
+
+    override fun updateDataEncode(outputFilePath: String) {
+        setOutputFile(outputFilePath,false)
+        mEncodeThread?.update(outputFilePath)
+    }
+
     /**
      * 设置回调
      * @param recordListener
@@ -332,11 +347,6 @@ class MixRecorder : BaseRecorder {
      */
     fun setSpeed(speed: Long): MixRecorder {
         this.speed = speed
-        return this
-    }
-
-    fun setSamplingRate(rate:Int): MixRecorder {
-        this.defaultSamplingRate = rate
         return this
     }
 

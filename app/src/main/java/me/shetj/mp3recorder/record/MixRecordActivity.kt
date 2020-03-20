@@ -9,8 +9,8 @@ import kotlinx.android.synthetic.main.activity_mix_record.*
 import me.shetj.base.kt.showToast
 import me.shetj.base.tools.app.ArmsUtils
 import me.shetj.base.tools.file.SDCardUtils
-import me.shetj.kt.setRecordListener
 import me.shetj.kt.setPlayListener
+import me.shetj.kt.setRecordListener
 import me.shetj.kt.simpleRecorderBuilder
 import me.shetj.mp3recorder.R
 import me.shetj.mp3recorder.record.utils.LocalMusicUtils
@@ -144,12 +144,6 @@ class MixRecordActivity : AppCompatActivity() {
             }else{
                 it.pauseMusic()
             }
-        }
-    }
-
-    private fun showMsg(info:String) {
-        AndroidSchedulers.mainThread().scheduleDirect {
-            ArmsUtils.makeText(info)
         }
     }
 

@@ -72,7 +72,7 @@
  
  mixRecorder?.setBackgroundMusic(musicUrl)//设置背景音乐
  
- mixRecorder?.setVolume(volume)//设置背景音乐大小0-1	
+ mixRecorder?.setVolume(volume)//设置背景音乐大小0-1,即使没有把手机的声音关闭，也会按照该比例记录到录制的声音中	
  
  mixRecorder?.startPlayMusic() //开始播放背景音乐
  
@@ -80,8 +80,12 @@
  mixRecorder?.isPauseMusic()// 背景音乐是否暂停
  mixRecorder?.resumeMusic() //重新开始播放
 ```
+#### 5.中途替换输出文件
+```
+  mixRecorder.updateDataEncode(filePath)
+```
 
-#### 5. 停止录音
+#### 6. 停止录音
 
 ```kotlin
  mixRecorder?.stop()  //完成录音

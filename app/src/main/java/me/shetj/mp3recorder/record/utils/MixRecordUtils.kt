@@ -1,13 +1,14 @@
 package me.shetj.mp3recorder.record.utils
 
-import android.media.MediaRecorder
 import android.text.TextUtils
 import me.shetj.base.tools.file.SDCardUtils
-import me.shetj.recorder.mixRecorder.MixRecorder
-import me.shetj.recorder.mixRecorder.PlayBackMusic
+import me.shetj.kt.simpleRecorderBuilder
 import me.shetj.player.PermissionListener
 import me.shetj.player.PlayerListener
 import me.shetj.player.RecordListener
+import me.shetj.recorder.mixRecorder.MixRecorder
+import me.shetj.recorder.mixRecorder.PlayBackMusic
+import me.shetj.recorder.simRecorder.BaseRecorder
 import me.shetj.recorder.simRecorder.RecordState
 import me.shetj.recorder.util.FileUtils
 
@@ -37,7 +38,7 @@ class MixRecordUtils(private val callBack: RecordCallBack?
     }
 
     private var startTime: Long = 0 //秒 s
-    private var mRecorder: MixRecorder? = null
+    private var mRecorder: BaseRecorder? = null
     private var saveFile = ""
 
     @JvmOverloads
@@ -71,12 +72,12 @@ class MixRecordUtils(private val callBack: RecordCallBack?
      * MIC 麦克风- 因为有噪音问题
      */
     private fun initRecorder() {
-        mRecorder = MixRecorder(MediaRecorder.AudioSource.VOICE_COMMUNICATION,2)
-                .setMaxTime(3600 * 1000)
-                .setMp3Quality(1)
-                .setPermissionListener(this)
-                .setRecordListener(this)
-                .setWax(2f) //声音增强处理 默认
+        mRecorder =  simpleRecorderBuilder(
+            mMaxTime = 3600 * 1000,
+            mp3Quality = 1,
+            isDebug = false,
+            recordListener = this,
+            permissionListener = this)
     }
 
     fun isPause():Boolean{
@@ -84,11 +85,11 @@ class MixRecordUtils(private val callBack: RecordCallBack?
     }
 
     fun setBackgroundPlayerListener(listener : PlayerListener) {
-        mRecorder?.bgPlayer?.setBackGroundPlayListener(listener)
+        mRecorder?.setBackgroundMusicListener(listener)
     }
 
     fun getBgPlayer(): PlayBackMusic {
-        return mRecorder!!.bgPlayer
+        return (mRecorder!! as MixRecorder).bgPlayer
     }
 
     fun  pause(){
@@ -166,7 +167,7 @@ class MixRecordUtils(private val callBack: RecordCallBack?
     }
 
     override fun setMaxProgress(time: Long) {
-        callBack?.onMaxProgress((time/1000).toInt())
+        callBack?.onMaxProgress((3600).toInt())
     }
 
     override fun onError(e: Exception) {

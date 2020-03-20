@@ -1,4 +1,4 @@
-package me.shetj.mp3recorder.record.activity
+package me.shetj.mp3recorder.record.activity.sim
 
 import android.content.ComponentName
 import android.content.Context

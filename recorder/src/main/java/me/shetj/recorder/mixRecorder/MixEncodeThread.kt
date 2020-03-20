@@ -28,7 +28,7 @@ constructor(file: File, bufferSize: Int, isContinue: Boolean, private val is2CHA
     private var mHandler: StopHandler? = null
     private val mMp3Buffer: ByteArray
     private var mFileOutputStream: FileOutputStream?
-    private val path: String
+    private var path: String
     private var needUpdate = false
 
     val handler: Handler?
@@ -208,6 +208,11 @@ constructor(file: File, bufferSize: Int, isContinue: Boolean, private val is2CHA
 
     fun addTask(rawData: ByteArray, wax: Float,bgData: ByteArray?, bgWax: Float) {
         mTasks.add(ReadMixTask(rawData, wax,bgData,bgWax))
+    }
+
+    fun update(outputFilePath: String) {
+        this.path = outputFilePath
+        needUpdate = true
     }
 
     companion object {

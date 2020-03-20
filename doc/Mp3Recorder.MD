@@ -22,7 +22,7 @@ mRecorder.onResume();
 mRecorder.stop();
 ```
 
-#### `MP3Recorder` 特有功能：录制中替换输出音频路径
+#### 录制中替换输出音频路径
 ```
  mRecorder?.updateDataEncode(outputFilePath);
 ```
@@ -33,7 +33,7 @@ mRecorder.stop();
 ```
  mRecorder?.bgPlayer  //获取背景音乐播放器
  mRecorder?.setBackgroundMusic(musicUrl)//设置背景音乐
- mRecorder?.setVolume(volume)//设置背景音乐大小0-1	
+ mRecorder?.setVolume(volume)//设置背景音乐大小0-1	,但是如果关闭手机的声音，会无法录制到声音中
  mRecorder?.startPlayMusic() //开始播放背景音乐
  mRecorder?.pauseMusic() //暂停背景音乐
  mRecorder?.isPauseMusic()// 背景音乐是否暂停

@@ -32,7 +32,7 @@
             </intent-filter>
         </service>
 
-        <activity android:name=".record.activity.MyRecordActivity"
+        <activity android:name=".record.activity.mix.MyMixRecordActivity"
             android:configChanges="orientation|screenSize|keyboardHidden"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar"

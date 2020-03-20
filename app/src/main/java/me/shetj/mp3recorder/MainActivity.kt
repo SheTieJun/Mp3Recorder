@@ -9,7 +9,7 @@ import com.tbruyelle.rxpermissions2.RxPermissions
 import kotlinx.android.synthetic.main.activity_main.*
 import me.shetj.base.tools.app.ArmsUtils
 import me.shetj.mp3recorder.record.MixRecordActivity
-import me.shetj.mp3recorder.record.activity.MyRecordActivity
+import me.shetj.mp3recorder.record.activity.mix.MyMixRecordActivity
 import me.shetj.recorder.util.LameUtils
 
 class MainActivity : AppCompatActivity() {
@@ -26,7 +26,8 @@ class MainActivity : AppCompatActivity() {
             .compose(RxPermissions(this).ensure(Manifest.permission.WRITE_EXTERNAL_STORAGE,Manifest.permission.READ_EXTERNAL_STORAGE
                 ,Manifest.permission.RECORD_AUDIO))
             .subscribe {
-                ArmsUtils.startActivity(this,MyRecordActivity::class.java)
+                ArmsUtils.startActivity(this,
+                    MyMixRecordActivity::class.java)
             }
 
         btn_demo2.clicks()
@@ -35,5 +36,12 @@ class MainActivity : AppCompatActivity() {
             .subscribe {
             ArmsUtils.startActivity(this,MixRecordActivity::class.java)
         }
+
+        btn_demo3.clicks()
+            .compose(RxPermissions(this).ensure(Manifest.permission.WRITE_EXTERNAL_STORAGE,Manifest.permission.READ_EXTERNAL_STORAGE
+                ,Manifest.permission.RECORD_AUDIO))
+            .subscribe {
+                ArmsUtils.startActivity(this,MyMixRecordActivity::class.java)
+            }
     }
 }

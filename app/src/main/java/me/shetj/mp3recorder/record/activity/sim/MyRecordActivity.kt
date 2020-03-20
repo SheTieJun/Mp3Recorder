@@ -1,4 +1,4 @@
-package me.shetj.mp3recorder.record.activity
+package me.shetj.mp3recorder.record.activity.sim
 
 import android.Manifest
 import android.os.Bundle
@@ -39,8 +39,16 @@ class MyRecordActivity : BaseActivity<BasePresenter<*>>(), Callback {
         statuInScreen( true)
         canRecord()
         mFrameLayout = findViewById(R.id.frameLayout)
-        myRecordAction = MyRecordPage(this, mFrameLayout, this)
-        recordAction = RecordPage(this, mFrameLayout, this)
+        myRecordAction = MyRecordPage(
+            this,
+            mFrameLayout,
+            this
+        )
+        recordAction = RecordPage(
+            this,
+            mFrameLayout,
+            this
+        )
         //设置录音界面的动画
         recordTransition = TransitionInflater.from(this).inflateTransition(R.transition.record_page_slide)
         myRecordTransition = TransitionInflater.from(this).inflateTransition(R.transition.my_record_page_slide)

@@ -1,7 +1,6 @@
-package me.shetj.mp3recorder.record.activity
+package me.shetj.mp3recorder.record.activity.sim
 
 import android.app.Activity
-import android.content.Intent
 import android.transition.Scene
 import android.transition.TransitionManager
 import android.view.LayoutInflater
@@ -13,7 +12,6 @@ import android.widget.RelativeLayout
 import androidx.recyclerview.widget.RecyclerView
 import com.chad.library.adapter.base.BaseQuickAdapter
 import com.chad.library.adapter.base.viewholder.BaseViewHolder
-import me.shetj.mp3recorder.record.view.RecordBottomSheetDialog
 import me.shetj.base.tools.app.ArmsUtils
 import me.shetj.mp3recorder.R
 import me.shetj.mp3recorder.record.adapter.RecordAdapter
@@ -21,6 +19,7 @@ import me.shetj.mp3recorder.record.bean.Record
 import me.shetj.mp3recorder.record.bean.RecordDbUtils
 import me.shetj.mp3recorder.record.utils.Callback
 import me.shetj.mp3recorder.record.utils.MainThreadEvent
+import me.shetj.mp3recorder.record.view.RecordBottomSheetDialog
 import org.simple.eventbus.EventBus
 import org.simple.eventbus.Subscriber
 import org.simple.eventbus.ThreadMode

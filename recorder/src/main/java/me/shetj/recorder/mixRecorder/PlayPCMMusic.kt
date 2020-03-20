@@ -3,15 +3,15 @@
 package me.shetj.recorder.mixRecorder
 
 import android.media.*
+import android.media.AudioFormat.CHANNEL_OUT_STEREO
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.os.Message
 import android.util.Log
 import me.shetj.player.PlayerListener
-import java.util.concurrent.LinkedBlockingDeque
-import android.media.AudioFormat.CHANNEL_OUT_STEREO
 import java.nio.ByteBuffer
+import java.util.concurrent.LinkedBlockingDeque
 
 
 /**
