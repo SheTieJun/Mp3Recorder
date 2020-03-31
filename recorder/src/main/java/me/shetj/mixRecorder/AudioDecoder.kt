@@ -233,11 +233,16 @@ class AudioDecoder {
     }
 
     private fun releaseDecode() {
-        if (mediaDecode != null) {
-            mediaDecode!!.release()
-        }
-        if (mediaExtractor != null) {
-            mediaExtractor!!.release()
+        try {
+            if (mediaDecode != null) {
+                mediaDecode!!.stop();
+                mediaDecode!!.release()
+            }
+            if (mediaExtractor != null) {
+                mediaExtractor!!.release()
+            }
+        } catch (e:Exception) {
+            Log.e("mixRecorder","message = ${e.message}")
         }
     }
 
