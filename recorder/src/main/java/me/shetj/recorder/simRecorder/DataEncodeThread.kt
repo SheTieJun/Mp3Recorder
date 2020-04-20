@@ -203,8 +203,8 @@ constructor(file: File, bufferSize: Int, isContinue: Boolean) : HandlerThread("D
     }
 
     companion object {
-        private val PROCESS_STOP = 1
-        private val PROCESS_ERROR = 2
+        private const val PROCESS_STOP = 1
+        private const val PROCESS_ERROR = 2
     }
 
 

@@ -38,20 +38,20 @@ class PlayBackMusic(private var defaultChannel: Int = CHANNEL_OUT_MONO) {
         private set
     private val playHandler: PlayHandler
     private var audioTrack: AudioTrack? = null
-    private var volume  = 0.3f
-    private var playerListener: PlayerListener?=null
+    private var volume = 0.3f
+    private var playerListener: PlayerListener? = null
 
-    internal val isPCMDataEos: Boolean
-        get() = if (mAudioDecoder == null){
+    private val isPCMDataEos: Boolean
+        get() = if (mAudioDecoder == null) {
             true
-        }else {
+        } else {
             mAudioDecoder!!.isPCMExtractorEOS
         }
 
     val bufferSize: Int
-        get() = if (mAudioDecoder == null){
+        get() = if (mAudioDecoder == null) {
             AudioDecoder.BUFFER_SIZE
-        }else{
+        } else {
             mAudioDecoder!!.bufferSize
         }
 
@@ -87,7 +87,7 @@ class PlayBackMusic(private var defaultChannel: Int = CHANNEL_OUT_MONO) {
         return this
     }
 
-    fun setBackGroundPlayListener(playerListener: PlayerListener){
+    fun setBackGroundPlayListener(playerListener: PlayerListener) {
         this.playerListener = playerListener
     }
 
@@ -137,7 +137,7 @@ class PlayBackMusic(private var defaultChannel: Int = CHANNEL_OUT_MONO) {
                 addBackGroundBytes(bytes)
             }
         }).start()
-        playerListener?.onStart("",0)
+        playerListener?.onStart("", 0)
         return this
     }
 
@@ -208,7 +208,7 @@ class PlayBackMusic(private var defaultChannel: Int = CHANNEL_OUT_MONO) {
             //重新开始播放mp3 -> pcm
             initPCMData()
         }
-        Log.i("PlayBackMusic","restartMusic")
+        Log.i("PlayBackMusic", "restartMusic")
     }
 
     /**
@@ -243,7 +243,7 @@ class PlayBackMusic(private var defaultChannel: Int = CHANNEL_OUT_MONO) {
                     if (!isIsPause) {
                         val pcm = mAudioDecoder!!.pcmData
                         val temp = pcm?.bufferBytes
-                        if (pcm == null || temp == null){
+                        if (pcm == null || temp == null) {
                             if (mIsLoop) {
                                 playHandler.sendEmptyMessage(PROCESS_REPLAY)
                                 sleep(100)
@@ -251,7 +251,7 @@ class PlayBackMusic(private var defaultChannel: Int = CHANNEL_OUT_MONO) {
                             continue
                         }
                         audioTrack!!.write(temp, 0, temp.size)
-                        if (mAudioDecoder!= null && mAudioDecoder!!.mediaFormat !=null) {
+                        if (mAudioDecoder != null && mAudioDecoder!!.mediaFormat != null) {
                             playerListener?.onProgress(
                                 (pcm.time / 1000).toInt(),
                                 (mAudioDecoder!!.mediaFormat!!.getLong(MediaFormat.KEY_DURATION) / 1000).toInt()
@@ -309,7 +309,8 @@ class PlayBackMusic(private var defaultChannel: Int = CHANNEL_OUT_MONO) {
                 .setBufferSizeInBytes(bufferSize)
                 .build()
         } else {
-            return  AudioTrack(AudioManager.STREAM_MUSIC,
+            return AudioTrack(
+                AudioManager.STREAM_MUSIC,
                 mSampleRate, defaultChannel, mAudioEncoding, bufferSize,
                 AudioTrack.MODE_STREAM
             )
@@ -322,8 +323,8 @@ class PlayBackMusic(private var defaultChannel: Int = CHANNEL_OUT_MONO) {
         if (audioTrack != null) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 audioTrack!!.setVolume(volume)
-            }else{
-                audioTrack!!.setStereoVolume(volume,volume)
+            } else {
+                audioTrack!!.setStereoVolume(volume, volume)
             }
         }
     }

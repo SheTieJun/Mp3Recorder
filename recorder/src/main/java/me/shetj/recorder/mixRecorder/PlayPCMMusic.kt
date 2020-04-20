@@ -28,7 +28,7 @@ import java.util.concurrent.LinkedBlockingDeque
  */
 class PlayPCMMusic(private val defaultChannel: Int = CHANNEL_OUT_STEREO) {
 
-    fun getBufferSize() :Int{
+    fun getBufferSize(): Int {
         if (backGroundBytes.isEmpty()) {
             return 2048
         }
@@ -45,8 +45,8 @@ class PlayPCMMusic(private val defaultChannel: Int = CHANNEL_OUT_STEREO) {
         private set
     private val playHandler: PlayHandler
     private var audioTrack: AudioTrack? = null
-    private var volume  = 0.3f
-    private var playerListener: PlayerListener?=null
+    private var volume = 0.3f
+    private var playerListener: PlayerListener? = null
 
     //音频解码PCM相关
     private var mediaExtractor: MediaExtractor? = null
@@ -92,7 +92,7 @@ class PlayPCMMusic(private val defaultChannel: Int = CHANNEL_OUT_STEREO) {
         return this
     }
 
-    fun setBackGroundPlayListener(playerListener: PlayerListener){
+    fun setBackGroundPlayListener(playerListener: PlayerListener) {
         this.playerListener = playerListener
     }
 
@@ -104,7 +104,7 @@ class PlayPCMMusic(private val defaultChannel: Int = CHANNEL_OUT_STEREO) {
         }
         if (mediaExtractor != null) {
             mediaExtractor!!.release()
-            mediaExtractor= null
+            mediaExtractor = null
         }
     }
 
@@ -138,7 +138,7 @@ class PlayPCMMusic(private val defaultChannel: Int = CHANNEL_OUT_STEREO) {
                 addBackGroundBytes(bytes)
             }
         }).start()
-        playerListener?.onStart("",0)
+        playerListener?.onStart("", 0)
         return this
     }
 
@@ -249,7 +249,7 @@ class PlayPCMMusic(private val defaultChannel: Int = CHANNEL_OUT_STEREO) {
         private fun playMusic() {
             var sawInputEOS = false
             try {
-                while (!isPCMExtractorEOS && isPlayingMusic   ) {
+                while (!isPCMExtractorEOS && isPlayingMusic) {
                     if (isIsPause) {
                         try {
                             //防止死循环ANR
@@ -324,8 +324,8 @@ class PlayPCMMusic(private val defaultChannel: Int = CHANNEL_OUT_STEREO) {
                         )//此操作一定要做，不然MediaCodec用完所有的Buffer后 将不能向外输出数据
 
                         if (decodeBufferInfo!!.flags and MediaCodec.BUFFER_FLAG_END_OF_STREAM != 0) {
-                                isPCMExtractorEOS = true
-                                Log.i("mixRecorder", "pcm finished..." + mp3FilePath!!)
+                            isPCMExtractorEOS = true
+                            Log.i("mixRecorder", "pcm finished..." + mp3FilePath!!)
                         }
 
                     } else if (outputIndex == MediaCodec.INFO_OUTPUT_BUFFERS_CHANGED) {
@@ -386,7 +386,8 @@ class PlayPCMMusic(private val defaultChannel: Int = CHANNEL_OUT_STEREO) {
                 .setBufferSizeInBytes(bufferSize)
                 .build()
         } else {
-            return  AudioTrack(AudioManager.STREAM_MUSIC,
+            return AudioTrack(
+                AudioManager.STREAM_MUSIC,
                 mSampleRate, defaultChannel, mAudioEncoding, bufferSize,
                 AudioTrack.MODE_STREAM
             )
@@ -433,8 +434,8 @@ class PlayPCMMusic(private val defaultChannel: Int = CHANNEL_OUT_STEREO) {
         if (audioTrack != null) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 audioTrack!!.setVolume(volume)
-            }else{
-                audioTrack!!.setStereoVolume(volume,volume)
+            } else {
+                audioTrack!!.setStereoVolume(volume, volume)
             }
         }
     }

@@ -12,15 +12,16 @@ import me.shetj.recorder.simRecorder.MP3Recorder
  * 通过背景音乐录制的背景音乐
  */
 @JvmOverloads
-fun simRecorderBuilder(audioSource: BaseRecorder.AudioSource = BaseRecorder.AudioSource.MIC,
-                       isDebug: Boolean = BuildConfig.DEBUG,
-                       mMaxTime: Int = 1800 * 1000,
-                       samplingRate : Int = 44100,
-                       mp3BitRate: Int = 128,//96(高),32（低）
-                       mp3Quality: Int = 1,
-                       permissionListener: PermissionListener ? =null,
-                       recordListener: RecordListener ?= null,
-                       wax: Float = 1f
+fun simRecorderBuilder(
+    audioSource: BaseRecorder.AudioSource = BaseRecorder.AudioSource.MIC,
+    isDebug: Boolean = BuildConfig.DEBUG,
+    mMaxTime: Int = 1800 * 1000,
+    samplingRate: Int = 44100,
+    mp3BitRate: Int = 128,//96(高),32（低）
+    mp3Quality: Int = 1,
+    permissionListener: PermissionListener? = null,
+    recordListener: RecordListener? = null,
+    wax: Float = 1f
 
 ): MP3Recorder {
     return MP3Recorder(audioSource.type)
@@ -30,36 +31,38 @@ fun simRecorderBuilder(audioSource: BaseRecorder.AudioSource = BaseRecorder.Audi
         .setMp3BitRate(mp3BitRate)
         .setPermissionListener(permissionListener)
         .setRecordListener(recordListener)
-        .setWax(wax)
-        .setDebug(isDebug)
+        .setWax(wax).apply {
+            setDebug(isDebug)
+        }
 }
-
 
 /**
  * 混合音频的录制
  */
 @JvmOverloads
-fun mixRecorderBuilder(audioSource: BaseRecorder.AudioSource = BaseRecorder.AudioSource.MIC,
-                       channel: BaseRecorder.AudioChannel = BaseRecorder.AudioChannel.MONO,
-                       isDebug: Boolean = BuildConfig.DEBUG,
-                       mMaxTime: Int = 1800 * 1000,
-                       samplingRate : Int = 44100,
-                       mp3BitRate: Int = 128,//96(高),32（低）
-                       mp3Quality: Int = 1,
-                       permissionListener: PermissionListener ? =null,
-                       recordListener: RecordListener ?= null,
-                       wax: Float = 1f
+fun mixRecorderBuilder(
+    audioSource: BaseRecorder.AudioSource = BaseRecorder.AudioSource.MIC,
+    channel: BaseRecorder.AudioChannel = BaseRecorder.AudioChannel.MONO,
+    isDebug: Boolean = BuildConfig.DEBUG,
+    mMaxTime: Int = 1800 * 1000,
+    samplingRate: Int = 44100,
+    mp3BitRate: Int = 128,//96(高),32（低）
+    mp3Quality: Int = 1,
+    permissionListener: PermissionListener? = null,
+    recordListener: RecordListener? = null,
+    wax: Float = 1f
 
 ): MixRecorder {
-    return MixRecorder(audioSource.type,channel.type)
+    return MixRecorder(audioSource.type, channel.type)
         .setMaxTime(mMaxTime)
         .setMp3Quality(mp3Quality)
         .setSamplingRate(samplingRate)
         .setMp3BitRate(mp3BitRate)
         .setPermissionListener(permissionListener)
         .setRecordListener(recordListener)
-        .setWax(wax)
-        .setDebug(isDebug)
+        .setWax(wax).apply {
+            setDebug(isDebug)
+        }
 }
 
 /**
@@ -67,69 +70,78 @@ fun mixRecorderBuilder(audioSource: BaseRecorder.AudioSource = BaseRecorder.Audi
  * sim 不支持单双声道录制
  */
 @JvmOverloads
-fun simpleRecorderBuilder(simpleName: BaseRecorder.RecorderType = BaseRecorder.RecorderType.MIX,
-                          audioSource: BaseRecorder.AudioSource = BaseRecorder.AudioSource.MIC,
-                          isDebug: Boolean = BuildConfig.DEBUG,
-                          mMaxTime: Int = 1800 * 1000,
-                          samplingRate : Int = 44100,
-                          mp3BitRate: Int = 128,//96(高),32（低）
-                          mp3Quality: Int = 1,
-                          channel: BaseRecorder.AudioChannel = BaseRecorder.AudioChannel.MONO,
-                          permissionListener: PermissionListener ? =null,
-                          recordListener: RecordListener ?= null,
-                          wax: Float = 1f
+fun simpleRecorderBuilder(
+    simpleName: BaseRecorder.RecorderType = BaseRecorder.RecorderType.MIX,
+    audioSource: BaseRecorder.AudioSource = BaseRecorder.AudioSource.MIC,
+    isDebug: Boolean = BuildConfig.DEBUG,
+    mMaxTime: Int = 1800 * 1000,
+    samplingRate: Int = 44100,
+    mp3BitRate: Int = 128,//96(高),32（低）
+    mp3Quality: Int = 1,
+    channel: BaseRecorder.AudioChannel = BaseRecorder.AudioChannel.MONO,
+    permissionListener: PermissionListener? = null,
+    recordListener: RecordListener? = null,
+    wax: Float = 1f
 ): BaseRecorder {
-    return when(simpleName){
+    return when (simpleName) {
         BaseRecorder.RecorderType.MIX ->
-            mixRecorderBuilder(audioSource = audioSource,
+            mixRecorderBuilder(
+                audioSource = audioSource,
                 isDebug = isDebug,
                 channel = channel,
                 mMaxTime = mMaxTime,
                 mp3Quality = mp3Quality,
                 samplingRate = samplingRate,
-                mp3BitRate =  mp3BitRate,
+                mp3BitRate = mp3BitRate,
                 permissionListener = permissionListener,
                 recordListener = recordListener,
-                wax = wax)
-        BaseRecorder.RecorderType.SIM  ->
-            simRecorderBuilder(audioSource = audioSource,
+                wax = wax
+            )
+        BaseRecorder.RecorderType.SIM ->
+            simRecorderBuilder(
+                audioSource = audioSource,
                 isDebug = isDebug,
                 mMaxTime = mMaxTime,
                 mp3Quality = mp3Quality,
                 samplingRate = samplingRate,
-                mp3BitRate =  mp3BitRate,
+                mp3BitRate = mp3BitRate,
                 permissionListener = permissionListener,
                 recordListener = recordListener,
-                wax = wax)
+                wax = wax
+            )
     }
 }
 
 /**
  * 设置录制成功回调，不管是最大还是收到
  */
-fun BaseRecorder.onSuccess(onSuccess:(file: String, time: Long)->Unit = { _: String, _: Long-> }): BaseRecorder {
-    return setRecordListener(onSuccess = onSuccess,autoComplete = onSuccess)
+fun BaseRecorder.onSuccess(onSuccess: (file: String, time: Long) -> Unit = { _: String, _: Long -> }): BaseRecorder {
+    return setRecordListener(onSuccess = onSuccess, autoComplete = onSuccess)
 }
 
 /**
  * 设置背景音乐播放,暂停和重新开始播放的监听
  */
-fun BaseRecorder.onPlayChange(onPause:()->Unit = {},
-                              onResume:()->Unit = {}): BaseRecorder {
-    return setPlayListener(onPause = onPause,onResume = onResume)
+fun BaseRecorder.onPlayChange(
+    onPause: () -> Unit = {},
+    onResume: () -> Unit = {}
+): BaseRecorder {
+    return setPlayListener(onPause = onPause, onResume = onResume)
 }
 
 /**
  * 设置背景音乐播放的监听
  */
-fun BaseRecorder.setPlayListener(onStart:(url: String, duration: Int)->Unit = { _: String, _: Int ->},
-                                 onPause:()->Unit = {},
-                                 onResume:()->Unit = {},
-                                 onStop:()->Unit = {},
-                                 onCompletion:()->Unit = {},
-                                 onError:(throwable: Exception)->Unit = {},
-                                 onProgress:(current: Int, duration: Int)->Unit = { _: Int, _: Int->}): BaseRecorder {
-    setBackgroundMusicListener(object :PlayerListener{
+fun BaseRecorder.setPlayListener(
+    onStart: (url: String, duration: Int) -> Unit = { _: String, _: Int -> },
+    onPause: () -> Unit = {},
+    onResume: () -> Unit = {},
+    onStop: () -> Unit = {},
+    onCompletion: () -> Unit = {},
+    onError: (throwable: Exception) -> Unit = {},
+    onProgress: (current: Int, duration: Int) -> Unit = { _: Int, _: Int -> }
+): BaseRecorder {
+    setBackgroundMusicListener(object : PlayerListener {
         override fun onStart(url: String, duration: Int) {
             onStart(url, duration)
         }
@@ -158,25 +170,27 @@ fun BaseRecorder.setPlayListener(onStart:(url: String, duration: Int)->Unit = { 
             onProgress(current, duration)
         }
     })
-    return  this
+    return this
 }
 
 /**
  * 设置录制监听
  */
-fun BaseRecorder.setRecordListener(onStart:()->Unit = {},
-                                   onResume:()->Unit = {},
-                                   onReset:()->Unit = {},
-                                   onRecording:(time: Long, volume: Int)->Unit = { _: Long, _: Int -> },
-                                   onPause:()->Unit = {},
-                                   onRemind:(mDuration: Long)->Unit = {},
-                                   onSuccess:(file: String, time: Long)->Unit = { _: String, _: Long-> },
-                                   setMaxProgress:(time: Long)->Unit = {},
-                                   onError:(e: Exception)->Unit = {},
-                                   autoComplete:(file: String, time: Long)->Unit = { _: String, _: Long -> },
-                                   needPermission:()->Unit = {}): BaseRecorder {
+fun BaseRecorder.setRecordListener(
+    onStart: () -> Unit = {},
+    onResume: () -> Unit = {},
+    onReset: () -> Unit = {},
+    onRecording: (time: Long, volume: Int) -> Unit = { _: Long, _: Int -> },
+    onPause: () -> Unit = {},
+    onRemind: (mDuration: Long) -> Unit = {},
+    onSuccess: (file: String, time: Long) -> Unit = { _: String, _: Long -> },
+    setMaxProgress: (time: Long) -> Unit = {},
+    onError: (e: Exception) -> Unit = {},
+    autoComplete: (file: String, time: Long) -> Unit = { _: String, _: Long -> },
+    needPermission: () -> Unit = {}
+): BaseRecorder {
 
-    setRecordListener(object :RecordListener{
+    setRecordListener(object : RecordListener {
         override fun onStart() {
             onStart()
         }
@@ -217,7 +231,7 @@ fun BaseRecorder.setRecordListener(onStart:()->Unit = {},
             autoComplete(file, time)
         }
     })
-    setPermissionListener(object :PermissionListener{
+    setPermissionListener(object : PermissionListener {
         override fun needPermission() {
             needPermission()
         }

@@ -28,9 +28,11 @@ import java.util.*
  */
 class MP3Recorder : BaseRecorder {
     private val TAG = javaClass.simpleName
+
     //=======================AudioRecord Default Settings=======================
     //    private static final int DEFAULT_AUDIO_SOURCE = MediaRecorder.AudioSource.VOICE_COMMUNICATION;//**对麦克风中类似ip通话的交流声音进行识别，默认会开启回声消除和自动增益*/
     private var defaultAudioSource = MediaRecorder.AudioSource.MIC
+
     //======================Lame Default Settings=====================
     private var defaultLameMp3Quality = 3
     private var defaultLameMp3BitRate = 128 //32 太低，96,128 比较合适  不要问为什么，产品说好
@@ -38,6 +40,7 @@ class MP3Recorder : BaseRecorder {
     private var mAudioRecord: AudioRecord? = null
     private var mEncodeThread: DataEncodeThread? = null
     private var backgroundPlayer: AudioPlayer? = null
+
     /**
      * 输出的文件
      */
@@ -49,8 +52,10 @@ class MP3Recorder : BaseRecorder {
 
     private var mPCMBuffer: ShortArray? = null
     private var mSendError: Boolean = false
+
     //缓冲数量
     private var mBufferSize: Int = 0
+
     //最大数量
     private var mMaxSize: Int = 0
     //波形速度
@@ -65,14 +70,18 @@ class MP3Recorder : BaseRecorder {
             }
             field = waveSpeed
         }
+
     //最大时间
     private var mMaxTime: Long = 3600000
+
     //提醒时间
     private var mRemindTime = (3600000 - 10000).toLong()
+
     //声音增强
     private var wax = 1f
     private var bgLevel: Float = 03f
     private var isContinue = false //是否继续录制
+
     //背景音乐相关
     private var backgroundMusicIsPlay: Boolean = false //记录是否暂停
     private var backgroundMusicUrl: String? = null
@@ -187,6 +196,7 @@ class MP3Recorder : BaseRecorder {
 
 
     constructor()
+
     /**
      *
      * @param audioSource MediaRecorder.AudioSource.MIC
@@ -200,7 +210,7 @@ class MP3Recorder : BaseRecorder {
      * 设置录音输出文件
      * @param outputFile
      */
-    override fun setOutputFile(outputFile: String, isContinue: Boolean ): MP3Recorder {
+    override fun setOutputFile(outputFile: String, isContinue: Boolean): MP3Recorder {
         if (TextUtils.isEmpty(outputFile)) {
             val message = Message.obtain()
             message.what = HANDLER_ERROR
@@ -221,15 +231,15 @@ class MP3Recorder : BaseRecorder {
         return this
     }
 
-    override fun setSamplingRate(rate:Int): MP3Recorder {
-        if (defaultSamplingRate < 8000 ) return  this
+    override fun setSamplingRate(rate: Int): MP3Recorder {
+        if (defaultSamplingRate < 8000) return this
         this.defaultSamplingRate = rate
         return this
     }
 
 
-    override fun setMp3BitRate(mp3BitRate: Int): BaseRecorder {
-        if (mp3BitRate <32 ) return  this
+    override fun setMp3BitRate(mp3BitRate: Int): MP3Recorder {
+        if (mp3BitRate < 32) return this
         this.defaultLameMp3BitRate = mp3BitRate
         return this
     }
@@ -246,7 +256,7 @@ class MP3Recorder : BaseRecorder {
     }
 
     override fun updateDataEncode(outputFilePath: String) {
-        setOutputFile(outputFilePath,false)
+        setOutputFile(outputFilePath, false)
         mEncodeThread?.update(outputFilePath)
     }
 
@@ -279,7 +289,7 @@ class MP3Recorder : BaseRecorder {
      * 提示时间时10秒前
      */
     override fun setMaxTime(mMaxTime: Int): MP3Recorder {
-        if (mMaxTime < 0){
+        if (mMaxTime < 0) {
             return this
         }
         this.mMaxTime = mMaxTime.toLong()
@@ -311,6 +321,7 @@ class MP3Recorder : BaseRecorder {
 
         object : Thread() {
             var isError = false
+
             //PCM文件大小 = 采样率采样时间采样位深 / 8*通道数（Bytes）
             var bytesPerSecond =
                 mAudioRecord!!.sampleRate * mapFormat(mAudioRecord!!.audioFormat) / 8 * mAudioRecord!!.channelCount
@@ -336,7 +347,7 @@ class MP3Recorder : BaseRecorder {
                             /**
                              * x2 转成字节做时间计算
                              */
-                            val readTime = 1000.0 * readSize.toDouble()*2/ bytesPerSecond
+                            val readTime = 1000.0 * readSize.toDouble() * 2 / bytesPerSecond
                             mEncodeThread!!.addTask(mPCMBuffer!!, readSize)
                             calculateRealVolume(mPCMBuffer!!, readSize)
                             //short 是2个字节 byte 是1个字节8位
@@ -371,14 +382,14 @@ class MP3Recorder : BaseRecorder {
     }
     // endregion Start recording. Create an encoding thread. Start record from this
 
-    override fun setBackgroundMusic(url: String) : MP3Recorder {
+    override fun setBackgroundMusic(url: String): MP3Recorder {
         this.backgroundMusicUrl = url
-        return  this
+        return this
     }
 
-    override fun setBackgroundMusicListener(listener: PlayerListener) : MP3Recorder {
+    override fun setBackgroundMusicListener(listener: PlayerListener): MP3Recorder {
         this.backgroundMusicPlayerListener = listener
-        return  this
+        return this
     }
 
     override fun stop() {
@@ -454,9 +465,9 @@ class MP3Recorder : BaseRecorder {
     }
 
 
-    override fun startPlayMusic(){
+    override fun startPlayMusic() {
         if (!bgPlayer.isPlaying) {
-            bgPlayer.playOrPause(url = backgroundMusicUrl,listener = backgroundMusicPlayerListener)
+            bgPlayer.playOrPause(url = backgroundMusicUrl, listener = backgroundMusicPlayerListener)
         }
     }
 
@@ -464,14 +475,14 @@ class MP3Recorder : BaseRecorder {
         return bgPlayer.isPause
     }
 
-    override fun pauseMusic(){
-        if (!bgPlayer.isPause){
+    override fun pauseMusic() {
+        if (!bgPlayer.isPause) {
             bgPlayer.pause()
         }
     }
 
-    override fun resumeMusic(){
-        if (bgPlayer.isPause){
+    override fun resumeMusic() {
+        if (bgPlayer.isPause) {
             bgPlayer.resume()
         }
     }

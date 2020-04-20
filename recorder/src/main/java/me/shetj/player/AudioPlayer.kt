@@ -41,25 +41,30 @@ class AudioPlayer : MediaPlayer.OnPreparedListener, MediaPlayer.OnErrorListener,
 
     private var mediaPlayer: MediaPlayer? = null
     private var mAudioManager: AudioManager? = null
+
     /**
      * 播放回调
      */
     private var listener: PlayerListener? = null
+
     /**
      * 获取当前播放的url
      * @return currentUrl
      */
     var currentUrl = ""
         private set
+
     /**
      * [AudioPlayer.onPrepared] and [AudioPlayer.onSeekComplete]
      * true 才会会开始, false 会暂停
      */
     private val isPlay = AtomicBoolean(true)
+
     /**
      * 是否是循环[setLoop]
      */
     private var isLoop: Boolean = false
+
     /**
      * [AudioPlayer.onPrepared]
      * 如果大于0 表示，不是从头开始,每次使用过后重置
@@ -74,7 +79,8 @@ class AudioPlayer : MediaPlayer.OnPreparedListener, MediaPlayer.OnErrorListener,
                 HANDLER_PLAYING -> if (listener != null
                     && mediaPlayer != null
                     && mediaPlayer!!.isPlaying
-                    && !hasMessages(HANDLER_PLAYING) ) {
+                    && !hasMessages(HANDLER_PLAYING)
+                ) {
                     listener!!.onProgress(mediaPlayer!!.currentPosition, mediaPlayer!!.duration)
                     this.sendEmptyMessageDelayed(HANDLER_PLAYING, 300)
                 }
@@ -177,7 +183,7 @@ class AudioPlayer : MediaPlayer.OnPreparedListener, MediaPlayer.OnErrorListener,
     /**
      * 只有在不播放的时候设置起效
      */
-    fun setSeekToPlay(seekTo: Int){
+    fun setSeekToPlay(seekTo: Int) {
         if (isPause) {
             seekToPlay = seekTo
         }
@@ -191,14 +197,15 @@ class AudioPlayer : MediaPlayer.OnPreparedListener, MediaPlayer.OnErrorListener,
             this.listener = listener
         }
     }
+
     /**
      * 播放url
      * @param url 播放的url
      * @param listener 监听变化
      */
-    private fun play(url: String?, listener: PlayerListener? =null) {
+    private fun play(url: String?, listener: PlayerListener? = null) {
 
-        if (TextUtils.isEmpty(url)){
+        if (TextUtils.isEmpty(url)) {
             listener?.onError(Exception("url can not be null"))
         }
         url?.let {
@@ -219,7 +226,7 @@ class AudioPlayer : MediaPlayer.OnPreparedListener, MediaPlayer.OnErrorListener,
      * @param listener 回调监听
      */
     fun playNoStart(url: String?, listener: PlayerListener? = null) {
-        if (TextUtils.isEmpty(url)){
+        if (TextUtils.isEmpty(url)) {
             listener?.onError(Exception("url can not be null"))
         }
         url?.let {

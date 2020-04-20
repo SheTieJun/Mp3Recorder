@@ -112,7 +112,7 @@ constructor(file: File, bufferSize: Int, isContinue: Boolean, private val is2CHA
             val readSize: Int
             if (is2CHANNEL) {
                 readSize = buffer.size / 2
-                encodedSize = LameUtils.encodeInterleaved(buffer,readSize,mMp3Buffer)
+                encodedSize = LameUtils.encodeInterleaved(buffer, readSize, mMp3Buffer)
             } else {
                 readSize = buffer.size
                 encodedSize = LameUtils.encode(buffer, buffer, readSize, mMp3Buffer)
@@ -171,15 +171,15 @@ constructor(file: File, bufferSize: Int, isContinue: Boolean, private val is2CHA
         }
     }
 
-    private fun setOldDateToFile() : Int{
-        if (mOldTasks.size > 0 && mFileOutputStream !=null) {
+    private fun setOldDateToFile(): Int {
+        if (mOldTasks.size > 0 && mFileOutputStream != null) {
             val task = mOldTasks.removeAt(0)
             val buffer = task.getData()
             val encodedSize: Int
             val readSize: Int
             if (is2CHANNEL) {
                 readSize = buffer.size / 2
-                encodedSize = LameUtils.encodeInterleaved(buffer,readSize,mMp3Buffer)
+                encodedSize = LameUtils.encodeInterleaved(buffer, readSize, mMp3Buffer)
             } else {
                 readSize = buffer.size
                 encodedSize = LameUtils.encode(buffer, buffer, readSize, mMp3Buffer)
@@ -197,7 +197,7 @@ constructor(file: File, bufferSize: Int, isContinue: Boolean, private val is2CHA
     }
 
 
-    private fun addOldData(task : ReadMixTask) {
+    private fun addOldData(task: ReadMixTask) {
         if (mOldTasks.size > 10) {
             //自己调整数量多少合适，我写的是10
             mOldTasks.removeAt(0)
@@ -206,8 +206,8 @@ constructor(file: File, bufferSize: Int, isContinue: Boolean, private val is2CHA
     }
 
 
-    fun addTask(rawData: ByteArray, wax: Float,bgData: ByteArray?, bgWax: Float) {
-        mTasks.add(ReadMixTask(rawData, wax,bgData,bgWax))
+    fun addTask(rawData: ByteArray, wax: Float, bgData: ByteArray?, bgWax: Float) {
+        mTasks.add(ReadMixTask(rawData, wax, bgData, bgWax))
     }
 
     fun update(outputFilePath: String) {

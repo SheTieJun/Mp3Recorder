@@ -9,14 +9,16 @@ import me.shetj.player.PlayerListener
  * 设置URL,
  * 注意：不会开始播放
  */
-fun AudioPlayer.playNoStart(url:String,
-                            onStart:(url: String, duration: Int)->Unit = { _: String, _: Int ->},
-                            onPause:()->Unit = {},
-                            onResume:()->Unit = {},
-                            onStop:()->Unit = {},
-                            onCompletion:()->Unit = {},
-                            onError:(throwable: Exception)->Unit = {},
-                            onProgress:(current: Int, duration: Int)->Unit = { _: Int, _: Int->}): AudioPlayer {
+fun AudioPlayer.playNoStart(
+    url: String,
+    onStart: (url: String, duration: Int) -> Unit = { _: String, _: Int -> },
+    onPause: () -> Unit = {},
+    onResume: () -> Unit = {},
+    onStop: () -> Unit = {},
+    onCompletion: () -> Unit = {},
+    onError: (throwable: Exception) -> Unit = {},
+    onProgress: (current: Int, duration: Int) -> Unit = { _: Int, _: Int -> }
+): AudioPlayer {
 
     playNoStart(url, object : PlayerListener {
         override fun onStart(url: String, duration: Int) {
@@ -54,14 +56,16 @@ fun AudioPlayer.playNoStart(url:String,
  * 播放和暂停相互切换
  * 如果切换了URL,会先执行上一个[PlayerListener.onCompletion]
  */
-fun AudioPlayer.playOrPause(url:String,
-                            onStart:(url: String, duration: Int)->Unit = { _: String, _: Int ->},
-                            onPause:()->Unit = {},
-                            onResume:()->Unit = {},
-                            onStop:()->Unit = {},
-                            onCompletion:()->Unit = {},
-                            onError:(throwable: Exception)->Unit = {},
-                            onProgress:(current: Int, duration: Int)->Unit = { _: Int, _: Int->}): AudioPlayer {
+fun AudioPlayer.playOrPause(
+    url: String,
+    onStart: (url: String, duration: Int) -> Unit = { _: String, _: Int -> },
+    onPause: () -> Unit = {},
+    onResume: () -> Unit = {},
+    onStop: () -> Unit = {},
+    onCompletion: () -> Unit = {},
+    onError: (throwable: Exception) -> Unit = {},
+    onProgress: (current: Int, duration: Int) -> Unit = { _: Int, _: Int -> }
+): AudioPlayer {
 
     playOrPause(url, object : PlayerListener {
         override fun onStart(url: String, duration: Int) {
@@ -105,7 +109,7 @@ fun AudioPlayer.setSeekBar(seekBar: SeekBar?) {
 
             override fun onStopTrackingTouch(seekBar: SeekBar) {
                 seekTo(seekBar.progress)
-                if (!isPause){
+                if (!isPause) {
                     startProgress()
                 }
             }
@@ -116,14 +120,16 @@ fun AudioPlayer.setSeekBar(seekBar: SeekBar?) {
 /**
  * 有时需要重新替换,比如列表滑动
  */
-fun AudioPlayer.updateListener(onStart:(url: String, duration: Int)->Unit = { _: String, _: Int ->},
-                                onPause:()->Unit = {},
-                                onResume:()->Unit = {},
-                                onStop:()->Unit = {},
-                                onCompletion:()->Unit = {},
-                                onError:(throwable: Exception)->Unit = {},
-                                onProgress:(current: Int, duration: Int)->Unit = { _: Int, _: Int->}): AudioPlayer{
-    updateListener(object :PlayerListener{
+fun AudioPlayer.updateListener(
+    onStart: (url: String, duration: Int) -> Unit = { _: String, _: Int -> },
+    onPause: () -> Unit = {},
+    onResume: () -> Unit = {},
+    onStop: () -> Unit = {},
+    onCompletion: () -> Unit = {},
+    onError: (throwable: Exception) -> Unit = {},
+    onProgress: (current: Int, duration: Int) -> Unit = { _: Int, _: Int -> }
+): AudioPlayer {
+    updateListener(object : PlayerListener {
         override fun onStart(url: String, duration: Int) {
             onStart(url, duration)
         }

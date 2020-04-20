@@ -19,7 +19,7 @@ abstract class BaseRecorder {
         MIX("MixRecorder")
     }
 
-    enum class AudioSource(var type:Int){
+    enum class AudioSource(var type: Int) {
         MIC(MediaRecorder.AudioSource.MIC),
         VOICE_COMMUNICATION(MediaRecorder.AudioSource.VOICE_COMMUNICATION)
     }
@@ -28,7 +28,7 @@ abstract class BaseRecorder {
      *   MONO(1), //单声道
      *   STEREO(2) //双声道
      */
-    enum class AudioChannel(var type: Int){
+    enum class AudioChannel(var type: Int) {
         MONO(1), //单声道
         STEREO(2) //双声道
     }
@@ -39,9 +39,11 @@ abstract class BaseRecorder {
     protected var mVolume: Int = 0
     var isRecording = false
         protected set
+
     //当前状态
     var state = RecordState.STOPPED
         protected set
+
     //录制时间
     var duration = 0L
         protected set
@@ -51,60 +53,84 @@ abstract class BaseRecorder {
 
     //region public method 公开的方法
     abstract val realVolume: Int
+
     //设置输出路径
     abstract fun setOutputFile(outputFile: String, isContinue: Boolean = false): BaseRecorder
+
     //设置输出路径
     abstract fun setOutputFile(outputFile: File, isContinue: Boolean = false): BaseRecorder
+
     //设置录音监听
     abstract fun setRecordListener(recordListener: RecordListener?): BaseRecorder
+
     //设置权限监听
     abstract fun setPermissionListener(permissionListener: PermissionListener?): BaseRecorder
+
     //设计背景音乐的url,本地的
-    abstract fun setBackgroundMusic(url:String): BaseRecorder
+    abstract fun setBackgroundMusic(url: String): BaseRecorder
+
     //设置背景音乐的监听
-    abstract fun setBackgroundMusicListener(listener: PlayerListener) : BaseRecorder
+    abstract fun setBackgroundMusicListener(listener: PlayerListener): BaseRecorder
+
     //初始Lame录音输出质量
     abstract fun setMp3Quality(mp3Quality: Int): BaseRecorder
+
     //设置比特率，关系声音的质量
-    abstract fun setMp3BitRate(mp3BitRate :Int) :BaseRecorder
+    abstract fun setMp3BitRate(mp3BitRate: Int): BaseRecorder
+
     //设置采样率
-    abstract fun setSamplingRate(rate:Int): BaseRecorder
+    abstract fun setSamplingRate(rate: Int): BaseRecorder
+
     //初始最大录制时间
     abstract fun setMaxTime(mMaxTime: Int): BaseRecorder
+
     //设置增强系数
     abstract fun setWax(wax: Float): BaseRecorder
+
     //设置背景声音大小
     abstract fun setVolume(volume: Float): BaseRecorder
+
     //开始录音
     abstract fun start()
+
     //停止录音
     abstract fun stop()
+
     //重新开始录音
     abstract fun onResume()
+
     //替换输出文件
     abstract fun updateDataEncode(outputFilePath: String)
+
     //暂停录音
     abstract fun onPause()
+
     //开始播放音乐
     abstract fun startPlayMusic()
+
     //是否在播放音乐
-    abstract fun isPauseMusic():Boolean
+    abstract fun isPauseMusic(): Boolean
+
     //暂停背景音乐
     abstract fun pauseMusic()
+
     //重新播放背景音乐
     abstract fun resumeMusic()
+
     //充值
     abstract fun onReset()
+
     //结束
     abstract fun onDestroy()
     //endregion public method
 
     //region  计算真正的时间，如果过程中有些数据太小，就直接置0，防止噪音
 
-    fun <T :BaseRecorder> setDebug(isDebug:Boolean) :T{
+    fun setDebug(isDebug: Boolean): BaseRecorder {
         this.isDebug = isDebug
-        return this as T
+        return this
     }
+
     protected fun calculateRealVolume(buffer: ShortArray, readSize: Int) {
         var sum = 0.0
         for (i in 0 until readSize) {
@@ -125,12 +151,12 @@ abstract class BaseRecorder {
     protected fun calculateRealVolume(buffer: ByteArray) {
         val shorts = BytesTransUtil.bytes2Shorts(buffer)
         val readSize = shorts.size
-        calculateRealVolume(shorts,readSize)
+        calculateRealVolume(shorts, readSize)
     }
 
-    protected fun logInfo(info:String) {
+    protected fun logInfo(info: String) {
         if (isDebug) {
-            Log.d(this.javaClass.simpleName,info )
+            Log.d(this.javaClass.simpleName, info)
         }
     }
     //endregion  计算真正的时间，如果过程中有些数据太小，就直接置0，防止噪音

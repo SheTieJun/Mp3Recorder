@@ -65,10 +65,13 @@ class MixRecorder : BaseRecorder {
 
     //region 其他
     private var mSendError: Boolean = false
+
     //最大时间
     private var mMaxTime: Long = 3600000
+
     //提醒时间
     private var mRemindTime = (3600000 - 10000).toLong()
+
     //通知速度，毫秒
     private var speed: Long = 300
 
@@ -110,7 +113,7 @@ class MixRecorder : BaseRecorder {
                     }
                 }
                 HANDLER_COMPLETE -> {
-                    logInfo( "msg.what = HANDLER_COMPLETE  \n mDuration = $duration")
+                    logInfo("msg.what = HANDLER_COMPLETE  \n mDuration = $duration")
                     if (mRecordListener != null) {
                         mRecordListener!!.onSuccess(mRecordFile!!.absolutePath, duration)
                     }
@@ -153,7 +156,7 @@ class MixRecorder : BaseRecorder {
             }
         }
     }
-   //region 公开方法！
+    //region 公开方法！
     /**
      * 返回背景音乐的
      * @return
@@ -192,7 +195,7 @@ class MixRecorder : BaseRecorder {
      * @param audioSource 最好是  [MediaRecorder.AudioSource.VOICE_COMMUNICATION] 或者 [MediaRecorder.AudioSource.MIC]
      * @param channel 声道数量 (1 或者 2)
      */
-    constructor(audioSource: Int = MediaRecorder.AudioSource.MIC,  channel: Int = 1) {
+    constructor(audioSource: Int = MediaRecorder.AudioSource.MIC, channel: Int = 1) {
         defaultAudioSource = audioSource
         is2Channel = channel == 2
         defaultLameInChannel = when {
@@ -222,14 +225,14 @@ class MixRecorder : BaseRecorder {
         return this
     }
 
-    override fun setSamplingRate(rate:Int): MixRecorder {
-        if (defaultSamplingRate < 8000 ) return  this //低于8000 没有意义
+    override fun setSamplingRate(rate: Int): MixRecorder {
+        if (defaultSamplingRate < 8000) return this //低于8000 没有意义
         this.defaultSamplingRate = rate
         return this
     }
 
     override fun setMp3BitRate(mp3BitRate: Int): MixRecorder {
-        if (mp3BitRate <32 ) return  this //低于32 也没有意义
+        if (mp3BitRate < 32) return this //低于32 也没有意义
         this.defaultLameMp3BitRate = mp3BitRate
         return this
     }
@@ -271,11 +274,12 @@ class MixRecorder : BaseRecorder {
             )
         }
     }
+
     /**
      * 设置录音输出文件
      * @param outputFile
      */
-    override fun setOutputFile(outputFile: String, isContinue: Boolean ): MixRecorder {
+    override fun setOutputFile(outputFile: String, isContinue: Boolean): MixRecorder {
         if (TextUtils.isEmpty(outputFile)) {
             val message = Message.obtain()
             message.what = HANDLER_ERROR
@@ -291,7 +295,7 @@ class MixRecorder : BaseRecorder {
      * 设置录音输出文件
      * @param outputFile
      */
-    override fun setOutputFile(outputFile: File, isContinue: Boolean ): MixRecorder {
+    override fun setOutputFile(outputFile: File, isContinue: Boolean): MixRecorder {
         mRecordFile = outputFile
         this.isContinue = isContinue
         return this
@@ -299,7 +303,7 @@ class MixRecorder : BaseRecorder {
 
 
     override fun updateDataEncode(outputFilePath: String) {
-        setOutputFile(outputFilePath,false)
+        setOutputFile(outputFilePath, false)
         mEncodeThread?.update(outputFilePath)
     }
 
@@ -323,7 +327,7 @@ class MixRecorder : BaseRecorder {
      * 提示时间时10秒前
      */
     override fun setMaxTime(mMaxTime: Int): MixRecorder {
-        if (mMaxTime < 0){
+        if (mMaxTime < 0) {
             return this
         }
         this.mMaxTime = mMaxTime.toLong()
@@ -392,13 +396,14 @@ class MixRecorder : BaseRecorder {
 
         object : Thread() {
             var isError = false
+
             //PCM文件大小 = 采样率采样时间采样位深 / 8*通道数（Bytes）
             override fun run() {
                 //设置线程权限
                 Process.setThreadPriority(Process.THREAD_PRIORITY_URGENT_AUDIO)
                 onStart()
                 while (isRecording) {
-                    val samplesPerFrame =   bgPlayer.bufferSize  // 这里需要与 背景音乐读取出来的数据长度 一样
+                    val samplesPerFrame = bgPlayer.bufferSize  // 这里需要与 背景音乐读取出来的数据长度 一样
                     val buffer: ByteArray? = ByteArray(samplesPerFrame)
                     val readSize = mAudioRecord!!.read(buffer!!, 0, samplesPerFrame)
                     if (readSize == AudioRecord.ERROR_INVALID_OPERATION || readSize == AudioRecord.ERROR_BAD_VALUE) {
@@ -416,7 +421,12 @@ class MixRecorder : BaseRecorder {
                             val readTime =
                                 1000.0 * readSize.toDouble() / bytesPerSecond
                             onRecording(readTime) //计算时间长度
-                            mEncodeThread!!.addTask(buffer, wax, mPlayBackMusic!!.getBackGroundBytes(),bgLevel)
+                            mEncodeThread!!.addTask(
+                                buffer,
+                                wax,
+                                mPlayBackMusic!!.getBackGroundBytes(),
+                                bgLevel
+                            )
                             calculateRealVolume(buffer)
                         } else {
                             if (!mSendError) {
@@ -446,9 +456,6 @@ class MixRecorder : BaseRecorder {
 
         }.start()
     }
-
-
-
 
 
     override fun stop() {
@@ -491,7 +498,7 @@ class MixRecorder : BaseRecorder {
         }
     }
 
-    override fun startPlayMusic(){
+    override fun startPlayMusic() {
         if (!bgPlayer.isPlayingMusic) {
             bgPlayer.startPlayBackMusic()
         }
@@ -501,14 +508,14 @@ class MixRecorder : BaseRecorder {
         return bgPlayer.isIsPause
     }
 
-    override fun pauseMusic(){
-        if (!bgPlayer.isIsPause){
+    override fun pauseMusic() {
+        if (!bgPlayer.isIsPause) {
             bgPlayer.pause()
         }
     }
 
-    override fun resumeMusic(){
-        if (bgPlayer.isIsPause){
+    override fun resumeMusic() {
+        if (bgPlayer.isIsPause) {
             bgPlayer.resume()
         }
     }
@@ -633,7 +640,7 @@ class MixRecorder : BaseRecorder {
 
 
     private fun initAEC(mAudioSessionId: Int) {
-        if (mAudioSessionId != 0 ) {
+        if (mAudioSessionId != 0) {
             if (NoiseSuppressor.isAvailable()) {
                 if (mNoiseSuppressor != null) {
                     mNoiseSuppressor!!.release()
@@ -644,7 +651,7 @@ class MixRecorder : BaseRecorder {
                 if (mNoiseSuppressor != null) {
                     mNoiseSuppressor!!.enabled = true
                 } else {
-                    Log.i( TAG,"Failed to create NoiseSuppressor.")
+                    Log.i(TAG, "Failed to create NoiseSuppressor.")
                 }
             } else {
                 Log.i(TAG, "Doesn't support NoiseSuppressor")
@@ -723,6 +730,7 @@ class MixRecorder : BaseRecorder {
 
         //=======================AudioRecord Default Settings=======================
         private val DEFAULT_AUDIO_FORMAT = PCMFormat.PCM_16BIT
+
         //==================================================================
         private val FRAME_COUNT = 160
         private val MAX_VOLUME = 2000

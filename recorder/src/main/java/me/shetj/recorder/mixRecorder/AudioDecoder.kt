@@ -109,10 +109,10 @@ class AudioDecoder {
         decodeBufferInfo = MediaCodec.BufferInfo()//用于描述解码得到的byte[]数据的相关信息
     }
 
-    private fun putPCMData(pcmChunk: ByteArray, bufferSize: Int,time: Long) {
+    private fun putPCMData(pcmChunk: ByteArray, bufferSize: Int, time: Long) {
         synchronized(lockPCM) {
             //记得加锁
-            chunkPCMDataContainer.add(PCM(pcmChunk, bufferSize,time))
+            chunkPCMDataContainer.add(PCM(pcmChunk, bufferSize, time))
         }
     }
 
@@ -124,16 +124,16 @@ class AudioDecoder {
         isPCMExtractorEOS = false
         var sawInputEOS = false
         try {
-            while (!isPCMExtractorEOS && mediaExtractor !=null && mediaDecode!=null) {
+            while (!isPCMExtractorEOS && mediaExtractor != null && mediaDecode != null) {
                 //加入限制，防止垃圾手机卡顿，- - 防止歌曲太大内存不够用了
-                if(chunkPCMDataContainer.size > 40){
+                if (chunkPCMDataContainer.size > 40) {
                     try {
                         //防止死循环ANR
                         Thread.sleep(50)
                     } catch (e: InterruptedException) {
                         e.printStackTrace()
                     }
-                   continue
+                    continue
                 }
 
                 if (!sawInputEOS) {
@@ -169,7 +169,7 @@ class AudioDecoder {
                                 mediaExtractor!!.advance()//MediaExtractor移动到下一取样处
                             }
                         } catch (e: Exception) {
-                            Log.e("mixRecorder","message = ${e.message}")
+                            Log.e("mixRecorder", "message = ${e.message}")
                             isPCMExtractorEOS = true
                             releaseDecode()
                             break
@@ -202,7 +202,7 @@ class AudioDecoder {
                             successBufferGet = false
                             e.printStackTrace()
                         }
-                        if(successBufferGet) {
+                        if (successBufferGet) {
                             //                        Log.i("mixRecorder","try put pcm data ...");
                             putPCMData(
                                 data,
@@ -228,8 +228,8 @@ class AudioDecoder {
                 }
             }
 
-        } catch (e:Exception) {
-            Log.e("mixRecorder","message = ${e.message}")
+        } catch (e: Exception) {
+            Log.e("mixRecorder", "message = ${e.message}")
         }
     }
 
@@ -242,8 +242,8 @@ class AudioDecoder {
             if (mediaExtractor != null) {
                 mediaExtractor!!.release()
             }
-        }catch (e:Exception){
-            Log.e("mixRecorder","message = ${e.message}")
+        } catch (e: Exception) {
+            Log.e("mixRecorder", "message = ${e.message}")
         }
     }
 
@@ -251,7 +251,7 @@ class AudioDecoder {
     class PCM internal constructor(
         internal var bufferBytes: ByteArray,
         internal var bufferSize: Int,
-        internal var time :Long//当前时间
+        internal var time: Long//当前时间
     )
 
     companion object {

@@ -70,7 +70,7 @@ object AudioTrackManager {
         if (!TextUtils.isEmpty(PATH)) {
             isStartPlay = true
             PlayThread().start()
-        }else{
+        } else {
             throw NullPointerException("PATH not be null,please setContext")
         }
     }
