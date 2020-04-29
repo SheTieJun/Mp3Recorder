@@ -12,6 +12,8 @@ import android.widget.RelativeLayout
 import androidx.recyclerview.widget.RecyclerView
 import com.chad.library.adapter.base.BaseQuickAdapter
 import com.chad.library.adapter.base.viewholder.BaseViewHolder
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.schedulers.Schedulers
 import me.shetj.base.tools.app.ArmsUtils
 import me.shetj.mp3recorder.R
 import me.shetj.mp3recorder.record.adapter.RecordAdapter
@@ -54,9 +56,12 @@ class MyRecordPage(private val context: Activity, mRoot: ViewGroup, private var 
     }
 
     private fun initData() {
-        val allRecord = RecordDbUtils.getInstance().allRecord
-        recordAdapter.setNewData(allRecord.toMutableList())
-        checkShow(allRecord)
+       RecordDbUtils.getInstance().allRecord
+           ?.subscribeOn(Schedulers.io())
+           ?.observeOn(AndroidSchedulers.mainThread())
+            ?.subscribe {      recordAdapter.setNewData(it.toMutableList())
+                checkShow(it)}
+
     }
 
     /**
@@ -137,21 +142,6 @@ class MyRecordPage(private val context: Activity, mRoot: ViewGroup, private var 
     @Subscriber(mode = ThreadMode.MAIN)
     fun refreshData(event: MainThreadEvent<*>) {
         when (event.type) {
-            MainThreadEvent.RECORD_REFRESH_MY -> {
-                //获取数据库中最后一个数据
-                val lastRecord = RecordDbUtils.getInstance().lastRecord
-                if (null != lastRecord) {
-                    recordAdapter.addData(0, lastRecord)
-                    mRecyclerView!!.scrollToPosition(0)
-                    checkShow(recordAdapter.data)
-                }
-            }
-            MainThreadEvent.RECORD_REFRESH_DEL -> {
-                //删除录音
-                recordAdapter.setPlayPosition(-1)
-                recordAdapter.remove(event.content as Int)
-                checkShow(recordAdapter.data)
-            }
             MainThreadEvent.RECORD_REFRESH_RECORD -> {
                 //继续录制后，保存后刷新
                 val i = recordAdapter.data.indexOf(event.content)

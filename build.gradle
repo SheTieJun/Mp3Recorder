@@ -2,7 +2,7 @@
 
 buildscript {
     ext.kotlin_version = '1.3.71'
-    ext.base_kt_version = "e6276eeadd"
+    ext.base_kt_version = "eca8321c52"
     ext.SimXutilsDb =     "77f2bade32"
     repositories {
         google()

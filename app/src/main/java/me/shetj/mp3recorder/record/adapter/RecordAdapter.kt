@@ -46,7 +46,7 @@ class RecordAdapter(data: MutableList<Record>?) : BaseQuickAdapter<Record, BaseV
     var isUploading = false
         private set
 
-    override fun convert(helper: BaseViewHolder, item: Record?) {
+    override fun convert(helper: BaseViewHolder, item: Record) {
         item?.let {
             val itemPosition = helper.layoutPosition - headerLayoutCount
             val seekBar = helper.getView<SeekBar>(R.id.seekBar_record)
@@ -96,7 +96,7 @@ class RecordAdapter(data: MutableList<Record>?) : BaseQuickAdapter<Record, BaseV
         isUploading = true
         weakRecyclerView.get()?.alpha = 0.7f
         val valueAnimator = showAnimator(progressBar, tvProgress, 0, 100, 2500).apply {
-            doOnEnd {
+            doOnEnd {it  ->
                 isUploading = false
                 progressBar.progress = 0
                 progressBar.alpha = 0f

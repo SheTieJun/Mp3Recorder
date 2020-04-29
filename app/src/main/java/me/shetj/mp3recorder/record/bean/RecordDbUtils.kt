@@ -1,7 +1,11 @@
 package me.shetj.mp3recorder.record.bean
 
 
+import io.reactivex.schedulers.Schedulers
+import me.shetj.base.s
 import me.shetj.base.tools.file.FileUtils
+import me.shetj.mp3recorder.record.bean.db.AppDatabase
+import me.shetj.mp3recorder.record.bean.db.RecordDao
 import me.shetj.simxutils.DbManager
 import me.shetj.simxutils.DbUtils
 import me.shetj.simxutils.ex.DbException
@@ -9,53 +13,24 @@ import java.io.File
 import java.util.*
 
 class RecordDbUtils private constructor() {
-    private val dbManager: DbManager = DbUtils.getDbManager("record", 1)
-
+    private val dbManager: RecordDao by lazy {
+        AppDatabase.getInstance(s.app).recordDao()
+    }
     /**
      * 获取全部的录音
      */
-    val allRecord: List<Record>
-        get() {
-            try {
-                val all = dbManager.selector(Record::class.java)
-                        .where("user_id", "=", "1")
-                        .orderBy("id", true)
-                        .findAll()
-                if (all != null) {
-                    return all
-                }
-            } catch (e: DbException) {
-                e.printStackTrace()
-            }
-
-            return ArrayList()
-        }
+    val allRecord = dbManager.getAllRecord()
 
 
     /**
      * 获取最后录制的录音
      */
-    val lastRecord: Record?
-        get() {
-            try {
-                val record = dbManager.selector(Record::class.java)
-                        .where("user_id", "=", "1")
-                        .orderBy("id", true)
-                        .findFirst()
-                if (record != null) {
-                    return record
-                }
-            } catch (e: DbException) {
-                e.printStackTrace()
-            }
-
-            return null
-        }
+    val lastRecord = dbManager.getLastRecord()
 
 
     fun save(recordNew: Record) {
         try {
-            dbManager.save(recordNew)
+            dbManager.insertRecord(recordNew).subscribeOn(Schedulers.io()).subscribe()
         } catch (e: DbException) {
             e.printStackTrace()
         }
@@ -67,7 +42,7 @@ class RecordDbUtils private constructor() {
      */
     fun update(message: Record) {
         try {
-            dbManager.saveOrUpdate(message)
+            dbManager.insertRecord(message).subscribeOn(Schedulers.io()).subscribe()
         } catch (e: DbException) {
             e.printStackTrace()
         }
@@ -79,7 +54,7 @@ class RecordDbUtils private constructor() {
      */
     fun del(record: Record) {
         try {
-            dbManager.delete(record)
+            dbManager.deleteRecord(record).subscribeOn(Schedulers.io()).subscribe()
             FileUtils.deleteFile(File(record.audio_url!!))
         } catch (e: DbException) {
             e.printStackTrace()
@@ -89,7 +64,7 @@ class RecordDbUtils private constructor() {
 
     fun clear() {
         try {
-            dbManager.delete(Record::class.java)
+            dbManager.deleteAll().subscribeOn(Schedulers.io()).subscribe()
         } catch (e: DbException) {
             e.printStackTrace()
         }
