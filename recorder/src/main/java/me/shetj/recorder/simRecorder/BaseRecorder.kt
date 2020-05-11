@@ -12,7 +12,7 @@ import kotlin.math.sqrt
 
 
 abstract class BaseRecorder {
-
+    private val TAG = this.javaClass.simpleName
     //region 录音的方式 /来源 Record Type
     enum class RecorderType(name: String) {
         SIM("Mp3Recorder"), //
@@ -117,7 +117,7 @@ abstract class BaseRecorder {
     //重新播放背景音乐
     abstract fun resumeMusic()
 
-    //充值
+    //重置
     abstract fun onReset()
 
     //结束
@@ -156,7 +156,7 @@ abstract class BaseRecorder {
 
     protected fun logInfo(info: String) {
         if (isDebug) {
-            Log.d(this.javaClass.simpleName, info)
+            Log.d(TAG, info)
         }
     }
     //endregion  计算真正的时间，如果过程中有些数据太小，就直接置0，防止噪音

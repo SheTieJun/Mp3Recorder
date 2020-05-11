@@ -71,7 +71,7 @@ class BackgroundMixMusicView @JvmOverloads constructor(context: Context,
 
     fun resetMusic() {
         music?.let {
-            mTvProgress.text = Util.formatSeconds3(0 / 1000) +"/"+  it.duration
+            mTvProgress.text = Util.formatSeconds3(0 / 1000) +"/"+  Util.formatSeconds3(it.duration.toInt())
         }
     }
 
@@ -126,7 +126,7 @@ class BackgroundMixMusicView @JvmOverloads constructor(context: Context,
         }
         this.music= music
         mTvName.text = music.name
-        mTvProgress.text = Util.formatSeconds3(0 / 1000) +"/"+  music.duration
+        mTvProgress.text = Util.formatSeconds3(0 / 1000) +"/"+  Util.formatSeconds3(music.duration.toInt())
         music.startNoPlayMusic()
         if (visibility == View.GONE){
             TransitionManager.beginDelayedTransition(parent as ViewGroup?)

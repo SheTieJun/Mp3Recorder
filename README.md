@@ -22,7 +22,7 @@
 
 #### 录制（可以选择背景音乐）
   - 录制中可以中断背景音乐，继续录制声音  建议优化这个思路 MixRecorder
-  - 如果如果背景音乐的参数我的库中不一样，需要自行修改库中的参数
+  - 如果背景音乐的参数我的库中不一样，需要自行修改库中的参数
 
 #### PCM与时间的计算
 
@@ -53,10 +53,14 @@ dependencies {
 ```
 
 #### [demo](https://github.com/SheTieJun/Mp3Recorder/tree/master/app) 中继续录制 
-- 继续录制，是通过音频文件合并，因为重录希望上次录制的没有丢掉,所有采用的文件拼接
+- ~~继续录制，是通过音频文件合并，因为【继续录制-重录】，希望回到上次录制,所有采用的文件拼接~~ commit已删除,自行参考 [util](/app/src/main/java/me/shetj/mp3recorder/record/utils/Util)
+- demo已修改成只要文件存在，自动拼接在末尾最后，所以【继续录制-重录】已无法重置到老的录音，不过可以自行通过copy一份进行上述功能，就是很麻烦
 - [MixRecordUtils](/app/src/main/java/me/shetj/mp3recorder/record/utils/MixRecordUtils.kt) 
 - [RecordUtils](/app/src/main/java/me/shetj/mp3recorder/record/utils/RecordUtils.kt)
 - [MixRecordActivity](/app/src/main/java/me/shetj/mp3recorder/record/MixRecordActivity.kt) 
+
+|-
+ ![](/doc/img/recorder.gif)
 
 ### 初始化
 ```kotlin
@@ -133,7 +137,16 @@ dependencies {
 ```kotlin
  mRecorder?.stop()  //完成录音
 ```
-   
+
+#### 6.新增录音参数修改，必须在start()之前调用才有效
+```
+    //初始Lame录音输出质量
+    mRecorder?.setMp3Quality(mp3Quality)
+    //设置比特率，关系声音的质量
+    mRecorder?.setMp3BitRate(mp3BitRate)
+    //设置采样率
+    mRecorder?.setSamplingRate(rate)
+```
 
 ### 1. 录音方式一：[MixRecorder](/doc/MixRecorder.MD) 
 ### 2. 录音方式二： [MP3Recorder](/doc/Mp3Recorder.MD)

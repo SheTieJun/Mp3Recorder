@@ -329,9 +329,13 @@ open class MixRecordPage(private val context: AppCompatActivity, mRoot: ViewGrou
             .setMessage("确定删除当前的录音，并重新录制吗？")
             .setNegativeButton("取消") { _, _ -> recordUtils!!.stopFullRecord() }
             .setPositiveButton("重录") { _, _ ->
+                //可自行判断是否删除老的文件
+                oldRecord?.audioLength = 0
+                oldRecord?.audio_url = ""
                 setRecord(oldRecord)
                 recordUtils!!.reset()
                 recordUtils!!.setTime(0)
+
             }
             .show()
     }

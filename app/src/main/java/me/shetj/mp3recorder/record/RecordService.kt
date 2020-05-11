@@ -38,10 +38,10 @@ class RecordService : BaseService() {
             createRecordUtils!!.stopFullRecord()
         }
 
-        fun reRecord(oldRecord: Record?) {
+        fun reRecord() {
             createRecordUtils?.reset()
             createRecordUtils?.setTime(0)
-            statOrPause(oldRecord?.audio_url)
+            statOrPause()
         }
 
         //注册接口

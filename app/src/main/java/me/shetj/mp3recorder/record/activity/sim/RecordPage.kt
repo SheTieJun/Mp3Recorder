@@ -364,8 +364,11 @@ open class RecordPage(private val context: AppCompatActivity, mRoot: ViewGroup, 
                 .setMessage("确定删除当前的录音，并重新录制吗？")
                 .setNegativeButton("取消") { _, _ -> work!!.recordComplete() }
                 .setPositiveButton("重录") { _, _ ->
+                    //可自行判断是否删除老的文件
+                    oldRecord?.audioLength = 0
+                    oldRecord?.audio_url = ""
                     setRecord(oldRecord)
-                    work!!.reRecord(oldRecord)
+                    work!!.reRecord()
                 }
                 .show()
     }

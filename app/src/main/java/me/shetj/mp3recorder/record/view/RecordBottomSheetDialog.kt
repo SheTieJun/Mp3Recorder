@@ -56,7 +56,6 @@ class RecordBottomSheetDialog(private val context: Context, position: Int, priva
             }
             R.id.tv_del -> {
                 RecordDbUtils.getInstance().del(record)
-                EventBus.getDefault().post(MainThreadEvent(MainThreadEvent.RECORD_REFRESH_DEL, position))
                 dismissBottomSheet()
             }
             R.id.tv_cancel -> dismissBottomSheet()
