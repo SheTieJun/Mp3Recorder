@@ -53,14 +53,13 @@ dependencies {
 ```
 
 #### [demo](https://github.com/SheTieJun/Mp3Recorder/tree/master/app) 中继续录制 
-- ~~继续录制，是通过音频文件合并，因为【继续录制-重录】，希望回到上次录制,所有采用的文件拼接~~ commit已删除,自行参考 [util](/app/src/main/java/me/shetj/mp3recorder/record/utils/Util)
+- ~~继续录制，是通过音频文件合并，因为【继续录制-重录】，希望回到上次录制,所有采用的文件拼接~~ x相关commit已删除,拼接自行参考 [util](/app/src/main/java/me/shetj/mp3recorder/record/utils/Util)
 - demo已修改成只要文件存在，自动拼接在末尾最后，所以【继续录制-重录】已无法重置到老的录音，不过可以自行通过copy一份进行上述功能，就是很麻烦
-- [MixRecordUtils](/app/src/main/java/me/shetj/mp3recorder/record/utils/MixRecordUtils.kt) 
-- [RecordUtils](/app/src/main/java/me/shetj/mp3recorder/record/utils/RecordUtils.kt)
-- [MixRecordActivity](/app/src/main/java/me/shetj/mp3recorder/record/MixRecordActivity.kt) 
+- [MixRecordUtils](https://github.com/SheTieJun/Mp3Recorder/blob/master/app/src/main/java/me/shetj/mp3recorder/record/utils/MixRecordUtils.kt)
+- [RecordUtils](https://github.com/SheTieJun/Mp3Recorder/blob/master/app/src/main/java/me/shetj/mp3recorder/record/utils/RecordUtils.kt)
+- [MixRecordActivity](https://github.com/SheTieJun/Mp3Recorder/blob/master/app/src/main/java/me/shetj/mp3recorder/record/MixRecordActivity.kt)
 
-|-
- ![](/doc/img/recorder.gif)
+<img src="https://github.com/SheTieJun/Mp3Recorder/blob/master/doc/img/recorder.gif" width="35%" height="35%" />
 
 ### 初始化
 ```kotlin
@@ -155,4 +154,3 @@ dependencies {
 ### 5. 播放PCM文件：[AudioTrackManager](/doc/AudioTrackManager.MD)
 
 
- 
