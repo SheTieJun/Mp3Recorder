@@ -15,7 +15,9 @@ jobs:
       uses: actions/setup-java@v1
       with:
         java-version: 1.8
-    - name: Build with Gradle
+    - name: Make gradlew executable
+      run: chmod +x ./gradlew
+    - name: bulid with gradlew
       run: ./gradlew build
     - name: install fir.im
       run: gem install fir-cli
