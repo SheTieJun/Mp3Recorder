@@ -17,7 +17,6 @@ import me.shetj.player.PermissionListener
 import me.shetj.player.PlayerListener
 import me.shetj.player.RecordListener
 import me.shetj.recorder.simRecorder.BaseRecorder
-import me.shetj.recorder.simRecorder.MP3Recorder
 import me.shetj.recorder.simRecorder.PCMFormat
 import me.shetj.recorder.simRecorder.RecordState
 import me.shetj.recorder.util.LameUtils
@@ -64,7 +63,7 @@ class MixRecorder : BaseRecorder {
     //endregion 背景音乐相关
 
     //region 其他
-    private var mSendError: Boolean = false
+    private  var mSendError: Boolean = false
 
     //最大时间
     private var mMaxTime: Long = 3600000
@@ -90,8 +89,8 @@ class MixRecorder : BaseRecorder {
             super.handleMessage(msg)
             when (msg.what) {
                 HANDLER_RECORDING -> {
-                    logInfo("msg.what = HANDLER_RECORDING  \n mDuration = $duration")
-                    if (mRecordListener != null) {
+                    if (mRecordListener != null && state == RecordState.RECORDING) {
+                        logInfo("msg.what = HANDLER_RECORDING  \n mDuration = $duration & state is recording  = ${state == RecordState.RECORDING}")
                         //录制回调
                         mRecordListener!!.onRecording(duration, realVolume)
                         //提示快到录音时间了
@@ -445,6 +444,8 @@ class MixRecorder : BaseRecorder {
                     mAudioRecord = null
                 } catch (ex: Exception) {
                     ex.printStackTrace()
+                }finally {
+                    handler.sendEmptyMessage(HANDLER_COMPLETE)
                 }
 
                 if (isError) {
@@ -460,12 +461,11 @@ class MixRecorder : BaseRecorder {
 
     override fun stop() {
         if (state !== RecordState.STOPPED) {
-            isPause = false
             isRecording = false
+            isPause = false
             if (mPlayBackMusic != null) {
                 mPlayBackMusic!!.setNeedRecodeDataEnable(false)
             }
-            handler.sendEmptyMessage(HANDLER_COMPLETE)
             state = RecordState.STOPPED
         }
         bgPlayer.release()

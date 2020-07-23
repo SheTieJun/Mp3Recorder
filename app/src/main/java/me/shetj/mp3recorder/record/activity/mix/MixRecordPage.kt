@@ -157,6 +157,7 @@ open class MixRecordPage(private val context: AppCompatActivity, mRoot: ViewGrou
             }
 
             override fun onSuccess(file: String, time: Int) {
+                Timber.i( "onSuccess")
                 if (File(file).exists()) {
                     TransitionManager.beginDelayedTransition(root)
                     mIvRecordState!!.setImageResource(R.mipmap.icon_start_record)

@@ -5,7 +5,6 @@ import android.util.Log
 import me.shetj.player.PermissionListener
 import me.shetj.player.PlayerListener
 import me.shetj.player.RecordListener
-import me.shetj.recorder.mixRecorder.MixRecorder
 import me.shetj.recorder.util.BytesTransUtil
 import java.io.File
 import kotlin.math.sqrt
@@ -37,7 +36,8 @@ abstract class BaseRecorder {
 
     //region 录音的状态，声音和时间
     protected var mVolume: Int = 0
-    var isRecording = false
+
+   @Volatile var isRecording = false
         protected set
 
     //当前状态
@@ -47,7 +47,7 @@ abstract class BaseRecorder {
     //录制时间
     var duration = 0L
         protected set
-    var isPause: Boolean = false
+    @Volatile var isPause: Boolean = false
     private var isDebug = false
     //endregion 录音的状态和时间
 

@@ -75,7 +75,7 @@ class MixRecordUtils(private val callBack: RecordCallBack?
         mRecorder =  simpleRecorderBuilder(
             mMaxTime = 3600 * 1000,
             mp3Quality = 1,
-            isDebug = false,
+            isDebug = true,
             recordListener = this,
             permissionListener = this)
     }
