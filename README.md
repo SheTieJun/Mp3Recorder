@@ -1,34 +1,16 @@
 # 录音工具-Mp3Recorder
 
-#### 功能点：
+- 边录边转码MP3,支持暂停，实时返回已录制时长和当前声音大小。
+- 可添加背景音乐,可以设置背景音乐声音的大小
+- 录制过程中**暂停**,已录制的那段音频是**可以播放**的.
+- 可设置最大录制时间
+- 录音中途可以替换输出文件，比如每60秒替换一个输出文件
+- 其他...
 
-1. 边录边转码,没有额外转码时间,录制音频为MP3保存本地。
-2. 添加背景音乐,可以背景音乐声音的大小
-3. 录制过程中**暂停**,已录制的那段音频是**可以播放**的.
-4. 可以设置同文件继续录制功能
-5. 支持返回当前已录制时长和当前声音大小
-6. 设置最大录制时间，达到最大时间触发自动完成回调
-7. 可以在开始录音前，设置录音的相关参数
-8. 录音中途可以替换输出文件，比如每60秒替换一个输出文件
+#### 背景音乐相关
+  - 录制中可以随时中断、播放、替换背景音乐
+  - 如果背景音乐的参数我的库中不一样，需要自行设置参数，如果不一样会让背景音乐拉长或者变快
 
-
-### 缺点
-
-1. 录制声道数设置，因为合成，所有你需要设置和背景音乐相同的声道数据，背景音乐默认需要是 44k ，单声道，16位
-因为单声道录制的声音比较清脆
-2. 如果设置单声道，播放的背景是双声道，（MIX）会让音乐拉长；反之双声音合成，背景音乐是单声音，节奏会变快
-3. 使用VOICE_COMMUNICATION ,使用系统自带的AEC,声音会变小、
-4. 录音可以设置声音增强，但是可能会加大噪音~
-
-#### 录制（可以选择背景音乐）
-  - 录制中可以中断背景音乐，继续录制声音  建议优化这个思路 MixRecorder
-  - 如果背景音乐的参数我的库中不一样，需要自行修改库中的参数
-
-#### PCM与时间的计算
-
-音频文件大小的计算公式为: 数据量Byte = 采样频率Hz×（采样位数/8）× 声道数 × 时间s
-
-反之：时间s = 数据量Byte / (采样频率Hz×（采样位数/8）× 声道数)
 
 #### Gradle
 
@@ -52,7 +34,7 @@ dependencies {
 }
 ```
 
-#### [demo](https://github.com/SheTieJun/Mp3Recorder/tree/master/app) 中继续录制 
+#### [demo](https://github.com/SheTieJun/Mp3Recorder/tree/master/app) 中继续录制
 - ~~继续录制，是通过音频文件合并，因为【继续录制-重录】，希望回到上次录制,所有采用的文件拼接~~ x相关commit已删除,拼接自行参考 [util](/app/src/main/java/me/shetj/mp3recorder/record/utils/Util)
 - demo已修改成只要文件存在，自动拼接在末尾最后，所以【继续录制-重录】已无法重置到老的录音，不过可以自行通过copy一份进行上述功能，就是很麻烦
 - [MixRecordUtils](https://github.com/SheTieJun/Mp3Recorder/blob/master/app/src/main/java/me/shetj/mp3recorder/record/utils/MixRecordUtils.kt)
@@ -60,6 +42,25 @@ dependencies {
 - [MixRecordActivity](https://github.com/SheTieJun/Mp3Recorder/blob/master/app/src/main/java/me/shetj/mp3recorder/record/MixRecordActivity.kt)
 
 <img src="https://github.com/SheTieJun/Mp3Recorder/blob/master/doc/img/recorder.gif" width="35%" height="35%" />
+
+
+
+| [荔枝微课](https://sj.qq.com/myapp/detail.htm?apkName=com.lizhiweike) | [变声器免费版](https://a.app.qq.com/o/simple.jsp?pkgname=com.tian.voicechangerpro) |
+| ------------------------------------------------------------ | ------------------------------------------------------------ |
+| <img src="https://github.com/SheTieJun/Mp3Recorder/blob/master/doc/img/image_lizhi.png"  /> | <img src="https://github.com/SheTieJun/Mp3Recorder/blob/master/doc/img/image_biansheng.png"  /> |
+
+
+### 缺点
+
+1. 录制声道数设置，因为合成，所有你**需要设置和背景音乐相同的参数**
+2. 如果设置单声道，播放的背景是双声道，（MIX）会让音乐拉长；反之双声音合成，背景音乐是单声音，节奏会变快
+
+
+#### PCM与时间的计算
+
+音频文件大小的计算公式为: 数据量Byte = 采样频率Hz×（采样位数/8）× 声道数 × 时间s
+
+反之：时间s = 数据量Byte / (采样频率Hz×（采样位数/8）× 声道数)
 
 ### 初始化
 ```kotlin
@@ -147,10 +148,18 @@ dependencies {
     mRecorder?.setSamplingRate(rate)
 ```
 
-### 1. 录音方式一：[MixRecorder](/doc/MixRecorder.MD) 
+
+
+### 1. 录音方式一：[MixRecorder](/doc/MixRecorder.MD)
 ### 2. 录音方式二： [MP3Recorder](/doc/Mp3Recorder.MD)
 ### 3. 播放音乐：[AudioPlayer](/doc/AudioPlayer.MD)
 ### 4. 播放音乐,解码成PCM进行播放：[PlayBackMusic](/doc/PlayBackMusic.MD)
 ### 5. 播放PCM文件：[AudioTrackManager](/doc/AudioTrackManager.MD)
 
 
+
+如果感觉这个库帮助到了你，可以点右上角 "Star" 支持一下 谢谢！ 
+
+### [Update_log](/doc/Update_log.md)
+
+### [License](https://github.com/SheTieJun/Mp3Recorder/blob/master/LICENSE)

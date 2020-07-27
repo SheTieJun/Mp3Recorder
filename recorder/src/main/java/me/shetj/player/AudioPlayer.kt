@@ -1,16 +1,17 @@
 package me.shetj.player
 
+
 import android.content.Context
 import android.media.AudioAttributes
+import android.media.AudioFocusRequest
 import android.media.AudioManager
+import android.media.AudioManager.OnAudioFocusChangeListener
 import android.media.MediaPlayer
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.os.Message
 import android.text.TextUtils
-
-
 import java.util.concurrent.atomic.AtomicBoolean
 
 
@@ -26,6 +27,7 @@ import java.util.concurrent.atomic.AtomicBoolean
  * ** 停止  [AudioPlayer.stopPlay] <br></br>
  * ** 滑动seekBar 停止计时  [AudioPlayer.stopProgress]   <br></br>
  * ** 开始计时  [AudioPlayer.startProgress]   <br></br>
+ * 如果不想通过焦点控制，请不要设置[mAudioManager]
  * <br></br>
  ********** */
 class AudioPlayer : MediaPlayer.OnPreparedListener, MediaPlayer.OnErrorListener,
@@ -41,6 +43,28 @@ class AudioPlayer : MediaPlayer.OnPreparedListener, MediaPlayer.OnErrorListener,
 
     private var mediaPlayer: MediaPlayer? = null
     private var mAudioManager: AudioManager? = null
+
+    private var focusChangeListener =
+        OnAudioFocusChangeListener { focusChange ->
+            when (focusChange) {
+                AudioManager.AUDIOFOCUS_GAIN -> {
+                    // 获取焦点
+                    setVolume(1.0f)
+                }
+                AudioManager.AUDIOFOCUS_LOSS -> {
+                    // 失去焦点很长一段时间，必须停止所有的audio播放，清理资源
+                    pause()
+                }
+                AudioManager.AUDIOFOCUS_LOSS_TRANSIENT -> {
+                    // 暂时失去焦点，但是很快就会重新获得，在此状态应该暂停所有音频播放，但是不能清除资源
+                    pause()
+                }
+                AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK -> {
+                    // 暂时失去焦点，但是允许持续播放音频(以很小的声音)，不需要完全停止播放。
+                    setVolume(0.1f)
+                }
+            }
+        }
 
     /**
      * 播放回调
@@ -89,12 +113,14 @@ class AudioPlayer : MediaPlayer.OnPreparedListener, MediaPlayer.OnErrorListener,
                         listener!!.onStart(currentUrl, mediaPlayer!!.duration)
                     }
                     if (mAudioManager != null) {
+                        requestAudioFocus()
                         mAudioManager!!.mode = AudioManager.MODE_NORMAL
                     }
                 }
                 HANDLER_RESUME -> {
                     listener?.onResume()
                     if (mAudioManager != null) {
+                        requestAudioFocus()
                         mAudioManager!!.mode = AudioManager.MODE_NORMAL
                     }
                 }
@@ -143,6 +169,23 @@ class AudioPlayer : MediaPlayer.OnPreparedListener, MediaPlayer.OnErrorListener,
         mAudioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
     }
 
+    fun requestAudioFocus(){
+        if (mAudioManager == null) return
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {            //Android 8.0+
+            val audioFocusRequest =
+                AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK)
+                    .setOnAudioFocusChangeListener(focusChangeListener).build()
+            audioFocusRequest.acceptsDelayedFocusGain()
+            mAudioManager!!.requestAudioFocus(audioFocusRequest)
+        } else {
+            mAudioManager!!.requestAudioFocus(
+                focusChangeListener,
+                AudioManager.STREAM_MUSIC,
+                AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK
+            )
+        }
+    }
+
     /**
      * 设置声音
      * @param volume
@@ -181,11 +224,12 @@ class AudioPlayer : MediaPlayer.OnPreparedListener, MediaPlayer.OnErrorListener,
     }
 
     /**
-     * 只有在不播放的时候设置起效
+     * 只有在【不播放】的时候设置起效
+     * 如果是【播放中】，请使用 [seekTo]
      */
-    fun setSeekToPlay(seekTo: Int) {
+    fun setSeekToPlay(seekToPosition: Int) {
         if (isPause) {
-            seekToPlay = seekTo
+            seekToPlay = seekToPosition
         }
     }
 
@@ -398,7 +442,7 @@ class AudioPlayer : MediaPlayer.OnPreparedListener, MediaPlayer.OnErrorListener,
         val message = Message.obtain()
         message.what = HANDLER_ERROR
         message.obj =
-            Exception(String.format("what = %s extra = %s", what.toString(), extra.toString()))
+            RuntimeException(String.format("what = %s extra = %s", what.toString(), extra.toString()))
         handler.sendMessage(message)
         release()
         return true

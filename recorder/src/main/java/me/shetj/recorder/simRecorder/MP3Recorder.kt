@@ -299,6 +299,10 @@ class MP3Recorder : BaseRecorder {
 
     // region Start recording. Create an encoding thread. Start record from this
     override fun start() {
+        if (mRecordFile ==null){
+            logInfo("mRecordFile is Null")
+            return
+        }
         if (isRecording) {
             return
         }

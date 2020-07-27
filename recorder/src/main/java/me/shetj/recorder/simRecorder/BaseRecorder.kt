@@ -37,7 +37,7 @@ abstract class BaseRecorder {
     //region 录音的状态，声音和时间
     protected var mVolume: Int = 0
 
-   @Volatile var isRecording = false
+    var isRecording = false
         protected set
 
     //当前状态
@@ -47,7 +47,7 @@ abstract class BaseRecorder {
     //录制时间
     var duration = 0L
         protected set
-    @Volatile var isPause: Boolean = false
+    var isPause: Boolean = false
     private var isDebug = false
     //endregion 录音的状态和时间
 
