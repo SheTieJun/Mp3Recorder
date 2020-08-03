@@ -27,7 +27,7 @@ import java.util.concurrent.atomic.AtomicBoolean
  * ** 停止  [AudioPlayer.stopPlay] <br></br>
  * ** 滑动seekBar 停止计时  [AudioPlayer.stopProgress]   <br></br>
  * ** 开始计时  [AudioPlayer.startProgress]   <br></br>
- * 如果不想通过焦点控制，请不要设置[mAudioManager]
+ * 如果不想通过焦点控制，请不要设置[setAudioManager]
  * <br></br>
  ********** */
 class AudioPlayer : MediaPlayer.OnPreparedListener, MediaPlayer.OnErrorListener,
@@ -216,6 +216,7 @@ class AudioPlayer : MediaPlayer.OnPreparedListener, MediaPlayer.OnErrorListener,
                 resume()
             }
         } else {
+            pause() //先停下来，有些手机会报文件结束异常的错误
             //先让当前url回调结束
             this.listener?.onCompletion()
             //直接播放
@@ -250,7 +251,7 @@ class AudioPlayer : MediaPlayer.OnPreparedListener, MediaPlayer.OnErrorListener,
     private fun play(url: String?, listener: PlayerListener? = null) {
 
         if (TextUtils.isEmpty(url)) {
-            listener?.onError(Exception("url can not be null"))
+            listener?.onError(RuntimeException("url can not be null"))
         }
         url?.let {
             if (null != listener) {
