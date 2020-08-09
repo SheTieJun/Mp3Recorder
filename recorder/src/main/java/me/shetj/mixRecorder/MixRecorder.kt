@@ -560,7 +560,7 @@ class MixRecorder : BaseRecorder {
     private fun mixBuffer(buffer: ByteArray,bgData :ByteArray?): ByteArray? {
         try {
             if (bgData !=null) {
-                //如果有背景音乐
+//                //如果有背景音乐
                 val bytes = BytesTransUtil.changeDataWithVolume(
                     bgData,
                     bgLevel

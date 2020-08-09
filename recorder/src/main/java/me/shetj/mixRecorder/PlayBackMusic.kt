@@ -239,9 +239,16 @@ class PlayBackMusic(private var defaultChannel: Int = CHANNEL_OUT_MONO) {
                 }
                 // 开始播放
                 audioTrack!!.play()
-                //音乐实际开始会慢一点
-                repeat(10) {
-                    listener?.onFrameArrive(ByteArray(2048))
+                if (defaultChannel == CHANNEL_OUT_MONO) {
+                    //音乐实际开始会慢一点
+                    repeat(10) {
+                        listener?.onFrameArrive(ByteArray(2048))
+                    }
+                }else{
+                    //30 的时候 外放 快于 合成
+                    repeat(8) {
+                        listener?.onFrameArrive(ByteArray(4096))
+                    }
                 }
                 while (isPlayingMusic) {
                     if (!isIsPause) {
