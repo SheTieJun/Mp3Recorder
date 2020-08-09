@@ -11,6 +11,7 @@ import android.os.Message
 import android.util.Log
 import me.shetj.player.PlayerListener
 import java.util.concurrent.LinkedBlockingDeque
+import java.util.concurrent.atomic.AtomicBoolean
 
 
 /**
@@ -34,6 +35,7 @@ class PlayBackMusic(private var defaultChannel: Int = CHANNEL_OUT_MONO) {
         private set
     private var mIsRecording = false
     private var mIsLoop = false
+    private var need = AtomicBoolean(false)
     var isIsPause = false
         private set
     private val playHandler: PlayHandler
@@ -169,6 +171,7 @@ class PlayBackMusic(private var defaultChannel: Int = CHANNEL_OUT_MONO) {
     fun resume() {
         if (isPlayingMusic) {
             isIsPause = false
+            need.compareAndSet(false,true)
             playerListener?.onResume()
         }
     }
@@ -235,12 +238,33 @@ class PlayBackMusic(private var defaultChannel: Int = CHANNEL_OUT_MONO) {
                 }
                 // 开始播放
                 audioTrack!!.play()
-                //音乐实际开始会慢一点
-                repeat(10) {
-                    listener?.onFrameArrive(ByteArray(2048))
+                //延迟合成
+                if (defaultChannel == CHANNEL_OUT_MONO) {
+                    //音乐实际开始会慢一点
+                    repeat(10) {
+                        listener?.onFrameArrive(ByteArray(1))
+                    }
+                } else {
+                    //30 的时候会导致延迟合成祂太久 外放 快于 合成
+                    repeat(8) {
+                        listener?.onFrameArrive(ByteArray(1))
+                    }
                 }
                 while (isPlayingMusic) {
                     if (!isIsPause) {
+                        if (need.compareAndSet(true,false)){
+                            if (defaultChannel == CHANNEL_OUT_MONO) {
+                                //音乐实际开始会慢一点
+                                repeat(10) {
+                                    listener?.onFrameArrive(ByteArray(1))
+                                }
+                            } else {
+                                //30 的时候 外放 快于 合成
+                                repeat(8) {
+                                    listener?.onFrameArrive(ByteArray(1))
+                                }
+                            }
+                        }
                         val pcm = mAudioDecoder!!.pcmData
                         val temp = pcm?.bufferBytes
                         if (pcm == null || temp == null) {
@@ -334,10 +358,10 @@ class PlayBackMusic(private var defaultChannel: Int = CHANNEL_OUT_MONO) {
     }
 
     companion object {
-        private val PROCESS_STOP = 3
-        private val PROCESS_ERROR = 4
-        private val PROCESS_REPLAY = 5
-        private val mSampleRate = 44100
-        private val mAudioEncoding = AudioFormat.ENCODING_PCM_16BIT//一个采样点16比特-2个字节
+        private const val PROCESS_STOP = 3
+        private const val PROCESS_ERROR = 4
+        private const val PROCESS_REPLAY = 5
+        private const val mSampleRate = 44100
+        private const val mAudioEncoding = AudioFormat.ENCODING_PCM_16BIT//一个采样点16比特-2个字节
     }
 }

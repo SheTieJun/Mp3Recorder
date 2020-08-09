@@ -76,6 +76,7 @@ class MixRecordUtils(private val callBack: RecordCallBack?
             mMaxTime = 3600 * 1000,
             mp3Quality = 1,
             isDebug = true,
+            channel = BaseRecorder.AudioChannel.STEREO,
             recordListener = this,
             permissionListener = this)
     }

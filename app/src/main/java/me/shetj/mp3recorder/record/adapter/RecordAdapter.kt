@@ -175,7 +175,7 @@ class RecordAdapter(data: MutableList<Record>?) : BaseQuickAdapter<Record, BaseV
     }
 
     override fun onDestroy() {
-        mediaUtils.resume()
+        mediaUtils.stopPlay()
         unDispose()
     }
 

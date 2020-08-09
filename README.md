@@ -44,12 +44,6 @@ dependencies {
 <img src="https://github.com/SheTieJun/Mp3Recorder/blob/master/doc/img/recorder.gif" width="35%" height="35%" />
 
 
-
-| [荔枝微课](https://sj.qq.com/myapp/detail.htm?apkName=com.lizhiweike) | [变声器免费版](https://a.app.qq.com/o/simple.jsp?pkgname=com.tian.voicechangerpro) |
-| ------------------------------------------------------------ | ------------------------------------------------------------ |
-| <img src="https://github.com/SheTieJun/Mp3Recorder/blob/master/doc/img/image_lizhi.png"  /> | <img src="https://github.com/SheTieJun/Mp3Recorder/blob/master/doc/img/image_biansheng.png"  /> |
-
-
 ### 缺点
 
 1. 录制声道数设置，因为合成，所有你**需要设置和背景音乐相同的参数**
