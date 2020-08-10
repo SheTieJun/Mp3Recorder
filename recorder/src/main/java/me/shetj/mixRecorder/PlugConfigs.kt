@@ -12,7 +12,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 class PlugConfigs(val context: Context, var connected: Boolean = false) {
 
     private val isRegister = AtomicBoolean(false)
-
+    private val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
     private val mReceiver: BroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
             val action = intent.action
@@ -20,10 +20,8 @@ class PlugConfigs(val context: Context, var connected: Boolean = false) {
                 if (intent.hasExtra("state")) {
                     if (intent.getIntExtra("state", 0) == 0) {
                         getInstance(context).connected = false
-                        Log.i("PlugConfigs","${getInstance(context).connected}")
                     } else if (intent.getIntExtra("state", 0) == 1) {
                         getInstance(context).connected = true
-                        Log.i("PlugConfigs","${getInstance(context).connected}")
                     }
                 }
             }
@@ -33,9 +31,7 @@ class PlugConfigs(val context: Context, var connected: Boolean = false) {
 
     fun registerReceiver() {
         if (isRegister.compareAndSet(false,true)) {
-            val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
             connected = audioManager.isWiredHeadsetOn
-            Log.i("PlugConfigs","${getInstance(context).connected}")
             context.registerReceiver(mReceiver, intentFilter)
         }
     }
@@ -53,8 +49,7 @@ class PlugConfigs(val context: Context, var connected: Boolean = false) {
         fun getInstance(context: Context): PlugConfigs {
             return sInstance ?: synchronized(PlugConfigs::class.java) {
                 return PlugConfigs(context).also {
-                    val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
-                    it.connected = audioManager.isWiredHeadsetOn
+                    it.connected = it.audioManager.isWiredHeadsetOn
                     sInstance = it
                 }
             }

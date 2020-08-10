@@ -46,7 +46,7 @@ class PlayBackMusic(private var defaultChannel: Int = CHANNEL_OUT_MONO,var confi
     private var audioTrack: AudioTrack? = null
     private var volume = 0.3f
     private var playerListener: PlayerListener? = null
-    private val framelistener = object : BackGroundFrameListener {
+    private val frameListener = object : BackGroundFrameListener {
         override fun onFrameArrive(bytes: ByteArray) {
             if (configs?.connected == true) {
                 addBackGroundBytes(bytes)
@@ -144,7 +144,7 @@ class PlayBackMusic(private var defaultChannel: Int = CHANNEL_OUT_MONO,var confi
         //开始加载音乐数据
         initPCMData()
         isPlayingMusic = true
-        PlayNeedMixAudioTask(framelistener).start()
+        PlayNeedMixAudioTask(frameListener).start()
         playerListener?.onStart("", 0)
         return this
     }
