@@ -209,6 +209,7 @@ class MixRecordActivity : AppCompatActivity() {
                     }
                 })
                 .setMaxTime(1800 * 1000) //设置最大时间
+            ( mixRecorder as MixRecorder ).setContext(this)
         }
         mixRecorder!!.setOutputFile(filePath)//设置输出文件
         if (!mixRecorder!!.isRecording) {

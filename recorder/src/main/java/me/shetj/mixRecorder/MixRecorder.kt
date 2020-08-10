@@ -1,6 +1,7 @@
 package me.shetj.mixRecorder
 
 
+import android.content.Context
 import android.media.AudioFormat
 import android.media.AudioRecord
 import android.media.MediaRecorder
@@ -70,6 +71,7 @@ class MixRecorder : BaseRecorder {
     private var is2Channel = false //默认是双声道
     private var bgLevel = 0.30f//背景音乐
     private var isContinue: Boolean = false //是否写在文件末尾
+    private var plugConfigs:PlugConfigs?=null
 
     //声音增强
     private var wax = 1f
@@ -205,6 +207,12 @@ class MixRecorder : BaseRecorder {
 
     }
 
+    fun setContext(context: Context): MixRecorder {
+        plugConfigs = PlugConfigs.getInstance(context.applicationContext)
+        bgPlayer.configs = plugConfigs
+        return this
+    }
+
     override fun setMp3Quality(mp3Quality: Int): MixRecorder {
         this.defaultLameMp3Quality = when {
             mp3Quality < 0 -> 0
@@ -252,7 +260,7 @@ class MixRecorder : BaseRecorder {
                 when (is2Channel) {
                     true -> AudioFormat.CHANNEL_OUT_STEREO
                     else -> AudioFormat.CHANNEL_OUT_MONO
-                }
+                },plugConfigs
             )
         }
     }
@@ -350,6 +358,7 @@ class MixRecorder : BaseRecorder {
      * Start recording. Create an encoding thread. Start record from this
      */
     override fun start() {
+        plugConfigs?.registerReceiver()
         if (isRecording) {
             return
         }
@@ -432,6 +441,7 @@ class MixRecorder : BaseRecorder {
 
     override fun stop() {
         if (state !== RecordState.STOPPED) {
+            plugConfigs?.unregisterReceiver()
             isPause = false
             isRecording = false
             if (mPlayBackMusic != null) {
@@ -614,6 +624,7 @@ class MixRecorder : BaseRecorder {
 
     private fun autoStop() {
         if (state !== RecordState.STOPPED) {
+            plugConfigs?.unregisterReceiver()
             isPause = false
             isRecording = false
             handler.sendEmptyMessageDelayed(HANDLER_AUTO_COMPLETE, speed)

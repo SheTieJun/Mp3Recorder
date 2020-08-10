@@ -55,7 +55,7 @@ uploadArchives{
         repository(url:"file://C://maven/shetj")
         pom.groupId = "me.shetj"
         pom.artifactId = "record"
-        pom.version ="6.32"
+        pom.version ="6.42"
     }
 }
 

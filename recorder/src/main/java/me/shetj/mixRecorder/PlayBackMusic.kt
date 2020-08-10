@@ -15,6 +15,7 @@ import me.shetj.player.PlayerListener
 import java.util.concurrent.LinkedBlockingDeque
 import android.media.AudioAttributes
 import android.media.AudioFormat.CHANNEL_OUT_MONO
+import java.util.concurrent.atomic.AtomicBoolean
 
 
 /**
@@ -29,7 +30,7 @@ import android.media.AudioFormat.CHANNEL_OUT_MONO
  * TODO seekTo 缺失功能
  *
  */
-class PlayBackMusic(private var defaultChannel: Int = CHANNEL_OUT_MONO) {
+class PlayBackMusic(private var defaultChannel: Int = CHANNEL_OUT_MONO,var configs: PlugConfigs?) {
 
     private var mAudioDecoder: AudioDecoder? = null
     private val backGroundBytes =
@@ -38,7 +39,7 @@ class PlayBackMusic(private var defaultChannel: Int = CHANNEL_OUT_MONO) {
         private set
     private var mIsRecording = false
     private var mIsLoop = false
-    private var need =false
+    private var need = AtomicBoolean(false)
     var isIsPause = false
         private set
     private val playHandler: PlayHandler
@@ -47,7 +48,9 @@ class PlayBackMusic(private var defaultChannel: Int = CHANNEL_OUT_MONO) {
     private var playerListener: PlayerListener? = null
     private val framelistener = object : BackGroundFrameListener {
         override fun onFrameArrive(bytes: ByteArray) {
-            addBackGroundBytes(bytes)
+            if (configs?.connected == true) {
+                addBackGroundBytes(bytes)
+            }
         }
     }
     internal val isPCMDataEos: Boolean
@@ -174,7 +177,7 @@ class PlayBackMusic(private var defaultChannel: Int = CHANNEL_OUT_MONO) {
     fun resume() {
         if (isPlayingMusic) {
             isIsPause = false
-            need = true
+            need.compareAndSet(false,true)
             playerListener?.onResume()
         }
     }
@@ -242,31 +245,30 @@ class PlayBackMusic(private var defaultChannel: Int = CHANNEL_OUT_MONO) {
                 if (defaultChannel == CHANNEL_OUT_MONO) {
                     //音乐实际开始会慢一点
                     repeat(10) {
-                        listener?.onFrameArrive(ByteArray(2048))
+                        listener?.onFrameArrive(ByteArray(1))
                     }
                 } else {
                     //30 的时候 外放 快于 合成
                     repeat(8) {
-                        listener?.onFrameArrive(ByteArray(4096))
+                        listener?.onFrameArrive(ByteArray(1))
                     }
                 }
                 // 开始播放
                 audioTrack!!.play()
                 while (isPlayingMusic) {
                     if (!isIsPause) {
-                        if (need){
+                        if (need.compareAndSet(true,false)){
                             if (defaultChannel == CHANNEL_OUT_MONO) {
                                 //音乐实际开始会慢一点
                                 repeat(10) {
-                                    listener?.onFrameArrive(ByteArray(2048))
+                                    listener?.onFrameArrive(ByteArray(1))
                                 }
                             } else {
                                 //30 的时候 外放 快于 合成
                                 repeat(8) {
-                                    listener?.onFrameArrive(ByteArray(4096))
+                                    listener?.onFrameArrive(ByteArray(1))
                                 }
                             }
-                            need = false
                         }
                         val pcm = mAudioDecoder!!.pcmData
                         val temp = pcm?.bufferBytes
