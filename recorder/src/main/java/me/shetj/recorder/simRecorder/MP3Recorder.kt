@@ -1,5 +1,6 @@
 package me.shetj.recorder.simRecorder
 
+import android.content.Context
 import android.media.AudioFormat
 import android.media.AudioRecord
 import android.media.MediaRecorder
@@ -174,6 +175,11 @@ class MP3Recorder : BaseRecorder {
      */
     override val realVolume: Int
         get() = mVolume
+
+    override fun setContextToPlugConfigs(context: Context): BaseRecorder {
+        println("MP3Recorder no use it")
+        return this
+    }
 
     /**
      * 获取相对音量。 超过最大值时取最大值。

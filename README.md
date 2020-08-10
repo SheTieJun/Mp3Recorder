@@ -124,7 +124,12 @@ dependencies {
  mRecorder?.pauseMusic() //暂停背景音乐
  mRecorder?.isPauseMusic()// 背景音乐是否暂停
  mRecorder?.resumeMusic() //重新开始播放
+ mRecorder?.setContextToPlugConfigs(context) //设置次方法后，会使用耳机配置方式,只有MixRecorder 有效
 ```
+
+> 如果使用耳机配置方式：如果没有连接耳机会只用外放的背景音乐，如果连接上了耳机，会使用写入合成背景音乐的方式
+
+> 如果没有使用耳机，会同时使用外放和写入背景音乐 2 种方法，可能会存在叠音，目前有细微优化，但是不保证兼容所有机型
 
 #### 5. 停止录音
 

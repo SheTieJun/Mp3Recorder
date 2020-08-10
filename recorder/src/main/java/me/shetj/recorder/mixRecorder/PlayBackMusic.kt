@@ -10,6 +10,7 @@ import android.os.Looper
 import android.os.Message
 import android.util.Log
 import me.shetj.player.PlayerListener
+import me.shetj.recorder.util.PlugConfigs
 import java.util.concurrent.LinkedBlockingDeque
 import java.util.concurrent.atomic.AtomicBoolean
 
@@ -26,7 +27,7 @@ import java.util.concurrent.atomic.AtomicBoolean
  * TODO seekTo 缺失功能
  *
  */
-class PlayBackMusic(private var defaultChannel: Int = CHANNEL_OUT_MONO) {
+class PlayBackMusic(private var defaultChannel: Int = CHANNEL_OUT_MONO,var plugConfigs: PlugConfigs?) {
 
     private var mAudioDecoder: AudioDecoder? = null
     private val backGroundBytes =
@@ -41,6 +42,20 @@ class PlayBackMusic(private var defaultChannel: Int = CHANNEL_OUT_MONO) {
     private val playHandler: PlayHandler
     private var audioTrack: AudioTrack? = null
     private var volume = 0.3f
+    private val frameListener = object : BackGroundFrameListener {
+        override fun onFrameArrive(bytes: ByteArray) {
+            //如果设置耳机配置相关
+            if (plugConfigs !=null ) {
+                //只有连上了耳机才会使用写入的方式，否则只用外放的方式
+                if (plugConfigs?.connected == true) {
+                    addBackGroundBytes(bytes)
+                }
+            }else{
+                //如果没有设置耳机相关，直接写入和外放都用
+                addBackGroundBytes(bytes)
+            }
+        }
+    }
     private var playerListener: PlayerListener? = null
 
     private val isPCMDataEos: Boolean
@@ -134,11 +149,7 @@ class PlayBackMusic(private var defaultChannel: Int = CHANNEL_OUT_MONO) {
         //开始加载音乐数据
         initPCMData()
         isPlayingMusic = true
-        PlayNeedMixAudioTask(object : BackGroundFrameListener {
-            override fun onFrameArrive(bytes: ByteArray) {
-                addBackGroundBytes(bytes)
-            }
-        }).start()
+        PlayNeedMixAudioTask(frameListener).start()
         playerListener?.onStart("", 0)
         return this
     }

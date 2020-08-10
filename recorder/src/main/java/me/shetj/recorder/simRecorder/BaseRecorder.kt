@@ -1,5 +1,6 @@
 package me.shetj.recorder.simRecorder
 
+import android.content.Context
 import android.media.MediaRecorder
 import android.util.Log
 import me.shetj.player.PermissionListener
@@ -53,6 +54,9 @@ abstract class BaseRecorder {
 
     //region public method 公开的方法
     abstract val realVolume: Int
+
+    //设置是否使用耳机配置方式
+    abstract fun setContextToPlugConfigs(context: Context):BaseRecorder
 
     //设置输出路径
     abstract fun setOutputFile(outputFile: String, isContinue: Boolean = false): BaseRecorder

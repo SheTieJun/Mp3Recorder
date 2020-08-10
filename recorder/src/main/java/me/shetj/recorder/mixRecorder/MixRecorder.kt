@@ -1,6 +1,7 @@
 package me.shetj.recorder.mixRecorder
 
 
+import android.content.Context
 import android.media.AudioFormat
 import android.media.AudioRecord
 import android.media.MediaRecorder
@@ -20,6 +21,7 @@ import me.shetj.recorder.simRecorder.BaseRecorder
 import me.shetj.recorder.simRecorder.PCMFormat
 import me.shetj.recorder.simRecorder.RecordState
 import me.shetj.recorder.util.LameUtils
+import me.shetj.recorder.util.PlugConfigs
 import java.io.File
 import java.io.IOException
 
@@ -60,6 +62,7 @@ class MixRecorder : BaseRecorder {
     //region 背景音乐相关
     private var backgroundMusicIsPlay: Boolean = false //记录是否暂停
     private var bgLevel = 0.30f//背景音乐
+    private var plugConfigs:PlugConfigs ? =null
     //endregion 背景音乐相关
 
     //region 其他
@@ -169,6 +172,12 @@ class MixRecorder : BaseRecorder {
     override val realVolume: Int
         get() = mVolume
 
+    override fun setContextToPlugConfigs(context: Context): MixRecorder {
+        plugConfigs = PlugConfigs.getInstance(context.applicationContext)
+        bgPlayer.plugConfigs = plugConfigs
+        return this
+    }
+
     /**
      * 获取相对音量。 超过最大值时取最大值。
      *
@@ -269,7 +278,7 @@ class MixRecorder : BaseRecorder {
                 when (is2Channel) {
                     true -> AudioFormat.CHANNEL_OUT_STEREO
                     else -> AudioFormat.CHANNEL_OUT_MONO
-                }
+                },plugConfigs
             )
         }
     }
@@ -374,6 +383,7 @@ class MixRecorder : BaseRecorder {
      * Start recording. Create an encoding thread. Start record from this
      */
     override fun start() {
+        plugConfigs?.registerReceiver()
         if (mRecordFile ==null){
             logInfo("mRecordFile is Null")
             return
@@ -465,6 +475,7 @@ class MixRecorder : BaseRecorder {
 
     override fun stop() {
         if (state !== RecordState.STOPPED) {
+            plugConfigs?.unregisterReceiver()
             isRecording = false
             isPause = false
             if (mPlayBackMusic != null) {
@@ -623,6 +634,7 @@ class MixRecorder : BaseRecorder {
 
     private fun autoStop() {
         if (state !== RecordState.STOPPED) {
+            plugConfigs?.unregisterReceiver()
             isPause = false
             isRecording = false
             handler.sendEmptyMessageDelayed(HANDLER_AUTO_COMPLETE, speed)

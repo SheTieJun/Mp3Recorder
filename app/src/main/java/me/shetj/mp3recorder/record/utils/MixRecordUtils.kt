@@ -1,6 +1,7 @@
 package me.shetj.mp3recorder.record.utils
 
 import android.text.TextUtils
+import me.shetj.base.tools.app.Utils
 import me.shetj.base.tools.file.SDCardUtils
 import me.shetj.kt.simpleRecorderBuilder
 import me.shetj.player.PermissionListener
@@ -79,6 +80,7 @@ class MixRecordUtils(private val callBack: RecordCallBack?
             channel = BaseRecorder.AudioChannel.STEREO,
             recordListener = this,
             permissionListener = this)
+        mRecorder!!.setContextToPlugConfigs(Utils.app)
     }
 
     fun isPause():Boolean{
