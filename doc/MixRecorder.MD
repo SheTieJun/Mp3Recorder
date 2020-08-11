@@ -19,7 +19,8 @@
 1.  播放音乐,可以得到PCM：[PlayBackMusic](https://github.com/SheTieJun/Mp3Recorder/blob/master/doc/PlayBackMusic.MD)
 2.  AudioRecord 得到麦克风的声音：PCM
 3.  2个PCM进行声音混合，然后Lame转码成MP3 写入到文件
-4.  支持耳机
+4.  支持耳机，但是分2种情况，设置了PlugConfig 和没有设置PlugConfig
+5.  可以设置释放使用PlugConfig,如果使用将会使用 ：没有连接耳机，只用外放的背景音乐；连接耳机，会使用写入合成背景音乐的方式
 
 #### 1. 初始化
 

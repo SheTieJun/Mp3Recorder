@@ -13,6 +13,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 class PlugConfigs(val context: Context, var connected: Boolean = false) {
 
     private val isRegister = AtomicBoolean(false)
+    private val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
 
     private val mReceiver: BroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
@@ -32,7 +33,6 @@ class PlugConfigs(val context: Context, var connected: Boolean = false) {
 
     fun registerReceiver() {
         if (isRegister.compareAndSet(false,true)) {
-            val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
             connected = audioManager.isWiredHeadsetOn
             context.registerReceiver(mReceiver, intentFilter)
         }
@@ -51,8 +51,7 @@ class PlugConfigs(val context: Context, var connected: Boolean = false) {
         fun getInstance(context: Context): PlugConfigs {
             return sInstance ?: synchronized(PlugConfigs::class.java) {
                 return PlugConfigs(context).also {
-                    val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
-                    it.connected = audioManager.isWiredHeadsetOn
+                    it.connected = it.audioManager.isWiredHeadsetOn
                     sInstance = it
                 }
             }

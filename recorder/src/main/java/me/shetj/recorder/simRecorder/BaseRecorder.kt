@@ -124,7 +124,7 @@ abstract class BaseRecorder {
     //重置
     abstract fun onReset()
 
-    //结束
+    //结束释放
     abstract fun onDestroy()
     //endregion public method
 

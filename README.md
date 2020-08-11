@@ -5,6 +5,7 @@
 - 录制过程中**暂停**,已录制的那段音频是**可以播放**的.
 - 可设置最大录制时间
 - 录音中途可以替换输出文件，比如每60秒替换一个输出文件
+- 可以使用耳机配置方式：如果没有连接耳机会只用外放的背景音乐，如果连接上了耳机，会使用写入合成背景音乐的方式
 - 其他...
 
 #### 背景音乐相关
@@ -34,12 +35,9 @@ dependencies {
 }
 ```
 
-#### [demo](https://github.com/SheTieJun/Mp3Recorder/tree/master/app) 中继续录制
-- ~~继续录制，是通过音频文件合并，因为【继续录制-重录】，希望回到上次录制,所有采用的文件拼接~~ x相关commit已删除,拼接自行参考 [util](/app/src/main/java/me/shetj/mp3recorder/record/utils/Util)
-- demo已修改成只要文件存在，自动拼接在末尾最后，所以【继续录制-重录】已无法重置到老的录音，不过可以自行通过copy一份进行上述功能，就是很麻烦
+#### [demo](https://github.com/SheTieJun/Mp3Recorder/tree/master/app)
 - [MixRecordUtils](https://github.com/SheTieJun/Mp3Recorder/blob/master/app/src/main/java/me/shetj/mp3recorder/record/utils/MixRecordUtils.kt)
 - [RecordUtils](https://github.com/SheTieJun/Mp3Recorder/blob/master/app/src/main/java/me/shetj/mp3recorder/record/utils/RecordUtils.kt)
-- [MixRecordActivity](https://github.com/SheTieJun/Mp3Recorder/blob/master/app/src/main/java/me/shetj/mp3recorder/record/MixRecordActivity.kt)
 
 <img src="https://github.com/SheTieJun/Mp3Recorder/blob/master/doc/img/recorder.gif" width="35%" height="35%" />
 
