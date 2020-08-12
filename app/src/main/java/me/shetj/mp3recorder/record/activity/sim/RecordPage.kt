@@ -133,7 +133,7 @@ open class RecordPage(private val context: AppCompatActivity, mRoot: ViewGroup, 
     }
 
     private fun unBindService() {
-        if (bindService && serviceConnection != null) {
+        if (bindService) {
             context.unbindService(serviceConnection)
         }
     }
@@ -202,7 +202,7 @@ open class RecordPage(private val context: AppCompatActivity, mRoot: ViewGroup, 
                     showSaveAndRe(View.INVISIBLE)
                     mTvStateMsg!!.text = "点击录音"
                     if (oldRecord == null) {
-                        saveRecord(file, time)
+                        saveRecord(file)
                         callback.onEvent(1)
                     } else {
                         saveOldRecord(file, true)
@@ -233,7 +233,7 @@ open class RecordPage(private val context: AppCompatActivity, mRoot: ViewGroup, 
                     showSaveAndRe(View.INVISIBLE)
                     mTvStateMsg!!.text = "录制完成"
                     if (oldRecord == null) {
-                        saveRecord(file, time)
+                        saveRecord(file)
                         showRecordNewDialog()
                     } else {
                         saveOldRecord(file, false)
@@ -301,7 +301,7 @@ open class RecordPage(private val context: AppCompatActivity, mRoot: ViewGroup, 
     /**
      * 保存录音，并且通知修改
      */
-    private fun saveRecord(file: String, time: Int) {
+    private fun saveRecord(file: String) {
         try {
             val record = Record("1", file, System.currentTimeMillis().toString() + "",
                     Util.getAudioLength(context, file), mEditInfo!!.text.toString())
@@ -352,7 +352,7 @@ open class RecordPage(private val context: AppCompatActivity, mRoot: ViewGroup, 
     }
 
     private fun showMusicDialog() {
-        musicDialog?.showBottomSheet()
+        this.musicDialog.showBottomSheet()
     }
 
     /**

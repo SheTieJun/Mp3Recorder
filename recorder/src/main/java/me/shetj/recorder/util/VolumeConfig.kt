@@ -18,7 +18,6 @@ class VolumeConfig(val context: Context, var currVolumeF: Float = 1f) {
     private val isRegister = AtomicBoolean(false)
     private val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
     private val max = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC)
-    private val defVoice = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC)
     private var onVolumeChanges:MutableList<OnVolumeChange>  = ArrayList()
 
 
@@ -59,21 +58,15 @@ class VolumeConfig(val context: Context, var currVolumeF: Float = 1f) {
     }
 
     fun unregisterReceiver() {
-        //回到最初的声音
         if (isRegister.compareAndSet(true, false)) {
             context.unregisterReceiver(mReceiver)
-            setAudioVoice(defVoice)
         }
     }
 
     fun getMaxVoice() = max
 
     fun setAudioVoiceF(volume: Float) {
-        audioManager.setStreamVolume(
-            AudioManager.STREAM_MUSIC,
-            (volume * max).toInt(),
-            0
-        )
+       setAudioVoice((volume * max).toInt())
     }
 
     fun setAudioVoice(volume: Int) {

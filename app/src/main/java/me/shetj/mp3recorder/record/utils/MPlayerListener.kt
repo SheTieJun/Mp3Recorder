@@ -12,7 +12,8 @@ import me.shetj.player.SimPlayerListener
 open class MPlayerListener(private val mContext: Context, private val helper: BaseViewHolder, private val mediaUtils: AudioPlayer) :
     SimPlayerListener() {
     private val seekBar: SeekBar = helper.getView<SeekBar>(R.id.seekBar).apply{
-        helper.getView<View>(R.id.content)?.setOnClickListener { mediaUtils.playOrPause(tag.toString(), this@MPlayerListener) }
+        helper.getView<View>(R.id.content)
+            .setOnClickListener { mediaUtils.playOrPause(tag.toString(), this@MPlayerListener) }
          setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {}
             override fun onStartTrackingTouch(seekBar: SeekBar) {
@@ -76,12 +77,12 @@ open class MPlayerListener(private val mContext: Context, private val helper: Ba
         super.onError(throwable)
     }
 
-    override fun onProgress(current: Int, size: Int) {
+    override fun onProgress(current: Int, duration: Int) {
         if (canChange) {
             if (!seekBar.isEnabled){
                 statePlaying()
             }
-            if (current != size) {
+            if (current != duration) {
                 seekBar.progress = current
             }
         }

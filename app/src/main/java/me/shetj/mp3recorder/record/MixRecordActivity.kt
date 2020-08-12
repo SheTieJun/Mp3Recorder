@@ -76,19 +76,6 @@ class MixRecordActivity : AppCompatActivity() {
             }
         }
 
-        seek_bar.setOnSeekBarChangeListener(object :SeekBar.OnSeekBarChangeListener{
-            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                mixRecorder?.setVolume(progress/100f)
-            }
-
-            override fun onStartTrackingTouch(seekBar: SeekBar?) {
-
-            }
-
-            override fun onStopTrackingTouch(seekBar: SeekBar?) {
-
-            }
-        })
     }
 
     private fun changeMusic() {

@@ -1,5 +1,6 @@
 package me.shetj.mp3recorder.record.activity.mix
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.transition.Scene
 import android.transition.TransitionManager
@@ -62,11 +63,12 @@ class MyMixRecordPage(
     private fun initData() {
         RecordDbUtils.getInstance().allRecord
             .subscribeOn(Schedulers.io())
-            ?.observeOn(AndroidSchedulers.mainThread())
-            ?.subscribe {
+            .observeOn(AndroidSchedulers.mainThread())
+            .doOnNext {
                 recordAdapter.setNewData(it.toMutableList())
                 checkShow(it)
             }
+            .subscribe()
     }
 
     /**
@@ -116,7 +118,7 @@ class MyMixRecordPage(
         val emptyView = LayoutInflater.from(context).inflate(R.layout.empty_view, null)
         recordAdapter.setEmptyView(emptyView)
         //空界面点击开启
-        emptyView.findViewById<View>(R.id.cd_start_record).setOnClickListener { v ->
+        emptyView.findViewById<View>(R.id.cd_start_record).setOnClickListener {
             callback.onEvent(0)
         }
 
@@ -127,7 +129,7 @@ class MyMixRecordPage(
             ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ArmsUtils.dip2px(35f))
         recordAdapter.addHeaderView(headView)
         //去录音界面
-        mIvRecordState!!.setOnClickListener { v ->
+        mIvRecordState!!.setOnClickListener {
             recordAdapter.setPlayPosition(-1)
             callback.onEvent(0)
         }
@@ -139,7 +141,7 @@ class MyMixRecordPage(
         adapter: BaseQuickAdapter<*, BaseViewHolder>
     ): RecordBottomSheetDialog? {
         recordAdapter.onPause()
-        return recordAdapter.getItem(position)?.let {
+        return recordAdapter.getItem(position).let {
             (mRecyclerView!!.findViewHolderForAdapterPosition(position + adapter.headerLayoutCount) as BaseViewHolder).let { it1 ->
                 RecordBottomSheetDialog(
                     context, position, it,

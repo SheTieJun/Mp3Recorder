@@ -42,7 +42,7 @@ class RecordAdapter(data: MutableList<Record>?) : BaseQuickAdapter<Record, BaseV
     private var mCompositeDisposable: CompositeDisposable? = null
 
     override fun convert(helper: BaseViewHolder, item: Record) {
-        item?.let {
+        item.let {
             val itemPosition = helper.layoutPosition - headerLayoutCount
             val seekBar = helper.getView<SeekBar>(R.id.seekBar_record)
             seekBar.max = item.audioLength * 1000
@@ -58,7 +58,7 @@ class RecordAdapter(data: MutableList<Record>?) : BaseQuickAdapter<Record, BaseV
                 .setText(R.id.tv_time_all, Util.formatSeconds3(item.audioLength))
                 .setText(R.id.tv_read_time, Util.formatSeconds3(0))
                 .setText(R.id.tv_time, Util.formatSeconds2(item.audioLength))
-                addChildClickViewIds(R.id.tv_more)
+            addChildClickViewIds(R.id.tv_more)
 
             //播放
             helper.getView<View>(R.id.iv_play).setOnClickListener { playMusic(item.audio_url, listener) }
@@ -90,7 +90,7 @@ class RecordAdapter(data: MutableList<Record>?) : BaseQuickAdapter<Record, BaseV
         }
         weakRecyclerView.get()?.alpha = 0.7f
         val valueAnimator = showAnimator(progressBar, tvProgress, 0, 100, 2500).apply {
-            doOnEnd {it  ->
+            doOnEnd {
                 progressBar.progress = 0
                 progressBar.alpha = 0f
                 tvProgress.text = ""

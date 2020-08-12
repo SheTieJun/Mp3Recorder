@@ -66,12 +66,12 @@ class RecordPlayerListener(private val helper: BaseViewHolder, private val media
     }
 
 
-    override fun onProgress(current: Int, size: Int) {
+    override fun onProgress(current: Int, duration: Int) {
         if (canChange) {
             if (!mediaUtils.isPause){
                 statePlaying()
             }
-            if (current != size) {
+            if (current != duration) {
                 seekBar.progress = current
             }
         }

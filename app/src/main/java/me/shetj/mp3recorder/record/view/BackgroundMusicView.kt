@@ -1,5 +1,6 @@
 package me.shetj.mp3recorder.record.view
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.transition.TransitionManager
 import android.util.AttributeSet
@@ -14,14 +15,12 @@ import androidx.appcompat.widget.AppCompatSeekBar
 import me.shetj.base.tools.app.ArmsUtils
 import me.shetj.mp3recorder.R
 import me.shetj.mp3recorder.record.bean.Music
-import me.shetj.mp3recorder.record.utils.MixRecordUtils
 import me.shetj.mp3recorder.record.utils.RecordUtils
 import me.shetj.mp3recorder.record.utils.Util
 import me.shetj.player.AudioPlayer
 import me.shetj.player.PlayerListener
 import me.shetj.recorder.util.OnVolumeChange
 import me.shetj.recorder.util.VolumeConfig
-import timber.log.Timber
 
 /**
  * 背景音乐控制
@@ -163,8 +162,9 @@ class BackgroundMusicView @JvmOverloads constructor(context: Context,
 
     }
 
-    override fun onProgress(current: Int, size: Int) {
-        mTvProgress.text = Util.formatSeconds3(current/1000)+"/"+Util.formatSeconds3(size/1000)
+    @SuppressLint("SetTextI18n")
+    override fun onProgress(current: Int, duration: Int) {
+        mTvProgress.text = Util.formatSeconds3(current/1000)+"/"+Util.formatSeconds3(duration/1000)
     }
 
 

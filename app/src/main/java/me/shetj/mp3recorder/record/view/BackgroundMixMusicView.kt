@@ -148,6 +148,7 @@ class BackgroundMixMusicView @JvmOverloads constructor(context: Context,
         this.music= music
         mTvName.text = music.name
         mTvProgress.text = Util.formatSeconds3(0 / 1000) +"/"+  Util.formatSeconds3(music.duration.toInt())
+        mSeekBar.progress = volumeConfig.getCurVolume()
         music.startNoPlayMusic()
         if (visibility == View.GONE){
             TransitionManager.beginDelayedTransition(parent as ViewGroup?)
@@ -256,9 +257,9 @@ class BackgroundMixMusicView @JvmOverloads constructor(context: Context,
 
     }
 
-    override fun onProgress(current: Int, size: Int) {
+    override fun onProgress(current: Int, duration: Int) {
         AndroidSchedulers.mainThread().scheduleDirect {
-            mTvProgress.text = Util.formatSeconds3(current / 1000) +"/"+ Util.formatSeconds3(size / 1000)
+            mTvProgress.text = Util.formatSeconds3(current / 1000) +"/"+ Util.formatSeconds3(duration / 1000)
         }
     }
 }
