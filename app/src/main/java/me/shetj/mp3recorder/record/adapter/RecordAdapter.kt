@@ -40,11 +40,6 @@ class RecordAdapter(data: MutableList<Record>?) : BaseQuickAdapter<Record, BaseV
         private set
     private val mediaUtils: MediaPlayerUtils= MediaPlayerUtils()
     private var mCompositeDisposable: CompositeDisposable? = null
-    /**
-     * 是否是上传中,上传的时候不能点击其他区域，可以返回
-     */
-    var isUploading = false
-        private set
 
     override fun convert(helper: BaseViewHolder, item: Record) {
         item?.let {
@@ -93,11 +88,9 @@ class RecordAdapter(data: MutableList<Record>?) : BaseQuickAdapter<Record, BaseV
             ArmsUtils.makeText("当前选中文件已经丢失~，请删除该记录后重新录制！")
             return
         }
-        isUploading = true
         weakRecyclerView.get()?.alpha = 0.7f
         val valueAnimator = showAnimator(progressBar, tvProgress, 0, 100, 2500).apply {
             doOnEnd {it  ->
-                isUploading = false
                 progressBar.progress = 0
                 progressBar.alpha = 0f
                 tvProgress.text = ""
@@ -130,10 +123,6 @@ class RecordAdapter(data: MutableList<Record>?) : BaseQuickAdapter<Record, BaseV
      * 设置选中的位置
      */
     fun setPlayPosition(targetPos: Int) {
-        if (isUploading) {
-            ArmsUtils.makeText("正在上传...")
-            return
-        }
         //停止音乐
         if (targetPos == -1 || curPosition != targetPos) {
             if (!mediaUtils.isPause) {

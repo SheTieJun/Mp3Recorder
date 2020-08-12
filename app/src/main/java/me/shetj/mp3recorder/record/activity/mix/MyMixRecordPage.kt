@@ -99,12 +99,10 @@ class MyMixRecordPage(
             )
         }
         recordAdapter.setOnItemChildClickListener { adapter, view1, position ->
-            if (!recordAdapter.isUploading) {
-                when (view1.id) {
-                    R.id.tv_more -> {
-                        val dialog = showBottomDialog(position, adapter)
-                        dialog?.showBottomSheet()
-                    }
+            when (view1.id) {
+                R.id.tv_more -> {
+                    val dialog = showBottomDialog(position, adapter)
+                    dialog?.showBottomSheet()
                 }
             }
         }
@@ -119,9 +117,7 @@ class MyMixRecordPage(
         recordAdapter.setEmptyView(emptyView)
         //空界面点击开启
         emptyView.findViewById<View>(R.id.cd_start_record).setOnClickListener { v ->
-            if (!recordAdapter.isUploading) {
-                callback.onEvent(0)
-            }
+            callback.onEvent(0)
         }
 
 
@@ -132,10 +128,8 @@ class MyMixRecordPage(
         recordAdapter.addHeaderView(headView)
         //去录音界面
         mIvRecordState!!.setOnClickListener { v ->
-            if (!recordAdapter.isUploading) {
-                recordAdapter.setPlayPosition(-1)
-                callback.onEvent(0)
-            }
+            recordAdapter.setPlayPosition(-1)
+            callback.onEvent(0)
         }
 
     }

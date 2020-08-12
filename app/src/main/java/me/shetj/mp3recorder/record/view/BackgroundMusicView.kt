@@ -14,10 +14,13 @@ import androidx.appcompat.widget.AppCompatSeekBar
 import me.shetj.base.tools.app.ArmsUtils
 import me.shetj.mp3recorder.R
 import me.shetj.mp3recorder.record.bean.Music
+import me.shetj.mp3recorder.record.utils.MixRecordUtils
 import me.shetj.mp3recorder.record.utils.RecordUtils
 import me.shetj.mp3recorder.record.utils.Util
 import me.shetj.player.AudioPlayer
 import me.shetj.player.PlayerListener
+import me.shetj.recorder.util.OnVolumeChange
+import me.shetj.recorder.util.VolumeConfig
 import timber.log.Timber
 
 /**
@@ -40,6 +43,8 @@ class BackgroundMusicView @JvmOverloads constructor(context: Context,
     private var recordUtils: RecordUtils?=null
     private var music: Music?=null
     private var musicDialog: MusicListBottomSheetDialog?=null
+    private val max :Float by lazy { VolumeConfig.getInstance(context).getMaxVoice().toFloat() }
+    private val volumeConfig: VolumeConfig by lazy { VolumeConfig.getInstance(context) }
 
     init {
         //设置view
@@ -51,21 +56,29 @@ class BackgroundMusicView @JvmOverloads constructor(context: Context,
         mTvVoice = view.findViewById(R.id.tv_voice)
         mTvProgress = view.findViewById(R.id.tv_time_progress)
         addView(view)
-
         mIvPlay.setOnClickListener(this)
         mIvChange.setOnClickListener(this)
 
-
     }
+
+    private val onVolumeChange: OnVolumeChange = object : (Float) -> Unit(){
+        override fun invoke(p1: Float) {
+            mSeekBar.progress = (p1*volumeConfig.getMaxVoice()).toInt()
+        }
+    }
+
     fun setRecordUtil(recordUtils: RecordUtils?){
         this.recordUtils = recordUtils
         audioPlayer = recordUtils?.getBgPlayer()
         recordUtils?.setBackgroundPlayerListener(this)
         audioPlayer?.setAudioManager(context)
         audioPlayer?.setLoop(true)
+        mSeekBar.max = volumeConfig.getMaxVoice()
+        mSeekBar.progress = volumeConfig.getCurVolume()
+        showVolumeString(mSeekBar)
         mSeekBar.setOnSeekBarChangeListener(object :SeekBar.OnSeekBarChangeListener{
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                mTvVoice.text = "$progress%"
+                seekBar?.let { showVolumeString(it) }
             }
 
             override fun onStartTrackingTouch(seekBar: SeekBar?) {
@@ -73,16 +86,21 @@ class BackgroundMusicView @JvmOverloads constructor(context: Context,
 
             override fun onStopTrackingTouch(seekBar: SeekBar?) {
                 seekBar?.let {
-                    audioPlayer?.setVolume(it.progress/100f)
-                    mTvVoice.text = "${it.progress}%"
+                    showVolumeString(seekBar)
                 }
             }
 
         })
-        mSeekBar.progress = 30
-        mTvVoice.text = "30%"
-        audioPlayer?.setVolume(30/100f)
     }
+
+    private fun showVolumeString(
+        it: SeekBar
+    ) {
+        val fl = it.progress / max
+        volumeConfig.setAudioVoiceF(fl)
+        mTvVoice.text = "${(fl * 100).toInt()}%"
+    }
+
 
     fun setMusic(music: Music){
         this.music= music
@@ -96,7 +114,7 @@ class BackgroundMusicView @JvmOverloads constructor(context: Context,
         musicDialog?.dismissBottomSheet()
     }
 
-    fun pauseMusic(){
+    private fun pauseMusic(){
         audioPlayer?.pause()
     }
 
@@ -149,15 +167,15 @@ class BackgroundMusicView @JvmOverloads constructor(context: Context,
         mTvProgress.text = Util.formatSeconds3(current/1000)+"/"+Util.formatSeconds3(size/1000)
     }
 
-    //不展示在界面的时候
-    override fun onDetachedFromWindow() {
-        super.onDetachedFromWindow()
-        Timber.i("onDetachedFromWindow")
-    }
 
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
-        Timber.i("onAttachedToWindow")
+        VolumeConfig.getInstance(context).addChangeListener(onVolumeChange)
+    }
+
+    override fun onDetachedFromWindow() {
+        super.onDetachedFromWindow()
+        VolumeConfig.getInstance(context).removeChangeListener(onVolumeChange)
     }
 
     fun setDialog(musicDialog: MusicListBottomSheetDialog) {

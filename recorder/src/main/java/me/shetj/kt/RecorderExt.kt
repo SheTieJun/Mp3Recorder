@@ -1,5 +1,7 @@
 package me.shetj.kt
 
+import android.content.Context
+import android.widget.SeekBar
 import me.shetj.player.PermissionListener
 import me.shetj.player.PlayerListener
 import me.shetj.player.RecordListener
@@ -7,6 +9,7 @@ import me.shetj.recorder.BuildConfig
 import me.shetj.recorder.mixRecorder.MixRecorder
 import me.shetj.recorder.simRecorder.BaseRecorder
 import me.shetj.recorder.simRecorder.MP3Recorder
+import me.shetj.recorder.util.VolumeConfig
 
 /**
  * 通过背景音乐录制的背景音乐
@@ -40,7 +43,7 @@ fun simRecorderBuilder(
  * 混合音频的录制
  */
 @JvmOverloads
-fun mixRecorderBuilder(
+fun mixRecorder(
     audioSource: BaseRecorder.AudioSource = BaseRecorder.AudioSource.MIC,
     channel: BaseRecorder.AudioChannel = BaseRecorder.AudioChannel.STEREO,
     isDebug: Boolean = BuildConfig.DEBUG,
@@ -65,12 +68,44 @@ fun mixRecorderBuilder(
         }
 }
 
+
+@JvmOverloads
+fun simRecorder(
+    context: Context,
+    simpleName: BaseRecorder.RecorderType = BaseRecorder.RecorderType.MIX,
+    audioSource: BaseRecorder.AudioSource = BaseRecorder.AudioSource.MIC,
+    isDebug: Boolean = BuildConfig.DEBUG,
+    mMaxTime: Int = 1800 * 1000,
+    samplingRate: Int = 44100,
+    mp3BitRate: Int = 128,//96(高),32（低）
+    mp3Quality: Int = 1,
+    channel: BaseRecorder.AudioChannel = BaseRecorder.AudioChannel.STEREO,
+    permissionListener: PermissionListener? = null,
+    recordListener: RecordListener? = null,
+    wax: Float = 1f
+): BaseRecorder {
+   return simRecorderNoContext(
+        simpleName,
+        audioSource,
+        isDebug,
+        mMaxTime,
+        samplingRate,
+        mp3BitRate,
+        mp3Quality,
+        channel,
+        permissionListener,
+        recordListener,
+        wax
+    ).setContextToVolumeConfig(context)
+        .setContextToVolumeConfig(context)
+}
+
 /**
  * mix 表示混合
  * sim 不支持单双声道录制
  */
 @JvmOverloads
-fun simpleRecorderBuilder(
+fun simRecorderNoContext(
     simpleName: BaseRecorder.RecorderType = BaseRecorder.RecorderType.MIX,
     audioSource: BaseRecorder.AudioSource = BaseRecorder.AudioSource.MIC,
     isDebug: Boolean = BuildConfig.DEBUG,
@@ -85,7 +120,7 @@ fun simpleRecorderBuilder(
 ): BaseRecorder {
     return when (simpleName) {
         BaseRecorder.RecorderType.MIX ->
-            mixRecorderBuilder(
+            mixRecorder(
                 audioSource = audioSource,
                 isDebug = isDebug,
                 channel = channel,
@@ -237,4 +272,29 @@ fun BaseRecorder.setRecordListener(
         }
     })
     return this
+}
+
+inline fun BaseRecorder.setVolumeSeekBar(
+    mSeekBar: SeekBar,
+    volumeConfig: VolumeConfig,
+    crossinline onSeek: (seekBar: SeekBar, progress: Int) -> Unit
+) {
+    mSeekBar.max = volumeConfig.getMaxVoice()
+    mSeekBar.progress = volumeConfig.getCurVolume()
+    mSeekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+        override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+            seekBar?.let {
+                onSeek(seekBar, progress)
+            }
+        }
+
+        override fun onStartTrackingTouch(seekBar: SeekBar?) {
+        }
+
+        override fun onStopTrackingTouch(seekBar: SeekBar?) {
+            seekBar?.let {
+                onSeek(seekBar, seekBar.progress)
+            }
+        }
+    })
 }

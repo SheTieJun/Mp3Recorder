@@ -56,7 +56,9 @@ abstract class BaseRecorder {
     abstract val realVolume: Int
 
     //设置是否使用耳机配置方式
-    abstract fun setContextToPlugConfigs(context: Context):BaseRecorder
+    abstract fun setContextToPlugConfig(context: Context):BaseRecorder
+
+    abstract fun setContextToVolumeConfig(context: Context):BaseRecorder
 
     //设置输出路径
     abstract fun setOutputFile(outputFile: String, isContinue: Boolean = false): BaseRecorder

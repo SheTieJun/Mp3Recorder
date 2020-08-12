@@ -32,16 +32,26 @@ class PlugConfigs(val context: Context, var connected: Boolean = false) {
     private val intentFilter = IntentFilter(Intent.ACTION_HEADSET_PLUG)
 
     fun registerReceiver() {
-        if (isRegister.compareAndSet(false,true)) {
+        if (isRegister.compareAndSet(false, true)) {
             connected = audioManager.isWiredHeadsetOn
             context.registerReceiver(mReceiver, intentFilter)
         }
     }
 
     fun unregisterReceiver() {
-        if(isRegister.compareAndSet(true,false)) {
+        if (isRegister.compareAndSet(true, false)) {
             context.unregisterReceiver(mReceiver)
         }
+    }
+
+    fun getMaxVoice() = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC)
+
+    fun setAudioVoice(volume: Int) {
+        audioManager.setStreamVolume(
+            AudioManager.STREAM_MUSIC,
+            volume,
+            0
+        )
     }
 
     companion object {

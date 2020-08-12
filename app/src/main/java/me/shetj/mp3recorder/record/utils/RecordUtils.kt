@@ -1,9 +1,11 @@
 package me.shetj.mp3recorder.record.utils
 
 import me.shetj.base.tools.app.ArmsUtils
+import me.shetj.base.tools.app.Utils
 import me.shetj.base.tools.file.FileUtils
 import me.shetj.base.tools.file.SDCardUtils
 import me.shetj.base.tools.json.EmptyUtils
+import me.shetj.kt.simRecorder
 import me.shetj.kt.simRecorderBuilder
 import me.shetj.player.AudioPlayer
 import me.shetj.player.PermissionListener
@@ -14,20 +16,22 @@ import me.shetj.recorder.simRecorder.MP3Recorder
 import me.shetj.recorder.simRecorder.RecordState
 import java.io.File
 
-class RecordUtils(private val callBack: RecordCallBack?
+class RecordUtils(
+    private val callBack: RecordCallBack?
 ) : RecordListener, PermissionListener {
     val isRecording: Boolean
         get() {
-            return if (mRecorder !=null) {
+            return if (mRecorder != null) {
                 mRecorder?.isRecording!!
-            }else{
+            } else {
                 false
             }
         }
+
     fun hasRecord(): Boolean {
-        return  if (mRecorder !=null) {
+        return if (mRecorder != null) {
             mRecorder?.duration!! - startTime > 0 && mRecorder!!.state != RecordState.STOPPED
-        }else{
+        } else {
             false
         }
     }
@@ -42,19 +46,20 @@ class RecordUtils(private val callBack: RecordCallBack?
 
 
     @JvmOverloads
-    fun startOrPause(file :String = "",isContinue :Boolean = false) {
+    fun startOrPause(file: String = "", isContinue: Boolean = false) {
         if (mRecorder == null) {
             initRecorder()
         }
         when (mRecorder?.state) {
             RecordState.STOPPED -> {
                 if (EmptyUtils.isEmpty(file)) {
-                    val mRecordFile = SDCardUtils.getPath("record") + "/" + System.currentTimeMillis() + ".mp3"
+                    val mRecordFile =
+                        SDCardUtils.getPath("record") + "/" + System.currentTimeMillis() + ".mp3"
                     this.saveFile = mRecordFile
-                }else{
+                } else {
                     this.saveFile = file
                 }
-                mRecorder?.setOutputFile(saveFile,isContinue)
+                mRecorder?.setOutputFile(saveFile, isContinue)
                 mRecorder?.start()
             }
             RecordState.PAUSED -> {
@@ -71,14 +76,20 @@ class RecordUtils(private val callBack: RecordCallBack?
      * MIC 麦克风- 因为有噪音问题
      */
     private fun initRecorder() {
-        mRecorder = simRecorderBuilder(permissionListener = this, recordListener = this)
+        mRecorder = simRecorder(
+            Utils.app,
+            simpleName = BaseRecorder.RecorderType.SIM,
+            permissionListener = this,
+            recordListener = this
+        )
+        mRecorder!!.setContextToVolumeConfig(Utils.app)
     }
 
-    fun setBackgroundMusic(url:String){
+    fun setBackgroundMusic(url: String) {
         mRecorder?.setBackgroundMusic(url)
     }
 
-    fun setBackgroundPlayerListener(listener : PlayerListener) {
+    fun setBackgroundPlayerListener(listener: PlayerListener) {
         mRecorder?.setBackgroundMusicListener(listener)
     }
 
@@ -86,9 +97,10 @@ class RecordUtils(private val callBack: RecordCallBack?
         return (mRecorder as MP3Recorder).bgPlayer
     }
 
-    fun  pause(){
+    fun pause() {
         mRecorder?.onPause()
     }
+
     fun clear() {
         mRecorder?.onDestroy()
     }
@@ -103,15 +115,16 @@ class RecordUtils(private val callBack: RecordCallBack?
      */
     fun setTime(startTime: Int) {
         this.startTime = startTime
-        callBack?.onRecording(startTime  ,0)
+        callBack?.onRecording(startTime, 0)
     }
 
     /**
      * 设置最大录制时间
      */
     fun setMaxTime(maxTime: Int) {
-        mRecorder?.setMaxTime(maxTime*1000)
+        mRecorder?.setMaxTime(maxTime * 1000)
     }
+
     /**
      * 录音异常
      */
@@ -146,7 +159,7 @@ class RecordUtils(private val callBack: RecordCallBack?
     }
 
     override fun onRecording(time: Long, volume: Int) {
-        callBack?.onRecording(startTime + (time/1000).toInt(),volume)
+        callBack?.onRecording(startTime + (time / 1000).toInt(), volume)
     }
 
     override fun onPause() {
@@ -154,15 +167,15 @@ class RecordUtils(private val callBack: RecordCallBack?
     }
 
     override fun onRemind(mDuration: Long) {
-        ArmsUtils.makeText("已录制" +  mDuration/60000 + "分钟，本条录音还可以继续录制10秒")
+        ArmsUtils.makeText("已录制" + mDuration / 60000 + "分钟，本条录音还可以继续录制10秒")
     }
 
     override fun onSuccess(file: String, time: Long) {
-        callBack?.onSuccess(file, (time/1000).toInt())
+        callBack?.onSuccess(file, (time / 1000).toInt())
     }
 
     override fun setMaxProgress(time: Long) {
-        callBack?.onMaxProgress((time/1000).toInt())
+        callBack?.onMaxProgress((time / 1000).toInt())
     }
 
     override fun onError(e: Exception) {
@@ -171,7 +184,7 @@ class RecordUtils(private val callBack: RecordCallBack?
     }
 
     override fun autoComplete(file: String, time: Long) {
-        callBack?.autoComplete(file,  (time/1000).toInt())
+        callBack?.autoComplete(file, (time / 1000).toInt())
     }
 
 

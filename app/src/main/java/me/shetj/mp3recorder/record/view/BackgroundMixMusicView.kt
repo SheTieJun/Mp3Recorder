@@ -19,6 +19,8 @@ import me.shetj.mp3recorder.record.utils.MixRecordUtils
 import me.shetj.mp3recorder.record.utils.Util
 import me.shetj.player.PlayerListener
 import me.shetj.recorder.mixRecorder.PlayBackMusic
+import me.shetj.recorder.util.OnVolumeChange
+import me.shetj.recorder.util.VolumeConfig
 
 /**
  * 背景音乐控制
@@ -44,7 +46,9 @@ class BackgroundMixMusicView @JvmOverloads constructor(context: Context,
     private var addMusicView: LinearLayout  ?=null//添加背景音乐的空间
     private var music: Music?=null //背景文件相关
     private var musicDialog: MusicListBottomSheetDialog?=null//选择背景音乐
-    private val max = 600f
+    private val max :Float by lazy { VolumeConfig.getInstance(context).getMaxVoice().toFloat() }
+    private val volumeConfig:VolumeConfig by lazy { VolumeConfig.getInstance(context) }
+
     init {
         //设置view
         val view = LayoutInflater.from(context).inflate(R.layout.bg_music_view, null)
@@ -59,6 +63,11 @@ class BackgroundMixMusicView @JvmOverloads constructor(context: Context,
         mIvChange.setOnClickListener(this)
     }
 
+    private val onVolumeChange: OnVolumeChange = object : (Float) -> Unit(){
+        override fun invoke(p1: Float) {
+            mSeekBar.progress = (p1*max).toInt()
+        }
+    }
 
     fun removeMusic() {
         if (visibility == View.VISIBLE){
@@ -89,22 +98,34 @@ class BackgroundMixMusicView @JvmOverloads constructor(context: Context,
         audioPlayer = recordUtils?.getBgPlayer()
         recordUtils?.setBackgroundPlayerListener(this)
         audioPlayer?.setLoop(true)
+        mSeekBar.max = volumeConfig.getMaxVoice()
+        mSeekBar.progress = volumeConfig.getCurVolume()
+        showVolumeString(mSeekBar, recordUtils)
         mSeekBar.setOnSeekBarChangeListener(object :SeekBar.OnSeekBarChangeListener{
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                mTvVoice.text = "$progress%"
-                recordUtils?.setVolume(progress/max)
+                seekBar?.let {
+                    showVolumeString(it, recordUtils)
+                }
             }
             override fun onStartTrackingTouch(seekBar: SeekBar?) {
             }
             override fun onStopTrackingTouch(seekBar: SeekBar?) {
                 seekBar?.let {
-                    recordUtils?.setVolume(it.progress/max)
-                    mTvVoice.text = "${it.progress}%"
+                    showVolumeString(it, recordUtils)
                 }
             }
         })
-        recordUtils?.setVolume(30/max)
     }
+
+    private fun showVolumeString(
+        it: SeekBar,
+        recordUtils: MixRecordUtils?
+    ) {
+        val fl = it.progress / max
+        recordUtils?.setVolume(fl)
+        mTvVoice.text = "${(fl * 100).toInt()}%"
+    }
+
     /**
      * 第2步设置背景音乐选择
      */
@@ -137,6 +158,15 @@ class BackgroundMixMusicView @JvmOverloads constructor(context: Context,
     }
 
 
+    override fun onAttachedToWindow() {
+        super.onAttachedToWindow()
+        VolumeConfig.getInstance(context).addChangeListener(onVolumeChange)
+    }
+
+    override fun onDetachedFromWindow() {
+        super.onDetachedFromWindow()
+        VolumeConfig.getInstance(context).removeChangeListener(onVolumeChange)
+    }
 
 
 

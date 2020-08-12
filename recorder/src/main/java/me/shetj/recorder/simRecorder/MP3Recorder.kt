@@ -14,6 +14,7 @@ import me.shetj.player.PermissionListener
 import me.shetj.player.PlayerListener
 import me.shetj.player.RecordListener
 import me.shetj.recorder.util.LameUtils
+import me.shetj.recorder.util.VolumeConfig
 import java.io.File
 import java.io.IOException
 import java.util.*
@@ -52,6 +53,11 @@ class MP3Recorder : BaseRecorder {
 
     private var mPCMBuffer: ShortArray? = null
     private var mSendError: Boolean = false
+
+    /**
+     * 音量变化监听
+     */
+    private var volumeConfig: VolumeConfig? =null
 
     //缓冲数量
     private var mBufferSize: Int = 0
@@ -176,8 +182,14 @@ class MP3Recorder : BaseRecorder {
     override val realVolume: Int
         get() = mVolume
 
-    override fun setContextToPlugConfigs(context: Context): BaseRecorder {
+    override fun setContextToPlugConfig(context: Context): BaseRecorder {
         println("MP3Recorder no use it")
+        return this
+    }
+
+    override fun setContextToVolumeConfig(context: Context): BaseRecorder {
+        volumeConfig = VolumeConfig.getInstance(context.applicationContext)
+        volumeConfig?.registerReceiver()
         return this
     }
 
@@ -430,14 +442,18 @@ class MP3Recorder : BaseRecorder {
      * 设置背景音乐的大小
      */
     override fun setVolume(volume: Float): MP3Recorder {
-        val volume1 = when {
-            volume < 0 -> 0f
-            volume > 1 -> 1f
-            else -> volume
+        if (volumeConfig == null) {
+            val volume1 = when {
+                volume < 0 -> 0f
+                volume > 1 -> 1f
+                else -> volume
+            }
+            val bgPlayer = bgPlayer
+            bgPlayer.setVolume(volume1)
+            this.bgLevel = volume1
+        }else{
+            volumeConfig?.setAudioVoiceF(volume)
         }
-        val bgPlayer = bgPlayer
-        bgPlayer.setVolume(volume1)
-        this.bgLevel = volume1
         return this
     }
 
@@ -470,7 +486,12 @@ class MP3Recorder : BaseRecorder {
 
 
     override fun onDestroy() {
+        isRecording = false
+        isPause = false
+        state = RecordState.STOPPED
+        mRecordFile = null
         bgPlayer.stopPlay()
+        volumeConfig?.unregisterReceiver()
     }
 
 

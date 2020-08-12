@@ -4,14 +4,13 @@ import android.os.Bundle
 import android.widget.SeekBar
 import androidx.appcompat.app.AppCompatActivity
 import com.jakewharton.rxbinding3.view.clicks
-import io.reactivex.android.schedulers.AndroidSchedulers
 import kotlinx.android.synthetic.main.activity_mix_record.*
 import me.shetj.base.kt.showToast
 import me.shetj.base.tools.app.ArmsUtils
 import me.shetj.base.tools.file.SDCardUtils
 import me.shetj.kt.setPlayListener
 import me.shetj.kt.setRecordListener
-import me.shetj.kt.simpleRecorderBuilder
+import me.shetj.kt.simRecorderNoContext
 import me.shetj.mp3recorder.R
 import me.shetj.mp3recorder.record.utils.LocalMusicUtils
 import me.shetj.player.AudioPlayer
@@ -151,7 +150,7 @@ class MixRecordActivity : AppCompatActivity() {
         val  filePath = SDCardUtils.getPath("record") + "/" + System.currentTimeMillis() +  "bg.mp3"
         if (mixRecorder == null) {
 //            mixRecorder = simpleRecorderBuilder(BaseRecorder.RecorderType.MIX,BaseRecorder.AudioSource.VOICE_COMMUNICATION)
-            mixRecorder = simpleRecorderBuilder(BaseRecorder.RecorderType.MIX,
+            mixRecorder = simRecorderNoContext(BaseRecorder.RecorderType.MIX,
                 BaseRecorder.AudioSource.MIC,
                 channel = BaseRecorder.AudioChannel.STEREO)
                 .setBackgroundMusic(musicUrl!!)//设置默认的背景音乐

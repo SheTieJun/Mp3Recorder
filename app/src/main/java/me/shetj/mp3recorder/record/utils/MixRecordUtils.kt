@@ -3,7 +3,8 @@ package me.shetj.mp3recorder.record.utils
 import android.text.TextUtils
 import me.shetj.base.tools.app.Utils
 import me.shetj.base.tools.file.SDCardUtils
-import me.shetj.kt.simpleRecorderBuilder
+import me.shetj.kt.simRecorder
+import me.shetj.kt.simRecorderNoContext
 import me.shetj.player.PermissionListener
 import me.shetj.player.PlayerListener
 import me.shetj.player.RecordListener
@@ -16,20 +17,22 @@ import me.shetj.recorder.util.FileUtils
 /**
  * 录音工具类
  */
-class MixRecordUtils(private val callBack: RecordCallBack?
+class MixRecordUtils(
+    private val callBack: RecordCallBack?
 ) : RecordListener, PermissionListener {
     val isRecording: Boolean
         get() {
-            return if (mRecorder !=null) {
+            return if (mRecorder != null) {
                 mRecorder?.isRecording!! && !mRecorder?.isPause!!
-            }else{
+            } else {
                 false
             }
         }
+
     fun hasRecord(): Boolean {
-        return  if (mRecorder !=null) {
-            mRecorder?.duration!!> 0 && mRecorder!!.state != RecordState.STOPPED
-        }else{
+        return if (mRecorder != null) {
+            mRecorder?.duration!! > 0 && mRecorder!!.state != RecordState.STOPPED
+        } else {
             false
         }
     }
@@ -43,20 +46,21 @@ class MixRecordUtils(private val callBack: RecordCallBack?
     private var saveFile = ""
 
     @JvmOverloads
-    fun startOrPause(file :String = "") {
+    fun startOrPause(file: String = "") {
         if (mRecorder == null) {
             initRecorder()
         }
         when (mRecorder?.state) {
             RecordState.STOPPED -> {
                 if (TextUtils.isEmpty(file)) {
-                    val mRecordFile = SDCardUtils.getPath("record") + "/" + System.currentTimeMillis() + ".mp3"
+                    val mRecordFile =
+                        SDCardUtils.getPath("record") + "/" + System.currentTimeMillis() + ".mp3"
                     this.saveFile = mRecordFile
-                }else{
+                } else {
                     this.saveFile = file
                 }
                 mRecorder?.onReset()
-                mRecorder?.setOutputFile(saveFile,!TextUtils.isEmpty(file))
+                mRecorder?.setOutputFile(saveFile, !TextUtils.isEmpty(file))
                 mRecorder?.start()
             }
             RecordState.PAUSED -> {
@@ -73,21 +77,22 @@ class MixRecordUtils(private val callBack: RecordCallBack?
      * MIC 麦克风- 因为有噪音问题
      */
     private fun initRecorder() {
-        mRecorder =  simpleRecorderBuilder(
+        mRecorder = simRecorder(
+            Utils.app,
             mMaxTime = 3600 * 1000,
             mp3Quality = 1,
             isDebug = true,
             channel = BaseRecorder.AudioChannel.STEREO,
             recordListener = this,
-            permissionListener = this)
-        mRecorder!!.setContextToPlugConfigs(Utils.app)
+            permissionListener = this
+        )
     }
 
-    fun isPause():Boolean{
-        return  mRecorder?.state == RecordState.PAUSED
+    fun isPause(): Boolean {
+        return mRecorder?.state == RecordState.PAUSED
     }
 
-    fun setBackgroundPlayerListener(listener : PlayerListener) {
+    fun setBackgroundPlayerListener(listener: PlayerListener) {
         mRecorder?.setBackgroundMusicListener(listener)
     }
 
@@ -95,9 +100,10 @@ class MixRecordUtils(private val callBack: RecordCallBack?
         return (mRecorder!! as MixRecorder).bgPlayer
     }
 
-    fun  pause(){
+    fun pause() {
         mRecorder?.onPause()
     }
+
     fun clear() {
         mRecorder?.onDestroy()
     }
@@ -105,6 +111,7 @@ class MixRecordUtils(private val callBack: RecordCallBack?
     fun reset() {
         mRecorder?.onReset()
     }
+
     /**
      * 设置开始录制时间
      * @param startTime 已经录制的时间
@@ -112,7 +119,7 @@ class MixRecordUtils(private val callBack: RecordCallBack?
     fun setTime(startTime: Long) {
         this.startTime = startTime
         setMaxTime((3600000 - startTime).toInt())
-        callBack?.onRecording((startTime/1000).toInt(),0)
+        callBack?.onRecording((startTime / 1000).toInt(), 0)
     }
 
     /**
@@ -121,6 +128,7 @@ class MixRecordUtils(private val callBack: RecordCallBack?
     fun setMaxTime(maxTime: Int) {
         mRecorder?.setMaxTime(maxTime)
     }
+
     /**
      * 录音异常
      */
@@ -154,7 +162,7 @@ class MixRecordUtils(private val callBack: RecordCallBack?
     }
 
     override fun onRecording(time: Long, volume: Int) {
-        callBack?.onRecording(((startTime + time)/1000).toInt(),volume)
+        callBack?.onRecording(((startTime + time) / 1000).toInt(), volume)
     }
 
     override fun onPause() {
@@ -166,7 +174,7 @@ class MixRecordUtils(private val callBack: RecordCallBack?
     }
 
     override fun onSuccess(file: String, time: Long) {
-        callBack?.onSuccess(file, (time/1000).toInt())
+        callBack?.onSuccess(file, (time / 1000).toInt())
     }
 
     override fun setMaxProgress(time: Long) {
@@ -179,7 +187,7 @@ class MixRecordUtils(private val callBack: RecordCallBack?
     }
 
     override fun autoComplete(file: String, time: Long) {
-        callBack?.autoComplete(file,  (time/1000).toInt())
+        callBack?.autoComplete(file, (time / 1000).toInt())
     }
 
     fun setVolume(volume: Float) {

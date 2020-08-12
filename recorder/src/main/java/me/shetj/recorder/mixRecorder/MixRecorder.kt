@@ -22,6 +22,7 @@ import me.shetj.recorder.simRecorder.PCMFormat
 import me.shetj.recorder.simRecorder.RecordState
 import me.shetj.recorder.util.LameUtils
 import me.shetj.recorder.util.PlugConfigs
+import me.shetj.recorder.util.VolumeConfig
 import java.io.File
 import java.io.IOException
 
@@ -61,12 +62,13 @@ class MixRecorder : BaseRecorder {
 
     //region 背景音乐相关
     private var backgroundMusicIsPlay: Boolean = false //记录是否暂停
-    private var bgLevel = 0.30f//背景音乐
-    private var plugConfigs:PlugConfigs ? =null
+    private var bgLevel:Float = 0.30f//背景音乐
+    private var plugConfigs: PlugConfigs? = null
+    private var volumeConfig: VolumeConfig? = null
     //endregion 背景音乐相关
 
     //region 其他
-    private  var mSendError: Boolean = false
+    private var mSendError: Boolean = false
 
     //最大时间
     private var mMaxTime: Long = 3600000
@@ -172,9 +174,15 @@ class MixRecorder : BaseRecorder {
     override val realVolume: Int
         get() = mVolume
 
-    override fun setContextToPlugConfigs(context: Context): MixRecorder {
+    override fun setContextToPlugConfig(context: Context): MixRecorder {
         plugConfigs = PlugConfigs.getInstance(context.applicationContext)
         bgPlayer.plugConfigs = plugConfigs
+        return this
+    }
+
+    override fun setContextToVolumeConfig(context: Context): BaseRecorder {
+        volumeConfig = VolumeConfig.getInstance(context.applicationContext)
+        volumeConfig!!.registerReceiver()
         return this
     }
 
@@ -278,7 +286,7 @@ class MixRecorder : BaseRecorder {
                 when (is2Channel) {
                     true -> AudioFormat.CHANNEL_OUT_STEREO
                     else -> AudioFormat.CHANNEL_OUT_MONO
-                },plugConfigs
+                }, plugConfigs
             )
         }
     }
@@ -373,9 +381,13 @@ class MixRecorder : BaseRecorder {
             volume > 1 -> 1f
             else -> volume
         }
-        val bgPlayer = bgPlayer
-        bgPlayer.setVolume(volume1)
-        this.bgLevel = volume1
+        if (volumeConfig == null) {
+            val bgPlayer = bgPlayer
+            bgPlayer.setVolume(volume1)
+            this.bgLevel = volume1
+        }else{
+            volumeConfig!!.setAudioVoiceF(volume)
+        }
         return this
     }
 
@@ -384,7 +396,7 @@ class MixRecorder : BaseRecorder {
      */
     override fun start() {
         plugConfigs?.registerReceiver()
-        if (mRecordFile ==null){
+        if (mRecordFile == null) {
             logInfo("mRecordFile is Null")
             return
         }
@@ -438,7 +450,7 @@ class MixRecorder : BaseRecorder {
                                 buffer,
                                 wax,
                                 mPlayBackMusic!!.getBackGroundBytes(),
-                                bgLevel
+                                volumeConfig?.currVolumeF?:bgLevel
                             )
                             calculateRealVolume(buffer)
                         } else {
@@ -458,7 +470,7 @@ class MixRecorder : BaseRecorder {
                     mAudioRecord = null
                 } catch (ex: Exception) {
                     ex.printStackTrace()
-                }finally {
+                } finally {
                     handler.sendEmptyMessage(HANDLER_COMPLETE)
                 }
 
@@ -551,8 +563,13 @@ class MixRecorder : BaseRecorder {
 
 
     override fun onDestroy() {
+        isRecording = false
+        isPause = false
+        mRecordFile = null
         bgPlayer.release()
         release()
+        volumeConfig?.unregisterReceiver()
+        plugConfigs?.unregisterReceiver()
     }
     //endregion 公开方法！
 
