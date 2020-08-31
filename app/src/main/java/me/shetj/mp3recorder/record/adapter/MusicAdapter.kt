@@ -13,15 +13,15 @@ class MusicAdapter(date: ArrayList<Music>) :BaseQuickAdapter<Music, BaseViewHold
 
     private var playPosition = -1 //播放的谁
 
-    override fun convert(helper: BaseViewHolder, item: Music) {
+    override fun convert(holder: BaseViewHolder, item: Music) {
         item.apply {
-            helper.setText(R.id.tv_name,name)
+            holder.setText(R.id.tv_name,name)
                 .setText(R.id.tv_time, Util.formatSeconds3((duration/1000).toInt()))
-                .setImageResource(R.id.iv_play,when(helper.adapterPosition == playPosition){
+                .setImageResource(R.id.iv_play,when(holder.layoutPosition == playPosition){
                     false -> R.drawable.icon_record_bg_music
                     true ->  R.drawable.icon_record_bg_music_pause
                 })
-            helper.getView<View>(R.id.checkbox).isSelected = helper.adapterPosition == curPosition
+            holder.getView<View>(R.id.checkbox).isSelected = holder.layoutPosition == curPosition
             addChildClickViewIds(R.id.iv_play)
         }
     }

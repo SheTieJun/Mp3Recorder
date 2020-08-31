@@ -3,7 +3,7 @@ package me.shetj.mp3recorder.record
 import android.app.Application
 import android.content.Context
 import androidx.multidex.MultiDex
-import me.shetj.base.s
+import me.shetj.base.S
 import me.shetj.mp3recorder.BuildConfig
 
 /**
@@ -18,7 +18,7 @@ import me.shetj.mp3recorder.BuildConfig
 class App : Application() {
     override fun onCreate() {
         super.onCreate()
-        s.init(this, BuildConfig.DEBUG )
+        S.init(this, BuildConfig.DEBUG )
     }
 
     override fun attachBaseContext(base: Context?) {

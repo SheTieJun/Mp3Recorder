@@ -8,15 +8,19 @@ import com.google.android.material.bottomsheet.BottomSheetDialog
 import me.shetj.mp3recorder.R
 import me.shetj.mp3recorder.record.bean.Record
 import me.shetj.mp3recorder.record.bean.RecordDbUtils
-import me.shetj.mp3recorder.record.utils.Callback
-import me.shetj.mp3recorder.record.utils.MainThreadEvent
-import org.simple.eventbus.EventBus
+import me.shetj.mp3recorder.record.utils.EventCallback
 
 
 /**
  * 录音更多菜单
  */
-class RecordBottomSheetDialog(private val context: Context, position: Int, private val record: Record, private val baseViewHolder: BaseViewHolder, private val callback: Callback) : View.OnClickListener {
+class RecordBottomSheetDialog(
+    private val context: Context,
+    position: Int,
+    private val record: Record,
+    private val baseViewHolder: BaseViewHolder,
+    private val callback: EventCallback
+) : View.OnClickListener {
     private val easyBottomSheetDialog: BottomSheetDialog?
     private var position = -1
 
@@ -35,7 +39,8 @@ class RecordBottomSheetDialog(private val context: Context, position: Int, priva
         rootView.findViewById<View>(R.id.tv_cancel).setOnClickListener(this)
 
         //对于时间已经大于60 分钟的 不显示继续录制
-        rootView.findViewById<View>(R.id.tv_record).visibility = if (record.audioLength > 3599) View.GONE else View.VISIBLE
+        rootView.findViewById<View>(R.id.tv_record).visibility =
+            if (record.audioLength > 3599) View.GONE else View.VISIBLE
         return bottomSheetDialog
     }
 

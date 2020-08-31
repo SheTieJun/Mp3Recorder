@@ -1,13 +1,12 @@
 package me.shetj.mp3recorder.record
 
 import android.os.Bundle
-import android.widget.SeekBar
 import androidx.appcompat.app.AppCompatActivity
-import com.jakewharton.rxbinding3.view.clicks
+import com.jakewharton.rxbinding4.view.clicks
 import kotlinx.android.synthetic.main.activity_mix_record.*
-import me.shetj.base.kt.showToast
+import me.shetj.base.ktx.showToast
 import me.shetj.base.tools.app.ArmsUtils
-import me.shetj.base.tools.file.SDCardUtils
+import me.shetj.base.tools.file.EnvironmentStorage
 import me.shetj.kt.setPlayListener
 import me.shetj.kt.setRecordListener
 import me.shetj.kt.simRecorderNoContext
@@ -134,7 +133,7 @@ class MixRecordActivity : AppCompatActivity() {
     }
 
     private fun mixRecord() {
-        val  filePath = SDCardUtils.getPath("record") + "/" + System.currentTimeMillis() +  "bg.mp3"
+        val  filePath = EnvironmentStorage.getPath(packagePath = "record") + "/" + System.currentTimeMillis() +  "bg.mp3"
         if (mixRecorder == null) {
 //            mixRecorder = simpleRecorderBuilder(BaseRecorder.RecorderType.MIX,BaseRecorder.AudioSource.VOICE_COMMUNICATION)
             mixRecorder = simRecorderNoContext(BaseRecorder.RecorderType.MIX,

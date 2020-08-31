@@ -6,7 +6,7 @@ import android.view.View
 import androidx.recyclerview.widget.RecyclerView
 import com.chad.library.adapter.base.listener.OnItemClickListener
 import com.google.android.material.bottomsheet.BottomSheetDialog
-import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import me.shetj.mp3recorder.R
 import me.shetj.mp3recorder.record.adapter.MusicAdapter
 import me.shetj.mp3recorder.record.utils.LocalMusicUtils
@@ -78,7 +78,7 @@ class MusicListBottomSheetDialog (context: Context) : View.OnClickListener {
         LocalMusicUtils.loadFileData(context)
                 ?.observeOn(AndroidSchedulers.mainThread())
                 ?.subscribe ({
-            musicAdapter.setNewData(it.toMutableList())
+            musicAdapter.setNewInstance(it.toMutableList())
         },{ Timber.e(it) })
         musicAdapter.setOnItemClickListener { adapter, view, position ->
             musicAdapter.setSelectPosition(position)

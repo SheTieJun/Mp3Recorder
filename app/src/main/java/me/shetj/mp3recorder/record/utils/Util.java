@@ -14,9 +14,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 
-import io.reactivex.Flowable;
-import io.reactivex.schedulers.Schedulers;
-import me.shetj.base.tools.file.SDCardUtils;
+import io.reactivex.rxjava3.core.Flowable;
+import io.reactivex.rxjava3.schedulers.Schedulers;
+import me.shetj.base.tools.file.EnvironmentStorage;
+
 
 public class Util {
 
@@ -92,7 +93,7 @@ public class Util {
 
 			File file = new File(path);
 			File file1 = new File(path1);
-			String hebing = SDCardUtils.getPath("record")+"/"+ System.currentTimeMillis()+".mp3";
+			String hebing = EnvironmentStorage.getPath("record")+"/"+ System.currentTimeMillis()+".mp3";
 			File file2 = new File(hebing);
 			FileInputStream in = new FileInputStream(file);
 			FileOutputStream out = new FileOutputStream(file2);

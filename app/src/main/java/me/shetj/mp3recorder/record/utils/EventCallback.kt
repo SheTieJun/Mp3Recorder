@@ -1,6 +1,6 @@
 package me.shetj.mp3recorder.record.utils
 
 
-interface Callback {
+interface EventCallback {
     fun onEvent(message: Int)
 }

@@ -17,32 +17,32 @@ import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import com.chad.library.adapter.base.listener.OnItemClickListener
-import io.reactivex.BackpressureStrategy
-import io.reactivex.Flowable
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.schedulers.Schedulers
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import io.reactivex.rxjava3.core.BackpressureStrategy
+import io.reactivex.rxjava3.core.Flowable
+import io.reactivex.rxjava3.schedulers.Schedulers
 import me.shetj.base.tools.app.ArmsUtils
 import me.shetj.mp3recorder.R
 import me.shetj.mp3recorder.record.RecordService
 import me.shetj.mp3recorder.record.bean.Music
 import me.shetj.mp3recorder.record.bean.Record
 import me.shetj.mp3recorder.record.bean.RecordDbUtils
-import me.shetj.mp3recorder.record.utils.Callback
+import me.shetj.mp3recorder.record.utils.EventCallback
 import me.shetj.mp3recorder.record.utils.MainThreadEvent
 import me.shetj.mp3recorder.record.utils.RecordCallBack
 import me.shetj.mp3recorder.record.utils.Util
 import me.shetj.mp3recorder.record.view.BackgroundMusicView
 import me.shetj.mp3recorder.record.view.MusicListBottomSheetDialog
-import org.simple.eventbus.EventBus
-import org.simple.eventbus.Subscriber
-import org.simple.eventbus.ThreadMode
+import org.greenrobot.eventbus.EventBus
+import org.greenrobot.eventbus.Subscribe
+import org.greenrobot.eventbus.ThreadMode
 import timber.log.Timber
 import java.io.File
 
 /**
  * 录制声音界面
  */
-open class RecordPage(private val context: AppCompatActivity, mRoot: ViewGroup, private val callback: Callback) : View.OnClickListener {
+open class RecordPage(private val context: AppCompatActivity, mRoot: ViewGroup, private val callback: EventCallback) : View.OnClickListener {
 
     private val root: RelativeLayout = LayoutInflater.from(context).inflate(R.layout.page_record, null) as RelativeLayout
     private var mEditInfo: EditText? = null
@@ -111,7 +111,7 @@ open class RecordPage(private val context: AppCompatActivity, mRoot: ViewGroup, 
         addMusic!!.setOnClickListener(this)
     }
 
-    @Subscriber(mode = ThreadMode.MAIN)
+    @Subscribe(threadMode = ThreadMode.MAIN)
     fun refreshData(event: MainThreadEvent<*>) {
         when (event.type) {
             MainThreadEvent.REMOVE_MUSIC -> {

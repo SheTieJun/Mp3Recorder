@@ -2,11 +2,10 @@ package me.shetj.mp3recorder.record.utils
 
 import me.shetj.base.tools.app.ArmsUtils
 import me.shetj.base.tools.app.Utils
+import me.shetj.base.tools.file.EnvironmentStorage
 import me.shetj.base.tools.file.FileUtils
-import me.shetj.base.tools.file.SDCardUtils
 import me.shetj.base.tools.json.EmptyUtils
 import me.shetj.kt.simRecorder
-import me.shetj.kt.simRecorderBuilder
 import me.shetj.player.AudioPlayer
 import me.shetj.player.PermissionListener
 import me.shetj.player.PlayerListener
@@ -54,7 +53,7 @@ class RecordUtils(
             RecordState.STOPPED -> {
                 if (EmptyUtils.isEmpty(file)) {
                     val mRecordFile =
-                        SDCardUtils.getPath("record") + "/" + System.currentTimeMillis() + ".mp3"
+                        EnvironmentStorage.getPath(packagePath = "record") + "/" + System.currentTimeMillis() + ".mp3"
                     this.saveFile = mRecordFile
                 } else {
                     this.saveFile = file

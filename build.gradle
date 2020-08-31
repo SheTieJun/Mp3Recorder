@@ -1,8 +1,8 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 
 buildscript {
-    ext.kotlin_version = '1.3.72'
-    ext.base_kt_version = "eca8321c52"
+    ext.kotlin_version = '1.4.0'
+    ext.base_kt_version = "a8a0401c72"
     ext.SimXutilsDb =     "77f2bade32"
     repositories {
         google()

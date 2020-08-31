@@ -2,10 +2,10 @@ package me.shetj.mp3recorder.record.utils
 
 import android.content.Context
 import android.provider.MediaStore
-import io.reactivex.BackpressureStrategy
-import io.reactivex.Flowable
-import io.reactivex.FlowableOnSubscribe
-import io.reactivex.schedulers.Schedulers
+import io.reactivex.rxjava3.core.BackpressureStrategy
+import io.reactivex.rxjava3.core.Flowable
+import io.reactivex.rxjava3.core.FlowableOnSubscribe
+import io.reactivex.rxjava3.schedulers.Schedulers
 import me.shetj.mp3recorder.record.bean.Music
 import java.util.*
 
@@ -28,7 +28,7 @@ object  LocalMusicUtils {
             if (cursor.moveToFirst()) {
                 do {
                     val title = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.TITLE))
-                    val size = cursor.getLong(cursor.getColumnIndex(MediaStore.Audio.Media.SIZE))
+//                    val size = cursor.getLong(cursor.getColumnIndex(MediaStore.Audio.Media.SIZE))
                     val url = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.DATA))
                     val duration = cursor.getLong(cursor.getColumnIndex(MediaStore.Audio.Media.DURATION))
                     val album = cursor.getString(cursor.getColumnIndex(MediaStore.Audio.Media.ALBUM))

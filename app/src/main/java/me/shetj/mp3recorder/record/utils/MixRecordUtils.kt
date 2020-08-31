@@ -2,9 +2,8 @@ package me.shetj.mp3recorder.record.utils
 
 import android.text.TextUtils
 import me.shetj.base.tools.app.Utils
-import me.shetj.base.tools.file.SDCardUtils
+import me.shetj.base.tools.file.EnvironmentStorage
 import me.shetj.kt.simRecorder
-import me.shetj.kt.simRecorderNoContext
 import me.shetj.player.PermissionListener
 import me.shetj.player.PlayerListener
 import me.shetj.player.RecordListener
@@ -54,7 +53,7 @@ class MixRecordUtils(
             RecordState.STOPPED -> {
                 if (TextUtils.isEmpty(file)) {
                     val mRecordFile =
-                        SDCardUtils.getPath("record") + "/" + System.currentTimeMillis() + ".mp3"
+                        EnvironmentStorage.getPath(packagePath = "record") + "/" + System.currentTimeMillis() + ".mp3"
                     this.saveFile = mRecordFile
                 } else {
                     this.saveFile = file

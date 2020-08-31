@@ -1,6 +1,5 @@
 package me.shetj.mp3recorder.record.activity.sim
 
-import android.annotation.SuppressLint
 import android.app.Activity
 import android.transition.Scene
 import android.transition.TransitionManager
@@ -13,19 +12,19 @@ import android.widget.RelativeLayout
 import androidx.recyclerview.widget.RecyclerView
 import com.chad.library.adapter.base.BaseQuickAdapter
 import com.chad.library.adapter.base.viewholder.BaseViewHolder
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.schedulers.Schedulers
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import io.reactivex.rxjava3.schedulers.Schedulers
 import me.shetj.base.tools.app.ArmsUtils
 import me.shetj.mp3recorder.R
 import me.shetj.mp3recorder.record.adapter.RecordAdapter
 import me.shetj.mp3recorder.record.bean.Record
 import me.shetj.mp3recorder.record.bean.RecordDbUtils
-import me.shetj.mp3recorder.record.utils.Callback
+import me.shetj.mp3recorder.record.utils.EventCallback
 import me.shetj.mp3recorder.record.utils.MainThreadEvent
 import me.shetj.mp3recorder.record.view.RecordBottomSheetDialog
-import org.simple.eventbus.EventBus
-import org.simple.eventbus.Subscriber
-import org.simple.eventbus.ThreadMode
+import org.greenrobot.eventbus.EventBus
+import org.greenrobot.eventbus.Subscribe
+import org.greenrobot.eventbus.ThreadMode
 import java.util.*
 
 /**
@@ -33,7 +32,7 @@ import java.util.*
 class MyRecordPage(
     private val context: Activity,
     mRoot: ViewGroup,
-    private var callback: Callback
+    private var callback: EventCallback
 ) {
 
     private var root: RelativeLayout? = null
@@ -65,7 +64,7 @@ class MyRecordPage(
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .doOnNext {
-                recordAdapter.setNewData(it.toMutableList())
+                recordAdapter.setNewInstance(it.toMutableList())
                 checkShow(it)
             }
             .subscribe()
@@ -150,7 +149,7 @@ class MyRecordPage(
     }
 
 
-    @Subscriber(mode = ThreadMode.MAIN)
+    @Subscribe(threadMode = ThreadMode.MAIN)
     fun refreshData(event: MainThreadEvent<*>) {
         when (event.type) {
             MainThreadEvent.RECORD_REFRESH_RECORD -> {
