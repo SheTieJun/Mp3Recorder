@@ -5,14 +5,14 @@ import me.shetj.base.tools.app.Utils
 import me.shetj.base.tools.file.EnvironmentStorage
 import me.shetj.base.tools.file.FileUtils
 import me.shetj.base.tools.json.EmptyUtils
-import me.shetj.kt.simRecorder
+import me.shetj.recorder.simRecorder
 import me.shetj.player.AudioPlayer
-import me.shetj.player.PermissionListener
+import me.shetj.recorder.core.PermissionListener
 import me.shetj.player.PlayerListener
-import me.shetj.player.RecordListener
-import me.shetj.recorder.simRecorder.BaseRecorder
-import me.shetj.recorder.simRecorder.MP3Recorder
-import me.shetj.recorder.simRecorder.RecordState
+import me.shetj.recorder.core.RecordListener
+import me.shetj.recorder.core.BaseRecorder
+import me.shetj.recorder.simRecorder.SimRecorder
+import me.shetj.recorder.core.RecordState
 import java.io.File
 
 class RecordUtils(
@@ -93,7 +93,7 @@ class RecordUtils(
     }
 
     fun getBgPlayer(): AudioPlayer {
-        return (mRecorder as MP3Recorder).bgPlayer
+        return (mRecorder as SimRecorder).bgPlayer
     }
 
     fun pause() {

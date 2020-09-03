@@ -3,15 +3,15 @@ package me.shetj.mp3recorder.record.utils
 import android.text.TextUtils
 import me.shetj.base.tools.app.Utils
 import me.shetj.base.tools.file.EnvironmentStorage
-import me.shetj.kt.simRecorder
-import me.shetj.player.PermissionListener
+import me.shetj.recorder.simRecorder
+import me.shetj.recorder.core.PermissionListener
 import me.shetj.player.PlayerListener
-import me.shetj.player.RecordListener
+import me.shetj.recorder.core.RecordListener
 import me.shetj.recorder.mixRecorder.MixRecorder
 import me.shetj.recorder.mixRecorder.PlayBackMusic
-import me.shetj.recorder.simRecorder.BaseRecorder
-import me.shetj.recorder.simRecorder.RecordState
-import me.shetj.recorder.util.FileUtils
+import me.shetj.recorder.core.BaseRecorder
+import me.shetj.recorder.core.RecordState
+import me.shetj.recorder.core.FileUtils
 
 /**
  * 录音工具类

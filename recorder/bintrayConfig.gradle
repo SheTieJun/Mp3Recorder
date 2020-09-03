@@ -1,0 +1,18 @@
+ext.bintrayConfig = [
+        libName : "recoder",
+        groupName : 'me.shetj.sdk',
+        versionName : '1.0.0',
+
+        siteUrl : 'https://github.com/SheTieJun/Mp3Recorder',
+        gitUrl : 'https://github.com/SheTieJun/Mp3Recorder.git',
+        issueUrl : 'https://github.com/SheTieJun/Mp3Recorder/issues',
+
+        developerId : 'shetiejun',
+        developerName : 'shetj',
+        developerEmail : 'tiejunshe@gmail.com',
+
+        pkgRepo : 'maven',
+        pkgIng : 'aar',
+        pkgDes : 'this is recoder core',
+        pkgUserOrg : 'shetiejun',
+]

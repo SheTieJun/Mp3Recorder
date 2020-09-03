@@ -155,6 +155,8 @@ dependencies {
 ### 5. 播放PCM文件：[AudioTrackManager](/doc/AudioTrackManager.MD)
 
 
+### old version
+[Recorder](https://github.com/SheTieJun/Mp3Recorder/tree/master_copy)
 
 如果感觉这个库帮助到了你，可以点右上角 "Star" 支持一下 谢谢！ 
 

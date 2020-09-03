@@ -19,8 +19,8 @@ import me.shetj.mp3recorder.record.utils.RecordUtils
 import me.shetj.mp3recorder.record.utils.Util
 import me.shetj.player.AudioPlayer
 import me.shetj.player.PlayerListener
-import me.shetj.recorder.util.OnVolumeChange
-import me.shetj.recorder.util.VolumeConfig
+import me.shetj.recorder.core.OnVolumeChange
+import me.shetj.recorder.core.VolumeConfig
 
 /**
  * 背景音乐控制

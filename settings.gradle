@@ -1,2 +1,6 @@
-include ':app', ':recorder'
 rootProject.name='Mp3Recorder'
+include ':recorder-sim'
+include ':recorder-mix'
+include ':recorder-core'
+include ':app'
+include ':recorder'

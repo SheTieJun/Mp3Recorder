@@ -19,8 +19,8 @@ import me.shetj.mp3recorder.record.utils.MixRecordUtils
 import me.shetj.mp3recorder.record.utils.Util
 import me.shetj.player.PlayerListener
 import me.shetj.recorder.mixRecorder.PlayBackMusic
-import me.shetj.recorder.util.OnVolumeChange
-import me.shetj.recorder.util.VolumeConfig
+import me.shetj.recorder.core.OnVolumeChange
+import me.shetj.recorder.core.VolumeConfig
 
 /**
  * 背景音乐控制
@@ -47,7 +47,7 @@ class BackgroundMixMusicView @JvmOverloads constructor(context: Context,
     private var music: Music?=null //背景文件相关
     private var musicDialog: MusicListBottomSheetDialog?=null//选择背景音乐
     private val max :Float by lazy { VolumeConfig.getInstance(context).getMaxVoice().toFloat() }
-    private val volumeConfig:VolumeConfig by lazy { VolumeConfig.getInstance(context) }
+    private val volumeConfig: VolumeConfig by lazy { VolumeConfig.getInstance(context) }
 
     init {
         //设置view

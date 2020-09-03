@@ -7,14 +7,14 @@ import kotlinx.android.synthetic.main.activity_mix_record.*
 import me.shetj.base.ktx.showToast
 import me.shetj.base.tools.app.ArmsUtils
 import me.shetj.base.tools.file.EnvironmentStorage
-import me.shetj.kt.setPlayListener
-import me.shetj.kt.setRecordListener
-import me.shetj.kt.simRecorderNoContext
+import me.shetj.recorder.setPlayListener
+import me.shetj.recorder.setRecordListener
+import me.shetj.recorder.simRecorderNoContext
 import me.shetj.mp3recorder.R
 import me.shetj.mp3recorder.record.utils.LocalMusicUtils
 import me.shetj.player.AudioPlayer
-import me.shetj.recorder.simRecorder.BaseRecorder
-import me.shetj.recorder.simRecorder.RecordState
+import me.shetj.recorder.core.BaseRecorder
+import me.shetj.recorder.core.RecordState
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
 
@@ -136,7 +136,8 @@ class MixRecordActivity : AppCompatActivity() {
         val  filePath = EnvironmentStorage.getPath(packagePath = "record") + "/" + System.currentTimeMillis() +  "bg.mp3"
         if (mixRecorder == null) {
 //            mixRecorder = simpleRecorderBuilder(BaseRecorder.RecorderType.MIX,BaseRecorder.AudioSource.VOICE_COMMUNICATION)
-            mixRecorder = simRecorderNoContext(BaseRecorder.RecorderType.MIX,
+            mixRecorder = simRecorderNoContext(
+                BaseRecorder.RecorderType.MIX,
                 BaseRecorder.AudioSource.MIC,
                 channel = BaseRecorder.AudioChannel.STEREO)
                 .setBackgroundMusic(musicUrl!!)//设置默认的背景音乐

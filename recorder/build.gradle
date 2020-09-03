@@ -14,24 +14,7 @@ android {
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles 'consumer-rules.pro'
-        externalNativeBuild {
-            cmake{
-                arguments   '-DANDROID_PLATFORM=android-19',
-                        '-DANDROID_TOOLCHAIN=clang',
-                        '-DANDROID_ARM_NEON=TRUE'
-                abiFilters  'armeabi-v7a', 'arm64-v8a', 'x86_64', 'x86'
-                cppFlags "-frtti -fexceptions"
-                cFlags "-DSTDC_HEADERS" //宏定义
-            }
-        }
     }
-
-    externalNativeBuild {
-        cmake {
-            path "src/main/java/CMakeLists.txt"  // 设置所要编写的c源码位置，以及编译后so文件的名字
-        }
-    }
-
 
     buildTypes {
         release {
@@ -45,8 +28,10 @@ android {
             jniLibs.srcDirs = ['libs']
         }
     }
-    ndkVersion = '21.1.6352462'
-
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
 }
 
 ////本地上传
@@ -62,4 +47,9 @@ android {
 
 dependencies {
     api fileTree(dir: 'libs', include: ['*.jar'])
+    api project(path: ':recorder-sim')
+    api project(path: ':recorder-mix')
 }
+
+apply from: 'bintrayConfig.gradle'
+apply from: '../bintray.gradle'
