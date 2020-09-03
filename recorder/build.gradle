@@ -2,6 +2,11 @@ apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: 'maven'
+
+apply plugin: 'com.github.dcendents.android-maven'
+
+group='com.github.SheTieJun'
+
 android {
     compileSdkVersion 29
 
@@ -47,8 +52,8 @@ android {
 
 dependencies {
     api fileTree(dir: 'libs', include: ['*.jar'])
-    api project(path: ':recorder-sim')
-    api project(path: ':recorder-mix')
+    api 'me.shetj.sdk:recorder-sim:0.0.1'
+    api 'me.shetj.sdk:recorder-mix:0.0.1'
 }
 
 apply from: 'bintrayConfig.gradle'

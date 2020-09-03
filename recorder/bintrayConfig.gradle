@@ -1,5 +1,5 @@
 ext.bintrayConfig = [
-        libName : "recoder",
+        libName : "recorder",
         groupName : 'me.shetj.sdk',
         versionName : '1.0.0',
 

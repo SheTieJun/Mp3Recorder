@@ -7,14 +7,14 @@ import kotlinx.android.synthetic.main.activity_mix_record.*
 import me.shetj.base.ktx.showToast
 import me.shetj.base.tools.app.ArmsUtils
 import me.shetj.base.tools.file.EnvironmentStorage
-import me.shetj.recorder.setPlayListener
-import me.shetj.recorder.setRecordListener
 import me.shetj.recorder.simRecorderNoContext
 import me.shetj.mp3recorder.R
 import me.shetj.mp3recorder.record.utils.LocalMusicUtils
 import me.shetj.player.AudioPlayer
 import me.shetj.recorder.core.BaseRecorder
 import me.shetj.recorder.core.RecordState
+import me.shetj.recorder.setPlayListener
+import me.shetj.recorder.setRecordListener
 import timber.log.Timber
 import java.util.concurrent.TimeUnit
 
@@ -141,7 +141,7 @@ class MixRecordActivity : AppCompatActivity() {
                 BaseRecorder.AudioSource.MIC,
                 channel = BaseRecorder.AudioChannel.STEREO)
                 .setBackgroundMusic(musicUrl!!)//设置默认的背景音乐
-                .setRecordListener(onRecording = { time, volume ->
+                .setRecordListener (  onRecording = { time, volume ->
                     Timber.i("time = $time  ,volume = $volume")
                 },onSuccess = { file, _ ->
                     "录制成功：$file".showToast()

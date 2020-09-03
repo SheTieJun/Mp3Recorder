@@ -1,6 +1,7 @@
 package me.shetj.recorder.simRecorder
 
 import me.shetj.recorder.core.BaseRecorder
+import me.shetj.recorder.core.BuildConfig
 import me.shetj.recorder.core.PermissionListener
 import me.shetj.recorder.core.RecordListener
 

@@ -7,6 +7,7 @@ import android.util.Log
 import java.nio.ByteBuffer
 import java.util.*
 
+@Suppress("DEPRECATION")
 class AudioDecoder {
 
     private val chunkPCMDataContainer = ArrayList<PCM>()//PCM数据块容器

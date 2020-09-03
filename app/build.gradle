@@ -70,7 +70,7 @@ dependencies {
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test:runner:1.3.0'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
-    implementation project(path: ':recorder')
+    implementation 'me.shetj.sdk:recorder:1.0.0'
 //    implementation 'me.shetj:record:1.2'
     implementation "com.github.SheTieJun:Base:$base_kt_version"
     def version = "2.3.0-alpha02"

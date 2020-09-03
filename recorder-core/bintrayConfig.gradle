@@ -1,7 +1,7 @@
 ext.bintrayConfig = [
         libName : "recorder-core",
         groupName : 'me.shetj.sdk',
-        versionName : '1.0.0',
+        versionName : '0.0.1',
 
         siteUrl : 'https://github.com/SheTieJun/Mp3Recorder',
         gitUrl : 'https://github.com/SheTieJun/Mp3Recorder.git',
