@@ -34,7 +34,7 @@ class SimRecorder : BaseRecorder {
 
     //======================Lame Default Settings=====================
     private var defaultLameMp3Quality = 3
-    private var defaultLameMp3BitRate = 128 //32 太低，96,128 比较合适  不要问为什么，产品说好
+    private var defaultLameMp3BitRate = 64 //32 太低，64 .96,128 比较合适  不要问为什么，产品说好
     private var defaultSamplingRate = 44100
     private var mAudioRecord: AudioRecord? = null
     private var mEncodeThread: DataEncodeThread? = null

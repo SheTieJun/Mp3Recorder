@@ -32,7 +32,7 @@ class MixRecorder : BaseRecorder {
     //region  Lame Default Setting （Lame的设置）
     private var defaultLameInChannel = 1 //声道数量
     private var defaultLameMp3Quality = 3 //音频质量，好像LAME已经不使用它了
-    private var defaultLameMp3BitRate = 128 //32 太低，96,128 比较合适
+    private var defaultLameMp3BitRate = 96 //32 太低，96,128 比较合适
     private var defaultSamplingRate = 44100
     private var is2Channel = false //默认是双声道
     private var defaultAudioSource = MediaRecorder.AudioSource.VOICE_COMMUNICATION

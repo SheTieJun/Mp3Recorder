@@ -13,7 +13,7 @@ typealias OnVolumeChange = Float.() -> Unit
 /**
  * 声音音量控制
  */
-class VolumeConfig(val context: Context, var currVolumeF: Float = 1f) {
+class VolumeConfig(private val context: Context, var currVolumeF: Float = 1f) {
 
     private val isRegister = AtomicBoolean(false)
     private val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager

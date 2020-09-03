@@ -7,12 +7,12 @@ import kotlinx.android.synthetic.main.activity_mix_record.*
 import me.shetj.base.ktx.showToast
 import me.shetj.base.tools.app.ArmsUtils
 import me.shetj.base.tools.file.EnvironmentStorage
-import me.shetj.recorder.simRecorderNoContext
 import me.shetj.mp3recorder.R
 import me.shetj.mp3recorder.record.utils.LocalMusicUtils
 import me.shetj.player.AudioPlayer
 import me.shetj.recorder.core.BaseRecorder
 import me.shetj.recorder.core.RecordState
+import me.shetj.recorder.mp3RecorderNoContext
 import me.shetj.recorder.setPlayListener
 import me.shetj.recorder.setRecordListener
 import timber.log.Timber
@@ -136,7 +136,7 @@ class MixRecordActivity : AppCompatActivity() {
         val  filePath = EnvironmentStorage.getPath(packagePath = "record") + "/" + System.currentTimeMillis() +  "bg.mp3"
         if (mixRecorder == null) {
 //            mixRecorder = simpleRecorderBuilder(BaseRecorder.RecorderType.MIX,BaseRecorder.AudioSource.VOICE_COMMUNICATION)
-            mixRecorder = simRecorderNoContext(
+            mixRecorder = mp3RecorderNoContext(
                 BaseRecorder.RecorderType.MIX,
                 BaseRecorder.AudioSource.MIC,
                 channel = BaseRecorder.AudioChannel.STEREO)

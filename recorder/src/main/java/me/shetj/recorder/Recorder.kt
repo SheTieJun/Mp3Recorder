@@ -5,11 +5,11 @@ import me.shetj.recorder.core.PermissionListener
 import me.shetj.recorder.core.RecordListener
 import me.shetj.recorder.core.BaseRecorder
 import me.shetj.recorder.mixRecorder.mixRecorder
-import me.shetj.recorder.simRecorder.simRecorderBuilder
+import me.shetj.recorder.simRecorder.simRecorder
 
 
 @JvmOverloads
-fun simRecorder(
+fun mp3Recorder(
     context: Context,
     simpleName: BaseRecorder.RecorderType = BaseRecorder.RecorderType.MIX,
     audioSource: BaseRecorder.AudioSource = BaseRecorder.AudioSource.MIC,
@@ -23,7 +23,7 @@ fun simRecorder(
     recordListener: RecordListener? = null,
     wax: Float = 1f
 ): BaseRecorder {
-   return simRecorderNoContext(
+   return mp3RecorderNoContext(
         simpleName,
         audioSource,
         isDebug,
@@ -44,7 +44,7 @@ fun simRecorder(
  * sim 不支持单双声道录制
  */
 @JvmOverloads
-fun simRecorderNoContext(
+fun mp3RecorderNoContext(
     simpleName: BaseRecorder.RecorderType = BaseRecorder.RecorderType.MIX,
     audioSource: BaseRecorder.AudioSource = BaseRecorder.AudioSource.MIC,
     isDebug: Boolean = BuildConfig.DEBUG,
@@ -72,7 +72,7 @@ fun simRecorderNoContext(
                 wax = wax
             )
         BaseRecorder.RecorderType.SIM ->
-            simRecorderBuilder(
+             simRecorder(
                 audioSource = audioSource,
                 isDebug = isDebug,
                 mMaxTime = mMaxTime,

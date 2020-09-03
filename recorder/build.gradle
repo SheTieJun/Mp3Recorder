@@ -39,21 +39,10 @@ android {
     }
 }
 
-////本地上传
-//uploadArchives{
-//    repositories.mavenDeployer{
-//        //http://localhost:8080/maven/
-//        repository(url:"file://C://maven/shetj")
-//        pom.groupId = "me.shetj"
-//        pom.artifactId = "record"
-//        pom.version ="6.1"
-//    }
-//}
-
 dependencies {
     api fileTree(dir: 'libs', include: ['*.jar'])
-    api 'me.shetj.sdk:recorder-sim:0.0.1'
-    api 'me.shetj.sdk:recorder-mix:0.0.1'
+    api 'me.shetj.sdk:recorder-sim:0.0.2'
+    api 'me.shetj.sdk:recorder-mix:0.0.2'
 }
 
 apply from: 'bintrayConfig.gradle'

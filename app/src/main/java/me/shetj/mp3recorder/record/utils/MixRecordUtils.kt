@@ -3,7 +3,6 @@ package me.shetj.mp3recorder.record.utils
 import android.text.TextUtils
 import me.shetj.base.tools.app.Utils
 import me.shetj.base.tools.file.EnvironmentStorage
-import me.shetj.recorder.simRecorder
 import me.shetj.recorder.core.PermissionListener
 import me.shetj.player.PlayerListener
 import me.shetj.recorder.core.RecordListener
@@ -12,6 +11,7 @@ import me.shetj.recorder.mixRecorder.PlayBackMusic
 import me.shetj.recorder.core.BaseRecorder
 import me.shetj.recorder.core.RecordState
 import me.shetj.recorder.core.FileUtils
+import me.shetj.recorder.mp3Recorder
 
 /**
  * 录音工具类
@@ -76,7 +76,7 @@ class MixRecordUtils(
      * MIC 麦克风- 因为有噪音问题
      */
     private fun initRecorder() {
-        mRecorder = simRecorder(
+        mRecorder = mp3Recorder(
             Utils.app,
             mMaxTime = 3600 * 1000,
             mp3Quality = 1,

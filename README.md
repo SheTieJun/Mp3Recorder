@@ -4,7 +4,7 @@
 - 可添加背景音乐,可以设置背景音乐声音的大小
 - 录制过程中**暂停**,已录制的那段音频是**可以播放**的.
 - 可设置最大录制时间
-- 录音中途可以替换输出文件，比如每60秒替换一个输出文件
+- 录音中途可以替换输出文件，比如每60秒替换一个输出文件，然后发送
 - 可以使用耳机配置方式：如果没有连接耳机会只用外放的背景音乐，如果连接上了耳机，会使用写入合成背景音乐的方式
 - 其他...
 
@@ -21,19 +21,27 @@ Step 1. Add it in your root build.gradle at the end of repositories:
 allprojects {
     repositories {
         ...
-        maven { url 'https://jitpack.io' }
+        maven { url 'https://dl.bintray.com/shetiejun/maven' }
         }
 }
 ```
 
-Step 2. Add the dependency
+Step 2. Add the dependency[ ![Download](https://api.bintray.com/packages/shetiejun/maven/recorder/images/download.svg) ](https://bintray.com/shetiejun/maven/recorder)
 
-#### [![](https://jitpack.io/v/SheTieJun/Mp3Recorder.svg)](https://jitpack.io/#SheTieJun/Mp3Recorder)
 ```
-dependencies {
-    implementation 'com.github.SheTieJun:Mp3Recorder:+'
-}
+implementation 'me.shetj.sdk:recorder:+'   (mix 和Sim)
 ```
+
+if you only need MixRecorder [ ![Download](https://api.bintray.com/packages/shetiejun/maven/recorder-mix/images/download.svg) ](https://bintray.com/shetiejun/maven/recorder-mix)
+```groovy
+implementation 'me.shetj.sdk:recorder-mix:+'
+```
+
+if you only need SimRecorder [ ![Download](https://api.bintray.com/packages/shetiejun/maven/recorder-sim/images/download.svg) ](https://bintray.com/shetiejun/maven/recorder-sim)
+```groovy
+implementation 'me.shetj.sdk:recorder-sim:+'
+```
+
 
 #### [demo](https://github.com/SheTieJun/Mp3Recorder/tree/master/app)
 - [MixRecordUtils](https://github.com/SheTieJun/Mp3Recorder/blob/master/app/src/main/java/me/shetj/mp3recorder/record/utils/MixRecordUtils.kt)
@@ -57,27 +65,18 @@ dependencies {
 ### 初始化
 ```kotlin
          if (mRecorder == null) {
-//          mRecorder = simpleRecorderBuilder(BaseRecorder.RecorderType.MIX,BaseRecorder.AudioSource.VOICE_COMMUNICATION)
-            mRecorder = simpleRecorderBuilder(BaseRecorder.RecorderType.MIX,
-                BaseRecorder.AudioSource.MIC,
-                channel = BaseRecorder.AudioChannel.STEREO)
-                mRecorder.setBackgroundMusic(musicUrl!!)//设置默认的背景音乐
-                .setRecordListener(onRecording = { time, volume ->
-                    //当前已录制时长 和 当前声音大小
-                    Timber.i("time = $time  ,volume = $volume")
-                },onSuccess = { file, _ ->
-                    //录制成功
-                    Timber.i("file= %s", file)
-                })
-                .setPlayListener(onProgress = {current: Int, duration: Int ->
-                    //背景音乐播放
-                    Timber.i("current = $current  ,duration = $duration")
-                })
-                .setWax(1f) //超过1f 就是加大声音，但是同时会加大噪音
-                .setMaxTime(1800 * 1000) //设置最大时间
+             mRecorder = mp3Recorder(
+                      context,
+                      mMaxTime = 3600 * 1000,
+                      mp3Quality = 1,
+                      isDebug = true,
+                      channel = BaseRecorder.AudioChannel.STEREO,
+                      recordListener = this,
+                      permissionListener = this
+                  )
         }
 ```
-#### 1.录音控制
+#### 1.录音控制（开始/暂停）
 ``` kotlin
       when {
             mRecorder?.state == RecordState.STOPPED -> {
@@ -99,13 +98,7 @@ dependencies {
         }  
 ```
 
-#### 2. 开始录音
-
-```kotlin
-  mRecorder!!.start()
-```
-
-#### 3. 暂停、重新开始录音
+#### 2. 暂停、重新开始录音
 
 ```kotlin
  mRecorder?.onPause() //暂停
@@ -113,7 +106,7 @@ dependencies {
  mRecorder?.state     //获取当前录音的状态 3个状态，停止，录音中，暂停
 ```
 
-#### 4. 背景音乐相关
+#### 3. 背景音乐相关
 
 ```kotlin
  mRecorder?.setBackgroundMusic(musicUrl)//设置背景音乐
@@ -130,7 +123,7 @@ dependencies {
 
 > 如果没有使用耳机，会同时使用外放和写入背景音乐 2 种方法，可能会存在叠音，目前有细微优化，但是不保证兼容所有机型
 
-#### 5. 停止录音
+#### 5. 完成录音（停止录音）
 
 ```kotlin
  mRecorder?.stop()  //完成录音
@@ -155,10 +148,12 @@ dependencies {
 ### 5. 播放PCM文件：[AudioTrackManager](/doc/AudioTrackManager.MD)
 
 
-### old version
-[Recorder](https://github.com/SheTieJun/Mp3Recorder/tree/master_copy)
 
 如果感觉这个库帮助到了你，可以点右上角 "Star" 支持一下 谢谢！ 
+
+
+
+### [**Old version**](https://github.com/SheTieJun/Mp3Recorder/tree/master_copy)
 
 ### [Update_log](/doc/Update_log.md)
 

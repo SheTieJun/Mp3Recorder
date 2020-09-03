@@ -12,7 +12,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 /**
  * 用来判断是否连接上了耳机
  */
-class PlugConfigs(val context: Context, var connected: Boolean = false) {
+class PlugConfigs(private val context: Context, var connected: Boolean = false) {
 
     private val isRegister = AtomicBoolean(false)
     private val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
