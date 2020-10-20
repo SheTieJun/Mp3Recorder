@@ -2,6 +2,7 @@ package me.shetj.recorder.core
 
 import android.content.Context
 import android.media.MediaRecorder
+import android.net.Uri
 import android.util.Log
 import me.shetj.player.PlayerListener
 import java.io.File
@@ -71,6 +72,11 @@ abstract class BaseRecorder {
 
     //设计背景音乐的url,本地的
     abstract fun setBackgroundMusic(url: String): BaseRecorder
+
+    /**
+     * 设计背景音乐的url,网络（Internet） 或者 本地
+     */
+    abstract fun setBackgroundMusic(context: Context,uri: Uri,header:MutableMap<String,String>?): BaseRecorder
 
     //设置背景音乐的监听
     abstract fun setBackgroundMusicListener(listener: PlayerListener): BaseRecorder

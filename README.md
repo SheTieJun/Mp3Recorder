@@ -1,4 +1,6 @@
-# 录音工具-Mp3Recorder
+# 录音工具-Mp3Recorder 
+
+ [![](https://jitpack.io/v/SheTieJun/Mp3Recorder.svg)](https://jitpack.io/#SheTieJun/Mp3Recorder)  [ ![Download](https://api.bintray.com/packages/shetiejun/maven/recorder/images/download.svg) ](https://bintray.com/shetiejun/maven/recorder)
 
 - 边录边转码MP3,支持暂停，实时返回已录制时长和当前声音大小。
 - 可添加背景音乐,可以设置背景音乐声音的大小
@@ -21,25 +23,15 @@ Step 1. Add it in your root build.gradle at the end of repositories:
 allprojects {
     repositories {
         ...
-        maven { url 'https://dl.bintray.com/shetiejun/maven' }
+        maven { url "https://jitpack.io" }
         }
 }
 ```
 
-Step 2. Add the dependency[ ![Download](https://api.bintray.com/packages/shetiejun/maven/recorder/images/download.svg) ](https://bintray.com/shetiejun/maven/recorder)
-
 ```
-implementation 'me.shetj.sdk:recorder:+'   (mix 和Sim)
-```
-
-if you only need MixRecorder [ ![Download](https://api.bintray.com/packages/shetiejun/maven/recorder-mix/images/download.svg) ](https://bintray.com/shetiejun/maven/recorder-mix)
-```groovy
-implementation 'me.shetj.sdk:recorder-mix:+'
-```
-
-if you only need SimRecorder [ ![Download](https://api.bintray.com/packages/shetiejun/maven/recorder-sim/images/download.svg) ](https://bintray.com/shetiejun/maven/recorder-sim)
-```groovy
-implementation 'me.shetj.sdk:recorder-sim:+'
+implementation 'com.github.SheTieJun.Mp3Recorder:recorder-mix:+'
+implementation 'com.github.SheTieJun.Mp3Recorder:recorder-sim:+'
+implementation 'com.github.SheTieJun.Mp3Recorder:recorder-core:+'
 ```
 
 

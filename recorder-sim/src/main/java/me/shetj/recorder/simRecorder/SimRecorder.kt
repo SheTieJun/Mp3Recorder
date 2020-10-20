@@ -4,6 +4,7 @@ import android.content.Context
 import android.media.AudioFormat
 import android.media.AudioRecord
 import android.media.MediaRecorder
+import android.net.Uri
 import android.os.Handler
 import android.os.Looper
 import android.os.Message
@@ -403,6 +404,15 @@ class SimRecorder : BaseRecorder {
 
     override fun setBackgroundMusic(url: String): SimRecorder {
         this.backgroundMusicUrl = url
+        return this
+    }
+
+    override fun setBackgroundMusic(
+        context: Context,
+        uri: Uri,
+        header: MutableMap<String, String>?
+    ): BaseRecorder {
+
         return this
     }
 

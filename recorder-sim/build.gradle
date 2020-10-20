@@ -34,7 +34,7 @@ android {
 
 dependencies {
     api fileTree(dir: "libs", include: ["*.jar"])
-    api 'me.shetj.sdk:recorder-core:0.0.1'
+    implementation project(path: ':recorder-core')
 }
 
 apply from: 'bintrayConfig.gradle'

@@ -8,6 +8,7 @@ import android.media.MediaRecorder
 import android.media.audiofx.AcousticEchoCanceler
 import android.media.audiofx.AutomaticGainControl
 import android.media.audiofx.NoiseSuppressor
+import android.net.Uri
 import android.os.Handler
 import android.os.Looper
 import android.os.Message
@@ -19,6 +20,7 @@ import me.shetj.recorder.core.*
 import me.shetj.recorder.util.LameUtils
 import java.io.File
 import java.io.IOException
+import java.net.URL
 
 
 /**
@@ -56,7 +58,7 @@ class MixRecorder : BaseRecorder {
 
     //region 背景音乐相关
     private var backgroundMusicIsPlay: Boolean = false //记录是否暂停
-    private var bgLevel:Float = 0.30f//背景音乐
+    private var bgLevel: Float = 0.30f//背景音乐
     private var plugConfigs: PlugConfigs? = null
     private var volumeConfig: VolumeConfig? = null
     //endregion 背景音乐相关
@@ -255,22 +257,25 @@ class MixRecorder : BaseRecorder {
      * @param url
      */
     override fun setBackgroundMusic(url: String): MixRecorder {
-        if (!TextUtils.isEmpty(url)) {
-            setBackgroundMusic(url, true)
-        } else {
-            throw NullPointerException("setBackgroundMusic -> url not null")
-        }
+        setBackgroundMusic(url, true)
         return this
     }
 
-    fun setBackgroundMusic(url: String, isLoop: Boolean): MixRecorder {
-        if (!TextUtils.isEmpty(url)) {
-            initPlayer()
-            mPlayBackMusic!!.setBackGroundUrl(url)
-            mPlayBackMusic!!.setLoop(isLoop)
-        } else {
-            throw NullPointerException("setBackgroundMusic -> url not null")
-        }
+    override fun setBackgroundMusic(
+        context: Context,
+        uri: Uri,
+        header: MutableMap<String, String>?
+    ): MixRecorder {
+        initPlayer()
+        mPlayBackMusic!!.setBackGroundUrl(context, uri, header)
+        mPlayBackMusic!!.setLoop(true)
+        return this
+    }
+
+    fun setBackgroundMusic(url: String?, isLoop: Boolean): MixRecorder {
+        initPlayer()
+        mPlayBackMusic!!.setBackGroundUrl(url!!)
+        mPlayBackMusic!!.setLoop(isLoop)
         return this
     }
 
@@ -379,7 +384,7 @@ class MixRecorder : BaseRecorder {
             val bgPlayer = bgPlayer
             bgPlayer.setVolume(volume1)
             this.bgLevel = volume1
-        }else{
+        } else {
             volumeConfig!!.setAudioVoiceF(volume)
         }
         return this
@@ -444,7 +449,7 @@ class MixRecorder : BaseRecorder {
                                 buffer,
                                 wax,
                                 mPlayBackMusic!!.getBackGroundBytes(),
-                                volumeConfig?.currVolumeF?:bgLevel
+                                volumeConfig?.currVolumeF ?: bgLevel
                             )
                             calculateRealVolume(buffer)
                         } else {

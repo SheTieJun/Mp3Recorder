@@ -2,7 +2,6 @@ package me.shetj.recorder.mixRecorder
 
 import android.content.Context
 import me.shetj.recorder.core.BaseRecorder
-import me.shetj.recorder.core.BuildConfig
 import me.shetj.recorder.core.PermissionListener
 import me.shetj.recorder.core.RecordListener
 
@@ -14,7 +13,7 @@ fun mixRecorder(
     context: Context,
     audioSource: BaseRecorder.AudioSource = BaseRecorder.AudioSource.MIC,
     channel: BaseRecorder.AudioChannel = BaseRecorder.AudioChannel.STEREO,
-    isDebug: Boolean = BuildConfig.DEBUG,
+    isDebug: Boolean = false,
     mMaxTime: Int = 1800 * 1000,
     samplingRate: Int = 44100,
     mp3BitRate: Int = 64 ,//128 /96(高),32（低）
@@ -46,7 +45,7 @@ fun mixRecorder(
 fun mixRecorder(
     audioSource: BaseRecorder.AudioSource = BaseRecorder.AudioSource.MIC,
     channel: BaseRecorder.AudioChannel = BaseRecorder.AudioChannel.STEREO,
-    isDebug: Boolean = BuildConfig.DEBUG,
+    isDebug: Boolean = false,
     mMaxTime: Int = 1800 * 1000,
     samplingRate: Int = 44100,
     mp3BitRate: Int = 64 ,//128 /96(高),32（低）

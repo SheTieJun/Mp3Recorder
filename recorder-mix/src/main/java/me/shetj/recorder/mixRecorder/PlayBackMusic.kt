@@ -2,8 +2,10 @@
 
 package me.shetj.recorder.mixRecorder
 
+import android.content.Context
 import android.media.*
 import android.media.AudioFormat.CHANNEL_OUT_MONO
+import android.net.Uri
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
@@ -104,6 +106,19 @@ class PlayBackMusic(private var defaultChannel: Int = CHANNEL_OUT_MONO,var plugC
         return this
     }
 
+    fun setBackGroundUrl(context: Context,uri: Uri,header: MutableMap<String,String>?): PlayBackMusic {
+        if (isIsPause) {
+            releaseDecoder()
+            initDecoder(context,uri,header)
+        } else {
+            isIsPause = true
+            releaseDecoder()
+            initDecoder(context,uri,header)
+            isIsPause = false
+        }
+        return this
+    }
+
     fun setBackGroundPlayListener(playerListener: PlayerListener) {
         this.playerListener = playerListener
     }
@@ -111,6 +126,11 @@ class PlayBackMusic(private var defaultChannel: Int = CHANNEL_OUT_MONO,var plugC
     private fun initDecoder(path: String) {
         mAudioDecoder = AudioDecoder()
         mAudioDecoder?.setMp3FilePath(path)
+    }
+
+    private fun initDecoder(context: Context,uri: Uri,header: MutableMap<String,String>?) {
+        mAudioDecoder = AudioDecoder()
+        mAudioDecoder?.setMp3FilePath(context,uri,header)
     }
 
     private fun releaseDecoder() {
@@ -239,7 +259,7 @@ class PlayBackMusic(private var defaultChannel: Int = CHANNEL_OUT_MONO,var plugC
      * 这里新开一个线程
      * 自己解析出来 pcm data
      */
-    private inner class PlayNeedMixAudioTask internal constructor(private val listener: BackGroundFrameListener?) :
+    private inner class PlayNeedMixAudioTask(private val listener: BackGroundFrameListener?) :
         Thread() {
         override fun run() {
             try {

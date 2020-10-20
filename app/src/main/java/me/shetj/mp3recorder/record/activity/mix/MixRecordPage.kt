@@ -19,10 +19,12 @@ import io.reactivex.rxjava3.schedulers.Schedulers
 import me.shetj.base.tools.app.ArmsUtils
 import me.shetj.mp3recorder.R
 import me.shetj.mp3recorder.record.bean.Music
+import me.shetj.mp3recorder.record.bean.MusicQ
 import me.shetj.mp3recorder.record.bean.Record
 import me.shetj.mp3recorder.record.bean.RecordDbUtils
 import me.shetj.mp3recorder.record.utils.*
 import me.shetj.mp3recorder.record.view.BackgroundMixMusicView
+import me.shetj.mp3recorder.record.view.MusicListBottomQSheetDialog
 import me.shetj.mp3recorder.record.view.MusicListBottomSheetDialog
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
@@ -51,10 +53,10 @@ open class MixRecordPage(private val context: AppCompatActivity, mRoot: ViewGrou
     private var recordCallBack: RecordCallBack? = null
     private var musicView: BackgroundMixMusicView?=null
     private var addMusic :LinearLayout ?=null
-    private val musicDialog: MusicListBottomSheetDialog by lazy {
-        MusicListBottomSheetDialog(context).apply {
+    private val musicDialog: MusicListBottomQSheetDialog by lazy {
+        MusicListBottomQSheetDialog(context).apply {
             setOnItemClickListener( OnItemClickListener { adapter, _, position ->
-                val music = adapter.getItem(position) as Music
+                val music = adapter.getItem(position) as MusicQ
                 musicView?.setMusic(music)
                 addMusic?.visibility = View.GONE
             })

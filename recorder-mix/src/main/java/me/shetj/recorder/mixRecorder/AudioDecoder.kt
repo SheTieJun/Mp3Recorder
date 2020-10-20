@@ -1,11 +1,14 @@
 package me.shetj.recorder.mixRecorder
 
+import android.content.Context
 import android.media.MediaCodec
 import android.media.MediaExtractor
 import android.media.MediaFormat
+import android.net.Uri
 import android.util.Log
 import java.nio.ByteBuffer
 import java.util.*
+import kotlin.collections.HashMap
 
 @Suppress("DEPRECATION")
 class AudioDecoder {
@@ -21,6 +24,11 @@ class AudioDecoder {
         private set
 
     private var mp3FilePath: String? = null
+
+    private var context:Context ?=null
+    private var mp3URi: Uri? = null
+
+    private var headers: MutableMap<String, String> ?=null
 
     var mediaFormat: MediaFormat? = null
         private set
@@ -53,8 +61,19 @@ class AudioDecoder {
 
     fun setMp3FilePath(path: String): AudioDecoder {
         mp3FilePath = path
+        mp3URi = null
+        context = null
         return this
     }
+
+    fun setMp3FilePath(context: Context,uri: Uri,headers: MutableMap<String, String>?): AudioDecoder {
+        this.context = context.applicationContext
+        mp3URi = uri
+        mp3FilePath = null
+        this.headers = headers
+        return this
+    }
+
 
     fun startPcmExtractor(): AudioDecoder {
         initMediaDecode()
@@ -77,8 +96,12 @@ class AudioDecoder {
     private fun initMediaDecode() {
         try {
             mediaExtractor = MediaExtractor()//此类可分离视频文件的音轨和视频轨道
-            Log.i("mixRecorder", "mp3FilePath = " + mp3FilePath!!)
-            mediaExtractor!!.setDataSource(mp3FilePath!!)//媒体文件的位置
+            if (mp3FilePath != null) {
+                Log.i("mixRecorder", "mp3FilePath = " + mp3FilePath!!)
+                mediaExtractor!!.setDataSource(mp3FilePath!!)//媒体文件的位置
+            }else if (context != null && mp3URi != null){
+                mediaExtractor!!.setDataSource(context!!,mp3URi!!,headers)//媒体文件的位置
+            }
             mediaFormat = mediaExtractor!!.getTrackFormat(0)
             val mime = mediaFormat!!.getString(MediaFormat.KEY_MIME)
             // 检查是否为音频文件

@@ -1,4 +1,4 @@
-package me.shetj.recorder
+package me.shetj.mp3recorder
 
 import android.content.Context
 import me.shetj.recorder.core.PermissionListener

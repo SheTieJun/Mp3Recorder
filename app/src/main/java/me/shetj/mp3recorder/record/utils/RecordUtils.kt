@@ -12,7 +12,7 @@ import me.shetj.recorder.core.RecordListener
 import me.shetj.recorder.core.BaseRecorder
 import me.shetj.recorder.simRecorder.SimRecorder
 import me.shetj.recorder.core.RecordState
-import me.shetj.recorder.mp3Recorder
+import me.shetj.recorder.simRecorder.simRecorder
 import java.io.File
 
 class RecordUtils(
@@ -75,9 +75,8 @@ class RecordUtils(
      * MIC 麦克风- 因为有噪音问题
      */
     private fun initRecorder() {
-        mRecorder = mp3Recorder(
-            Utils.app,
-            simpleName = BaseRecorder.RecorderType.SIM,
+        mRecorder = simRecorder(
+            context = Utils.app,
             permissionListener = this,
             recordListener = this
         )

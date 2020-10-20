@@ -11,7 +11,7 @@ import me.shetj.recorder.mixRecorder.PlayBackMusic
 import me.shetj.recorder.core.BaseRecorder
 import me.shetj.recorder.core.RecordState
 import me.shetj.recorder.core.FileUtils
-import me.shetj.recorder.mp3Recorder
+import me.shetj.recorder.mixRecorder.mixRecorder
 
 /**
  * 录音工具类
@@ -76,7 +76,7 @@ class MixRecordUtils(
      * MIC 麦克风- 因为有噪音问题
      */
     private fun initRecorder() {
-        mRecorder = mp3Recorder(
+        mRecorder = mixRecorder(
             Utils.app,
             mMaxTime = 3600 * 1000,
             mp3Quality = 1,

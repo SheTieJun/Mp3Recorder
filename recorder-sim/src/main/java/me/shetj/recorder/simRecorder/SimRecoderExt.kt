@@ -2,7 +2,6 @@ package me.shetj.recorder.simRecorder
 
 import android.content.Context
 import me.shetj.recorder.core.BaseRecorder
-import me.shetj.recorder.core.BuildConfig
 import me.shetj.recorder.core.PermissionListener
 import me.shetj.recorder.core.RecordListener
 
@@ -11,7 +10,7 @@ import me.shetj.recorder.core.RecordListener
 fun simRecorder(
     context: Context,
     audioSource: BaseRecorder.AudioSource = BaseRecorder.AudioSource.MIC,
-    isDebug: Boolean = BuildConfig.DEBUG,
+    isDebug: Boolean = false,
     mMaxTime: Int = 1800 * 1000,
     samplingRate: Int = 44100,
     mp3BitRate: Int = 64,//96(高),32（低）
@@ -40,7 +39,7 @@ fun simRecorder(
 @JvmOverloads
 fun simRecorder(
     audioSource: BaseRecorder.AudioSource = BaseRecorder.AudioSource.MIC,
-    isDebug: Boolean = BuildConfig.DEBUG,
+    isDebug: Boolean = false,
     mMaxTime: Int = 1800 * 1000,
     samplingRate: Int = 44100,
     mp3BitRate: Int = 64,//96(高),32（低）

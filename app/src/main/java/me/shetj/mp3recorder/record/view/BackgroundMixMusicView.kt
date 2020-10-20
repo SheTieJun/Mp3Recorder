@@ -15,6 +15,7 @@ import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import me.shetj.base.tools.app.ArmsUtils
 import me.shetj.mp3recorder.R
 import me.shetj.mp3recorder.record.bean.Music
+import me.shetj.mp3recorder.record.bean.MusicQ
 import me.shetj.mp3recorder.record.utils.MixRecordUtils
 import me.shetj.mp3recorder.record.utils.Util
 import me.shetj.player.PlayerListener
@@ -44,8 +45,8 @@ class BackgroundMixMusicView @JvmOverloads constructor(context: Context,
     private var audioPlayer: PlayBackMusic?=null //播放器
     private var recordUtils: MixRecordUtils?=null //录音
     private var addMusicView: LinearLayout  ?=null//添加背景音乐的空间
-    private var music: Music?=null //背景文件相关
-    private var musicDialog: MusicListBottomSheetDialog?=null//选择背景音乐
+    private var music: MusicQ?=null //背景文件相关
+    private var musicDialog: MusicListBottomQSheetDialog?=null//选择背景音乐
     private val max :Float by lazy { VolumeConfig.getInstance(context).getMaxVoice().toFloat() }
     private val volumeConfig: VolumeConfig by lazy { VolumeConfig.getInstance(context) }
 
@@ -129,13 +130,13 @@ class BackgroundMixMusicView @JvmOverloads constructor(context: Context,
     /**
      * 第2步设置背景音乐选择
      */
-    fun setDialog(musicDialog: MusicListBottomSheetDialog) {
+    fun setDialog(musicDialog: MusicListBottomQSheetDialog) {
         this.musicDialog = musicDialog
     }
     /**
      * isSave 是否保存，默认是保存
      */
-    fun setMusic(music: Music,isSave: Boolean = true){
+    fun setMusic(music: MusicQ, isSave: Boolean = true){
         if (music.url == null){
             //如果是错误数据，直接忽略
             return
@@ -201,10 +202,10 @@ class BackgroundMixMusicView @JvmOverloads constructor(context: Context,
 
     }
 
-    private fun Music.startPlayMusic(): Unit? {
+    private fun MusicQ.startPlayMusic(): Unit? {
         audioPlayer?.let {
             if (!it.isPlayingMusic) {
-                audioPlayer?.setBackGroundUrl(url!!)
+                audioPlayer?.setBackGroundUrl(context,url!!,null)
                 audioPlayer?.startPlayBackMusic()
             }else{
                 if (it.isIsPause){
@@ -217,8 +218,8 @@ class BackgroundMixMusicView @JvmOverloads constructor(context: Context,
         return recordUtils?.setVolume(mSeekBar.progress / max)
     }
 
-    private fun Music.startNoPlayMusic(): Unit? {
-        audioPlayer?.setBackGroundUrl(url!!)
+    private fun MusicQ.startNoPlayMusic(): Unit? {
+        audioPlayer?.setBackGroundUrl(context,url!!,null)
         return recordUtils?.setVolume(mSeekBar.progress / max)
     }
 
