@@ -28,17 +28,17 @@ allprojects {
 }
 ```
 
-推荐(支持耳机)：
+推荐(背景音乐支持耳机)：
 ```
-implementation 'com.github.SheTieJun.Mp3Recorder:recorder-mix:+'
-implementation 'com.github.SheTieJun.Mp3Recorder:recorder-core:+'
+implementation 'com.github.SheTieJun.Mp3Recorder:recorder-mix:1.0.2'
+implementation 'com.github.SheTieJun.Mp3Recorder:recorder-core:1.0.2'
 ```
 
-另外一个:（这个是最初的实现方式，不支持耳机）
+另外一个:（这个是最初的实现方式，不支持耳机，带耳机后没有背景音乐）
 
 ```
-implementation 'com.github.SheTieJun.Mp3Recorder:recorder-sim:+'
-implementation 'com.github.SheTieJun.Mp3Recorder:recorder-core:+'
+implementation 'com.github.SheTieJun.Mp3Recorder:recorder-sim:1.0.2'
+implementation 'com.github.SheTieJun.Mp3Recorder:recorder-core:1.0.2'
 ```
 
 
