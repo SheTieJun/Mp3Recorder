@@ -38,8 +38,8 @@ fun BaseRecorder.setPlayListener(
     onProgress: (current: Int, duration: Int) -> Unit = { _: Int, _: Int -> }
 ): BaseRecorder {
     setBackgroundMusicListener(object : PlayerListener {
-        override fun onStart(url: String, duration: Int) {
-            onStart(url, duration)
+        override fun onStart( duration: Int) {
+            onStart( duration)
         }
 
         override fun onPause() {
