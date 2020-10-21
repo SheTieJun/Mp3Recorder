@@ -28,10 +28,9 @@ allprojects {
 
 Step 2. Add the dependency
 
-#### [![](https://jitpack.io/v/SheTieJun/Mp3Recorder.svg)](https://jitpack.io/#SheTieJun/Mp3Recorder)
 ```
 dependencies {
-    implementation 'com.github.SheTieJun:Mp3Recorder:+'
+    implementation 'com.github.SheTieJun:Mp3Recorder:0.0.12'
 }
 ```
 
