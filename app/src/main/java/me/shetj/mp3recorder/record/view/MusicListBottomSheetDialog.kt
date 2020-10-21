@@ -42,8 +42,8 @@ class MusicListBottomSheetDialog (context: Context) : View.OnClickListener {
                         val music =  getItem(position)
                         music.let {
                             audioPlayer.playOrPause(it.url!! ,object : SimPlayerListener() {
-                                override fun onStart(url: String, duration: Int) {
-                                    super.onStart(url, duration)
+                                override fun onStart( duration: Int) {
+                                    super.onStart(duration)
                                     setPlayPosition(position)
                                 }
 

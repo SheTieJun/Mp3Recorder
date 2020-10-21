@@ -28,8 +28,15 @@ allprojects {
 }
 ```
 
+推荐(支持耳机)：
 ```
 implementation 'com.github.SheTieJun.Mp3Recorder:recorder-mix:+'
+implementation 'com.github.SheTieJun.Mp3Recorder:recorder-core:+'
+```
+
+另外一个:（这个是最初的实现方式，不支持耳机）
+
+```
 implementation 'com.github.SheTieJun.Mp3Recorder:recorder-sim:+'
 implementation 'com.github.SheTieJun.Mp3Recorder:recorder-core:+'
 ```
@@ -57,12 +64,10 @@ implementation 'com.github.SheTieJun.Mp3Recorder:recorder-core:+'
 ### 初始化
 ```kotlin
          if (mRecorder == null) {
-             mRecorder = mp3Recorder(
+             mRecorder = mixRecorder(
                       context,
                       mMaxTime = 3600 * 1000,
-                      mp3Quality = 1,
                       isDebug = true,
-                      channel = BaseRecorder.AudioChannel.STEREO,
                       recordListener = this,
                       permissionListener = this
                   )
@@ -113,7 +118,7 @@ implementation 'com.github.SheTieJun.Mp3Recorder:recorder-core:+'
 
 > 如果使用耳机配置方式：如果没有连接耳机会只用外放的背景音乐，如果连接上了耳机，会使用写入合成背景音乐的方式
 
-> 如果没有使用耳机，会同时使用外放和写入背景音乐 2 种方法，可能会存在叠音，目前有细微优化，但是不保证兼容所有机型
+> 如果没有使用耳机配置方式：会同时使用外放和写入背景音乐 2 种方法，可能会存在叠音，目前有细微优化，但是不保证兼容所有机型
 
 #### 5. 完成录音（停止录音）
 

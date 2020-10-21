@@ -51,8 +51,8 @@ open class MPlayerListener(private val mContext: Context, private val helper: Ba
         }
     }
 
-    override fun onStart(url: String, duration: Int) {
-        super.onStart(url, duration)
+    override fun onStart( duration: Int) {
+        super.onStart( duration)
     }
 
     override fun onResume() {

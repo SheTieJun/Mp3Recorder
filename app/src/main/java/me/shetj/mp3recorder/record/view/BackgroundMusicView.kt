@@ -138,7 +138,7 @@ class BackgroundMusicView @JvmOverloads constructor(context: Context,
 
     }
 
-    override fun onStart(url: String, duration: Int) {
+    override fun onStart(duration: Int) {
         mIvPlay.setImageResource(R.drawable.selector_weike_record_pause)
     }
 

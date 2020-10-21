@@ -170,7 +170,7 @@ class PlayBackMusic(private var defaultChannel: Int = CHANNEL_OUT_MONO,var plugC
         initPCMData()
         isPlayingMusic = true
         PlayNeedMixAudioTask(frameListener).start()
-        playerListener?.onStart("", 0)
+        playerListener?.onStart((mAudioDecoder?.mediaFormat?.getLong(MediaFormat.KEY_DURATION)?:1/ 1000).toInt())
         return this
     }
 

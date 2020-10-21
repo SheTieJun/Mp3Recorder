@@ -41,6 +41,7 @@ class SimRecorder : BaseRecorder {
     private var mEncodeThread: DataEncodeThread? = null
     private var backgroundPlayer: AudioPlayer? = null
 
+    private var context :Context ?= null
     /**
      * 输出的文件
      */
@@ -91,6 +92,8 @@ class SimRecorder : BaseRecorder {
     private var backgroundMusicIsPlay: Boolean = false //记录是否暂停
     private var backgroundMusicUrl: String? = null
     private var backgroundMusicPlayerListener: PlayerListener? = null
+    private var backgroundMusicUri: Uri ?= null
+    private var header :MutableMap<String,String> ?= null
 
     private val handler = object : Handler(Looper.getMainLooper()) {
         override fun handleMessage(msg: Message) {
@@ -403,6 +406,8 @@ class SimRecorder : BaseRecorder {
     // endregion Start recording. Create an encoding thread. Start record from this
 
     override fun setBackgroundMusic(url: String): SimRecorder {
+        this.backgroundMusicUri = null
+        this.header = null
         this.backgroundMusicUrl = url
         return this
     }
@@ -412,7 +417,10 @@ class SimRecorder : BaseRecorder {
         uri: Uri,
         header: MutableMap<String, String>?
     ): BaseRecorder {
-
+        this.context = context.applicationContext
+        this.backgroundMusicUrl = null
+        this.backgroundMusicUri = uri
+        this.header = header
         return this
     }
 
@@ -505,7 +513,18 @@ class SimRecorder : BaseRecorder {
 
     override fun startPlayMusic() {
         if (!bgPlayer.isPlaying) {
-            bgPlayer.playOrPause(url = backgroundMusicUrl, listener = backgroundMusicPlayerListener)
+            if (backgroundMusicUrl != null) {
+                bgPlayer.playOrPause(
+                    url = backgroundMusicUrl,
+                    listener = backgroundMusicPlayerListener
+                )
+            }else if (backgroundMusicUri != null && context != null){
+                bgPlayer.playOrPause(context = context!!,
+                    uri = backgroundMusicUri,
+                    header = header,
+                    listener = backgroundMusicPlayerListener
+                )
+            }
         }
     }
 
@@ -626,7 +645,18 @@ class SimRecorder : BaseRecorder {
             state = RecordState.RECORDING
             duration = 0L
             if (backgroundMusicIsPlay) {
-                bgPlayer.playNoStart(backgroundMusicUrl, backgroundMusicPlayerListener)
+                if (backgroundMusicUrl != null) {
+                    bgPlayer.playNoStart(
+                        url = backgroundMusicUrl,
+                        listener = backgroundMusicPlayerListener
+                    )
+                }else if (backgroundMusicUri != null && context != null){
+                    bgPlayer.playNoStart(context = context!!,
+                        uri = backgroundMusicUri,
+                        header = header,
+                        listener = backgroundMusicPlayerListener
+                    )
+                }
             }
         }
     }

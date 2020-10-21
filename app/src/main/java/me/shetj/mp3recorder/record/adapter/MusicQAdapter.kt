@@ -7,12 +7,15 @@ import me.shetj.mp3recorder.R
 import me.shetj.mp3recorder.record.bean.Music
 import me.shetj.mp3recorder.record.bean.MusicQ
 import me.shetj.mp3recorder.record.utils.Util
+import me.shetj.player.AudioPlayer
+import me.shetj.player.SimPlayerListener
 
 class MusicQAdapter(date: ArrayList<MusicQ>) :BaseQuickAdapter<MusicQ, BaseViewHolder>(R.layout.item_music_view,date){
 
     private var curPosition = -1
 
     private var playPosition = -1 //播放的谁
+    private val audioPlayer = AudioPlayer()
 
     override fun convert(holder: BaseViewHolder, item: MusicQ) {
         item.apply {
@@ -23,7 +26,36 @@ class MusicQAdapter(date: ArrayList<MusicQ>) :BaseQuickAdapter<MusicQ, BaseViewH
                     true ->  R.drawable.icon_record_bg_music_pause
                 })
             holder.getView<View>(R.id.checkbox).isSelected = holder.layoutPosition == curPosition
-            addChildClickViewIds(R.id.iv_play)
+            holder.getView<View>(R.id.iv_play).setOnClickListener {
+                item.let {
+                    audioPlayer.playOrPause(context,it.url!!,null,object : SimPlayerListener() {
+                        override fun onStart( duration: Int) {
+                            super.onStart(duration)
+                            setPlayPosition(holder.layoutPosition)
+                        }
+
+                        override fun onResume() {
+                            super.onResume()
+                            setPlayPosition(holder.layoutPosition)
+                        }
+
+                        override fun onPause() {
+                            super.onPause()
+                            setPlayPosition(-1)
+                        }
+
+                        override fun onCompletion() {
+                            super.onCompletion()
+                            setPlayPosition(-1)
+                        }
+
+                        override fun onStop() {
+                            super.onStop()
+                            setPlayPosition(-1)
+                        }
+                    })
+                }
+            }
         }
     }
 
@@ -35,5 +67,9 @@ class MusicQAdapter(date: ArrayList<MusicQ>) :BaseQuickAdapter<MusicQ, BaseViewH
     fun setPlayPosition(position: Int){
         this.playPosition = position
         notifyDataSetChanged()
+    }
+
+    fun stopPlay() {
+        audioPlayer.stopPlay()
     }
 }

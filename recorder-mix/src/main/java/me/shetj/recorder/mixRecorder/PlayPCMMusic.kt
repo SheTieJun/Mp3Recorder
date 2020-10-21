@@ -138,7 +138,9 @@ class PlayPCMMusic(private val defaultChannel: Int = CHANNEL_OUT_STEREO) {
                 addBackGroundBytes(bytes)
             }
         }).start()
-        playerListener?.onStart("", 0)
+        playerListener?.onStart(
+            (mediaFormat?.getLong(MediaFormat.KEY_DURATION) ?: 1 / 1000).toInt()
+        )
         return this
     }
 

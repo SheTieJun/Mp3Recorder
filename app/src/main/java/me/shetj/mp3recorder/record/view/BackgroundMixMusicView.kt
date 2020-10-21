@@ -223,7 +223,7 @@ class BackgroundMixMusicView @JvmOverloads constructor(context: Context,
         return recordUtils?.setVolume(mSeekBar.progress / max)
     }
 
-    override fun onStart(url: String, duration: Int) {
+    override fun onStart( duration: Int) {
         AndroidSchedulers.mainThread().scheduleDirect {
             mIvPlay.setImageResource(R.drawable.icon_pause_bg_music)
         }

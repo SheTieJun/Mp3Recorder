@@ -23,7 +23,7 @@ class MediaPlayerUtils  {
 
     val currentUrl: String
      get() {
-        return mediaPlayer.currentUrl
+        return mediaPlayer.currentUrl?:""
      }
 
     val isPause: Boolean

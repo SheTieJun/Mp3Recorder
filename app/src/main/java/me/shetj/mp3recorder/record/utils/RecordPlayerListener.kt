@@ -37,7 +37,7 @@ class RecordPlayerListener(private val helper: BaseViewHolder, private val media
 
 
 
-    override fun onStart(url: String, duration: Int) {
+    override fun onStart( duration: Int) {
         if (canChange) {
             statePlaying(true)
         }

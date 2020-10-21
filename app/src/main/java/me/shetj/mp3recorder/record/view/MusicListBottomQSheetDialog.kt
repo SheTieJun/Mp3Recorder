@@ -24,10 +24,8 @@ class MusicListBottomQSheetDialog (context: Context) : View.OnClickListener {
 
     private val easyBottomSheetDialog: BottomSheetDialog?
     private var onItemClickListener: OnItemClickListener? = null
-    private val audioPlayer: AudioPlayer
     init {
         this.easyBottomSheetDialog = buildBottomSheetDialog(context)
-        audioPlayer = AudioPlayer()
     }
 
     private fun buildBottomSheetDialog(context: Context): BottomSheetDialog {
@@ -38,45 +36,9 @@ class MusicListBottomQSheetDialog (context: Context) : View.OnClickListener {
         rootView.findViewById<View>(R.id.cancel).setOnClickListener(this )
 
         val musicAdapter = MusicQAdapter(ArrayList()).apply {
-            setOnItemChildClickListener { _, view, position ->
-                when(view.id){
-                    R.id.iv_play ->{
-                        val music =  getItem(position)
-                        music.let {
-//                            audioPlayer.playOrPause(it.url!! ,object : SimPlayerListener() {
-//                                override fun onStart(url: String, duration: Int) {
-//                                    super.onStart(url, duration)
-//                                    setPlayPosition(position)
-//                                }
-//
-//                                override fun onResume() {
-//                                    super.onResume()
-//                                    setPlayPosition(position)
-//                                }
-//
-//                                override fun onPause() {
-//                                    super.onPause()
-//                                    setPlayPosition(-1)
-//                                }
-//
-//                                override fun onCompletion() {
-//                                    super.onCompletion()
-//                                    setPlayPosition(-1)
-//                                }
-//
-//                                override fun onStop() {
-//                                    super.onStop()
-//                                    setPlayPosition(-1)
-//                                }
-//                            })
-                        }
-                    }
-                }
-            }
             recyclerView.adapter = this
             setEmptyView(R.layout.base_empty_date_view)
         }
-
         LocalMusicQUtils.loadFileData(context)
                 ?.observeOn(AndroidSchedulers.mainThread())
                 ?.subscribe ({
@@ -87,10 +49,10 @@ class MusicListBottomQSheetDialog (context: Context) : View.OnClickListener {
             onItemClickListener?.onItemClick(adapter, view, position)
         }
         bottomSheetDialog.setOnCancelListener {
-            audioPlayer.stopPlay()
+            musicAdapter.stopPlay()
         }
         bottomSheetDialog.setOnDismissListener {
-            audioPlayer.stopPlay()
+            musicAdapter.stopPlay()
         }
         return bottomSheetDialog
     }

@@ -34,7 +34,6 @@ android {
 
 dependencies {
     api fileTree(dir: "libs", include: ["*.jar"])
-    api 'me.shetj.sdk:player:0.0.1'
 }
 
 apply from: 'bintrayConfig.gradle'

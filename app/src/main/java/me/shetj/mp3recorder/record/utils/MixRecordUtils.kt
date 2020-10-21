@@ -12,6 +12,7 @@ import me.shetj.recorder.core.BaseRecorder
 import me.shetj.recorder.core.RecordState
 import me.shetj.recorder.core.FileUtils
 import me.shetj.recorder.mixRecorder.mixRecorder
+import me.shetj.recorder.simRecorder.simRecorder
 
 /**
  * 录音工具类
@@ -79,9 +80,6 @@ class MixRecordUtils(
         mRecorder = mixRecorder(
             Utils.app,
             mMaxTime = 3600 * 1000,
-            mp3Quality = 1,
-            isDebug = true,
-            channel = BaseRecorder.AudioChannel.STEREO,
             recordListener = this,
             permissionListener = this
         )
