@@ -29,7 +29,7 @@ fun BaseRecorder.onPlayChange(
  * 设置背景音乐播放的监听
  */
 fun BaseRecorder.setPlayListener(
-    onStart: (url: String, duration: Int) -> Unit = { _: String, _: Int -> },
+    onStart: (duration: Int) -> Unit = {  _: Int -> },
     onPause: () -> Unit = {},
     onResume: () -> Unit = {},
     onStop: () -> Unit = {},
