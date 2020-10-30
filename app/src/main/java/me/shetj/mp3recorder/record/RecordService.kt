@@ -4,11 +4,14 @@ package me.shetj.mp3recorder.record
 import android.content.Intent
 import android.os.Binder
 import android.os.IBinder
+import android.os.Message
 import android.util.Log
 import me.shetj.base.base.BaseService
 import me.shetj.mp3recorder.record.bean.Record
 import me.shetj.mp3recorder.record.utils.RecordCallBack
 import me.shetj.mp3recorder.record.utils.RecordUtils
+import org.greenrobot.eventbus.Subscribe
+import org.greenrobot.eventbus.ThreadMode
 
 class RecordService : BaseService() {
 
@@ -22,6 +25,11 @@ class RecordService : BaseService() {
             work = Work()
         }
         return work!!
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    open fun onEvent(message: Message) {
+
     }
 
     override fun onBind(intent: Intent): IBinder? {
@@ -84,7 +92,7 @@ class RecordService : BaseService() {
         createRecordUtils = RecordUtils( object : RecordCallBack {
             override fun start() {
                 callBacks?.start()
-                RecordingNotification.notify(this@RecordService, 1)
+                startForeground(100001,RecordingNotification.getNotification(1,this@RecordService))
             }
 
             override fun onRecording(time: Int, volume: Int) {
@@ -93,11 +101,13 @@ class RecordService : BaseService() {
 
             override fun pause() {
                 callBacks?.pause()
+                stopForeground(false)
                 RecordingNotification.notify(this@RecordService, 2)
             }
 
             override fun onSuccess(file: String, time: Int) {
                 callBacks?.onSuccess(file, time)
+                stopForeground(false)
                 RecordingNotification.notify(this@RecordService, 3)
             }
 
@@ -115,6 +125,8 @@ class RecordService : BaseService() {
 
             override fun autoComplete(file: String, time: Int) {
                 callBacks?.autoComplete(file, time)
+                stopForeground(false)
+                RecordingNotification.notify(this@RecordService, 3)
             }
 
             override fun needPermission() {
@@ -141,4 +153,6 @@ class RecordService : BaseService() {
         }
         super.onTaskRemoved(rootIntent)
     }
+
+
 }

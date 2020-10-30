@@ -9,6 +9,7 @@ import me.shetj.base.ktx.hasPermission
 import me.shetj.base.ktx.start
 import me.shetj.mp3recorder.record.MixRecordActivity
 import me.shetj.mp3recorder.record.activity.mix.MyMixRecordActivity
+import me.shetj.mp3recorder.record.activity.sim.MyRecordActivity
 
 class MainActivity : AppCompatActivity() {
 
@@ -32,7 +33,7 @@ class MainActivity : AppCompatActivity() {
                 )
             }
             .subscribe {
-                start<MyMixRecordActivity>()
+                start<MyRecordActivity>()
             }
 
         btn_demo2.clicks()

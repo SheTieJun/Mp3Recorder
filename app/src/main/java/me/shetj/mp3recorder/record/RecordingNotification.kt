@@ -36,7 +36,7 @@ object RecordingNotification {
         notify(context, notification)
     }
 
-    private fun getNotification(type: Int, context: Context): Notification {
+    fun getNotification(type: Int, context: Context): Notification {
         val content = when (type) {
             1 -> "正在录音..."
             2 -> "录音已暂停"
@@ -49,21 +49,20 @@ object RecordingNotification {
 
         val builder = NotificationCompat.Builder(context, createNotificationChannel(context))
                 .setSmallIcon(R.mipmap.record)
-                .setContentTitle("录音机")
+                .setContentTitle("录音")
                 .setContentText(content)
-                .setOngoing(true)
+                .setOngoing(false)
                 .setContentIntent(intentGo)
                 .setSound(null)
                 .setDefaults(NotificationCompat.FLAG_ONLY_ALERT_ONCE)
-                .setVibrate(longArrayOf(0))
                 .setColor(ContextCompat.getColor(context.applicationContext, R.color.colorPrimary))
-                .setPriority(NotificationCompat.PRIORITY_MAX)
+                .setPriority(NotificationCompat.PRIORITY_MIN)
         return builder.build()
     }
 
 
     private fun notify(context: Context, notification: Notification) {
-        NotificationManagerCompat.from(context).notify("record".hashCode(), notification)
+        NotificationManagerCompat.from(context).notify(100001, notification)
     }
 
     /**
@@ -71,7 +70,7 @@ object RecordingNotification {
      * [.notify].
      */
     fun cancel(context: Context) {
-        NotificationManagerCompat.from(context).cancel("record".hashCode())
+        NotificationManagerCompat.from(context).cancel(100001.hashCode())
     }
 
     /**
@@ -93,8 +92,6 @@ object RecordingNotification {
             notificationChannel.lockscreenVisibility = NotificationCompat.VISIBILITY_PUBLIC
             // 不要呼吸灯
             notificationChannel.enableLights(false)
-            // 不要铃声
-            notificationChannel.vibrationPattern = longArrayOf(0)
 
             val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             notificationManager.createNotificationChannel(notificationChannel)
