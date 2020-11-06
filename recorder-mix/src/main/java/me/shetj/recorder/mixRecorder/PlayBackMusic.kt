@@ -270,31 +270,11 @@ class PlayBackMusic(private var defaultChannel: Int = CHANNEL_OUT_MONO,var plugC
                 // 开始播放
                 audioTrack!!.play()
                 //延迟合成
-                if (defaultChannel == CHANNEL_OUT_MONO) {
-                    //音乐实际开始会慢一点
-                    repeat(10) {
-                        listener?.onFrameArrive(ByteArray(1))
-                    }
-                } else {
-                    //30 的时候会导致延迟合成祂太久 外放 快于 合成
-                    repeat(8) {
-                        listener?.onFrameArrive(ByteArray(1))
-                    }
-                }
+                fixAudioZip()
                 while (isPlayingMusic) {
                     if (!isIsPause) {
                         if (need.compareAndSet(true,false)){
-                            if (defaultChannel == CHANNEL_OUT_MONO) {
-                                //音乐实际开始会慢一点
-                                repeat(10) {
-                                    listener?.onFrameArrive(ByteArray(1))
-                                }
-                            } else {
-                                //30 的时候 外放 快于 合成
-                                repeat(8) {
-                                    listener?.onFrameArrive(ByteArray(1))
-                                }
-                            }
+                            fixAudioZip()
                         }
                         val pcm = mAudioDecoder!!.pcmData
                         val temp = pcm?.bufferBytes
@@ -335,6 +315,20 @@ class PlayBackMusic(private var defaultChannel: Int = CHANNEL_OUT_MONO,var plugC
                 isPlayingMusic = false
                 isIsPause = false
                 playerListener?.onCompletion()
+            }
+        }
+
+        private fun fixAudioZip() {
+            if (defaultChannel == CHANNEL_OUT_MONO) {
+                //音乐实际开始会慢一点
+                repeat(10) {
+                    listener?.onFrameArrive(ByteArray(1))
+                }
+            } else {
+                //30 的时候 外放 快于 合成
+                repeat(8) {
+                    listener?.onFrameArrive(ByteArray(1))
+                }
             }
         }
     }

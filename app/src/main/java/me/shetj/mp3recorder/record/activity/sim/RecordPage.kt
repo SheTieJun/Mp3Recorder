@@ -292,7 +292,7 @@ open class RecordPage(private val context: AppCompatActivity, mRoot: ViewGroup, 
     //得到media的时间长度
     private fun getMediaTime(s: String): Flowable<Int> {
         return Flowable.create({ emitter ->
-            val audioLength = Util.getAudioLength(context, s)
+            val audioLength = Util.getAudioLength(s)
             emitter.onNext(audioLength)
         }, BackpressureStrategy.BUFFER)
     }
@@ -304,7 +304,7 @@ open class RecordPage(private val context: AppCompatActivity, mRoot: ViewGroup, 
     private fun saveRecord(file: String) {
         try {
             val record = Record("1", file, System.currentTimeMillis().toString() + "",
-                    Util.getAudioLength(context, file), mEditInfo!!.text.toString())
+                    Util.getAudioLength(file), mEditInfo!!.text.toString())
             RecordDbUtils.getInstance().save(record)
             EventBus.getDefault().post(MainThreadEvent(MainThreadEvent.RECORD_REFRESH_MY, record))
         } catch (e: Exception) {

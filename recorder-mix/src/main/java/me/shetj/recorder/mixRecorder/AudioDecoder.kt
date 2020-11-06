@@ -8,7 +8,6 @@ import android.net.Uri
 import android.util.Log
 import java.nio.ByteBuffer
 import java.util.*
-import kotlin.collections.HashMap
 
 @Suppress("DEPRECATION")
 class AudioDecoder {
@@ -79,7 +78,7 @@ class AudioDecoder {
         initMediaDecode()
         if (isPCMExtractorEOS) {
             isPCMExtractorEOS = false
-            Thread(Runnable { srcAudioFormatToPCM() }).start()
+            Thread({ srcAudioFormatToPCM() }).start()
         }
         return this
     }

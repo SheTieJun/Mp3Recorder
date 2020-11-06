@@ -119,11 +119,4 @@ class MyRecordActivity : BaseActivity<EmptyPresenter>(), EventCallback {
         RecordingNotification.cancel(this)
         super.onDestroy()
     }
-
-    companion object {
-
-        val NEED_CLOSE = "needClose"//完成上传后关闭界面 默认不关闭
-        val POST_URL = "postUrl"//声音
-    }
-
 }

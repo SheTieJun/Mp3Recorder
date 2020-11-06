@@ -327,7 +327,7 @@ class PlayPCMMusic(private val defaultChannel: Int = CHANNEL_OUT_STEREO) {
 
                         if (decodeBufferInfo!!.flags and MediaCodec.BUFFER_FLAG_END_OF_STREAM != 0) {
                             isPCMExtractorEOS = true
-                            Log.i("mixRecorder", "pcm finished..." + mp3FilePath!!)
+//                            Log.i("mixRecorder", "pcm finished..." + mp3FilePath!!)
                         }
 
                     } else if (outputIndex == MediaCodec.INFO_OUTPUT_BUFFERS_CHANGED) {

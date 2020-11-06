@@ -21,7 +21,7 @@ interface RecordDao {
     fun deleteRecord(record: Record):Completable
 
 
-    @Query("SELECT * FROM record order by id")
+    @Query("SELECT * FROM record order by id DESC")
     fun getAllRecord() : Flowable<List<Record>>
 
 

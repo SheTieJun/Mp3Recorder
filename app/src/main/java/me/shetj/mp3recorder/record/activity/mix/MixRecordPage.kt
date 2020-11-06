@@ -18,14 +18,12 @@ import io.reactivex.rxjava3.core.Flowable
 import io.reactivex.rxjava3.schedulers.Schedulers
 import me.shetj.base.tools.app.ArmsUtils
 import me.shetj.mp3recorder.R
-import me.shetj.mp3recorder.record.bean.Music
 import me.shetj.mp3recorder.record.bean.MusicQ
 import me.shetj.mp3recorder.record.bean.Record
 import me.shetj.mp3recorder.record.bean.RecordDbUtils
 import me.shetj.mp3recorder.record.utils.*
 import me.shetj.mp3recorder.record.view.BackgroundMixMusicView
 import me.shetj.mp3recorder.record.view.MusicListBottomQSheetDialog
-import me.shetj.mp3recorder.record.view.MusicListBottomSheetDialog
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
@@ -260,7 +258,7 @@ open class MixRecordPage(private val context: AppCompatActivity, mRoot: ViewGrou
     //得到media的时间长度
     private fun getMediaTime(s: String): Flowable<Int> {
         return Flowable.create({ emitter ->
-            val audioLength = Util.getAudioLength(context, s)
+            val audioLength = Util.getAudioLength(s)
             emitter.onNext(audioLength)
         }, BackpressureStrategy.BUFFER)
     }
@@ -272,7 +270,7 @@ open class MixRecordPage(private val context: AppCompatActivity, mRoot: ViewGrou
     private fun saveRecord(file: String) {
         try {
             val record = Record("1", file, System.currentTimeMillis().toString() + "",
-                Util.getAudioLength(context, file), mEditInfo!!.text.toString())
+                Util.getAudioLength(file), mEditInfo!!.text.toString())
             RecordDbUtils.getInstance().save(record)
             EventBus.getDefault().post(MainThreadEvent(MainThreadEvent.RECORD_REFRESH_MY, record))
         } catch (e: Exception) {
