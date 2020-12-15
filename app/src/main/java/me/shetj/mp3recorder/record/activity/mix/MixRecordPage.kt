@@ -10,11 +10,11 @@ import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
-import com.chad.library.adapter.base.listener.OnItemClickListener
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.BackpressureStrategy
 import io.reactivex.rxjava3.core.Flowable
 import io.reactivex.rxjava3.schedulers.Schedulers
+import me.shetj.base.ktx.logi
 import me.shetj.base.tools.app.ArmsUtils
 import me.shetj.dialog.OrangeDialog
 import me.shetj.mp3recorder.R
@@ -24,6 +24,7 @@ import me.shetj.mp3recorder.record.bean.RecordDbUtils
 import me.shetj.mp3recorder.record.utils.*
 import me.shetj.mp3recorder.record.view.BackgroundMixMusicView
 import me.shetj.mp3recorder.record.view.MusicListBottomQSheetDialog
+import me.shetj.recorder.core.SimRecordListener
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
@@ -48,7 +49,7 @@ open class MixRecordPage(private val context: AppCompatActivity, mRoot: ViewGrou
     val scene: Scene
     private var mtvAllTime: TextView? = null
     private var mBunceSv: ScrollView? = null
-    private var recordCallBack: RecordCallBack? = null
+    private var recordCallBack: SimRecordListener? = null
     private var musicView: BackgroundMixMusicView?=null
     private var addMusic :LinearLayout ?=null
     private val musicDialog: MusicListBottomQSheetDialog by lazy {
@@ -126,8 +127,10 @@ open class MixRecordPage(private val context: AppCompatActivity, mRoot: ViewGrou
     }
 
     private fun initData() {
-        recordCallBack = object : RecordCallBack {
-            override fun start() {
+        recordCallBack = object : SimRecordListener() {
+
+            override fun onStart() {
+                super.onStart()
                 TransitionManager.beginDelayedTransition(root)
                 isHasChange = true
                 mIvRecordState!!.setImageResource(R.mipmap.icon_record_pause_2)
@@ -136,27 +139,29 @@ open class MixRecordPage(private val context: AppCompatActivity, mRoot: ViewGrou
 
             }
 
-            /**
-             * 如果要写呼吸灯，就在这里处理
-             * @param time
-             * @param volume
-             */
-            override fun onRecording(time: Int, volume: Int) {
-                Timber.i( "time = $time\nvolume$volume")
+            override fun onRemind(duration: Long) {
+                super.onRemind(duration)
+                "这是onRemind ：${Util.formatSeconds3((duration/1000).toInt())}".logi()
+
+            }
+
+            override fun onRecording(time: Long, volume: Int) {
+                super.onRecording(time, volume)
+//                Timber.i( "time = $time\nvolume$volume")
                 AndroidSchedulers.mainThread().scheduleDirect {
-                    mProgressBarRecord!!.progress = time
-                    mTvRecordTime!!.text = Util.formatSeconds3(time)
+                    mProgressBarRecord!!.progress = time.toInt()
+                    mTvRecordTime!!.text = Util.formatSeconds3(time.toInt())
                 }
             }
 
-            override fun pause() {
+            override fun onPause() {
                 TransitionManager.beginDelayedTransition(root)
                 mIvRecordState!!.setImageResource(R.mipmap.icon_start_record)
                 showSaveAndRe(View.VISIBLE)
                 mTvStateMsg!!.text = "已暂停，点击继续"
             }
 
-            override fun onSuccess(file: String, time: Int) {
+            override fun onSuccess(file: String, time: Long) {
                 Timber.i( "onSuccess")
                 if (File(file).exists()) {
                     TransitionManager.beginDelayedTransition(root)
@@ -172,14 +177,9 @@ open class MixRecordPage(private val context: AppCompatActivity, mRoot: ViewGrou
                 }
             }
 
-            override fun onProgress(time: Int) {
-                mProgressBarRecord!!.progress = time
-                mTvRecordTime!!.text = Util.formatSeconds3(time)
-            }
-
-            override fun onMaxProgress(time: Int) {
-                mProgressBarRecord!!.max = time
-                mtvAllTime!!.text = Util.formatSeconds3(time)
+            override fun onMaxChange(time: Long) {
+                mProgressBarRecord!!.max = time.toInt()
+                mtvAllTime!!.text = Util.formatSeconds3(time.toInt())
             }
 
             override fun onError(e: Exception) {
@@ -187,7 +187,7 @@ open class MixRecordPage(private val context: AppCompatActivity, mRoot: ViewGrou
                 setRecord(oldRecord)
             }
 
-            override fun autoComplete(file: String, time: Int) {
+            override fun autoComplete(file: String, time: Long) {
                 if (File(file).exists()) {
                     TransitionManager.beginDelayedTransition(root)
                     mIvRecordState!!.setImageResource(R.mipmap.icon_start_record)

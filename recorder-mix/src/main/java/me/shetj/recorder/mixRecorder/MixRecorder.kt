@@ -64,6 +64,7 @@ class MixRecorder : BaseRecorder {
 
     //region 其他
     private var mSendError: Boolean = false
+    var isRemind: Boolean = true
 
     //最大时间
     private var mMaxTime: Long = 3600000
@@ -94,13 +95,14 @@ class MixRecorder : BaseRecorder {
                         //录制回调
                         mRecordListener!!.onRecording(duration, realVolume)
                         //提示快到录音时间了
-                        if (mMaxTime > 150000 && mMaxTime > duration && duration > mRemindTime && duration - mRemindTime > 400) {
+                        if (isRemind  && duration > mRemindTime) {
+                            isRemind = false
                             mRecordListener!!.onRemind(duration)
                         }
                     }
                 }
                 HANDLER_START -> {
-                    logInfo("msg.what = HANDLER_START  \n mDuration = $duration")
+                    logInfo("msg.what = HANDLER_START  \n mDuration = $duration\n mRemindTime = $mRemindTime")
                     if (mRecordListener != null) {
                         mRecordListener!!.onStart()
                     }
@@ -148,7 +150,7 @@ class MixRecorder : BaseRecorder {
                     }
                 }
                 HANDLER_MAX_TIME -> if (mRecordListener != null) {
-                    mRecordListener!!.setMaxProgress(mMaxTime)
+                    mRecordListener!!.onMaxChange(mMaxTime)
                 }
                 else -> {
                 }
@@ -335,26 +337,17 @@ class MixRecorder : BaseRecorder {
         return this
     }
 
-    fun setMaxTime(mMaxTime: Int,remindDiffTime:Int? = null): MixRecorder {
-        setMaxTime(mMaxTime)
-        if (remindDiffTime != null && remindDiffTime < mMaxTime) {
-            this.mRemindTime = (mMaxTime - remindDiffTime).toLong()
-        }
-        return this
-    }
-
-    /**
-     * 设置最大录制时间，小于0无效
-     * @param mMaxTime 最大录制时间  默认一个小时？
-     * 提示时间时10秒前
-     */
-    override fun setMaxTime(mMaxTime: Int): MixRecorder {
-        if (mMaxTime < 0) {
+    override fun setMaxTime(maxTime: Int, remindDiffTime:Int? ): MixRecorder {
+        if (maxTime < 0) {
             return this
         }
-        this.mMaxTime = mMaxTime.toLong()
-        this.mRemindTime = (mMaxTime - 10000).toLong()
+        this.mMaxTime = maxTime.toLong()
         handler.sendEmptyMessage(HANDLER_MAX_TIME)
+        if (remindDiffTime != null && remindDiffTime < maxTime) {
+            this.mRemindTime = (maxTime - remindDiffTime).toLong()
+        }else{
+            this.mRemindTime = (maxTime - 10000).toLong()
+        }
         return this
     }
 
@@ -436,8 +429,8 @@ class MixRecorder : BaseRecorder {
                 while (isRecording) {
                     val samplesPerFrame =
                         if (bgPlayer.isPlayingMusic) bgPlayer.bufferSize else mBufferSize  // 这里需要与 背景音乐读取出来的数据长度 一样
-                    val buffer: ByteArray? = ByteArray(samplesPerFrame)
-                    val readSize = mAudioRecord!!.read(buffer!!, 0, samplesPerFrame)
+                    val buffer: ByteArray = ByteArray(samplesPerFrame)
+                    val readSize = mAudioRecord!!.read(buffer, 0, samplesPerFrame)
                     if (readSize == AudioRecord.ERROR_INVALID_OPERATION || readSize == AudioRecord.ERROR_BAD_VALUE) {
                         if (!mSendError) {
                             mSendError = true
@@ -627,6 +620,7 @@ class MixRecorder : BaseRecorder {
         if (state !== RecordState.RECORDING) {
             handler.sendEmptyMessage(HANDLER_START)
             state = RecordState.RECORDING
+            isRemind = true
             duration = 0L
             if (mPlayBackMusic != null) {
                 mPlayBackMusic!!.setNeedRecodeDataEnable(true)
@@ -655,7 +649,7 @@ class MixRecorder : BaseRecorder {
         duration += readTime.toLong()
         if (state == RecordState.RECORDING) {
             handler.sendEmptyMessageDelayed(HANDLER_RECORDING, speed)
-            if (mMaxTime == duration) {
+            if (mMaxTime in 1..duration) {
                 autoStop()
             }
         }

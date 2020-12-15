@@ -35,9 +35,9 @@ interface RecordListener {
 
     /**
      * 到达提醒时间，默认提醒时间是最大时间前10秒
-     * @param mDuration
+     * @param duration
      */
-    fun onRemind(mDuration: Long)
+    fun onRemind(duration: Long)
 
     /**
      * 录制成功
@@ -50,7 +50,7 @@ interface RecordListener {
     /**
      * 设置最大进度条，触发 （毫秒ms）
      */
-    fun setMaxProgress(time: Long)
+    fun onMaxChange(time: Long)
 
     /**
      * 计算时间错误时

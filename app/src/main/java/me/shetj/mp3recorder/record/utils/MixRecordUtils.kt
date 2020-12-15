@@ -3,23 +3,21 @@ package me.shetj.mp3recorder.record.utils
 import android.text.TextUtils
 import me.shetj.base.tools.app.Utils
 import me.shetj.base.tools.file.EnvironmentStorage
-import me.shetj.recorder.core.PermissionListener
 import me.shetj.player.PlayerListener
-import me.shetj.recorder.core.RecordListener
+import me.shetj.recorder.core.*
 import me.shetj.recorder.mixRecorder.MixRecorder
 import me.shetj.recorder.mixRecorder.PlayBackMusic
-import me.shetj.recorder.core.BaseRecorder
-import me.shetj.recorder.core.RecordState
-import me.shetj.recorder.core.FileUtils
 import me.shetj.recorder.mixRecorder.mixRecorder
-import me.shetj.recorder.simRecorder.simRecorder
 
 /**
  * 录音工具类
  */
 class MixRecordUtils(
-    private val callBack: RecordCallBack?
+    private val callBack: SimRecordListener?
 ) : RecordListener, PermissionListener {
+
+    val TIME = 60*60*1000
+
     val isRecording: Boolean
         get() {
             return if (mRecorder != null) {
@@ -79,10 +77,12 @@ class MixRecordUtils(
     private fun initRecorder() {
         mRecorder = mixRecorder(
             Utils.app,
-            mMaxTime = 3600 * 1000,
+            mMaxTime = TIME ,
+            isDebug =  true,
             recordListener = this,
             permissionListener = this
         )
+        mRecorder?.setMaxTime(TIME,TIME - 20 * 1000 )
     }
 
     fun isPause(): Boolean {
@@ -115,8 +115,8 @@ class MixRecordUtils(
      */
     fun setTime(startTime: Long) {
         this.startTime = startTime
-        setMaxTime((3600000 - startTime).toInt())
-        callBack?.onRecording((startTime / 1000).toInt(), 0)
+        setMaxTime((TIME - startTime).toInt())
+        callBack?.onRecording((startTime / 1000), 0)
     }
 
     /**
@@ -148,34 +148,34 @@ class MixRecordUtils(
     }
 
     override fun onStart() {
-        callBack?.start()
+        callBack?.onStart()
     }
 
     override fun onResume() {
-        callBack?.start()
+        callBack?.onStart()
     }
 
     override fun onReset() {
     }
 
     override fun onRecording(time: Long, volume: Int) {
-        callBack?.onRecording(((startTime + time) / 1000).toInt(), volume)
+        callBack?.onRecording(((startTime + time) / 1000) , volume)
     }
 
     override fun onPause() {
-        callBack?.pause()
+        callBack?.onPause()
     }
 
-    override fun onRemind(mDuration: Long) {
-
+    override fun onRemind(duration: Long) {
+        callBack?.onRemind(duration)
     }
 
     override fun onSuccess(file: String, time: Long) {
-        callBack?.onSuccess(file, (time / 1000).toInt())
+        callBack?.onSuccess(file, (time / 1000) )
     }
 
-    override fun setMaxProgress(time: Long) {
-        callBack?.onMaxProgress((3600).toInt())
+    override fun onMaxChange(time: Long) {
+        callBack?.onMaxChange(time/1000)
     }
 
     override fun onError(e: Exception) {
@@ -184,7 +184,7 @@ class MixRecordUtils(
     }
 
     override fun autoComplete(file: String, time: Long) {
-        callBack?.autoComplete(file, (time / 1000).toInt())
+        callBack?.autoComplete(file, (time / 1000))
     }
 
     fun setVolume(volume: Float) {

@@ -25,13 +25,13 @@ open class SimRecordListener : RecordListener, PermissionListener {
     override fun onPause() {
     }
 
-    override fun onRemind(mDuration: Long) {
+    override fun onRemind(duration: Long) {
     }
 
     override fun onSuccess(file: String, time: Long) {
     }
 
-    override fun setMaxProgress(time: Long) {
+    override fun onMaxChange(time: Long) {
     }
 
     override fun onError(e: Exception) {

@@ -12,9 +12,9 @@ import kotlin.math.sqrt
 abstract class BaseRecorder {
     private val TAG = this.javaClass.simpleName
     //region 录音的方式 /来源 Record Type
-    enum class RecorderType(name: String) {
-        SIM("Mp3Recorder"), //
-        MIX("MixRecorder")
+    enum class RecorderType {
+        SIM, //
+        MIX
     }
 
     enum class AudioSource(var type: Int) {
@@ -90,8 +90,8 @@ abstract class BaseRecorder {
     //设置采样率
     abstract fun setSamplingRate(rate: Int): BaseRecorder
 
-    //初始最大录制时间
-    abstract fun setMaxTime(mMaxTime: Int): BaseRecorder
+    //初始最大录制时间 和提醒时间 remind = maxTime - remindDiffTime
+    abstract fun setMaxTime(maxTime: Int, remindDiffTime: Int? = null): BaseRecorder
 
     //设置增强系数
     abstract fun setWax(wax: Float): BaseRecorder

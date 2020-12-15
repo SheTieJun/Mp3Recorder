@@ -4,7 +4,6 @@ import android.view.View
 import com.chad.library.adapter.base.BaseQuickAdapter
 import com.chad.library.adapter.base.viewholder.BaseViewHolder
 import me.shetj.mp3recorder.R
-import me.shetj.mp3recorder.record.bean.Music
 import me.shetj.mp3recorder.record.bean.MusicQ
 import me.shetj.mp3recorder.record.utils.Util
 import me.shetj.player.AudioPlayer

@@ -164,15 +164,15 @@ class RecordUtils(
         callBack?.pause()
     }
 
-    override fun onRemind(mDuration: Long) {
-        ArmsUtils.makeText("已录制" + mDuration / 60000 + "分钟，本条录音还可以继续录制10秒")
+    override fun onRemind(duration: Long) {
+        ArmsUtils.makeText("已录制" + duration / 60000 + "分钟，本条录音还可以继续录制10秒")
     }
 
     override fun onSuccess(file: String, time: Long) {
         callBack?.onSuccess(file, (time / 1000).toInt())
     }
 
-    override fun setMaxProgress(time: Long) {
+    override fun onMaxChange(time: Long) {
         callBack?.onMaxProgress((time / 1000).toInt())
     }
 

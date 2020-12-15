@@ -41,7 +41,8 @@ class SimRecorder : BaseRecorder {
     private var mEncodeThread: DataEncodeThread? = null
     private var backgroundPlayer: AudioPlayer? = null
 
-    private var context :Context ?= null
+    private var context: Context? = null
+
     /**
      * 输出的文件
      */
@@ -53,11 +54,12 @@ class SimRecorder : BaseRecorder {
 
     private var mPCMBuffer: ShortArray? = null
     private var mSendError: Boolean = false
+    var isRemind: Boolean = true
 
     /**
      * 音量变化监听
      */
-    private var volumeConfig: VolumeConfig? =null
+    private var volumeConfig: VolumeConfig? = null
 
     //缓冲数量
     private var mBufferSize: Int = 0
@@ -92,8 +94,8 @@ class SimRecorder : BaseRecorder {
     private var backgroundMusicIsPlay: Boolean = false //记录是否暂停
     private var backgroundMusicUrl: String? = null
     private var backgroundMusicPlayerListener: PlayerListener? = null
-    private var backgroundMusicUri: Uri ?= null
-    private var header :MutableMap<String,String> ?= null
+    private var backgroundMusicUri: Uri? = null
+    private var header: MutableMap<String, String>? = null
 
     private val handler = object : Handler(Looper.getMainLooper()) {
         override fun handleMessage(msg: Message) {
@@ -105,7 +107,8 @@ class SimRecorder : BaseRecorder {
                         //录制回调
                         mRecordListener!!.onRecording(duration, realVolume)
                         //提示快到录音时间了
-                        if (mMaxTime > 150000 && mMaxTime > duration && duration > mRemindTime) {
+                        if (isRemind  && duration > mRemindTime ) {
+                            isRemind = false
                             mRecordListener!!.onRemind(duration)
                         }
                     }
@@ -159,7 +162,7 @@ class SimRecorder : BaseRecorder {
                     }
                 }
                 HANDLER_MAX_TIME -> if (mRecordListener != null) {
-                    mRecordListener!!.setMaxProgress(mMaxTime)
+                    mRecordListener!!.onMaxChange(mMaxTime)
                 }
                 else -> {
                 }
@@ -219,7 +222,6 @@ class SimRecorder : BaseRecorder {
     /**
      *
      * @param audioSource MediaRecorder.AudioSource.MIC
-     * @param isDebug true or false
      */
     constructor(audioSource: Int = MediaRecorder.AudioSource.MIC) {
         this.defaultAudioSource = audioSource
@@ -302,33 +304,23 @@ class SimRecorder : BaseRecorder {
         return this
     }
 
-    fun setMaxTime(mMaxTime: Int,remindDiffTime:Int? = null): SimRecorder {
-        setMaxTime(mMaxTime)
-        if (remindDiffTime != null && remindDiffTime < mMaxTime) {
-            this.mRemindTime = (mMaxTime - remindDiffTime).toLong()
-        }
-        return this
-    }
-
-
-    /**
-     * 设置最大录制时间,设置小于0无效，使用默认
-     * @param mMaxTime 最大录制时间  默认一个小时？
-     * 提示时间时10秒前
-     */
-    override fun setMaxTime(mMaxTime: Int): SimRecorder {
-        if (mMaxTime < 0) {
+    override fun setMaxTime(maxTime: Int, remindDiffTime: Int?): SimRecorder {
+        if (maxTime < 0) {
             return this
         }
-        this.mMaxTime = mMaxTime.toLong()
-        this.mRemindTime = (mMaxTime - 10000).toLong()
+        this.mMaxTime = maxTime.toLong()
         handler.sendEmptyMessage(HANDLER_MAX_TIME)
+        if (remindDiffTime != null && remindDiffTime < maxTime) {
+            this.mRemindTime = (maxTime - remindDiffTime).toLong()
+        }else{
+            this.mRemindTime = (maxTime - 10000).toLong()
+        }
         return this
     }
 
     // region Start recording. Create an encoding thread. Start record from this
     override fun start() {
-        if (mRecordFile ==null){
+        if (mRecordFile == null) {
             logInfo("mRecordFile is Null")
             return
         }
@@ -476,7 +468,7 @@ class SimRecorder : BaseRecorder {
             val bgPlayer = bgPlayer
             bgPlayer.setVolume(volume1)
             this.bgLevel = volume1
-        }else{
+        } else {
             volumeConfig?.setAudioVoiceF(volume)
         }
         return this
@@ -528,8 +520,9 @@ class SimRecorder : BaseRecorder {
                     url = backgroundMusicUrl,
                     listener = backgroundMusicPlayerListener
                 )
-            }else if (backgroundMusicUri != null && context != null){
-                bgPlayer.playOrPause(context = context!!,
+            } else if (backgroundMusicUri != null && context != null) {
+                bgPlayer.playOrPause(
+                    context = context!!,
                     uri = backgroundMusicUri,
                     header = header,
                     listener = backgroundMusicPlayerListener
@@ -654,14 +647,16 @@ class SimRecorder : BaseRecorder {
             handler.sendEmptyMessage(HANDLER_START)
             state = RecordState.RECORDING
             duration = 0L
+            isRemind = true
             if (backgroundMusicIsPlay) {
                 if (backgroundMusicUrl != null) {
                     bgPlayer.playNoStart(
                         url = backgroundMusicUrl,
                         listener = backgroundMusicPlayerListener
                     )
-                }else if (backgroundMusicUri != null && context != null){
-                    bgPlayer.playNoStart(context = context!!,
+                } else if (backgroundMusicUri != null && context != null) {
+                    bgPlayer.playNoStart(
+                        context = context!!,
                         uri = backgroundMusicUri,
                         header = header,
                         listener = backgroundMusicPlayerListener
@@ -690,7 +685,7 @@ class SimRecorder : BaseRecorder {
         duration += readTime.toLong()
         if (state == RecordState.RECORDING) {
             handler.sendEmptyMessageDelayed(HANDLER_RECORDING, waveSpeed.toLong())
-            if (mMaxTime <= duration) {
+            if (mMaxTime in 1..duration) {
                 autoStop()
             }
         }

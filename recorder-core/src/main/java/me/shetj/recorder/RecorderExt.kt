@@ -107,15 +107,15 @@ fun BaseRecorder.setRecordListener(
             onPause()
         }
 
-        override fun onRemind(mDuration: Long) {
-            onRemind(mDuration)
+        override fun onRemind(duration: Long) {
+            onRemind(duration)
         }
 
         override fun onSuccess(file: String, time: Long) {
             onSuccess(file, time)
         }
 
-        override fun setMaxProgress(time: Long) {
+        override fun onMaxChange(time: Long) {
             setMaxProgress(time)
         }
 
