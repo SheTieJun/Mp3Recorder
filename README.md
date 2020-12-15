@@ -1,6 +1,6 @@
 # 录音工具-Mp3Recorder 
 
- [![](https://jitpack.io/v/SheTieJun/Mp3Recorder.svg)](https://jitpack.io/#SheTieJun/Mp3Recorder)  [ ![Download](https://api.bintray.com/packages/shetiejun/maven/recorder/images/download.svg) ](https://bintray.com/shetiejun/maven/recorder)
+ [![](https://jitpack.io/v/SheTieJun/Mp3Recorder.svg)](https://jitpack.io/#SheTieJun/Mp3Recorder)
 
 - 边录边转码MP3,支持暂停，实时返回已录制时长和当前声音大小。
 - 可添加背景音乐,可以设置背景音乐声音的大小
@@ -30,15 +30,15 @@ allprojects {
 
 推荐(背景音乐支持耳机)：
 ```
-implementation 'com.github.SheTieJun.Mp3Recorder:recorder-mix:1.1.0'
-implementation 'com.github.SheTieJun.Mp3Recorder:recorder-core:1.1.0'
+implementation 'com.github.SheTieJun.Mp3Recorder:recorder-mix:+'
+implementation 'com.github.SheTieJun.Mp3Recorder:recorder-core:+'
 ```
 
 另外一个:（这个是最初的实现方式，不支持耳机，带耳机后没有背景音乐）
 
 ```
-implementation 'com.github.SheTieJun.Mp3Recorder:recorder-sim:1.1.0'
-implementation 'com.github.SheTieJun.Mp3Recorder:recorder-core:1.1.0'
+implementation 'com.github.SheTieJun.Mp3Recorder:recorder-sim:+'
+implementation 'com.github.SheTieJun.Mp3Recorder:recorder-core:+'
 ```
 
 
@@ -124,6 +124,11 @@ implementation 'com.github.SheTieJun.Mp3Recorder:recorder-core:1.1.0'
 
 ```kotlin
  mRecorder?.stop()  //完成录音
+```
+
+#### 中途直接结束.停止录音，但是不会走onSuccess
+```kotlin
+ mRecorder?.onDestroy()   
 ```
 
 #### 6.新增录音参数修改，必须在start()之前调用才有效

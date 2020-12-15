@@ -302,6 +302,15 @@ class SimRecorder : BaseRecorder {
         return this
     }
 
+    fun setMaxTime(mMaxTime: Int,remindDiffTime:Int? = null): SimRecorder {
+        setMaxTime(mMaxTime)
+        if (remindDiffTime != null && remindDiffTime < mMaxTime) {
+            this.mRemindTime = (mMaxTime - remindDiffTime).toLong()
+        }
+        return this
+    }
+
+
     /**
      * 设置最大录制时间,设置小于0无效，使用默认
      * @param mMaxTime 最大录制时间  默认一个小时？
@@ -507,6 +516,7 @@ class SimRecorder : BaseRecorder {
         state = RecordState.STOPPED
         mRecordFile = null
         bgPlayer.stopPlay()
+        handler.removeCallbacksAndMessages(null)
         volumeConfig?.unregisterReceiver()
     }
 
@@ -678,9 +688,11 @@ class SimRecorder : BaseRecorder {
      */
     private fun onRecording(readTime: Double) {
         duration += readTime.toLong()
-        handler.sendEmptyMessageDelayed(HANDLER_RECORDING, waveSpeed.toLong())
-        if (mMaxTime in 1..duration) {
-            autoStop()
+        if (state == RecordState.RECORDING) {
+            handler.sendEmptyMessageDelayed(HANDLER_RECORDING, waveSpeed.toLong())
+            if (mMaxTime <= duration) {
+                autoStop()
+            }
         }
     }
 

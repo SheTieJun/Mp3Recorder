@@ -163,6 +163,7 @@ class MixRecordActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         stopRecord()
+//        mixRecorder?.onDestroy()
         super.onDestroy()
     }
 }

@@ -9,7 +9,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import android.widget.*
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import com.chad.library.adapter.base.listener.OnItemClickListener
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
@@ -17,6 +16,7 @@ import io.reactivex.rxjava3.core.BackpressureStrategy
 import io.reactivex.rxjava3.core.Flowable
 import io.reactivex.rxjava3.schedulers.Schedulers
 import me.shetj.base.tools.app.ArmsUtils
+import me.shetj.dialog.OrangeDialog
 import me.shetj.mp3recorder.R
 import me.shetj.mp3recorder.record.bean.MusicQ
 import me.shetj.mp3recorder.record.bean.Record
@@ -53,11 +53,11 @@ open class MixRecordPage(private val context: AppCompatActivity, mRoot: ViewGrou
     private var addMusic :LinearLayout ?=null
     private val musicDialog: MusicListBottomQSheetDialog by lazy {
         MusicListBottomQSheetDialog(context).apply {
-            setOnItemClickListener( OnItemClickListener { adapter, _, position ->
+            setOnItemClickListener { adapter, _, position ->
                 val music = adapter.getItem(position) as MusicQ
                 musicView?.setMusic(music)
                 addMusic?.visibility = View.GONE
-            })
+            }
         }
     }
     private var recordUtils:MixRecordUtils?=null
@@ -243,11 +243,13 @@ open class MixRecordPage(private val context: AppCompatActivity, mRoot: ViewGrou
      * 是否录制新内容
      */
     private fun showRecordNewDialog() {
-        AlertDialog.Builder(context)
+        OrangeDialog.Builder(context)
             .setTitle("录音已保存")
-            .setMessage("已成功录满${1200/60}分钟，录音已保存。是否继续录制下一条？")
-            .setNegativeButton("查看本条") { _, _ -> callback.onEvent(1) }
-            .setPositiveButton("录下一条") { _, _ ->
+            .setContent("已成功录满${1200/60}分钟，录音已保存。是否继续录制下一条？")
+            .setNegativeText("查看本条")
+            .setOnNegativeCallBack {  _, _ -> callback.onEvent(1) }
+            .setPositiveText("录下一条")
+            .setonPositiveCallBack {  _, _ ->
                 setRecord(null)
                 ArmsUtils.makeText("上条录音已保存至“我的录音”")
             }
@@ -325,11 +327,11 @@ open class MixRecordPage(private val context: AppCompatActivity, mRoot: ViewGrou
      * 展示重新录制
      */
     private fun showRerecordDialog() {
-        AlertDialog.Builder(context)
+        OrangeDialog.Builder(context)
             .setTitle("重新录制")
-            .setMessage("确定删除当前的录音，并重新录制吗？")
-            .setNegativeButton("取消") { _, _ -> recordUtils!!.stopFullRecord() }
-            .setPositiveButton("重录") { _, _ ->
+            .setContent("确定删除当前的录音，并重新录制吗？")
+            .setNegativeText("取消").setOnNegativeCallBack { _, _ -> recordUtils!!.stopFullRecord() }
+            .setPositiveText("重录").setonPositiveCallBack {  _, _ ->
                 //可自行判断是否删除老的文件
                 oldRecord?.audioLength = 0
                 oldRecord?.audio_url = ""
@@ -346,11 +348,11 @@ open class MixRecordPage(private val context: AppCompatActivity, mRoot: ViewGrou
      */
     private fun showTipDialog() {
         onPause()//先暂停
-        AlertDialog.Builder(context)
+        OrangeDialog.Builder(context)
             .setTitle("温馨提示")
-            .setMessage("确定要停止录音吗？")
-            .setNegativeButton("停止录音") { _, _ -> recordUtils!!.stopFullRecord() }
-            .setPositiveButton("继续录音") { _, _ -> recordUtils!!.startOrPause() }
+            .setContent("确定要停止录音吗？")
+            .setNegativeText("停止录音") .setOnNegativeCallBack { _, _ -> recordUtils!!.stopFullRecord() }
+            .setPositiveText("继续录音") .setonPositiveCallBack { _, _ -> recordUtils!!.startOrPause() }
             .show()
     }
 

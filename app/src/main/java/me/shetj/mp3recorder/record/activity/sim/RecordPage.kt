@@ -14,7 +14,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import android.widget.*
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import com.chad.library.adapter.base.listener.OnItemClickListener
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
@@ -22,6 +21,7 @@ import io.reactivex.rxjava3.core.BackpressureStrategy
 import io.reactivex.rxjava3.core.Flowable
 import io.reactivex.rxjava3.schedulers.Schedulers
 import me.shetj.base.tools.app.ArmsUtils
+import me.shetj.dialog.OrangeDialog
 import me.shetj.mp3recorder.R
 import me.shetj.mp3recorder.record.RecordService
 import me.shetj.mp3recorder.record.bean.Music
@@ -42,9 +42,14 @@ import java.io.File
 /**
  * 录制声音界面
  */
-open class RecordPage(private val context: AppCompatActivity, mRoot: ViewGroup, private val callback: EventCallback) : View.OnClickListener {
+open class RecordPage(
+    private val context: AppCompatActivity,
+    mRoot: ViewGroup,
+    private val callback: EventCallback
+) : View.OnClickListener {
 
-    private val root: RelativeLayout = LayoutInflater.from(context).inflate(R.layout.page_record, null) as RelativeLayout
+    private val root: RelativeLayout =
+        LayoutInflater.from(context).inflate(R.layout.page_record, null) as RelativeLayout
     private var mEditInfo: EditText? = null
     private var mProgressBarRecord: ProgressBar? = null
     private var mTvRecordTime: TextView? = null
@@ -61,8 +66,8 @@ open class RecordPage(private val context: AppCompatActivity, mRoot: ViewGroup, 
     private var recordCallBack: RecordCallBack? = null
     private var work: RecordService.Work? = null
     private var intent: Intent? = null
-    private var musicView: BackgroundMusicView?=null
-    private var addMusic :LinearLayout ?=null
+    private var musicView: BackgroundMusicView? = null
+    private var addMusic: LinearLayout? = null
     private var musicDialog: MusicListBottomSheetDialog
 
     private val serviceConnection = object : ServiceConnection {
@@ -85,7 +90,7 @@ open class RecordPage(private val context: AppCompatActivity, mRoot: ViewGroup, 
         initView(root)
         initData()
         musicDialog = MusicListBottomSheetDialog(context)
-        musicDialog.setOnItemClickListener( OnItemClickListener { adapter, _, position ->
+        musicDialog.setOnItemClickListener(OnItemClickListener { adapter, _, position ->
             val music = adapter.getItem(position) as Music
             musicView?.setMusic(music)
             addMusic?.visibility = View.GONE
@@ -107,7 +112,7 @@ open class RecordPage(private val context: AppCompatActivity, mRoot: ViewGroup, 
         mTvStateMsg = view.findViewById(R.id.tv_state_msg)
         mtvAllTime = view.findViewById(R.id.tv_all_time)
         musicView = view.findViewById(R.id.bg_music_view)
-        addMusic  = view.findViewById(R.id.ll_add_music)
+        addMusic = view.findViewById(R.id.ll_add_music)
         addMusic!!.setOnClickListener(this)
     }
 
@@ -120,6 +125,7 @@ open class RecordPage(private val context: AppCompatActivity, mRoot: ViewGroup, 
             }
         }
     }
+
     fun clearMusic() {
         musicView?.resetMusic()
     }
@@ -141,13 +147,21 @@ open class RecordPage(private val context: AppCompatActivity, mRoot: ViewGroup, 
     private fun buildEditTextView(): EditText {
         mBunceSv!!.removeAllViews()
         val editText = EditText(this.context)
-        val params = ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+        val params = ViewGroup.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.WRAP_CONTENT
+        )
         editText.layoutParams = params
         editText.minHeight = ArmsUtils.dip2px(500f)
         editText.textSize = 16f
         editText.gravity = Gravity.TOP
         editText.setBackgroundColor(Color.WHITE)
-        editText.setPadding(ArmsUtils.dip2px(30f), ArmsUtils.dip2px(27f), ArmsUtils.dip2px(30f), ArmsUtils.dip2px(50f))
+        editText.setPadding(
+            ArmsUtils.dip2px(30f),
+            ArmsUtils.dip2px(27f),
+            ArmsUtils.dip2px(30f),
+            ArmsUtils.dip2px(50f)
+        )
         editText.inputType = EditorInfo.TYPE_CLASS_TEXT or EditorInfo.TYPE_TEXT_FLAG_MULTI_LINE
         editText.setHorizontallyScrolling(false)
         editText.maxLines = Integer.MAX_VALUE
@@ -181,7 +195,7 @@ open class RecordPage(private val context: AppCompatActivity, mRoot: ViewGroup, 
              * @param volume
              */
             override fun onRecording(time: Int, volume: Int) {
-                Timber.i( "time = $time\nvolume$volume")
+                Timber.i("time = $time\nvolume$volume")
                 AndroidSchedulers.mainThread().scheduleDirect {
                     mProgressBarRecord!!.progress = time
                     mTvRecordTime!!.text = Util.formatSeconds3(time)
@@ -255,37 +269,40 @@ open class RecordPage(private val context: AppCompatActivity, mRoot: ViewGroup, 
      */
     private fun saveOldRecord(file: String, isFinish: Boolean) {
         Flowable.just(file)
-                .subscribeOn(Schedulers.io())
-                .flatMap { s -> getMediaTime(s) }
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe({ o ->
-                    if (oldRecord != null && isHasChange) {
-                        oldRecord!!.audioContent = mEditInfo!!.text.toString()
-                        oldRecord!!.audioLength = o
-                        RecordDbUtils.getInstance().update(oldRecord!!)
-                        EventBus.getDefault().post(MainThreadEvent(MainThreadEvent.RECORD_REFRESH_RECORD, oldRecord!!))
-                    }
-                    if (isFinish) {
-                        callback.onEvent(1)
-                    } else {
-                        showRecordNewDialog()
-                    }
-                }, { callback.onEvent(1) })
+            .subscribeOn(Schedulers.io())
+            .flatMap { s -> getMediaTime(s) }
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe({ o ->
+                if (oldRecord != null && isHasChange) {
+                    oldRecord!!.audioContent = mEditInfo!!.text.toString()
+                    oldRecord!!.audioLength = o
+                    RecordDbUtils.getInstance().update(oldRecord!!)
+                    EventBus.getDefault()
+                        .post(MainThreadEvent(MainThreadEvent.RECORD_REFRESH_RECORD, oldRecord!!))
+                }
+                if (isFinish) {
+                    callback.onEvent(1)
+                } else {
+                    showRecordNewDialog()
+                }
+            }, { callback.onEvent(1) })
     }
 
     /**
      * 是否录制新内容
      */
     private fun showRecordNewDialog() {
-        AlertDialog.Builder(context)
-                .setTitle("录音已保存")
-                .setMessage("已成功录满${1200/60}分钟，录音已保存。是否继续录制下一条？")
-                .setNegativeButton("查看本条") { _, _ -> callback.onEvent(1) }
-                .setPositiveButton("录下一条") { _, _ ->
-                    setRecord(null)
-                    ArmsUtils.makeText("上条录音已保存至“我的录音”")
-                }
-                .show()
+        OrangeDialog.Builder(context)
+            .setTitle("录音已保存")
+            .setContent("已成功录满${1200 / 60}分钟，录音已保存。是否继续录制下一条？")
+            .setNegativeText("查看本条")
+            .setOnNegativeCallBack { dialog, dialogAction ->  callback.onEvent(1)}
+            .setPositiveText("录下一条")
+            .setonPositiveCallBack {  _, _ ->
+                setRecord(null)
+                ArmsUtils.makeText("上条录音已保存至“我的录音”")
+            }
+            .show()
     }
 
 
@@ -303,8 +320,10 @@ open class RecordPage(private val context: AppCompatActivity, mRoot: ViewGroup, 
      */
     private fun saveRecord(file: String) {
         try {
-            val record = Record("1", file, System.currentTimeMillis().toString() + "",
-                    Util.getAudioLength(file), mEditInfo!!.text.toString())
+            val record = Record(
+                "1", file, System.currentTimeMillis().toString() + "",
+                Util.getAudioLength(file), mEditInfo!!.text.toString()
+            )
             RecordDbUtils.getInstance().save(record)
             EventBus.getDefault().post(MainThreadEvent(MainThreadEvent.RECORD_REFRESH_MY, record))
         } catch (e: Exception) {
@@ -359,18 +378,20 @@ open class RecordPage(private val context: AppCompatActivity, mRoot: ViewGroup, 
      * 展示重新录制
      */
     private fun showRerecordDialog() {
-        AlertDialog.Builder(context)
-                .setTitle("重新录制")
-                .setMessage("确定删除当前的录音，并重新录制吗？")
-                .setNegativeButton("取消") { _, _ -> work!!.recordComplete() }
-                .setPositiveButton("重录") { _, _ ->
-                    //可自行判断是否删除老的文件
-                    oldRecord?.audioLength = 0
-                    oldRecord?.audio_url = ""
-                    setRecord(oldRecord)
-                    work!!.reRecord()
-                }
-                .show()
+        OrangeDialog.Builder(context)
+            .setTitle("重新录制")
+            .setContent("确定删除当前的录音，并重新录制吗？")
+            .setNegativeText("取消")
+            .setOnNegativeCallBack {   _, _ -> work!!.recordComplete() }
+            .setPositiveText("重录")
+            .setonPositiveCallBack {  _, _ ->
+                //可自行判断是否删除老的文件
+                oldRecord?.audioLength = 0
+                oldRecord?.audio_url = ""
+                setRecord(oldRecord)
+                work!!.reRecord()
+            }
+            .show()
     }
 
     /**
@@ -378,12 +399,14 @@ open class RecordPage(private val context: AppCompatActivity, mRoot: ViewGroup, 
      */
     private fun showTipDialog() {
         onPause()//先暂停
-        AlertDialog.Builder(context)
-                .setTitle("温馨提示")
-                .setMessage("确定要停止录音吗？")
-                .setNegativeButton("停止录音") { _, _ -> work!!.recordComplete() }
-                .setPositiveButton("继续录音") { _, _ -> work!!.statOrPause() }
-                .show()
+        OrangeDialog.Builder(context)
+            .setTitle("温馨提示")
+            .setContent("确定要停止录音吗？")
+            .setNegativeText("停止录音")
+            .setOnNegativeCallBack { _, _ -> work!!.recordComplete() }
+            .setPositiveText("继续录音")
+            .setonPositiveCallBack { _, _ -> work!!.statOrPause() }
+            .show()
     }
 
     fun onStop() {

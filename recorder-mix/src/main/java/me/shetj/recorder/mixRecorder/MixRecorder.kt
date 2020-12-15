@@ -20,7 +20,6 @@ import me.shetj.recorder.core.*
 import me.shetj.recorder.util.LameUtils
 import java.io.File
 import java.io.IOException
-import java.net.URL
 
 
 /**
@@ -114,13 +113,13 @@ class MixRecorder : BaseRecorder {
                 }
                 HANDLER_COMPLETE -> {
                     logInfo("msg.what = HANDLER_COMPLETE  \n mDuration = $duration")
-                    if (mRecordListener != null) {
+                    if (mRecordListener != null && mRecordFile != null) {
                         mRecordListener!!.onSuccess(mRecordFile!!.absolutePath, duration)
                     }
                 }
                 HANDLER_AUTO_COMPLETE -> {
                     logInfo("msg.what = HANDLER_AUTO_COMPLETE  \n mDuration = $duration")
-                    if (mRecordListener != null) {
+                    if (mRecordListener != null && mRecordFile != null) {
                         mRecordListener!!.autoComplete(mRecordFile!!.absolutePath, duration)
                     }
                 }
@@ -336,6 +335,14 @@ class MixRecorder : BaseRecorder {
         return this
     }
 
+    fun setMaxTime(mMaxTime: Int,remindDiffTime:Int? = null): MixRecorder {
+        setMaxTime(mMaxTime)
+        if (remindDiffTime != null && remindDiffTime < mMaxTime) {
+            this.mRemindTime = (mMaxTime - remindDiffTime).toLong()
+        }
+        return this
+    }
+
     /**
      * 设置最大录制时间，小于0无效
      * @param mMaxTime 最大录制时间  默认一个小时？
@@ -427,7 +434,8 @@ class MixRecorder : BaseRecorder {
                 Process.setThreadPriority(Process.THREAD_PRIORITY_URGENT_AUDIO)
                 onStart()
                 while (isRecording) {
-                    val samplesPerFrame = bgPlayer.bufferSize  // 这里需要与 背景音乐读取出来的数据长度 一样
+                    val samplesPerFrame =
+                        if (bgPlayer.isPlayingMusic) bgPlayer.bufferSize else mBufferSize  // 这里需要与 背景音乐读取出来的数据长度 一样
                     val buffer: ByteArray? = ByteArray(samplesPerFrame)
                     val readSize = mAudioRecord!!.read(buffer!!, 0, samplesPerFrame)
                     if (readSize == AudioRecord.ERROR_INVALID_OPERATION || readSize == AudioRecord.ERROR_BAD_VALUE) {
@@ -567,6 +575,7 @@ class MixRecorder : BaseRecorder {
         mRecordFile = null
         bgPlayer.release()
         release()
+        handler.removeCallbacksAndMessages(null)
         volumeConfig?.unregisterReceiver()
         plugConfigs?.unregisterReceiver()
     }
@@ -592,10 +601,13 @@ class MixRecorder : BaseRecorder {
             defaultSamplingRate, defaultChannelConfig, DEFAULT_AUDIO_FORMAT.audioFormat,
             mBufferSize
         )
+
         //1秒时间需要多少字节，用来计算已经录制了多久
         bytesPerSecond =
             mAudioRecord!!.sampleRate * mapFormat(mAudioRecord!!.audioFormat) / 8 * mAudioRecord!!.channelCount
+
         initAEC(mAudioRecord!!.audioSessionId)
+
         LameUtils.init(
             defaultSamplingRate,
             defaultLameInChannel,
@@ -641,9 +653,11 @@ class MixRecorder : BaseRecorder {
      */
     private fun onRecording(readTime: Double) {
         duration += readTime.toLong()
-        handler.sendEmptyMessageDelayed(HANDLER_RECORDING, speed)
-        if (mMaxTime in 1..duration) {
-            autoStop()
+        if (state == RecordState.RECORDING) {
+            handler.sendEmptyMessageDelayed(HANDLER_RECORDING, speed)
+            if (mMaxTime == duration) {
+                autoStop()
+            }
         }
     }
 
