@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="record_popup_window_anim_style">
+        <item name="android:windowEnterAnimation">@anim/slide_in_from_bottom</item>
+        <!-- 指定显示的动画xml -->
+
+        <item name="android:windowExitAnimation">@anim/slide_out_to_bottom</item>
+        <!-- 指定消失的动画xml -->
+    </style>
+</resources>

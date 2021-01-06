@@ -13,7 +13,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:background="@drawable/bg_record_content"
+        android:background="@drawable/bg_record_pop_content"
         android:elevation="1dp"
         android:padding="20dp"
         app:layout_constraintBottom_toBottomOf="parent">
@@ -25,7 +25,7 @@
             android:layout_marginTop="20dp"
             android:layout_marginBottom="10dp"
             android:max="3600"
-            android:progressDrawable="@drawable/weike_progressbar_bg" />
+            android:progressDrawable="@drawable/recorder_progressbar_bg" />
 
         <TextView
             android:id="@+id/tv_record_time"
@@ -69,7 +69,7 @@
             android:layout_alignParentRight="true"
             android:layout_marginTop="38dp"
             android:layout_marginRight="20dp"
-            android:drawableTop="@drawable/selector_weike_record_save"
+            android:drawableTop="@drawable/selector_record_save"
             android:drawablePadding="10dp"
             android:gravity="center"
             android:text="@string/save"
@@ -85,7 +85,7 @@
             android:layout_centerHorizontal="true"
             android:layout_gravity="center"
             android:layout_marginTop="15dp"
-            android:background="@drawable/selector_weike_record_cir_btn"
+            android:background="@drawable/selector_recorder_record_cir_btn"
             android:clickable="true"
             android:focusable="true"
             android:src="@drawable/icon_start_record" />

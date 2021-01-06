@@ -1,3 +1,4 @@
+include ':recorder-ui'
 rootProject.name='Mp3Recorder'
 include ':recorder-sim'
 include ':recorder-mix'

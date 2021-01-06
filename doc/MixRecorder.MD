@@ -108,6 +108,6 @@ https://www.jianshu.com/p/87095c155ea5
 
 #### 当前使用的应用
 
-| [荔枝微课](https://sj.qq.com/myapp/detail.htm?apkName=com.lizhiweike) |
+| [荔枝微课](https://sj.qq.com/myapp/detail.htm?apkName=com.lizhirecorder) |
 | ------------------------------------------------------------ |
 | ![](img/image_lizhi.png)                                     |

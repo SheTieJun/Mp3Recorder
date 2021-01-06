@@ -6,12 +6,20 @@ import androidx.appcompat.app.AppCompatActivity
 import com.jakewharton.rxbinding4.view.clicks
 import kotlinx.android.synthetic.main.activity_main.*
 import me.shetj.base.ktx.hasPermission
+import me.shetj.base.ktx.showToast
 import me.shetj.base.ktx.start
 import me.shetj.mp3recorder.record.MixRecordActivity
 import me.shetj.mp3recorder.record.activity.mix.MyMixRecordActivity
 import me.shetj.mp3recorder.record.activity.sim.MyRecordActivity
+import me.shetj.recorder.ui.RecorderPopup
 
 class MainActivity : AppCompatActivity() {
+
+    private val recorderPopup: RecorderPopup by lazy {
+        RecorderPopup(this,(60 * 60 * 1000).toLong()) {
+            it.showToast()
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -58,6 +66,10 @@ class MainActivity : AppCompatActivity() {
             }
             .subscribe {
                 start<MyMixRecordActivity>()
+            }
+        btn_demo4.clicks()
+            .subscribe {
+                recorderPopup.showPop()
             }
     }
 }

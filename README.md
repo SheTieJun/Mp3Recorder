@@ -42,6 +42,7 @@ implementation 'com.github.SheTieJun.Mp3Recorder:recorder-core:+'
 ```
 
 
+
 #### [demo](https://github.com/SheTieJun/Mp3Recorder/tree/master/app)
 - [MixRecordUtils](https://github.com/SheTieJun/Mp3Recorder/blob/master/app/src/main/java/me/shetj/mp3recorder/record/utils/MixRecordUtils.kt)
 - [RecordUtils](https://github.com/SheTieJun/Mp3Recorder/blob/master/app/src/main/java/me/shetj/mp3recorder/record/utils/RecordUtils.kt)
@@ -151,7 +152,29 @@ implementation 'com.github.SheTieJun.Mp3Recorder:recorder-core:+'
 
 
 
-如果感觉这个库帮助到了你，可以点右上角 "Star" 支持一下 谢谢！ 
+Tips: 不建议直接使用,可参考
+
+
+###  超级简单实用(UI)
+```
+implementation 'com.github.SheTieJun.Mp3Recorder:recorder-ui:+'
+implementation 'com.github.SheTieJun.Mp3Recorder:recorder-sim:+'
+implementation 'com.github.SheTieJun.Mp3Recorder:recorder-core:+'
+```
+```
+ 初始化 activity中
+ 
+    private val recorderPopup: RecorderPopup by lazy {
+        RecorderPopup(this) {
+            ToastUtil.info(this,it)  //录音成功返回的地址
+        }
+    }
+ 
+  使用
+    // activity 没有初始化成功前 不可以调用，否则会崩溃
+    recorderPopup.showPop()
+ 
+```
 
 
 

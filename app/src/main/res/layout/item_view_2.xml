@@ -31,7 +31,7 @@
             android:layout_height="3dp"
             android:layout_marginTop="10dp"
             android:max="3600"
-            android:progressDrawable="@drawable/weike_progressbar_bg"
+            android:progressDrawable="@drawable/recorder_progressbar_bg"
             android:layout_marginBottom="10dp"
             />
         <TextView

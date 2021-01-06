@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:clickable="true"
-    android:background="@drawable/weike_list_item_bg_selector"
+    android:background="@drawable/recorder_list_item_bg_selector"
     >
     <ProgressBar
         android:id="@+id/progressbar_upload"
@@ -115,7 +115,7 @@
                     android:layout_weight="1"
                     android:layout_gravity="center"
                     android:scaleType="centerInside"
-                    android:src="@drawable/selector_weike_record_play"/>
+                    android:src="@drawable/selector_record_play"/>
 
                 <TextView
                     android:id="@+id/tv_more"

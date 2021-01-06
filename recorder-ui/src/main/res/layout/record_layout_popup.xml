@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="277dp"
+        android:layout_gravity="bottom"
+        android:layout_marginTop="10dp"
+        android:background="@drawable/bg_record_pop_content"
+        android:elevation="10dp">
+
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/tv_reRecord"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="20dp"
+            android:layout_marginTop="42dp"
+            android:layout_marginEnd="5dp"
+            android:drawableTop="@drawable/ic_record_restart"
+            android:drawablePadding="10dp"
+            android:gravity="center"
+            android:text="重录"
+            android:textColor="#FF333333"
+            android:textSize="14sp"
+            android:visibility="invisible"
+            app:layout_constraintBottom_toBottomOf="@id/iv_record_state"
+            app:layout_constraintEnd_toStartOf="@id/iv_record_state"
+            app:layout_constraintStart_toStartOf="parent"
+            tools:visibility="visible" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/tv_save_record"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_marginStart="5dp"
+            android:layout_marginTop="42dp"
+            android:layout_marginRight="20dp"
+            android:drawableTop="@drawable/ic_record_save"
+            android:drawablePadding="10dp"
+            android:gravity="center"
+            android:text="保存"
+            android:textColor="#FF333333"
+            android:textSize="14sp"
+            android:visibility="invisible"
+            app:layout_constraintBottom_toBottomOf="@id/iv_record_state"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/iv_record_state"
+            tools:visibility="visible" />
+
+
+        <LinearLayout
+            android:id="@+id/ll_time"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="15dp"
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:visibility="gone"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <TextView
+                android:id="@+id/tv_record_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="00:00"
+                android:textColor="#FF3E3F4F"
+                android:textSize="18sp" />
+
+            <TextView
+                android:id="@+id/tv_record_duration"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="/30:00"
+                android:textColor="#FFB6B8C5"
+                android:textSize="18sp" />
+        </LinearLayout>
+
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/tv_tips"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:gravity="center"
+            android:text="点击下方按钮开始录音"
+            android:textColor="#FFB6B8C5"
+            android:textSize="14sp"
+            app:layout_constraintTop_toBottomOf="@id/ll_time"
+            app:layout_goneMarginTop="17dp" />
+
+
+
+        <me.shetj.recorder.ui.SpreadView
+            android:id="@+id/spread_view"
+            android:layout_width="125dp"
+            android:layout_height="125dp"
+            android:layout_centerHorizontal="true"
+            android:layout_gravity="center"
+            android:visibility="gone"
+            app:spread_uniform_mode="true"
+            app:spread_center_color="@color/pop_main_color"
+            app:spread_circle_count="3"
+            app:spread_delay_milliseconds="300"
+            app:spread_gain="0.3"
+            app:spread_distance="5dp"
+            app:spread_max_radius="52dp"
+            app:spread_min_radius="35dp"
+            app:spread_radius="33.5dp"
+            app:layout_constraintBottom_toBottomOf="@id/iv_record_state"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@id/iv_record_state"
+            app:spread_spread_color="@color/pop_main_color" />
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/iv_record_state"
+            android:layout_width="85dp"
+            android:layout_height="85dp"
+            android:layout_marginTop="78dp"
+            android:background="@drawable/selector_record_cir_btn"
+            android:scaleType="centerInside"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/ic_record_start" />
+
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/tv_state"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="9dp"
+            android:text="试听"
+            android:textColor="#FF3E3F4F"
+            android:textSize="14sp"
+            android:visibility="gone"
+            app:layout_constraintEnd_toEndOf="@id/iv_record_state"
+            app:layout_constraintStart_toStartOf="@id/iv_record_state"
+            app:layout_constraintTop_toBottomOf="@id/iv_record_state"
+            tools:visibility="visible" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="5dp"
+            android:background="#FFF5F7FA"
+            app:layout_constraintBottom_toTopOf="@id/tv_cancel" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/tv_cancel"
+            android:clickable="true"
+            android:focusable="true"
+            android:background="?attr/selectableItemBackground"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:gravity="center"
+            android:text="取消"
+            android:textColor="@color/textColor"
+            app:layout_constraintBottom_toBottomOf="parent" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</FrameLayout>

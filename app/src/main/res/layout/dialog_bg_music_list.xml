@@ -27,7 +27,7 @@
         android:layout_marginBottom="8dp"
         android:gravity="center"
         android:text="背景音乐"
-        android:textColor="@color/weike_text_second"
+        android:textColor="@color/recorder_text_second"
         android:textSize="18sp"
         android:textStyle="bold"
         app:layout_constraintBottom_toTopOf="@+id/recycler_view"
