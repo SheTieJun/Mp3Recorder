@@ -1,5 +1,11 @@
 package me.shetj.recorder.ui
 
+import android.app.Activity
+import android.content.pm.PackageManager
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
+
 internal
 fun formatSeconds(seconds: Long,max:Long): String {
     var secondsInternal = seconds
@@ -17,4 +23,16 @@ private fun getTwoDecimalsValue(value: Long): String {
     } else {
         value.toString() + ""
     }
+}
+
+fun AppCompatActivity.hasPermission(vararg permissions: String, isRequest: Boolean = false,): Boolean {
+    for (permission in permissions) {
+        if (ContextCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED) {
+            if (isRequest) {
+                ActivityCompat.requestPermissions(this as Activity, permissions, 100)
+            }
+            return false
+        }
+    }
+    return true
 }

@@ -13,7 +13,6 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.OnLifecycleEvent
 import androidx.viewbinding.ViewBinding
-import io.reactivex.rxjava3.disposables.CompositeDisposable
 
 /**
  * popup 弹窗
@@ -26,8 +25,6 @@ import io.reactivex.rxjava3.disposables.CompositeDisposable
 abstract class BasePopupWindow<VB : ViewBinding>(mContext: AppCompatActivity) :
     PopupWindow(mContext), LifecycleObserver {
 
-    private val lazyComposite = lazy { CompositeDisposable() }
-    protected val mCompositeDisposable: CompositeDisposable by lazyComposite
     private val lazyViewBinding = lazy { initViewBinding(mContext) }
     protected val mViewBinding: VB by lazyViewBinding
 
@@ -95,9 +92,6 @@ abstract class BasePopupWindow<VB : ViewBinding>(mContext: AppCompatActivity) :
     @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
     open fun dismissStop() {
         try {
-            if (lazyComposite.isInitialized()) {
-                mCompositeDisposable.clear()
-            }
             dismiss()
         } catch (ignored: Exception) {
             //暴力解决，可能的崩溃
@@ -107,9 +101,6 @@ abstract class BasePopupWindow<VB : ViewBinding>(mContext: AppCompatActivity) :
     @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
     open fun dismissOnDestroy() {
         try {
-            if (lazyComposite.isInitialized()) {
-                mCompositeDisposable.clear()
-            }
             dismiss()
         } catch (_: Exception) {
             //暴力解决，可能的崩溃

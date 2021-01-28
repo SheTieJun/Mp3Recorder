@@ -3,22 +3,19 @@ package me.shetj.recorder.ui
 import android.Manifest
 import android.transition.TransitionManager
 import android.view.Gravity
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
-import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
-import me.shetj.base.ktx.hasPermission
-import me.shetj.base.ktx.showToast
 import me.shetj.dialog.OrangeDialog
 import me.shetj.recorder.core.SimRecordListener
 import me.shetj.recorder.ui.databinding.RecordLayoutPopupBinding
-import java.util.concurrent.TimeUnit
 
 
 typealias Success = (file: String) -> Unit
 
 
-class RecorderPopup(private val mContext: AppCompatActivity,  private val maxTime :Long = (30 * 60 * 1000).toLong(),private var onSuccess: Success? = null) :
-        BasePopupWindow<RecordLayoutPopupBinding>(mContext) {
+class RecorderPopup(private val context: AppCompatActivity, var needPlay:Boolean = true, private val maxTime :Long = (30 * 60 * 1000).toLong(), private var onSuccess: Success? = null) :
+        BasePopupWindow<RecordLayoutPopupBinding>(context) {
 
     private var remindDialog: OrangeDialog? =null
     private var isComplete = false
@@ -42,7 +39,8 @@ class RecorderPopup(private val mContext: AppCompatActivity,  private val maxTim
             super.onStart(duration)
             mViewBinding.tvState.text = "播放中"
             mViewBinding.tvState.isVisible = true
-            mViewBinding.tvRecordDuration.text = "/" + formatSeconds((duration / 1000).toLong(), maxSecond())
+            val info = "/" + formatSeconds((duration / 1000).toLong(), maxSecond())
+            mViewBinding.tvRecordDuration.text = info
             mViewBinding.ivRecordState.setImageResource(R.drawable.ic_record_pause)
         }
 
@@ -84,9 +82,29 @@ class RecorderPopup(private val mContext: AppCompatActivity,  private val maxTim
             }
         }
 
+        override fun onResume() {
+            super.onResume()
+            TransitionManager.beginDelayedTransition(mViewBinding.root)
+            mViewBinding.llTime.isVisible = true
+            val tip = "录音中，${maxTime / 60000}分钟后自动保存"
+            mViewBinding.tvTips.text = tip
+            mViewBinding.ivRecordState.setImageResource(R.drawable.ic_record_pause)
+            mViewBinding.spreadView.start = true
+        }
+
+        override fun onPause() {
+            super.onPause()
+            mViewBinding.spreadView.start = false
+            mViewBinding.tvTips.isVisible = false
+            mViewBinding.ivRecordState.setImageResource(R.drawable.ic_record_start)
+            mViewBinding.tvState.text = "继续录制"
+            mViewBinding.tvState.isVisible = true
+        }
+
         override fun onMaxChange(time: Long) {
             super.onMaxChange(time)
-            mViewBinding.tvRecordDuration.text = "/" + formatSeconds(time/1000, maxSecond())
+            val maxTimeInfo = "/" + formatSeconds(time / 1000, maxSecond())
+            mViewBinding.tvRecordDuration.text = maxTimeInfo
         }
 
         override fun onSuccess(file: String, time: Long) {
@@ -94,7 +112,7 @@ class RecorderPopup(private val mContext: AppCompatActivity,  private val maxTim
             if (time > 3000) {
                 onShowSuccessView()
             }else{
-                "录制时长不足3秒，无法保存".showToast()
+                Toast.makeText(context,"录制时长不足3秒，无法保存",Toast.LENGTH_SHORT).show()
                 onReset()
             }
         }
@@ -109,13 +127,14 @@ class RecorderPopup(private val mContext: AppCompatActivity,  private val maxTim
             mViewBinding.tvSaveRecord.isVisible = false
             mViewBinding.tvState.text = ""
             mViewBinding.tvRecordTime.text = formatSeconds(0, maxSecond())
-            mViewBinding.tvRecordDuration.text = "/" + formatSeconds( maxSecond(), maxSecond())
+            val timeInfo = "/" + formatSeconds(maxSecond(), maxSecond())
+            mViewBinding.tvRecordDuration.text = timeInfo
             mViewBinding.ivRecordState.setImageResource(R.drawable.ic_record_start)
         }
 
         override fun needPermission() {
             super.needPermission()
-            mContext.hasPermission(
+            context.hasPermission(
                     Manifest.permission.RECORD_AUDIO,
                     Manifest.permission.WRITE_EXTERNAL_STORAGE, isRequest = true
             )
@@ -131,7 +150,7 @@ class RecorderPopup(private val mContext: AppCompatActivity,  private val maxTim
         }
     }
 
-    private val recordUtils by lazy { MixRecordUtils(maxTime.toInt(), listener) }
+    private val recordUtils by lazy { MixRecordUtils(context,maxTime.toInt(), listener) }
 
     private val player: AudioPlayer by lazy { AudioPlayer() }
 
@@ -149,7 +168,11 @@ class RecorderPopup(private val mContext: AppCompatActivity,  private val maxTim
     override fun RecordLayoutPopupBinding.initUI() {
         ivRecordState.setOnClickListener {
             if (!isComplete) {
-                recordUtils.startOrComplete()
+                if (needPlay) {
+                    recordUtils.startOrComplete()
+                }else{
+                    recordUtils.startOrPause()
+                }
                 requestAudioFocus()
             } else {
                 player.playOrPause(recordUtils.saveFile, playerListener)
@@ -220,7 +243,7 @@ class RecorderPopup(private val mContext: AppCompatActivity,  private val maxTim
             }
             isComplete = false
         }
-        showAtLocation(mContext.window.decorView, Gravity.BOTTOM, 0, 0)
+        showAtLocation(context.window.decorView, Gravity.BOTTOM, 0, 0)
     }
 
     private fun onShowSuccessView() {
@@ -236,9 +259,7 @@ class RecorderPopup(private val mContext: AppCompatActivity,  private val maxTim
 
 
     private fun realDismiss() {
-        AndroidSchedulers.mainThread().scheduleDirect({
-            dismiss()
-        }, 50, TimeUnit.MILLISECONDS)
+        dismiss()
     }
 
     override fun dismissStop() {

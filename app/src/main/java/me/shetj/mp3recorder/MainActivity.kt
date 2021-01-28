@@ -16,7 +16,7 @@ import me.shetj.recorder.ui.RecorderPopup
 class MainActivity : AppCompatActivity() {
 
     private val recorderPopup: RecorderPopup by lazy {
-        RecorderPopup(this,(60 * 60 * 1000).toLong()) {
+        RecorderPopup(this,needPlay = false,maxTime = (60 * 60 * 1000).toLong()) {
             it.showToast()
         }
     }

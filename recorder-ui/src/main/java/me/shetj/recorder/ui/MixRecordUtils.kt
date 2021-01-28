@@ -1,18 +1,19 @@
 package me.shetj.recorder.ui
 
+import android.content.Context
 import android.text.TextUtils
-import me.shetj.base.S
-import me.shetj.base.tools.file.EnvironmentStorage
 import me.shetj.player.PlayerListener
 import me.shetj.recorder.core.*
 import me.shetj.recorder.mixRecorder.MixRecorder
 import me.shetj.recorder.mixRecorder.PlayBackMusic
 import me.shetj.recorder.mixRecorder.mixRecorder
+import java.io.File
 
 /**
  * 录音工具类
  */
 class MixRecordUtils(
+    private val context: Context,
     private val maxTime: Int = 30 * 60 * 1000,
     private val callBack: SimRecordListener?
 ) : RecordListener, PermissionListener {
@@ -38,6 +39,18 @@ class MixRecordUtils(
         initRecorder()
     }
 
+    val mp3Path: String
+        get() {
+            val root = context.filesDir.absolutePath
+            val path = StringBuilder(root)
+            val dirFile = File("$path/record")
+            if (!dirFile.exists()) {
+                dirFile.mkdir()
+            }
+            path.append("/").append("record")
+            return path.toString()
+        }
+
     private var startTime: Long = 0 //秒 s
     private var mRecorder: BaseRecorder? = null
     var saveFile: String? = null
@@ -51,8 +64,7 @@ class MixRecordUtils(
         when (mRecorder?.state) {
             RecordState.STOPPED -> {
                 if (TextUtils.isEmpty(file)) {
-                    val mRecordFile =
-                        EnvironmentStorage.getPath(packagePath = "record") + "/" + System.currentTimeMillis() + ".mp3"
+                    val mRecordFile = mp3Path + "/" + System.currentTimeMillis() + ".mp3"
                     this.saveFile = mRecordFile
                 } else {
                     this.saveFile = file
@@ -79,8 +91,7 @@ class MixRecordUtils(
             RecordState.STOPPED -> {
                 if (TextUtils.isEmpty(file)) {
                     if (TextUtils.isEmpty(file)) {
-                        val mRecordFile =
-                            EnvironmentStorage.getPath(packagePath = "record") + "/" + System.currentTimeMillis() + ".mp3"
+                        val mRecordFile = mp3Path + "/" + System.currentTimeMillis() + ".mp3"
                         this.saveFile = mRecordFile
                     } else {
                         this.saveFile = file
@@ -95,6 +106,9 @@ class MixRecordUtils(
             RecordState.RECORDING -> {
                 mRecorder?.stop()
             }
+            RecordState.PAUSED -> {
+
+            }
         }
     }
 
@@ -104,10 +118,10 @@ class MixRecordUtils(
      */
     private fun initRecorder() {
         mRecorder = mixRecorder(
-                S.app,
-                recordListener = this,
-                permissionListener = this,
-                isDebug = false
+            context,
+            recordListener = this,
+            permissionListener = this,
+            isDebug = false
         )
         mRecorder?.setMaxTime(maxTime, 60 * 1000)
     }
