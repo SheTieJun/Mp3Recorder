@@ -2,8 +2,11 @@
 
 buildscript {
     ext.kotlin_version = '1.4.21'
-    ext.base_kt_version = "a8a0401c72"
+    ext.base_kt_version = "1.0.6"
     ext.SimXutilsDb =     "77f2bade32"
+
+    ext.recorder_version = '0.0.4'
+
     repositories {
         google()
         jcenter()

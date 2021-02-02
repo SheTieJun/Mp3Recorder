@@ -1,6 +1,6 @@
 apply plugin: 'com.jfrog.bintray'
 apply plugin: 'com.github.dcendents.android-maven'
-apply plugin: 'maven-publish'  //这个也是必须加的否则会socket 超时？？？
+//apply plugin: 'maven-publish'  //这个也是必须加的否则会socket 超时？？？
 
 def libName = bintrayConfig.libName
 def groupName = bintrayConfig.groupName

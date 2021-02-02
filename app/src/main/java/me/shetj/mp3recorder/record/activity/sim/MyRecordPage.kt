@@ -123,7 +123,7 @@ class MyRecordPage(
         //添加一个head
         val headView = View(context)
         headView.layoutParams =
-            ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ArmsUtils.dip2px(35f))
+            ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ArmsUtils.dp2px(35f))
         recordAdapter.addHeaderView(headView)
         //去录音界面
         mIvRecordState!!.setOnClickListener {

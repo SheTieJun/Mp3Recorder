@@ -1,13 +1,13 @@
 package me.shetj.mp3recorder.record
 
 import android.os.Bundle
-import androidx.appcompat.app.AppCompatActivity
-import com.jakewharton.rxbinding4.view.clicks
-import kotlinx.android.synthetic.main.activity_mix_record.*
 import me.shetj.base.ktx.showToast
+import me.shetj.base.mvvm.BaseBindingActivity
+import me.shetj.base.mvvm.BaseViewModel
 import me.shetj.base.tools.app.ArmsUtils
 import me.shetj.base.tools.file.EnvironmentStorage
 import me.shetj.mp3recorder.R
+import me.shetj.mp3recorder.databinding.ActivityMixRecordBinding
 import me.shetj.mp3recorder.mp3RecorderNoContext
 import me.shetj.mp3recorder.record.utils.LocalMusicUtils
 import me.shetj.player.AudioPlayer
@@ -16,12 +16,11 @@ import me.shetj.recorder.core.RecordState
 import me.shetj.recorder.setPlayListener
 import me.shetj.recorder.setRecordListener
 import timber.log.Timber
-import java.util.concurrent.TimeUnit
 
 /**
  * mix录音的demo
  */
-class MixRecordActivity : AppCompatActivity() {
+class MixRecordActivity : BaseBindingActivity<BaseViewModel,ActivityMixRecordBinding>() {
 
     private var musicUrl: String? =null
     private var mixRecorder: BaseRecorder?=null
@@ -33,41 +32,34 @@ class MixRecordActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_mix_record)
         LocalMusicUtils.loadFileData(this)!!.subscribe { music -> musicUrl = music[0].url }
-        bt_start.setOnClickListener {
+        mViewBinding.btStart.setOnClickListener {
             //如果在播放先暂停播放
             audioPlayer.pause()
             //开始录音
             mixRecord()
         }
 
-        bt_pause.setOnClickListener {
+        mViewBinding.btPause.setOnClickListener {
             recordPauseOrResume()
         }
 
-        bt_start_bg.setOnClickListener {
+        mViewBinding.btStartBg.setOnClickListener {
             startOrPause()
         }
 
-        bt_stop.setOnClickListener {
+        mViewBinding.btStop.setOnClickListener {
             stopRecord()
         }
 
-        bt_change_bg.setOnClickListener {
-            changeMusic()
+        mViewBinding.btChangeBg.setOnClickListener {
+            if (mixRecorder?.state == RecordState.RECORDING) {
+                changeMusic()
+            }else{
+                ArmsUtils.makeText(   "请先开始录音")
+            }
         }
 
-        bt_change_bg
-            .clicks()
-            .throttleFirst(1000,TimeUnit.MILLISECONDS)
-            .subscribe {
-                if (mixRecorder?.state == RecordState.RECORDING) {
-                    changeMusic()
-                }else{
-                    ArmsUtils.makeText(   "请先开始录音")
-                }
-            }
-
-        bt_audition.setOnClickListener {
+       mViewBinding.btAudition.setOnClickListener {
             mp3Url?.let {
                 //先暂停再开始播放
                 stopRecord()

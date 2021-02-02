@@ -1,5 +1,5 @@
 ext.bintrayConfig = [
-        libName : "recorder-sim",
+        libName : "recorder-ui",
         groupName : 'me.shetj.sdk',
         versionName : recorder_version,
 

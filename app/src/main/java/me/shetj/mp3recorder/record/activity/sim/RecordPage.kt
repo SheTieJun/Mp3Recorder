@@ -152,15 +152,15 @@ open class RecordPage(
             ViewGroup.LayoutParams.WRAP_CONTENT
         )
         editText.layoutParams = params
-        editText.minHeight = ArmsUtils.dip2px(500f)
+        editText.minHeight = ArmsUtils.dp2px(500f)
         editText.textSize = 16f
         editText.gravity = Gravity.TOP
         editText.setBackgroundColor(Color.WHITE)
         editText.setPadding(
-            ArmsUtils.dip2px(30f),
-            ArmsUtils.dip2px(27f),
-            ArmsUtils.dip2px(30f),
-            ArmsUtils.dip2px(50f)
+            ArmsUtils.dp2px(30f),
+            ArmsUtils.dp2px(27f),
+            ArmsUtils.dp2px(30f),
+            ArmsUtils.dp2px(50f)
         )
         editText.inputType = EditorInfo.TYPE_CLASS_TEXT or EditorInfo.TYPE_TEXT_FLAG_MULTI_LINE
         editText.setHorizontallyScrolling(false)

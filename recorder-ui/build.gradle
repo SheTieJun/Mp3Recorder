@@ -49,3 +49,7 @@ dependencies {
     implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.2.0'
     implementation "com.github.SheTieJun:OrangeDialog:0.0.2"
 }
+
+
+apply from: 'bintrayConfig.gradle'
+apply from: '../bintray.gradle'
