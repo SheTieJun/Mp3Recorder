@@ -21,10 +21,8 @@ class MainActivity : BaseBindingActivity<BaseViewModel,ActivityMainBinding>() {
         }
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-
+    override fun onActivityCreate() {
+        super.onActivityCreate()
         hasPermission(
             Manifest.permission.WRITE_EXTERNAL_STORAGE,
             Manifest.permission.READ_EXTERNAL_STORAGE,
@@ -38,7 +36,7 @@ class MainActivity : BaseBindingActivity<BaseViewModel,ActivityMainBinding>() {
                     Manifest.permission.READ_EXTERNAL_STORAGE,
                     Manifest.permission.RECORD_AUDIO, isRequest = true
                 )){
-                    start<MyRecordActivity>()
+                start<MyRecordActivity>()
             }
         }
 
