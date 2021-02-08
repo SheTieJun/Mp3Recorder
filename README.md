@@ -158,15 +158,15 @@ Tips: 不建议直接使用,可参考
 ###  超级简单实用(UI)
 ```
 implementation 'com.github.SheTieJun.Mp3Recorder:recorder-ui:+'
-implementation 'com.github.SheTieJun.Mp3Recorder:recorder-sim:+'
+implementation 'com.github.SheTieJun.Mp3Recorder:recorder-mix:+'
 implementation 'com.github.SheTieJun.Mp3Recorder:recorder-core:+'
 ```
 ```
  初始化 activity中
  
     private val recorderPopup: RecorderPopup by lazy {
-        RecorderPopup(this) {
-            ToastUtil.info(this,it)  //录音成功返回的地址
+         RecorderPopup(this, needPlay = false, maxTime = (60 * 60 * 1000).toLong()) {
+            it.showToast()
         }
     }
  

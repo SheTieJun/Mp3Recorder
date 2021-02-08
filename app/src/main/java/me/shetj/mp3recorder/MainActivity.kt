@@ -13,10 +13,10 @@ import me.shetj.mp3recorder.record.activity.mix.MyMixRecordActivity
 import me.shetj.mp3recorder.record.activity.sim.MyRecordActivity
 import me.shetj.recorder.ui.RecorderPopup
 
-class MainActivity : BaseBindingActivity<BaseViewModel,ActivityMainBinding>() {
+class MainActivity : BaseBindingActivity<BaseViewModel, ActivityMainBinding>() {
 
     private val recorderPopup: RecorderPopup by lazy {
-        RecorderPopup(this,needPlay = false,maxTime = (60 * 60 * 1000).toLong()) {
+        RecorderPopup(this, needPlay = false, maxTime = (60 * 60 * 1000).toLong()) {
             it.showToast()
         }
     }
@@ -35,7 +35,8 @@ class MainActivity : BaseBindingActivity<BaseViewModel,ActivityMainBinding>() {
                     Manifest.permission.WRITE_EXTERNAL_STORAGE,
                     Manifest.permission.READ_EXTERNAL_STORAGE,
                     Manifest.permission.RECORD_AUDIO, isRequest = true
-                )){
+                )
+            ) {
                 start<MyRecordActivity>()
             }
         }
@@ -45,7 +46,8 @@ class MainActivity : BaseBindingActivity<BaseViewModel,ActivityMainBinding>() {
                     Manifest.permission.WRITE_EXTERNAL_STORAGE,
                     Manifest.permission.READ_EXTERNAL_STORAGE,
                     Manifest.permission.RECORD_AUDIO, isRequest = true
-                )){
+                )
+            ) {
                 start<MixRecordActivity>()
             }
         }
@@ -55,13 +57,20 @@ class MainActivity : BaseBindingActivity<BaseViewModel,ActivityMainBinding>() {
                     Manifest.permission.WRITE_EXTERNAL_STORAGE,
                     Manifest.permission.READ_EXTERNAL_STORAGE,
                     Manifest.permission.RECORD_AUDIO, isRequest = true
-                )){
+                )
+            ) {
                 start<MyMixRecordActivity>()
             }
         }
 
         mViewBinding.btnDemo4.setOnClickListener {
             recorderPopup.showPop()
+        }
+    }
+
+    override fun onBackPressed() {
+        if (recorderPopup.onBackPress()) {
+            super.onBackPressed()
         }
     }
 }
