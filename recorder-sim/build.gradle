@@ -33,7 +33,7 @@ android {
 
 dependencies {
     api fileTree(dir: "libs", include: ["*.jar"])
-    implementation project(path: ':recorder-core')
+    compileOnly project(path: ':recorder-core')
 }
 
 apply from: 'bintrayConfig.gradle'
