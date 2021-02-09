@@ -18,7 +18,7 @@ jobs:
     - name: Make gradlew executable
       run: chmod +x ./gradlew
     - name: bulid with gradlew
-      run: ./gradlew build
+      run: ./gradlew assembleRelease
     - name: install fir.im
       run: gem install fir-cli
     - name: Upload to Fir.im
