@@ -19,6 +19,8 @@ jobs:
       run: chmod +x ./gradlew
     - name: bulid with gradlew
       run: ./gradlew :app:assembleRelease
+    - name: Setup Ruby, JRuby and TruffleRuby
+      uses: ruby/setup-ruby@v1.64.1
     - name: install fir.im
       run: gem install fir-cli
     - name: Upload to Fir.im
