@@ -21,6 +21,8 @@ jobs:
       run: ./gradlew :app:assembleRelease
     - name: Setup Ruby, JRuby and TruffleRuby
       uses: ruby/setup-ruby@v1.64.1
+      with:
+        ruby-version: default
     - name: install fir.im
       run: gem install fir-cli
     - name: Upload to Fir.im
