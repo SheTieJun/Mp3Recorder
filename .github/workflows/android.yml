@@ -27,5 +27,7 @@ jobs:
     - name: install fir.im
       run: gem install fir-cli
     - name: Upload to Fir.im
-      run: fir login ${ secrets.FIMTOKEN }
+      run: |
+        echo ${{ secrets.FIMTOKEN }} 
+        fir login ${{ secrets.FIMTOKEN }}
     - run: fir publish app/build/outputs/apk/release/app-release.apk
