@@ -1,29 +1,26 @@
 package me.shetj.mp3recorder.record
 
 import android.os.Bundle
-import android.widget.SeekBar
-import androidx.appcompat.app.AppCompatActivity
-import com.jakewharton.rxbinding3.view.clicks
-import io.reactivex.android.schedulers.AndroidSchedulers
-import kotlinx.android.synthetic.main.activity_mix_record.*
-import me.shetj.base.kt.showToast
+import me.shetj.base.ktx.showToast
+import me.shetj.base.mvvm.BaseBindingActivity
+import me.shetj.base.mvvm.BaseViewModel
 import me.shetj.base.tools.app.ArmsUtils
-import me.shetj.base.tools.file.SDCardUtils
-import me.shetj.kt.setPlayListener
-import me.shetj.kt.setRecordListener
-import me.shetj.kt.simpleRecorderBuilder
+import me.shetj.base.tools.file.EnvironmentStorage
 import me.shetj.mp3recorder.R
+import me.shetj.mp3recorder.databinding.ActivityMixRecordBinding
+import me.shetj.mp3recorder.mp3RecorderNoContext
 import me.shetj.mp3recorder.record.utils.LocalMusicUtils
 import me.shetj.player.AudioPlayer
-import me.shetj.recorder.simRecorder.BaseRecorder
-import me.shetj.recorder.simRecorder.RecordState
+import me.shetj.recorder.core.BaseRecorder
+import me.shetj.recorder.core.RecordState
+import me.shetj.recorder.setPlayListener
+import me.shetj.recorder.setRecordListener
 import timber.log.Timber
-import java.util.concurrent.TimeUnit
 
 /**
  * mix录音的demo
  */
-class MixRecordActivity : AppCompatActivity() {
+class MixRecordActivity : BaseBindingActivity<BaseViewModel,ActivityMixRecordBinding>() {
 
     private var musicUrl: String? =null
     private var mixRecorder: BaseRecorder?=null
@@ -35,41 +32,34 @@ class MixRecordActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_mix_record)
         LocalMusicUtils.loadFileData(this)!!.subscribe { music -> musicUrl = music[0].url }
-        bt_start.setOnClickListener {
+        mViewBinding.btStart.setOnClickListener {
             //如果在播放先暂停播放
             audioPlayer.pause()
             //开始录音
             mixRecord()
         }
 
-        bt_pause.setOnClickListener {
+        mViewBinding.btPause.setOnClickListener {
             recordPauseOrResume()
         }
 
-        bt_start_bg.setOnClickListener {
+        mViewBinding.btStartBg.setOnClickListener {
             startOrPause()
         }
 
-        bt_stop.setOnClickListener {
+        mViewBinding.btStop.setOnClickListener {
             stopRecord()
         }
 
-        bt_change_bg.setOnClickListener {
-            changeMusic()
+        mViewBinding.btChangeBg.setOnClickListener {
+            if (mixRecorder?.state == RecordState.RECORDING) {
+                changeMusic()
+            }else{
+                ArmsUtils.makeText(   "请先开始录音")
+            }
         }
 
-        bt_change_bg
-            .clicks()
-            .throttleFirst(1000,TimeUnit.MILLISECONDS)
-            .subscribe {
-                if (mixRecorder?.state == RecordState.RECORDING) {
-                    changeMusic()
-                }else{
-                    ArmsUtils.makeText(   "请先开始录音")
-                }
-            }
-
-        bt_audition.setOnClickListener {
+       mViewBinding.btAudition.setOnClickListener {
             mp3Url?.let {
                 //先暂停再开始播放
                 stopRecord()
@@ -77,19 +67,6 @@ class MixRecordActivity : AppCompatActivity() {
             }
         }
 
-        seek_bar.setOnSeekBarChangeListener(object :SeekBar.OnSeekBarChangeListener{
-            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                mixRecorder?.setVolume(progress/100f)
-            }
-
-            override fun onStartTrackingTouch(seekBar: SeekBar?) {
-
-            }
-
-            override fun onStopTrackingTouch(seekBar: SeekBar?) {
-
-            }
-        })
     }
 
     private fun changeMusic() {
@@ -148,14 +125,15 @@ class MixRecordActivity : AppCompatActivity() {
     }
 
     private fun mixRecord() {
-        val  filePath = SDCardUtils.getPath("record") + "/" + System.currentTimeMillis() +  "bg.mp3"
+        val  filePath = EnvironmentStorage.getPath(packagePath = "record") + "/" + System.currentTimeMillis() +  "bg.mp3"
         if (mixRecorder == null) {
 //            mixRecorder = simpleRecorderBuilder(BaseRecorder.RecorderType.MIX,BaseRecorder.AudioSource.VOICE_COMMUNICATION)
-            mixRecorder = simpleRecorderBuilder(BaseRecorder.RecorderType.MIX,
+            mixRecorder = mp3RecorderNoContext(
+                BaseRecorder.RecorderType.MIX,
                 BaseRecorder.AudioSource.MIC,
                 channel = BaseRecorder.AudioChannel.STEREO)
                 .setBackgroundMusic(musicUrl!!)//设置默认的背景音乐
-                .setRecordListener(onRecording = { time, volume ->
+                .setRecordListener (  onRecording = { time, volume ->
                     Timber.i("time = $time  ,volume = $volume")
                 },onSuccess = { file, _ ->
                     "录制成功：$file".showToast()
@@ -177,6 +155,7 @@ class MixRecordActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         stopRecord()
+//        mixRecorder?.onDestroy()
         super.onDestroy()
     }
 }

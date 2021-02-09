@@ -11,10 +11,14 @@
           <set>
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/app" />
-            <option value="$PROJECT_DIR$/recorder" />
+            <option value="$PROJECT_DIR$/recorder-core" />
+            <option value="$PROJECT_DIR$/recorder-mix" />
+            <option value="$PROJECT_DIR$/recorder-sim" />
+            <option value="$PROJECT_DIR$/recorder-ui" />
           </set>
         </option>
         <option name="resolveModulePerSourceSet" value="false" />
+        <option name="useQualifiedModuleNames" value="true" />
       </GradleProjectSettings>
     </option>
   </component>

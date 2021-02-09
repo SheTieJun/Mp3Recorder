@@ -1,5 +1,6 @@
 package me.shetj.mp3recorder.record.view
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.transition.TransitionManager
 import android.util.AttributeSet
@@ -18,7 +19,8 @@ import me.shetj.mp3recorder.record.utils.RecordUtils
 import me.shetj.mp3recorder.record.utils.Util
 import me.shetj.player.AudioPlayer
 import me.shetj.player.PlayerListener
-import timber.log.Timber
+import me.shetj.recorder.core.OnVolumeChange
+import me.shetj.recorder.core.VolumeConfig
 
 /**
  * 背景音乐控制
@@ -40,6 +42,8 @@ class BackgroundMusicView @JvmOverloads constructor(context: Context,
     private var recordUtils: RecordUtils?=null
     private var music: Music?=null
     private var musicDialog: MusicListBottomSheetDialog?=null
+    private val max :Float by lazy { VolumeConfig.getInstance(context).getMaxVoice().toFloat() }
+    private val volumeConfig: VolumeConfig by lazy { VolumeConfig.getInstance(context) }
 
     init {
         //设置view
@@ -51,21 +55,29 @@ class BackgroundMusicView @JvmOverloads constructor(context: Context,
         mTvVoice = view.findViewById(R.id.tv_voice)
         mTvProgress = view.findViewById(R.id.tv_time_progress)
         addView(view)
-
         mIvPlay.setOnClickListener(this)
         mIvChange.setOnClickListener(this)
 
-
     }
+
+    private val onVolumeChange: OnVolumeChange = object : (Float) -> Unit(){
+        override fun invoke(p1: Float) {
+            mSeekBar.progress = (p1*volumeConfig.getMaxVoice()).toInt()
+        }
+    }
+
     fun setRecordUtil(recordUtils: RecordUtils?){
         this.recordUtils = recordUtils
         audioPlayer = recordUtils?.getBgPlayer()
         recordUtils?.setBackgroundPlayerListener(this)
         audioPlayer?.setAudioManager(context)
         audioPlayer?.setLoop(true)
+        mSeekBar.max = volumeConfig.getMaxVoice()
+        mSeekBar.progress = volumeConfig.getCurVolume()
+        showVolumeString(mSeekBar)
         mSeekBar.setOnSeekBarChangeListener(object :SeekBar.OnSeekBarChangeListener{
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                mTvVoice.text = "$progress%"
+                seekBar?.let { showVolumeString(it) }
             }
 
             override fun onStartTrackingTouch(seekBar: SeekBar?) {
@@ -73,16 +85,21 @@ class BackgroundMusicView @JvmOverloads constructor(context: Context,
 
             override fun onStopTrackingTouch(seekBar: SeekBar?) {
                 seekBar?.let {
-                    audioPlayer?.setVolume(it.progress/100f)
-                    mTvVoice.text = "${it.progress}%"
+                    showVolumeString(seekBar)
                 }
             }
 
         })
-        mSeekBar.progress = 30
-        mTvVoice.text = "30%"
-        audioPlayer?.setVolume(30/100f)
     }
+
+    private fun showVolumeString(
+        it: SeekBar
+    ) {
+        val fl = it.progress / max
+        volumeConfig.setAudioVoiceF(fl)
+        mTvVoice.text = "${(fl * 100).toInt()}%"
+    }
+
 
     fun setMusic(music: Music){
         this.music= music
@@ -96,7 +113,7 @@ class BackgroundMusicView @JvmOverloads constructor(context: Context,
         musicDialog?.dismissBottomSheet()
     }
 
-    fun pauseMusic(){
+    private fun pauseMusic(){
         audioPlayer?.pause()
     }
 
@@ -121,20 +138,20 @@ class BackgroundMusicView @JvmOverloads constructor(context: Context,
 
     }
 
-    override fun onStart(url: String, duration: Int) {
-        mIvPlay.setImageResource(R.drawable.selector_weike_record_pause)
+    override fun onStart(duration: Int) {
+        mIvPlay.setImageResource(R.drawable.selector_record_pause)
     }
 
     override fun onPause() {
-        mIvPlay.setImageResource(R.drawable.selector_weike_record_play)
+        mIvPlay.setImageResource(R.drawable.selector_record_play)
     }
 
     override fun onResume() {
-        mIvPlay.setImageResource(R.drawable.selector_weike_record_pause)
+        mIvPlay.setImageResource(R.drawable.selector_record_pause)
     }
 
     override fun onStop() {
-        mIvPlay.setImageResource(R.drawable.selector_weike_record_play)
+        mIvPlay.setImageResource(R.drawable.selector_record_play)
     }
 
     override fun onCompletion() {
@@ -145,19 +162,20 @@ class BackgroundMusicView @JvmOverloads constructor(context: Context,
 
     }
 
-    override fun onProgress(current: Int, size: Int) {
-        mTvProgress.text = Util.formatSeconds3(current/1000)+"/"+Util.formatSeconds3(size/1000)
+    @SuppressLint("SetTextI18n")
+    override fun onProgress(current: Int, duration: Int) {
+        mTvProgress.text = Util.formatSeconds3(current/1000)+"/"+Util.formatSeconds3(duration/1000)
     }
 
-    //不展示在界面的时候
-    override fun onDetachedFromWindow() {
-        super.onDetachedFromWindow()
-        Timber.i("onDetachedFromWindow")
-    }
 
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
-        Timber.i("onAttachedToWindow")
+        VolumeConfig.getInstance(context).addChangeListener(onVolumeChange)
+    }
+
+    override fun onDetachedFromWindow() {
+        super.onDetachedFromWindow()
+        VolumeConfig.getInstance(context).removeChangeListener(onVolumeChange)
     }
 
     fun setDialog(musicDialog: MusicListBottomSheetDialog) {

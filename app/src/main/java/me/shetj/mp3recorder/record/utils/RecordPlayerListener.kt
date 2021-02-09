@@ -37,7 +37,7 @@ class RecordPlayerListener(private val helper: BaseViewHolder, private val media
 
 
 
-    override fun onStart(url: String, duration: Int) {
+    override fun onStart( duration: Int) {
         if (canChange) {
             statePlaying(true)
         }
@@ -66,12 +66,12 @@ class RecordPlayerListener(private val helper: BaseViewHolder, private val media
     }
 
 
-    override fun onProgress(current: Int, size: Int) {
+    override fun onProgress(current: Int, duration: Int) {
         if (canChange) {
             if (!mediaUtils.isPause){
                 statePlaying()
             }
-            if (current != size) {
+            if (current != duration) {
                 seekBar.progress = current
             }
         }
@@ -83,18 +83,18 @@ class RecordPlayerListener(private val helper: BaseViewHolder, private val media
             TransitionManager.beginDelayedTransition(helper.itemView as ViewGroup)
         }
         helper.setGone(R.id.rl_record_view2, false)
-        helper.setImageResource(R.id.iv_play, R.drawable.selector_weike_record_pause)
+        helper.setImageResource(R.id.iv_play, R.drawable.selector_record_pause)
     }
 
     private fun statePause() {
         helper.setGone(R.id.rl_record_view2, false)
-        helper.setImageResource(R.id.iv_play, R.drawable.selector_weike_record_play)
+        helper.setImageResource(R.id.iv_play, R.drawable.selector_record_play)
     }
 
     private fun stateStop() {
         seekBar.progress = 0
         helper.setGone(R.id.rl_record_view2, true)
-        helper.setImageResource(R.id.iv_play, R.drawable.selector_weike_record_play)
+        helper.setImageResource(R.id.iv_play, R.drawable.selector_record_play)
     }
 
 }

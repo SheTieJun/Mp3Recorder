@@ -10,8 +10,8 @@ import android.widget.TextView
 import androidx.core.animation.doOnEnd
 import com.chad.library.adapter.base.BaseQuickAdapter
 import com.chad.library.adapter.base.viewholder.BaseViewHolder
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.disposables.Disposable
+import io.reactivex.rxjava3.disposables.CompositeDisposable
+import io.reactivex.rxjava3.disposables.Disposable
 import me.shetj.base.tools.app.ArmsUtils
 import me.shetj.mp3recorder.R
 import me.shetj.mp3recorder.record.bean.Record
@@ -40,35 +40,30 @@ class RecordAdapter(data: MutableList<Record>?) : BaseQuickAdapter<Record, BaseV
         private set
     private val mediaUtils: MediaPlayerUtils= MediaPlayerUtils()
     private var mCompositeDisposable: CompositeDisposable? = null
-    /**
-     * 是否是上传中,上传的时候不能点击其他区域，可以返回
-     */
-    var isUploading = false
-        private set
 
-    override fun convert(helper: BaseViewHolder, item: Record) {
-        item?.let {
-            val itemPosition = helper.layoutPosition - headerLayoutCount
-            val seekBar = helper.getView<SeekBar>(R.id.seekBar_record)
+    override fun convert(holder: BaseViewHolder, item: Record) {
+        item.let {
+            val itemPosition = holder.layoutPosition - headerLayoutCount
+            val seekBar = holder.getView<SeekBar>(R.id.seekBar_record)
             seekBar.max = item.audioLength * 1000
             seekBar.tag = item.audio_url
-            val listener = RecordPlayerListener(helper, mediaUtils)
+            val listener = RecordPlayerListener(holder, mediaUtils)
             val isCurrent: Boolean = mediaUtils.currentUrl == item.audio_url
             if (isCurrent) {
                 mediaUtils.updateListener(listener)
             }
 
-            helper.setText(R.id.tv_name, item.audioName)
+            holder.setText(R.id.tv_name, item.audioName)
                 .setGone(R.id.rl_record_view2, curPosition != itemPosition)
                 .setText(R.id.tv_time_all, Util.formatSeconds3(item.audioLength))
                 .setText(R.id.tv_read_time, Util.formatSeconds3(0))
                 .setText(R.id.tv_time, Util.formatSeconds2(item.audioLength))
-                addChildClickViewIds(R.id.tv_more)
+            addChildClickViewIds(R.id.tv_more)
 
             //播放
-            helper.getView<View>(R.id.iv_play).setOnClickListener { playMusic(item.audio_url, listener) }
+            holder.getView<View>(R.id.iv_play).setOnClickListener { playMusic(item.audio_url, listener) }
             //上传
-            helper.getView<View>(R.id.tv_upload).setOnClickListener { startUpload(helper, item) }
+            holder.getView<View>(R.id.tv_upload).setOnClickListener { startUpload(holder, item) }
         }
     }
 
@@ -93,11 +88,9 @@ class RecordAdapter(data: MutableList<Record>?) : BaseQuickAdapter<Record, BaseV
             ArmsUtils.makeText("当前选中文件已经丢失~，请删除该记录后重新录制！")
             return
         }
-        isUploading = true
-        weakRecyclerView.get()?.alpha = 0.7f
+        recyclerView.alpha = 0.7f
         val valueAnimator = showAnimator(progressBar, tvProgress, 0, 100, 2500).apply {
-            doOnEnd {it  ->
-                isUploading = false
+            doOnEnd {
                 progressBar.progress = 0
                 progressBar.alpha = 0f
                 tvProgress.text = ""
@@ -130,10 +123,6 @@ class RecordAdapter(data: MutableList<Record>?) : BaseQuickAdapter<Record, BaseV
      * 设置选中的位置
      */
     fun setPlayPosition(targetPos: Int) {
-        if (isUploading) {
-            ArmsUtils.makeText("正在上传...")
-            return
-        }
         //停止音乐
         if (targetPos == -1 || curPosition != targetPos) {
             if (!mediaUtils.isPause) {
@@ -175,7 +164,7 @@ class RecordAdapter(data: MutableList<Record>?) : BaseQuickAdapter<Record, BaseV
     }
 
     override fun onDestroy() {
-        mediaUtils.resume()
+        mediaUtils.stopPlay()
         unDispose()
     }
 

@@ -33,7 +33,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:background="@drawable/bg_record_content"
+        android:background="@drawable/bg_record_pop_content"
         android:paddingTop="32dp"
         android:elevation="1dp"
         android:paddingBottom="20dp"

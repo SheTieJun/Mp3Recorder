@@ -6,21 +6,21 @@ import android.transition.Transition
 import android.transition.TransitionInflater
 import android.transition.TransitionManager
 import android.widget.FrameLayout
-import com.tbruyelle.rxpermissions2.RxPermissions
-import io.reactivex.android.schedulers.AndroidSchedulers
-import me.shetj.base.base.BaseActivity
-import me.shetj.base.base.BasePresenter
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import me.shetj.base.ktx.hasPermission
+import me.shetj.base.mvp.BaseActivity
+import me.shetj.base.mvp.EmptyPresenter
 import me.shetj.base.tools.app.ArmsUtils.Companion.statuInScreen
 import me.shetj.mp3recorder.R
 import me.shetj.mp3recorder.record.RecordingNotification
-import me.shetj.mp3recorder.record.utils.Callback
+import me.shetj.mp3recorder.record.utils.EventCallback
 import java.util.concurrent.TimeUnit
 
 
 /**
  * 我的录音界面
  */
-class MyMixRecordActivity : BaseActivity<BasePresenter<*>>(), Callback {
+class MyMixRecordActivity : BaseActivity<EmptyPresenter>(), EventCallback {
 
     private lateinit var mFrameLayout: FrameLayout
     private var myRecordAction: MyMixRecordPage? = null
@@ -92,11 +92,10 @@ class MyMixRecordActivity : BaseActivity<BasePresenter<*>>(), Callback {
     }
 
     private fun canRecord() {
-        RxPermissions(this)
-                .request(Manifest.permission.READ_EXTERNAL_STORAGE,
+        hasPermission(Manifest.permission.READ_EXTERNAL_STORAGE,
                         Manifest.permission.WRITE_EXTERNAL_STORAGE,
                         Manifest.permission.RECORD_AUDIO
-                ).subscribe()
+                ,isRequest = true)
     }
 
     override fun onBackPressed() {
@@ -120,12 +119,6 @@ class MyMixRecordActivity : BaseActivity<BasePresenter<*>>(), Callback {
         }
         RecordingNotification.cancel(this)
         super.onDestroy()
-    }
-
-    companion object {
-
-        val NEED_CLOSE = "needClose"//完成上传后关闭界面 默认不关闭
-        val POST_URL = "postUrl"//声音
     }
 
 }

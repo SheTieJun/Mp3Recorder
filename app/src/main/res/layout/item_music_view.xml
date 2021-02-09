@@ -57,7 +57,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerVertical="true"
-        android:src="@drawable/weike_icon_select_music_selector"
+        android:src="@drawable/recorder_icon_select_music_selector"
         android:layout_alignParentEnd="true"/>
 
 </RelativeLayout>

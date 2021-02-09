@@ -6,7 +6,7 @@ import android.view.View
 import androidx.recyclerview.widget.RecyclerView
 import com.chad.library.adapter.base.listener.OnItemClickListener
 import com.google.android.material.bottomsheet.BottomSheetDialog
-import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import me.shetj.mp3recorder.R
 import me.shetj.mp3recorder.record.adapter.MusicAdapter
 import me.shetj.mp3recorder.record.utils.LocalMusicUtils
@@ -40,10 +40,10 @@ class MusicListBottomSheetDialog (context: Context) : View.OnClickListener {
                 when(view.id){
                     R.id.iv_play ->{
                         val music =  getItem(position)
-                        music?.let {
+                        music.let {
                             audioPlayer.playOrPause(it.url!! ,object : SimPlayerListener() {
-                                override fun onStart(url: String, duration: Int) {
-                                    super.onStart(url, duration)
+                                override fun onStart( duration: Int) {
+                                    super.onStart(duration)
                                     setPlayPosition(position)
                                 }
 
@@ -78,7 +78,7 @@ class MusicListBottomSheetDialog (context: Context) : View.OnClickListener {
         LocalMusicUtils.loadFileData(context)
                 ?.observeOn(AndroidSchedulers.mainThread())
                 ?.subscribe ({
-            musicAdapter.setNewData(it.toMutableList())
+            musicAdapter.setNewInstance(it.toMutableList())
         },{ Timber.e(it) })
         musicAdapter.setOnItemClickListener { adapter, view, position ->
             musicAdapter.setSelectPosition(position)

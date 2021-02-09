@@ -7,7 +7,7 @@ filePath = FileUtils.getAppPath() + UUID.randomUUID().toString() + ".mp3";
 // kotlin:  mRecorder = recorderBuilder(permissionListener = this, recordListener = this)
 //设置
 //MediaRecorder.AudioSource.VOICE_COMMUNICATION;//**对麦克风中类似ip通话的交流声音进行识别，默认会开启回声消除和自动增益*/
-mRecorder = new MP3Recorder(MediaRecorder.AudioSource.VOICE_COMMUNICATION,BuildConfig.DEBUG)      
+mRecorder = new SimRecorder(MediaRecorder.AudioSource.VOICE_COMMUNICATION,BuildConfig.DEBUG)      
 			.setOutputFile(filePath)        
 			.setRecordListener(simRecordListener)    			
 			.setPermissionListener(simRecordListener)        

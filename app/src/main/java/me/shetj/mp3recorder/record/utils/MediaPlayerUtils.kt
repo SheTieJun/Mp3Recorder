@@ -1,9 +1,9 @@
 package me.shetj.mp3recorder.record.utils
 
 import android.widget.SeekBar
-import me.shetj.kt.setSeekBar
 import me.shetj.player.AudioPlayer
 import me.shetj.player.PlayerListener
+import me.shetj.player.setSeekBar
 
 /**
  * **@author：** shetj<br></br>
@@ -23,7 +23,7 @@ class MediaPlayerUtils  {
 
     val currentUrl: String
      get() {
-        return mediaPlayer.currentUrl
+        return mediaPlayer.currentUrl?:""
      }
 
     val isPause: Boolean

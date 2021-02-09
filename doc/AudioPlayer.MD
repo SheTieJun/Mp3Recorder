@@ -37,7 +37,7 @@ fun AudioPlayer.setSeekBar(seekBar: SeekBar?)
  * 如果切换了URL,会先执行上一个[PlayerListener.onCompletion]
  */
 fun AudioPlayer.playOrPause(url:String,
-                            onStart:(url: String, duration: Int)->Unit = { _: String, _: Int ->},
+                            onStart:(duration: Int)->Unit = { _: String, _: Int ->},
                             onPause:()->Unit = {},
                             onResume:()->Unit = {},
                             onStop:()->Unit = {},
@@ -52,7 +52,7 @@ fun AudioPlayer.playOrPause(url:String,
      * 可以用 [seekToPlay] 代替，但是在列表时，需要处理好情况
     */
 fun AudioPlayer.playNoStart(url:String,
-                            onStart:(url: String, duration: Int)->Unit = { _: String, _: Int ->},
+                            onStart:(duration: Int)->Unit = { _: String, _: Int ->},
                             onPause:()->Unit = {},
                             onResume:()->Unit = {},
                             onStop:()->Unit = {},
@@ -66,7 +66,7 @@ fun AudioPlayer.playNoStart(url:String,
  * 2.如果切换了URL,会先执行上一个[PlayerListener.onCompletion] ，然后开始播放新的url
  */
 fun AudioPlayer.playOrPause(url:String,
-                            onStart:(url: String, duration: Int)->Unit = { _: String, _: Int ->},
+                            onStart:( duration: Int)->Unit = { _: String, _: Int ->},
                             onPause:()->Unit = {},
                             onResume:()->Unit = {},
                             onStop:()->Unit = {},

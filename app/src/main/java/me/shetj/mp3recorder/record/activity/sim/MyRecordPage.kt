@@ -12,24 +12,28 @@ import android.widget.RelativeLayout
 import androidx.recyclerview.widget.RecyclerView
 import com.chad.library.adapter.base.BaseQuickAdapter
 import com.chad.library.adapter.base.viewholder.BaseViewHolder
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.schedulers.Schedulers
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import io.reactivex.rxjava3.schedulers.Schedulers
 import me.shetj.base.tools.app.ArmsUtils
 import me.shetj.mp3recorder.R
 import me.shetj.mp3recorder.record.adapter.RecordAdapter
 import me.shetj.mp3recorder.record.bean.Record
 import me.shetj.mp3recorder.record.bean.RecordDbUtils
-import me.shetj.mp3recorder.record.utils.Callback
+import me.shetj.mp3recorder.record.utils.EventCallback
 import me.shetj.mp3recorder.record.utils.MainThreadEvent
 import me.shetj.mp3recorder.record.view.RecordBottomSheetDialog
-import org.simple.eventbus.EventBus
-import org.simple.eventbus.Subscriber
-import org.simple.eventbus.ThreadMode
+import org.greenrobot.eventbus.EventBus
+import org.greenrobot.eventbus.Subscribe
+import org.greenrobot.eventbus.ThreadMode
 import java.util.*
 
 /**
  */
-class MyRecordPage(private val context: Activity, mRoot: ViewGroup, private var callback: Callback) {
+class MyRecordPage(
+    private val context: Activity,
+    mRoot: ViewGroup,
+    private var callback: EventCallback
+) {
 
     private var root: RelativeLayout? = null
     val scene: Scene
@@ -56,12 +60,14 @@ class MyRecordPage(private val context: Activity, mRoot: ViewGroup, private var 
     }
 
     private fun initData() {
-       RecordDbUtils.getInstance().allRecord
-           ?.subscribeOn(Schedulers.io())
-           ?.observeOn(AndroidSchedulers.mainThread())
-            ?.subscribe {      recordAdapter.setNewData(it.toMutableList())
-                checkShow(it)}
-
+        RecordDbUtils.getInstance().allRecord
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .doOnNext {
+                recordAdapter.setNewInstance(it.toMutableList())
+                checkShow(it)
+            }
+            .subscribe()
     }
 
     /**
@@ -86,14 +92,16 @@ class MyRecordPage(private val context: Activity, mRoot: ViewGroup, private var 
         recordAdapter = RecordAdapter(ArrayList())
         mRecyclerView?.adapter = recordAdapter
         //设置点击
-        recordAdapter.setOnItemClickListener { _, _, position -> recordAdapter.setPlayPosition(position) }
+        recordAdapter.setOnItemClickListener { _, _, position ->
+            recordAdapter.setPlayPosition(
+                position
+            )
+        }
         recordAdapter.setOnItemChildClickListener { adapter, view1, position ->
-            if (!recordAdapter.isUploading) {
-                when (view1.id) {
-                    R.id.tv_more -> {
-                        val dialog = showBottomDialog(position, adapter)
-                        dialog?.showBottomSheet()
-                    }
+            when (view1.id) {
+                R.id.tv_more -> {
+                    val dialog = showBottomDialog(position, adapter)
+                    dialog?.showBottomSheet()
                 }
             }
         }
@@ -107,39 +115,41 @@ class MyRecordPage(private val context: Activity, mRoot: ViewGroup, private var 
         val emptyView = LayoutInflater.from(context).inflate(R.layout.empty_view, null)
         recordAdapter.setEmptyView(emptyView)
         //空界面点击开启
-        emptyView.findViewById<View>(R.id.cd_start_record).setOnClickListener { v ->
-            if (!recordAdapter.isUploading) {
-                callback.onEvent(0)
-            }
+        emptyView.findViewById<View>(R.id.cd_start_record).setOnClickListener {
+            callback.onEvent(0)
         }
 
 
         //添加一个head
         val headView = View(context)
-        headView.layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ArmsUtils.dip2px(35f))
+        headView.layoutParams =
+            ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ArmsUtils.dp2px(35f))
         recordAdapter.addHeaderView(headView)
         //去录音界面
-        mIvRecordState!!.setOnClickListener { v ->
-            if (!recordAdapter.isUploading) {
-                recordAdapter.setPlayPosition(-1)
-                callback.onEvent(0)
-            }
+        mIvRecordState!!.setOnClickListener {
+            recordAdapter.setPlayPosition(-1)
+            callback.onEvent(0)
         }
 
     }
 
-    private fun showBottomDialog(position: Int, adapter: BaseQuickAdapter<*, BaseViewHolder>): RecordBottomSheetDialog? {
+    private fun showBottomDialog(
+        position: Int,
+        adapter: BaseQuickAdapter<*, BaseViewHolder>
+    ): RecordBottomSheetDialog? {
         recordAdapter.onPause()
-        return recordAdapter.getItem(position)?.let {
+        return recordAdapter.getItem(position).let {
             (mRecyclerView!!.findViewHolderForAdapterPosition(position + adapter.headerLayoutCount) as BaseViewHolder).let { it1 ->
-                RecordBottomSheetDialog(context, position, it,
-                        it1, callback)
+                RecordBottomSheetDialog(
+                    context, position, it,
+                    it1, callback
+                )
             }
         }
     }
 
 
-    @Subscriber(mode = ThreadMode.MAIN)
+    @Subscribe(threadMode = ThreadMode.MAIN)
     fun refreshData(event: MainThreadEvent<*>) {
         when (event.type) {
             MainThreadEvent.RECORD_REFRESH_RECORD -> {

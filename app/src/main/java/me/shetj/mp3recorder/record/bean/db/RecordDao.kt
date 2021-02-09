@@ -5,8 +5,8 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy.REPLACE
 import androidx.room.Query
-import io.reactivex.Completable
-import io.reactivex.Flowable
+import io.reactivex.rxjava3.core.Completable
+import io.reactivex.rxjava3.core.Flowable
 import me.shetj.mp3recorder.record.bean.Record
 
 
@@ -21,7 +21,7 @@ interface RecordDao {
     fun deleteRecord(record: Record):Completable
 
 
-    @Query("SELECT * FROM record order by id")
+    @Query("SELECT * FROM record order by id DESC")
     fun getAllRecord() : Flowable<List<Record>>
 
 
