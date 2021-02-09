@@ -15,14 +15,15 @@ jobs:
       uses: actions/setup-java@v1
       with:
         java-version: 1.8
-    - name: Make gradlew executable
-      run: chmod +x ./gradlew
-    - name: bulid with gradlew
-      run: ./gradlew :app:assembleRelease
+#     - name: Make gradlew executable
+#       run: chmod +x ./gradlew
+#     - name: bulid with gradlew
+#       run: ./gradlew :app:assembleRelease
     - name: Setup Ruby, JRuby and TruffleRuby
       uses: ruby/setup-ruby@v1.64.1
       with:
-        ruby-version: default
+        ruby-version: 2.6 # Not needed with a .ruby-version file
+        bundler-cache: true
     - name: install fir.im
       run: gem install fir-cli
     - name: Upload to Fir.im
