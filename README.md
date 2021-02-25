@@ -178,6 +178,16 @@ implementation 'com.github.SheTieJun.Mp3Recorder:recorder-core:+'
 
 
 
+### 新增插件方式接入
+
+[**Mp3Recoder-Plugin**](https://github.com/SheTieJun/Mp3Recorder-gradle-plugin)
+
+
+
+
+
+
+
 ### [**Old version**](https://github.com/SheTieJun/Mp3Recorder/tree/master_copy)
 
 ### [Update_log](/doc/Update_log.md)

@@ -176,6 +176,7 @@ class AudioPlayer : MediaPlayer.OnPreparedListener, MediaPlayer.OnErrorListener,
         mAudioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
     }
 
+    @Suppress("DEPRECATION")
     fun requestAudioFocus() {
         if (mAudioManager == null) return
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {            //Android 8.0+

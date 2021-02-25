@@ -49,6 +49,7 @@ abstract class BasePopupWindow<VB : ViewBinding>(mContext: AppCompatActivity) :
 
     }
 
+    @Suppress("DEPRECATION")
     fun requestAudioFocus() {
         if (mAudioManager == null) return
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {            //Android 8.0+
