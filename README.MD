@@ -10,6 +10,9 @@
 - 可以使用耳机配置方式：如果没有连接耳机会只用外放的背景音乐，如果连接上了耳机，会使用写入合成背景音乐的方式
 - 其他...
 
+
+<img src="https://github.com/SheTieJun/Mp3Recorder/blob/master/doc/img/recorder.gif" width="35%" height="35%" />
+
 #### 背景音乐相关
   - 录制中可以随时中断、播放、替换背景音乐
   - 如果背景音乐的参数我的库中不一样，需要自行设置参数，如果不一样会让背景音乐拉长或者变快
@@ -47,13 +50,6 @@ implementation 'com.github.SheTieJun.Mp3Recorder:recorder-core:+'
 
 [**Mp3Recoder-Plugin**](https://github.com/SheTieJun/Mp3Recorder-gradle-plugin)
 
-
-
-#### [demo](https://github.com/SheTieJun/Mp3Recorder/tree/master/app)
-- [MixRecordUtils](https://github.com/SheTieJun/Mp3Recorder/blob/master/app/src/main/java/me/shetj/mp3recorder/record/utils/MixRecordUtils.kt)
-- [RecordUtils](https://github.com/SheTieJun/Mp3Recorder/blob/master/app/src/main/java/me/shetj/mp3recorder/record/utils/RecordUtils.kt)
-
-<img src="https://github.com/SheTieJun/Mp3Recorder/blob/master/doc/img/recorder.gif" width="35%" height="35%" />
 
 
 ### 缺点
@@ -149,14 +145,15 @@ implementation 'com.github.SheTieJun.Mp3Recorder:recorder-core:+'
 ```
 
 
+#### [demo](https://github.com/SheTieJun/Mp3Recorder/tree/master/app)
+- [MixRecordUtils](https://github.com/SheTieJun/Mp3Recorder/blob/master/app/src/main/java/me/shetj/mp3recorder/record/utils/MixRecordUtils.kt)
+- [RecordUtils](https://github.com/SheTieJun/Mp3Recorder/blob/master/app/src/main/java/me/shetj/mp3recorder/record/utils/RecordUtils.kt)
 
 ### 1. 录音方式一：[MixRecorder](/doc/MixRecorder.MD)
 ### 2. 录音方式二： [MP3Recorder](/doc/Mp3Recorder.MD)
 ### 3. 播放音乐：[AudioPlayer](/doc/AudioPlayer.MD)
 ### 4. 播放音乐,解码成PCM进行播放：[PlayBackMusic](/doc/PlayBackMusic.MD)
 ### 5. 播放PCM文件：[AudioTrackManager](/doc/AudioTrackManager.MD)
-
-
 
 Tips: 不建议直接使用,可参考
 
