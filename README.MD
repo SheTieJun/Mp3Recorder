@@ -15,7 +15,7 @@
   - 如果背景音乐的参数我的库中不一样，需要自行设置参数，如果不一样会让背景音乐拉长或者变快
 
 
-#### Gradle
+#### 接入配置相关：Gradle
 
 Step 1. Add it in your root build.gradle at the end of repositories:
 
@@ -40,6 +40,12 @@ implementation 'com.github.SheTieJun.Mp3Recorder:recorder-core:+'
 implementation 'com.github.SheTieJun.Mp3Recorder:recorder-sim:+'
 implementation 'com.github.SheTieJun.Mp3Recorder:recorder-core:+'
 ```
+
+
+
+#### 新增Gradle插件方式接入(不推荐)
+
+[**Mp3Recoder-Plugin**](https://github.com/SheTieJun/Mp3Recorder-gradle-plugin)
 
 
 
@@ -175,14 +181,6 @@ implementation 'com.github.SheTieJun.Mp3Recorder:recorder-core:+'
     recorderPopup.showPop()
  
 ```
-
-
-
-### 新增插件方式接入
-
-[**Mp3Recoder-Plugin**](https://github.com/SheTieJun/Mp3Recorder-gradle-plugin)
-
-
 
 
 
