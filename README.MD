@@ -10,7 +10,7 @@
 - 可以使用耳机配置方式：如果没有连接耳机会只用外放的背景音乐，如果连接上了耳机，会使用写入合成背景音乐的方式
 - 其他...
 
-
+### [Demo下载](http://d.zqapps.com/ne21)
 <img src="https://github.com/SheTieJun/Mp3Recorder/blob/master/doc/img/recorder.gif" width="35%" height="35%" />
 
 #### 背景音乐相关
@@ -144,8 +144,7 @@ implementation 'com.github.SheTieJun.Mp3Recorder:recorder-core:+'
     mRecorder?.setSamplingRate(rate)
 ```
 
-
-#### [demo](https://github.com/SheTieJun/Mp3Recorder/tree/master/app)
+#### [demo代码](https://github.com/SheTieJun/Mp3Recorder/tree/master/app)
 - [MixRecordUtils](https://github.com/SheTieJun/Mp3Recorder/blob/master/app/src/main/java/me/shetj/mp3recorder/record/utils/MixRecordUtils.kt)
 - [RecordUtils](https://github.com/SheTieJun/Mp3Recorder/blob/master/app/src/main/java/me/shetj/mp3recorder/record/utils/RecordUtils.kt)
 
@@ -179,8 +178,6 @@ implementation 'com.github.SheTieJun.Mp3Recorder:recorder-core:+'
  
 ```
 
-
-### [Demo下载](http://d.zqapps.com/ne21)
 
 
 ### [**Old version**](https://github.com/SheTieJun/Mp3Recorder/tree/master_copy)

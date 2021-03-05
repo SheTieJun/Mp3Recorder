@@ -110,4 +110,4 @@ https://www.jianshu.com/p/87095c155ea5
 
 | [荔枝微课](https://sj.qq.com/myapp/detail.htm?apkName=com.lizhirecorder) |
 | ------------------------------------------------------------ |
-| ![](img/image_lizhi.png)                                     |
+| ![](../doc/img/image_lizhi.png)                                     |
