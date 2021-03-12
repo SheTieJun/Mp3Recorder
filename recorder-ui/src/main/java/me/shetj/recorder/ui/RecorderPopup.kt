@@ -14,10 +14,14 @@ import me.shetj.recorder.ui.databinding.RecordLayoutPopupBinding
 typealias Success = (file: String) -> Unit
 
 
-class RecorderPopup(private val context: AppCompatActivity, var needPlay:Boolean = true, private val maxTime :Long = (30 * 60 * 1000).toLong(), private var onSuccess: Success? = null) :
-        BasePopupWindow<RecordLayoutPopupBinding>(context) {
+class RecorderPopup(
+    private val context: AppCompatActivity,
+    private var needPlay: Boolean = true,
+    private val maxTime: Long = (30 * 60 * 1000).toLong(),
+    private var onSuccess: Success? = null
+) : BasePopupWindow<RecordLayoutPopupBinding>(context) {
 
-    private var remindDialog: OrangeDialog? =null
+    private var remindDialog: OrangeDialog? = null
     private var isComplete = false
 
 
@@ -63,7 +67,7 @@ class RecorderPopup(private val context: AppCompatActivity, var needPlay:Boolean
         override fun onStart() {
             TransitionManager.beginDelayedTransition(mViewBinding.root)
             mViewBinding.llTime.isVisible = true
-            mViewBinding.tvTips.text = "录音中，${maxTime/60000}分钟后自动保存"
+            mViewBinding.tvTips.text = "录音中，${maxTime / 60000}分钟后自动保存"
             mViewBinding.ivRecordState.setImageResource(R.drawable.ic_record_pause)
             mViewBinding.spreadView.start = true
         }
@@ -76,7 +80,7 @@ class RecorderPopup(private val context: AppCompatActivity, var needPlay:Boolean
         override fun onRecording(time: Long, volume: Int) {
             super.onRecording(time, volume)
             mViewBinding.tvRecordTime.text = formatSeconds(time / 1000, maxSecond())
-            if (time >= 3000){
+            if (time >= 3000) {
                 mViewBinding.tvReRecord.isVisible = true
                 mViewBinding.tvSaveRecord.isVisible = true
             }
@@ -111,8 +115,8 @@ class RecorderPopup(private val context: AppCompatActivity, var needPlay:Boolean
             super.onSuccess(file, time)
             if (time > 3000) {
                 onShowSuccessView()
-            }else{
-                Toast.makeText(context,"录制时长不足3秒，无法保存",Toast.LENGTH_SHORT).show()
+            } else {
+                Toast.makeText(context, "录制时长不足3秒，无法保存", Toast.LENGTH_SHORT).show()
                 onReset()
             }
         }
@@ -135,8 +139,8 @@ class RecorderPopup(private val context: AppCompatActivity, var needPlay:Boolean
         override fun needPermission() {
             super.needPermission()
             context.hasPermission(
-                    Manifest.permission.RECORD_AUDIO,
-                    Manifest.permission.WRITE_EXTERNAL_STORAGE, isRequest = true
+                Manifest.permission.RECORD_AUDIO,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE, isRequest = true
             )
         }
 
@@ -150,7 +154,7 @@ class RecorderPopup(private val context: AppCompatActivity, var needPlay:Boolean
         }
     }
 
-    private val recordUtils by lazy { MixRecordUtils(context,maxTime.toInt(), listener) }
+    private val recordUtils by lazy { MixRecordUtils(context, maxTime.toInt(), listener) }
 
     private val player: AudioPlayer by lazy { AudioPlayer() }
 
@@ -170,7 +174,7 @@ class RecorderPopup(private val context: AppCompatActivity, var needPlay:Boolean
             if (!isComplete) {
                 if (needPlay) {
                     recordUtils.startOrComplete()
-                }else{
+                } else {
                     recordUtils.startOrPause()
                 }
                 requestAudioFocus()
@@ -194,9 +198,9 @@ class RecorderPopup(private val context: AppCompatActivity, var needPlay:Boolean
             recordUtils.reset()
         }
         mViewBinding.tvCancel.setOnClickListener {
-            if (isComplete||recordUtils.hasRecord()) {
+            if (isComplete || recordUtils.hasRecord()) {
                 showRemindTip()
-            }else{
+            } else {
                 dismiss()
             }
         }
@@ -206,39 +210,39 @@ class RecorderPopup(private val context: AppCompatActivity, var needPlay:Boolean
      * activity 返回键判断
      */
     fun onBackPress(): Boolean {
-        return if (recordUtils.hasRecord()||isComplete ) {
+        return if (recordUtils.hasRecord() || isComplete) {
             showRemindTip()
             false
-        }else{
+        } else {
             true
         }
     }
 
     private fun showRemindTip() {
         (remindDialog ?: OrangeDialog.Builder(mViewBinding.root.context)
-                .setTitle("是否保存录音")
-                .setNegativeText("取消")
-                .setOnNegativeCallBack { _, _ ->
-                    recordUtils.cleanPath()
+            .setTitle("是否保存录音")
+            .setNegativeText("取消")
+            .setOnNegativeCallBack { _, _ ->
+                recordUtils.cleanPath()
+                recordUtils.stopFullRecord()
+                realDismiss()
+            }
+            .setPositiveText("保存")
+            .setonPositiveCallBack { _, _ ->
+                if (!isComplete) {
+                    isComplete = true
                     recordUtils.stopFullRecord()
-                    realDismiss()
                 }
-                .setPositiveText("保存")
-                .setonPositiveCallBack { _, _ ->
-                    if (!isComplete) {
-                        isComplete = true
-                        recordUtils.stopFullRecord()
-                    }
-                    realDismiss()
-                }.build().also {
-                    remindDialog = it
-                }).show()
+                realDismiss()
+            }.build().also {
+                remindDialog = it
+            }).show()
     }
 
     override fun showPop() {
         recordUtils.onReset()
         setOnDismissListener {
-            if (isComplete && mViewBinding.tvReRecord.isVisible ) {
+            if (isComplete && mViewBinding.tvReRecord.isVisible) {
                 recordUtils.saveFile?.let { onSuccess?.invoke(it) }
             }
             isComplete = false

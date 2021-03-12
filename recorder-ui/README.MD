@@ -1,5 +1,6 @@
 ## RecorderPopup 录音组件：底部PopupWindow
 
+自带权限判断
 ### 初始化
 ```
        private val recorderPopup: RecorderPopup by lazy {

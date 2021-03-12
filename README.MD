@@ -49,9 +49,32 @@ implementation 'com.github.SheTieJun.Mp3Recorder:recorder-core:+'
 #### 新增Gradle插件方式接入(不推荐)
 
 [**Mp3Recoder-Plugin**](https://github.com/SheTieJun/Mp3Recorder-gradle-plugin)
+```
+buildscript {
 
+    repositories {
+     ...
+        maven { url "https://jitpack.io" }
+    }
+    dependencies {
+        classpath 'com.github.SheTieJun:Mp3Recorder-gradle-plugin:1.0.0' // Add this line
+        
+    }
+}
+APP module 中
 
+plugins {
+    id 'me.shetj.plugin.recorderplugin'
+}
 
+可选项配置（可以不写有默认配置）
+recorder {
+    needUI = true  //是否集成UIKit 默认 false
+    needSim = true// 是否集成simRecorder 默认false
+    needMix = true // 是否集成mixRecorder 默认true
+    libVersion = "1.3.0"// lib版本 :默认1.3.0
+}
+```
 ### 缺点
 
 1. 录制声道数设置，因为合成，所有你**需要设置和背景音乐相同的参数**
