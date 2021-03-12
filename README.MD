@@ -171,8 +171,8 @@ recorder {
 - [MixRecordUtils](https://github.com/SheTieJun/Mp3Recorder/blob/master/app/src/main/java/me/shetj/mp3recorder/record/utils/MixRecordUtils.kt)
 - [RecordUtils](https://github.com/SheTieJun/Mp3Recorder/blob/master/app/src/main/java/me/shetj/mp3recorder/record/utils/RecordUtils.kt)
 
-### 1. 录音方式一：[MixRecorder](/doc/MixRecorder.MD)
-### 2. 录音方式二： [MP3Recorder](/doc/Mp3Recorder.MD)
+### 1. 录音方式一：[MixRecorder](/recorder-mix/ReadMe.MD)
+### 2. 录音方式二： [MP3Recorder](/recorder-sim/README.MD)
 ### 3. 播放音乐：[AudioPlayer](/doc/AudioPlayer.MD)
 ### 4. 播放音乐,解码成PCM进行播放：[PlayBackMusic](/doc/PlayBackMusic.MD)
 ### 5. 播放PCM文件：[AudioTrackManager](/doc/AudioTrackManager.MD)
