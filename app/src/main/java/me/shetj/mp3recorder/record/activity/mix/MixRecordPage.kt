@@ -202,6 +202,11 @@ open class MixRecordPage(private val context: AppCompatActivity, mRoot: ViewGrou
                 }
             }
 
+            override fun onReset() {
+                super.onReset()
+                "onReset".logi()
+            }
+
             override fun needPermission() {
                 callback.onEvent(3)
             }

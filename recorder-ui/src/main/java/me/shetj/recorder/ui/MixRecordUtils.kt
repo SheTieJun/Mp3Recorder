@@ -69,7 +69,6 @@ class MixRecordUtils(
                 } else {
                     this.saveFile = file
                 }
-                mRecorder?.onReset()
                 mRecorder?.setOutputFile(saveFile!!, !TextUtils.isEmpty(file))
                 mRecorder?.start()
             }
@@ -99,7 +98,6 @@ class MixRecordUtils(
                 } else {
                     this.saveFile = file
                 }
-                mRecorder?.onReset()
                 mRecorder?.setOutputFile(saveFile!!, !TextUtils.isEmpty(file))
                 mRecorder?.start()
             }
