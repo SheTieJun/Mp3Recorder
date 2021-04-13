@@ -52,12 +52,6 @@ class RecordAdapter(data: MutableList<Record>?) : BaseQuickAdapter<Record, BaseV
                 if (tag == null) {
                     tag = RecordPlayerListener(holder, mediaUtils)
                 }
-                val isCurrent: Boolean = mediaUtils.currentUrl == item.audio_url
-                if (isCurrent) {
-                    mediaUtils.updateListener(tag as RecordPlayerListener)
-                }else{
-                    seekBar.progress = 0
-                }
                 setOnClickListener {
                     playMusic(item.audio_url, tag as RecordPlayerListener)
                     mediaUtils.setSeekToPlay(seekBar.progress)
@@ -71,6 +65,13 @@ class RecordAdapter(data: MutableList<Record>?) : BaseQuickAdapter<Record, BaseV
             addChildClickViewIds(R.id.tv_more)
             holder.getView<View>(R.id.tv_upload).setOnClickListener { startUpload(holder, item) }
         }
+    }
+
+    override fun convert(holder: BaseViewHolder, item: Record, payloads: List<Any>) {
+        val itemPosition = holder.layoutPosition - headerLayoutCount
+        super.convert(holder, item, payloads)
+        holder.setText(R.id.tv_name, item.audioName)
+            .setGone(R.id.rl_record_view2, curPosition != itemPosition)
     }
 
     /**
@@ -141,10 +142,10 @@ class RecordAdapter(data: MutableList<Record>?) : BaseQuickAdapter<Record, BaseV
             this.curPosition = targetPos
             // -1 表示默认不做任何变化
             if (old != -1) {
-                notifyItemChanged(old + headerLayoutCount)
+                notifyItemChanged(old + headerLayoutCount,1)
             }
             if (targetPos != -1) {
-                notifyItemChanged(targetPos + headerLayoutCount)
+                notifyItemChanged(targetPos + headerLayoutCount,1)
             }
         }
     }

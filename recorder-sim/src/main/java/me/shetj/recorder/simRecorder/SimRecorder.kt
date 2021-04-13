@@ -736,7 +736,7 @@ class SimRecorder : BaseRecorder {
         private val DEFAULT_LAME_IN_CHANNEL = 1
 
         private val FRAME_COUNT = 160
-        private val MAX_VOLUME = 2000
+        private val MAX_VOLUME = 100
     }
 
 

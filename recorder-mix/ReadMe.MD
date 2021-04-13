@@ -80,6 +80,15 @@
   mixRecorder.updateDataEncode(filePath)
 ```
 
+#### 6.中途暂停、重置
+```
+  mixRecorder.onReset() //会回调 Listener: onReset()
+```
+或者
+```
+  mixRecorder.onDestroy() //没有任何回调
+```
+
 #### 6. 停止录音
 
 ```kotlin

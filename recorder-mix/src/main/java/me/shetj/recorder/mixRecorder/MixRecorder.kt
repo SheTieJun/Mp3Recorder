@@ -91,7 +91,7 @@ class MixRecorder : BaseRecorder {
             when (msg.what) {
                 HANDLER_RECORDING -> {
                     if (mRecordListener != null && state == RecordState.RECORDING) {
-                        logInfo("msg.what = HANDLER_RECORDING  \n mDuration = $duration & state is recording  = ${state == RecordState.RECORDING}")
+                        logInfo("msg.what = HANDLER_RECORDING  \n mDuration = $duration ,volume = $realVolume and state is recording  = ${state == RecordState.RECORDING}")
                         //录制回调
                         mRecordListener!!.onRecording(duration, realVolume)
                         //提示快到录音时间了

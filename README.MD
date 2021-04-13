@@ -152,10 +152,6 @@ recorder {
  mRecorder?.stop()  //完成录音
 ```
 
-#### 中途直接结束.停止录音，但是不会走onSuccess
-```kotlin
- mRecorder?.onDestroy()   
-```
 
 #### 6.新增录音参数修改，必须在start()之前调用才有效
 ```
@@ -166,6 +162,19 @@ recorder {
     //设置采样率
     mRecorder?.setSamplingRate(rate)
 ```
+#### 7.中途直接结束.停止录音
+```
+  mixRecorder.onReset() //会回调 Listener: onReset()
+```
+
+```kotlin
+ mRecorder?.onDestroy()   //不会有任何回调，但是不会走onSuccess
+```
+
+#### 声音大小
+经过一些修改得到：
+1. 说话时，55-70
+2. 环境声音：20-50
 
 #### [demo代码](https://github.com/SheTieJun/Mp3Recorder/tree/master/app)
 - [MixRecordUtils](https://github.com/SheTieJun/Mp3Recorder/blob/master/app/src/main/java/me/shetj/mp3recorder/record/utils/MixRecordUtils.kt)

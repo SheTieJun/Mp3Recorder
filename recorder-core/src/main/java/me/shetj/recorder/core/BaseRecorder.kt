@@ -6,6 +6,8 @@ import android.net.Uri
 import android.util.Log
 import me.shetj.player.PlayerListener
 import java.io.File
+import kotlin.math.abs
+import kotlin.math.log10
 import kotlin.math.sqrt
 
 
@@ -140,19 +142,26 @@ abstract class BaseRecorder {
         return this
     }
 
+    /**
+     *
+     * 求得平均值之后，如果是平方和则代入常数系数为10的公式中，
+     *
+     * 如果是绝对值的则代入常数系数为20的公式中，算出分贝值。
+     */
     protected fun calculateRealVolume(buffer: ShortArray, readSize: Int) {
         var sum = 0.0
         for (i in 0 until readSize) {
             // 这里没有做运算的优化，为了更加清晰的展示代码
-            sum += (buffer[i] * buffer[i]).toDouble()
+            sum += abs((buffer[i] * buffer[i]).toDouble())
         }
         if (readSize > 0) {
-            val amplitude = sum / readSize
-            mVolume = sqrt(amplitude).toInt()
+            mVolume = (log10(sqrt(sum / readSize)) *20).toInt()
             if (mVolume < 5) {
                 for (i in 0 until readSize) {
                     buffer[i] = 0
                 }
+            }else if (mVolume > 100){
+                mVolume = 100
             }
         }
     }
