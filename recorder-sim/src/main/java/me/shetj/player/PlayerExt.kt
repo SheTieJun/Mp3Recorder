@@ -106,7 +106,7 @@ fun AudioPlayer.setSeekBar(seekBar: SeekBar?) {
             }
 
             override fun onStopTrackingTouch(seekBar: SeekBar) {
-                seekTo(seekBar.progress)
+                setSeekToPlay(seekBar.progress)
                 if (!isPause) {
                     startProgress()
                 }

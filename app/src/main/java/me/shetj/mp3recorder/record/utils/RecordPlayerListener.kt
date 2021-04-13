@@ -10,21 +10,24 @@ import me.shetj.player.PlayerListener
 import timber.log.Timber
 
 
-class RecordPlayerListener(private val helper: BaseViewHolder, private val mediaUtils: MediaPlayerUtils) : PlayerListener {
-    private val seekBar: SeekBar = helper.getView<SeekBar>(R.id.seekBar_record).apply{
+class RecordPlayerListener(
+    private val helper: BaseViewHolder,
+    private val mediaUtils: MediaPlayerUtils
+) : PlayerListener {
+    private val seekBar: SeekBar = helper.getView<SeekBar>(R.id.seekBar_record).apply {
         mediaUtils.setSeekBar(this)
     }
 
     init {
         if (canChange) {
-            seekBar.progress =  mediaUtils.getCurrentPosition()
+            seekBar.progress = mediaUtils.getCurrentPosition()
             statePause()
-        }else{
+        } else {
             stateStop()
         }
     }
 
-    private val canChange :Boolean
+    private val canChange: Boolean
         get() {
             return mediaUtils.currentUrl == seekBar.tag.toString()
         }
@@ -36,8 +39,7 @@ class RecordPlayerListener(private val helper: BaseViewHolder, private val media
     }
 
 
-
-    override fun onStart( duration: Int) {
+    override fun onStart(duration: Int) {
         if (canChange) {
             statePlaying(true)
         }
@@ -68,18 +70,19 @@ class RecordPlayerListener(private val helper: BaseViewHolder, private val media
 
     override fun onProgress(current: Int, duration: Int) {
         if (canChange) {
-            if (!mediaUtils.isPause){
+            if (!mediaUtils.isPause) {
                 statePlaying()
             }
             if (current != duration) {
                 seekBar.progress = current
+                helper.setText(R.id.tv_read_time, Util.formatSeconds3(current/1000))
             }
         }
     }
 
 
     private fun statePlaying(isShow: Boolean = false) {
-        if(helper.getView<View>(R.id.rl_record_view2).visibility == View.GONE && isShow) {
+        if (helper.getView<View>(R.id.rl_record_view2).visibility == View.GONE && isShow) {
             TransitionManager.beginDelayedTransition(helper.itemView as ViewGroup)
         }
         helper.setGone(R.id.rl_record_view2, false)

@@ -70,6 +70,9 @@ class MediaPlayerUtils  {
         return mediaPlayer.currentPosition
     }
 
+    fun setSeekToPlay(seekToPosition: Int) {
+        mediaPlayer.setSeekToPlay(seekToPosition)
+    }
 
     /**
      * 开始计时

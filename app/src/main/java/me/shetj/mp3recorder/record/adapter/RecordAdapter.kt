@@ -4,6 +4,7 @@ package me.shetj.mp3recorder.record.adapter
 import android.animation.ValueAnimator
 import android.view.View
 import android.view.animation.AccelerateDecelerateInterpolator
+import android.widget.ImageView
 import android.widget.ProgressBar
 import android.widget.SeekBar
 import android.widget.TextView
@@ -47,22 +48,27 @@ class RecordAdapter(data: MutableList<Record>?) : BaseQuickAdapter<Record, BaseV
             val seekBar = holder.getView<SeekBar>(R.id.seekBar_record)
             seekBar.max = item.audioLength * 1000
             seekBar.tag = item.audio_url
-            val listener = RecordPlayerListener(holder, mediaUtils)
-            val isCurrent: Boolean = mediaUtils.currentUrl == item.audio_url
-            if (isCurrent) {
-                mediaUtils.updateListener(listener)
+            holder.getView<ImageView>(R.id.iv_play).apply {
+                if (tag == null) {
+                    tag = RecordPlayerListener(holder, mediaUtils)
+                }
+                val isCurrent: Boolean = mediaUtils.currentUrl == item.audio_url
+                if (isCurrent) {
+                    mediaUtils.updateListener(tag as RecordPlayerListener)
+                }else{
+                    seekBar.progress = 0
+                }
+                setOnClickListener {
+                    playMusic(item.audio_url, tag as RecordPlayerListener)
+                    mediaUtils.setSeekToPlay(seekBar.progress)
+                }
             }
-
             holder.setText(R.id.tv_name, item.audioName)
                 .setGone(R.id.rl_record_view2, curPosition != itemPosition)
                 .setText(R.id.tv_time_all, Util.formatSeconds3(item.audioLength))
                 .setText(R.id.tv_read_time, Util.formatSeconds3(0))
                 .setText(R.id.tv_time, Util.formatSeconds2(item.audioLength))
             addChildClickViewIds(R.id.tv_more)
-
-            //播放
-            holder.getView<View>(R.id.iv_play).setOnClickListener { playMusic(item.audio_url, listener) }
-            //上传
             holder.getView<View>(R.id.tv_upload).setOnClickListener { startUpload(holder, item) }
         }
     }
