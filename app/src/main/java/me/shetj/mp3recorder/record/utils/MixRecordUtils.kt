@@ -1,6 +1,7 @@
 package me.shetj.mp3recorder.record.utils
 
 import android.text.TextUtils
+import me.shetj.base.ktx.logi
 import me.shetj.base.tools.app.Utils
 import me.shetj.base.tools.file.EnvironmentStorage
 import me.shetj.player.PlayerListener
@@ -16,7 +17,7 @@ class MixRecordUtils(
     private val callBack: SimRecordListener?
 ) : RecordListener, PermissionListener {
 
-    val TIME = 60*60*1000
+    val TIME = 10*1000
 
     val isRecording: Boolean
         get() {
@@ -172,6 +173,7 @@ class MixRecordUtils(
 
     override fun onSuccess(file: String, time: Long) {
         callBack?.onSuccess(file, (time / 1000) )
+        "onSuccess".logi()
     }
 
     override fun onMaxChange(time: Long) {
@@ -185,6 +187,7 @@ class MixRecordUtils(
 
     override fun autoComplete(file: String, time: Long) {
         callBack?.autoComplete(file, (time / 1000))
+     "autoComplete".logi()
     }
 
     fun setVolume(volume: Float) {

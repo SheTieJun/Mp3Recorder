@@ -20,6 +20,7 @@ import me.shetj.recorder.core.*
 import me.shetj.recorder.util.LameUtils
 import java.io.File
 import java.io.IOException
+import java.util.concurrent.atomic.AtomicBoolean
 
 
 /**
@@ -79,6 +80,7 @@ class MixRecorder : BaseRecorder {
     private var mBufferSize: Int = 0
     private var bytesPerSecond: Int = 0  //PCM文件大小=采样率采样时间采样位深/8*通道数（Bytes）
     private var isContinue: Boolean = false //是否写在文件末尾
+    private var isAutoComplete = false
 
     //声音增强
     private var wax = 1f
@@ -95,7 +97,7 @@ class MixRecorder : BaseRecorder {
                         //录制回调
                         mRecordListener!!.onRecording(duration, realVolume)
                         //提示快到录音时间了
-                        if (isRemind  && duration > mRemindTime) {
+                        if (isRemind && duration > mRemindTime) {
                             isRemind = false
                             mRecordListener!!.onRemind(duration)
                         }
@@ -337,7 +339,7 @@ class MixRecorder : BaseRecorder {
         return this
     }
 
-    override fun setMaxTime(maxTime: Int, remindDiffTime:Int? ): MixRecorder {
+    override fun setMaxTime(maxTime: Int, remindDiffTime: Int?): MixRecorder {
         if (maxTime < 0) {
             return this
         }
@@ -345,7 +347,7 @@ class MixRecorder : BaseRecorder {
         handler.sendEmptyMessage(HANDLER_MAX_TIME)
         if (remindDiffTime != null && remindDiffTime < maxTime) {
             this.mRemindTime = (maxTime - remindDiffTime).toLong()
-        }else{
+        } else {
             this.mRemindTime = (maxTime - 10000).toLong()
         }
         return this
@@ -471,7 +473,11 @@ class MixRecorder : BaseRecorder {
                 } catch (ex: Exception) {
                     ex.printStackTrace()
                 } finally {
-                    handler.sendEmptyMessage(HANDLER_COMPLETE)
+                    if (isAutoComplete) {
+                        handler.sendEmptyMessage(HANDLER_AUTO_COMPLETE)
+                    } else {
+                        handler.sendEmptyMessage(HANDLER_COMPLETE)
+                    }
                 }
 
                 if (isError) {
@@ -486,14 +492,15 @@ class MixRecorder : BaseRecorder {
 
 
     override fun stop() {
-        if (state !== RecordState.STOPPED) {
+        if (state != RecordState.STOPPED) {
+            state = RecordState.STOPPED
             plugConfigs?.unregisterReceiver()
             isRecording = false
             isPause = false
+            isAutoComplete = false
             if (mPlayBackMusic != null) {
                 mPlayBackMusic!!.setNeedRecodeDataEnable(false)
             }
-            state = RecordState.STOPPED
         }
         bgPlayer.release()
     }
@@ -657,12 +664,12 @@ class MixRecorder : BaseRecorder {
 
 
     private fun autoStop() {
-        if (state !== RecordState.STOPPED) {
+        if (state != RecordState.STOPPED) {
+            state = RecordState.STOPPED
             plugConfigs?.unregisterReceiver()
             isPause = false
             isRecording = false
-            handler.sendEmptyMessageDelayed(HANDLER_AUTO_COMPLETE, speed)
-            state = RecordState.STOPPED
+            isAutoComplete = true
             backgroundMusicIsPlay = false
             if (mPlayBackMusic != null) {
                 mPlayBackMusic!!.setNeedRecodeDataEnable(false)
