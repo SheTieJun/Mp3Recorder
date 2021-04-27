@@ -494,10 +494,10 @@ class MixRecorder : BaseRecorder {
     override fun stop() {
         if (state != RecordState.STOPPED) {
             state = RecordState.STOPPED
+            isAutoComplete = false
             plugConfigs?.unregisterReceiver()
             isRecording = false
             isPause = false
-            isAutoComplete = false
             if (mPlayBackMusic != null) {
                 mPlayBackMusic!!.setNeedRecodeDataEnable(false)
             }
@@ -656,7 +656,7 @@ class MixRecorder : BaseRecorder {
         duration += readTime.toLong()
         if (state == RecordState.RECORDING) {
             handler.sendEmptyMessageDelayed(HANDLER_RECORDING, speed)
-            if (mMaxTime in 1..duration) {
+            if (mMaxTime in 1..(duration+100)) {
                 autoStop()
             }
         }
@@ -666,10 +666,10 @@ class MixRecorder : BaseRecorder {
     private fun autoStop() {
         if (state != RecordState.STOPPED) {
             state = RecordState.STOPPED
+            isAutoComplete = true
             plugConfigs?.unregisterReceiver()
             isPause = false
             isRecording = false
-            isAutoComplete = true
             backgroundMusicIsPlay = false
             if (mPlayBackMusic != null) {
                 mPlayBackMusic!!.setNeedRecodeDataEnable(false)

@@ -75,6 +75,7 @@ class RecorderPopup(
         override fun autoComplete(file: String, time: Long) {
             super.autoComplete(file, time)
             onShowSuccessView()
+            complete(time)
         }
 
         override fun onRecording(time: Long, volume: Int) {
@@ -113,12 +114,8 @@ class RecorderPopup(
 
         override fun onSuccess(file: String, time: Long) {
             super.onSuccess(file, time)
-            if (time > 3000) {
-                onShowSuccessView()
-            } else {
-                Toast.makeText(context, "录制时长不足3秒，无法保存", Toast.LENGTH_SHORT).show()
-                onReset()
-            }
+            mViewBinding.tvRecordTime.text = formatSeconds(maxSecond(), maxSecond())
+            complete(time)
         }
 
         override fun onReset() {
@@ -150,6 +147,15 @@ class RecorderPopup(
 
         override fun onError(e: Exception) {
             super.onError(e)
+            onReset()
+        }
+    }
+
+    private fun SimRecordListener.complete(time: Long) {
+        if (time > 3000) {
+            onShowSuccessView()
+        } else {
+            Toast.makeText(context, "录制时长不足3秒，无法保存", Toast.LENGTH_SHORT).show()
             onReset()
         }
     }
@@ -254,6 +260,7 @@ class RecorderPopup(
         if (isShowing) {
             isComplete = true
         }
+        mViewBinding.tvRecordTime.text = formatSeconds(maxSecond(), maxSecond())
         mViewBinding.spreadView.start = false
         mViewBinding.tvTips.isVisible = false
         mViewBinding.ivRecordState.setImageResource(R.drawable.ic_record_audition)

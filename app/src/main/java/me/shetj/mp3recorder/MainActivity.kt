@@ -16,7 +16,7 @@ import me.shetj.recorder.ui.RecorderPopup
 class MainActivity : BaseBindingActivity<BaseViewModel, ActivityMainBinding>() {
 
     private val recorderPopup: RecorderPopup by lazy {
-        RecorderPopup(this, needPlay = false, maxTime = (60 * 60 * 1000).toLong()) {
+        RecorderPopup(this, needPlay = false, maxTime = (10 * 1000).toLong()) {
             it.showToast()
         }
     }
