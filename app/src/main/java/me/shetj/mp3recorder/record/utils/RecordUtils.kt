@@ -1,5 +1,6 @@
 package me.shetj.mp3recorder.record.utils
 
+import android.content.Context
 import me.shetj.base.tools.app.ArmsUtils
 import me.shetj.base.tools.app.Utils
 import me.shetj.base.tools.file.EnvironmentStorage
@@ -91,8 +92,16 @@ class RecordUtils(
         mRecorder?.setBackgroundMusicListener(listener)
     }
 
-    fun getBgPlayer(): AudioPlayer {
-        return (mRecorder as SimRecorder).bgPlayer
+    fun startOrPauseBGM() {
+        if (mRecorder?.isPlayMusic() == true) {
+            if (mRecorder?.isPauseMusic() == true) {
+                mRecorder?.resumeMusic()
+            } else {
+                mRecorder?.pauseMusic()
+            }
+        } else {
+            mRecorder?.startPlayMusic()
+        }
     }
 
     fun pause() {

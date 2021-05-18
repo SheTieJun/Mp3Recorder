@@ -146,6 +146,10 @@ class AudioPlayer : MediaPlayer.OnPreparedListener, MediaPlayer.OnErrorListener,
     val isPause: Boolean
         get() = !isPlaying
 
+    //是否开始过
+    var isPlayingMusic:Boolean = false
+        private set
+
     /**
      * 是否正在播放
      * @return
@@ -462,11 +466,13 @@ class AudioPlayer : MediaPlayer.OnPreparedListener, MediaPlayer.OnErrorListener,
     private fun release() {
         currentUrl = null
         currentUri = null
+        handler.removeCallbacksAndMessages(null)
         //释放MediaPlay
         if (null != mediaPlayer) {
             mediaPlayer!!.release()
             mediaPlayer = null
         }
+        isPlayingMusic = false
     }
 
     /**
@@ -503,6 +509,7 @@ class AudioPlayer : MediaPlayer.OnPreparedListener, MediaPlayer.OnErrorListener,
             setIsPlay(true)
             return
         }
+        isPlayingMusic = true
         mp.start()
         handler.sendEmptyMessage(HANDLER_START)
         startProgress()

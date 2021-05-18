@@ -107,7 +107,7 @@ class SimRecorder : BaseRecorder {
                         //录制回调
                         mRecordListener!!.onRecording(duration, realVolume)
                         //提示快到录音时间了
-                        if (isRemind  && duration > mRemindTime ) {
+                        if (isRemind && duration > mRemindTime) {
                             isRemind = false
                             mRecordListener!!.onRemind(duration)
                         }
@@ -174,7 +174,7 @@ class SimRecorder : BaseRecorder {
      * 返回背景音乐的播放器
      * @return
      */
-    val bgPlayer: AudioPlayer
+    private val bgPlayer: AudioPlayer
         get() {
             initBgMusicPlayer()
             return backgroundPlayer!!
@@ -312,7 +312,7 @@ class SimRecorder : BaseRecorder {
         handler.sendEmptyMessage(HANDLER_MAX_TIME)
         if (remindDiffTime != null && remindDiffTime < maxTime) {
             this.mRemindTime = (maxTime - remindDiffTime).toLong()
-        }else{
+        } else {
             this.mRemindTime = (maxTime - 10000).toLong()
         }
         return this
@@ -485,6 +485,10 @@ class SimRecorder : BaseRecorder {
             backgroundMusicIsPlay = bgPlayer.isPlaying
             bgPlayer.pause()
         }
+    }
+
+    override fun isPlayMusic(): Boolean {
+        return bgPlayer.isPlayingMusic
     }
 
     /**

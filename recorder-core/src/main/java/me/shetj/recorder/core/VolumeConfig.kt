@@ -82,11 +82,16 @@ class VolumeConfig(private val context: Context, var currVolumeF: Float = 1f) {
 
         fun getInstance(context: Context): VolumeConfig {
             return sInstance ?: synchronized(VolumeConfig::class.java) {
-                return VolumeConfig(context).also {
+                return VolumeConfig(context.applicationContext).also {
                     it.currVolumeF = it.getCurVolume() / it.getMaxVoice().toFloat()
                     sInstance = it
                 }
             }
+        }
+
+        fun onDestroy(){
+            sInstance?.unregisterReceiver()
+            sInstance = null
         }
 
     }

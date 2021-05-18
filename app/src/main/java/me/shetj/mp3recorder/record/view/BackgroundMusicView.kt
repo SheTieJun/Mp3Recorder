@@ -12,12 +12,10 @@ import android.widget.SeekBar
 import android.widget.TextView
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.appcompat.widget.AppCompatSeekBar
-import me.shetj.base.tools.app.ArmsUtils
 import me.shetj.mp3recorder.R
 import me.shetj.mp3recorder.record.bean.Music
 import me.shetj.mp3recorder.record.utils.RecordUtils
 import me.shetj.mp3recorder.record.utils.Util
-import me.shetj.player.AudioPlayer
 import me.shetj.player.PlayerListener
 import me.shetj.recorder.core.OnVolumeChange
 import me.shetj.recorder.core.VolumeConfig
@@ -38,7 +36,6 @@ class BackgroundMusicView @JvmOverloads constructor(context: Context,
     private var mTvVoice:TextView
     private var mTvProgress:TextView
 
-    private var audioPlayer: AudioPlayer?=null
     private var recordUtils: RecordUtils?=null
     private var music: Music?=null
     private var musicDialog: MusicListBottomSheetDialog?=null
@@ -68,10 +65,7 @@ class BackgroundMusicView @JvmOverloads constructor(context: Context,
 
     fun setRecordUtil(recordUtils: RecordUtils?){
         this.recordUtils = recordUtils
-        audioPlayer = recordUtils?.getBgPlayer()
         recordUtils?.setBackgroundPlayerListener(this)
-        audioPlayer?.setAudioManager(context)
-        audioPlayer?.setLoop(true)
         mSeekBar.max = volumeConfig.getMaxVoice()
         mSeekBar.progress = volumeConfig.getCurVolume()
         showVolumeString(mSeekBar)
@@ -114,7 +108,7 @@ class BackgroundMusicView @JvmOverloads constructor(context: Context,
     }
 
     private fun pauseMusic(){
-        audioPlayer?.pause()
+        recordUtils?.pause()
     }
 
     override fun onClick(v: View?) {
@@ -123,9 +117,10 @@ class BackgroundMusicView @JvmOverloads constructor(context: Context,
                 music?.apply {
                     recordUtils?.let {
                         if (it.isRecording) {
-                            audioPlayer?.playOrPause(url!!, this@BackgroundMusicView)
+                            recordUtils?.startOrPauseBGM()
                         }else{
-                            ArmsUtils.makeText("请先开始录音！")
+                            recordUtils?.startOrPause()
+                            recordUtils?.startOrPauseBGM()
                         }
                     }
                 }
@@ -139,19 +134,19 @@ class BackgroundMusicView @JvmOverloads constructor(context: Context,
     }
 
     override fun onStart(duration: Int) {
-        mIvPlay.setImageResource(R.drawable.selector_record_pause)
+        mIvPlay.setImageResource(R.drawable.icon_pause_bg_music)
     }
 
     override fun onPause() {
-        mIvPlay.setImageResource(R.drawable.selector_record_play)
+        mIvPlay.setImageResource(R.drawable.icon_play_bg_music)
     }
 
     override fun onResume() {
-        mIvPlay.setImageResource(R.drawable.selector_record_pause)
+        mIvPlay.setImageResource(R.drawable.icon_pause_bg_music)
     }
 
     override fun onStop() {
-        mIvPlay.setImageResource(R.drawable.selector_record_play)
+        mIvPlay.setImageResource(R.drawable.icon_play_bg_music)
     }
 
     override fun onCompletion() {
@@ -191,7 +186,6 @@ class BackgroundMusicView @JvmOverloads constructor(context: Context,
     }
 
     fun resetMusic() {
-        audioPlayer?.reset()
         music?.let {
             mTvProgress.text = Util.formatSeconds3(0/1000)+"/"+Util.formatSeconds3((it.duration/1000).toInt())
         }

@@ -132,9 +132,6 @@ class MixRecordUtils(
         mRecorder?.setBackgroundMusicListener(listener)
     }
 
-    fun getBgPlayer(): PlayBackMusic {
-        return (mRecorder!! as MixRecorder).bgPlayer
-    }
 
     fun pause() {
         mRecorder?.onPause()

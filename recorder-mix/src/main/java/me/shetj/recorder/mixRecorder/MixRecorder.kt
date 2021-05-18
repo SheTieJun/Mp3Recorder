@@ -164,7 +164,7 @@ class MixRecorder : BaseRecorder {
      * 返回背景音乐的
      * @return
      */
-    val bgPlayer: PlayBackMusic
+    internal val bgPlayer: PlayBackMusic
         get() {
             initPlayer()
             return mPlayBackMusic!!
@@ -530,6 +530,10 @@ class MixRecorder : BaseRecorder {
             backgroundMusicIsPlay = !bgPlayer.isIsPause
             bgPlayer.pause()
         }
+    }
+
+    override fun isPlayMusic(): Boolean {
+        return bgPlayer.isPlayingMusic
     }
 
     override fun startPlayMusic() {

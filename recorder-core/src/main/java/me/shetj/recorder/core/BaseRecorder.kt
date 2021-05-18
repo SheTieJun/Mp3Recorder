@@ -75,9 +75,7 @@ abstract class BaseRecorder {
     //设计背景音乐的url,本地的
     abstract fun setBackgroundMusic(url: String): BaseRecorder
 
-    /**
-     * 设计背景音乐的url,网络（Internet） 或者 本地
-     */
+    //背景音乐的url,兼容Android Q
     abstract fun setBackgroundMusic(context: Context,uri: Uri,header:MutableMap<String,String>?): BaseRecorder
 
     //设置背景音乐的监听
@@ -115,6 +113,9 @@ abstract class BaseRecorder {
 
     //暂停录音
     abstract fun onPause()
+
+    //是否设置了并且开始播放了背景音乐
+    abstract fun isPlayMusic():Boolean
 
     //开始播放音乐
     abstract fun startPlayMusic()
