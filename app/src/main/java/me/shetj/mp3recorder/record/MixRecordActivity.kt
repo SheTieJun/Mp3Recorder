@@ -130,7 +130,7 @@ class MixRecordActivity : BaseBindingActivity<BaseViewModel,ActivityMixRecordBin
                 .setBackgroundMusic(musicUrl!!)//设置默认的背景音乐
                 .setRecordListener (  onRecording = { time, volume ->
                     Timber.i("time = $time  ,volume = $volume")
-                },onSuccess = { file, _ ->
+                },onSuccess = { _,file, _ ->
                     "录制成功：$file".showToast()
                     Timber.i("file= %s", file)
                 })

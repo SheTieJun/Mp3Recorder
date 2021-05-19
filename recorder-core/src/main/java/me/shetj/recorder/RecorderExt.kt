@@ -11,8 +11,8 @@ import me.shetj.recorder.core.VolumeConfig
 /**
  * 设置录制成功回调，不管是最大还是收到
  */
-fun BaseRecorder.onSuccess(onSuccess: (file: String, time: Long) -> Unit = { _: String, _: Long -> }): BaseRecorder {
-    return setRecordListener(onSuccess = onSuccess, autoComplete = onSuccess)
+fun BaseRecorder.onSuccess(onSuccess: (isAutoComplete: Boolean, file: String, time: Long) -> Unit = { _: Boolean, _: String, _: Long -> }): BaseRecorder {
+    return setRecordListener(onSuccess = onSuccess)
 }
 
 /**
@@ -29,7 +29,7 @@ fun BaseRecorder.onPlayChange(
  * 设置背景音乐播放的监听
  */
 fun BaseRecorder.setPlayListener(
-    onStart: (duration: Int) -> Unit = {  _: Int -> },
+    onStart: (duration: Int) -> Unit = { _: Int -> },
     onPause: () -> Unit = {},
     onResume: () -> Unit = {},
     onStop: () -> Unit = {},
@@ -38,8 +38,8 @@ fun BaseRecorder.setPlayListener(
     onProgress: (current: Int, duration: Int) -> Unit = { _: Int, _: Int -> }
 ): BaseRecorder {
     setBackgroundMusicListener(object : PlayerListener {
-        override fun onStart( duration: Int) {
-            onStart( duration)
+        override fun onStart(duration: Int) {
+            onStart(duration)
         }
 
         override fun onPause() {
@@ -79,10 +79,9 @@ fun BaseRecorder.setRecordListener(
     onRecording: (time: Long, volume: Int) -> Unit = { _: Long, _: Int -> },
     onPause: () -> Unit = {},
     onRemind: (mDuration: Long) -> Unit = {},
-    onSuccess: (file: String, time: Long) -> Unit = { _: String, _: Long -> },
+    onSuccess: (isAutoComplete: Boolean, file: String, time: Long) -> Unit = { _: Boolean, _: String, _: Long -> },
     setMaxProgress: (time: Long) -> Unit = {},
     onError: (e: Exception) -> Unit = {},
-    autoComplete: (file: String, time: Long) -> Unit = { _: String, _: Long -> },
     needPermission: () -> Unit = {}
 ): BaseRecorder {
 
@@ -111,9 +110,10 @@ fun BaseRecorder.setRecordListener(
             onRemind(duration)
         }
 
-        override fun onSuccess(file: String, time: Long) {
-            onSuccess(file, time)
+        override fun onSuccess(isAutoComplete: Boolean, file: String, time: Long) {
+            onSuccess(isAutoComplete, file, time)
         }
+
 
         override fun onMaxChange(time: Long) {
             setMaxProgress(time)
@@ -123,9 +123,6 @@ fun BaseRecorder.setRecordListener(
             onError(e)
         }
 
-        override fun autoComplete(file: String, time: Long) {
-            autoComplete(file, time)
-        }
     })
     setPermissionListener(object : PermissionListener {
         override fun needPermission() {
