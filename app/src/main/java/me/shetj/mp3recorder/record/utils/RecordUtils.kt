@@ -135,7 +135,7 @@ class RecordUtils(
     private fun resolveError() {
         FileUtils.deleteFile(File(saveFile))
         if (mRecorder != null && mRecorder!!.isRecording) {
-            mRecorder!!.stop()
+            mRecorder!!.complete()
         }
     }
 
@@ -143,7 +143,7 @@ class RecordUtils(
      * 停止录音
      */
     fun stopFullRecord() {
-        mRecorder?.stop()
+        mRecorder?.complete()
     }
 
     override fun needPermission() {

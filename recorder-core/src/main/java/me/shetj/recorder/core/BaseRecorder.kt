@@ -64,27 +64,27 @@ abstract class BaseRecorder {
     protected var mVolume: Int = 0
     protected var backgroundMusicIsPlay: Boolean = false //记录是否暂停
     protected var bgmIsLoop: Boolean = false
-    var isRecording = false
-        protected set
     protected var isRemind: Boolean = true
     protected var isContinue = false //是否继续录制
+    //是否暂停
+    protected var isPause: Boolean = true
+    private var isDebug = false
     //声音增强,不建议使用
     protected var wax = 1f
     protected var bgLevel: Float = 03f
+    var isRecording = false
+        protected set
     //当前状态
     var state = RecordState.STOPPED
         protected set
     //录制时间
     var duration = 0L
         protected set
-    //是否暂停
-    protected var isPause: Boolean = true
-    private var isDebug = false
     //endregion 录音的状态和时间
 
     //region public method 公开的方法
-    abstract val realVolume: Int
-
+    val realVolume: Int
+        get() = mVolume
     //设置是否使用耳机配置方式
     abstract fun setContextToPlugConfig(context: Context): BaseRecorder
 
@@ -134,12 +134,11 @@ abstract class BaseRecorder {
     //开始录音
     abstract fun start()
 
-    //停止录音
-    abstract fun stop()
+    //完成录音
+    abstract fun complete()
 
     //重新开始录音
-    abstract fun resume
-                ()
+    abstract fun resume()
 
     //替换输出文件
     abstract fun updateDataEncode(outputFilePath: String)

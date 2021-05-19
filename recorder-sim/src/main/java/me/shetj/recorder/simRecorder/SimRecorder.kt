@@ -150,13 +150,6 @@ class SimRecorder : BaseRecorder {
             return backgroundPlayer!!
         }
 
-    /**
-     * 获取真实的音量 分呗
-     * @return 真实音量
-     */
-    override val realVolume: Int
-        get() = mVolume
-
     override fun setContextToPlugConfig(context: Context): BaseRecorder {
         println("MP3Recorder no use it")
         return this
@@ -412,7 +405,7 @@ class SimRecorder : BaseRecorder {
         return this
     }
 
-    override fun stop() {
+    override fun complete() {
         if (state !== RecordState.STOPPED) {
             isPause = false
             isRecording = false
@@ -636,6 +629,7 @@ class SimRecorder : BaseRecorder {
             state = RecordState.RECORDING
             duration = 0L
             isRemind = true
+            isPause = false
             if (backgroundMusicIsPlay) {
                 if (backgroundMusicUrl != null) {
                     bgPlayer.playNoStart(

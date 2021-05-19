@@ -136,7 +136,7 @@ class MixRecordUtils(
     private fun resolveError() {
         FileUtils.deleteFile(saveFile)
         if (mRecorder != null && mRecorder!!.isRecording) {
-            mRecorder!!.stop()
+            mRecorder!!.complete()
         }
     }
 
@@ -144,7 +144,7 @@ class MixRecordUtils(
      * 停止录音
      */
     fun stopFullRecord() {
-        mRecorder?.stop()
+        mRecorder?.complete()
     }
 
     override fun needPermission() {

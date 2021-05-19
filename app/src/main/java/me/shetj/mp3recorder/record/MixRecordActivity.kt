@@ -88,7 +88,7 @@ class MixRecordActivity : BaseBindingActivity<BaseViewModel,ActivityMixRecordBin
     }
 
     private fun stopRecord() {
-        mixRecorder?.stop()
+        mixRecorder?.complete()
     }
 
     private fun recordPauseOrResume() {

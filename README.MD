@@ -138,6 +138,7 @@ recorder {
  mRecorder?.pauseMusic() //暂停背景音乐
  mRecorder?.isPauseMusic()// 背景音乐是否暂停
  mRecorder?.resumeMusic() //重新开始播放
+
  mRecorder?.setContextToPlugConfig(context) //设置次方法后，会使用耳机配置方式,只有 【MixRecorder】 有效
  mRecorder?.setContextToVolumeConfig(context) //设置方法后，将会使用系统的播放的音量进行控制
 ```
@@ -149,7 +150,7 @@ recorder {
 #### 5. 完成录音（停止录音）
 
 ```kotlin
- mRecorder?.stop()  //完成录音
+ mRecorder?.complete()  //完成录音，回调接口onSuccess()
 ```
 
 
@@ -164,11 +165,11 @@ recorder {
 ```
 #### 7.中途直接结束.停止录音
 ```
-  mixRecorder.onReset() //会回调 Listener: onReset()
+  mixRecorder.reset() //会回调 onReset()
 ```
 
 ```kotlin
- mRecorder?.onDestroy()   //不会有任何回调，但是不会走onSuccess
+ mRecorder?.destroy()   //结束录音，不会有任何回调
 ```
 
 #### 声音大小

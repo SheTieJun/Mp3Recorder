@@ -131,9 +131,6 @@ class MixRecorder : BaseRecorder {
             return mPlayBackMusic!!
         }
 
-    override val realVolume: Int
-        get() = mVolume
-
     override fun setContextToPlugConfig(context: Context): MixRecorder {
         plugConfigs = PlugConfigs.getInstance(context.applicationContext)
         bgPlayer.plugConfigs = plugConfigs
@@ -433,7 +430,7 @@ class MixRecorder : BaseRecorder {
     }
 
 
-    override fun stop() {
+    override fun complete() {
         if (state != RecordState.STOPPED) {
             state = RecordState.STOPPED
             isAutoComplete = false
@@ -574,6 +571,7 @@ class MixRecorder : BaseRecorder {
             handler.sendEmptyMessage(HANDLER_START)
             state = RecordState.RECORDING
             isRemind = true
+            isPause = false
             duration = 0L
             if (mPlayBackMusic != null) {
                 mPlayBackMusic!!.setNeedRecodeDataEnable(true)

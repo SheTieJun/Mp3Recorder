@@ -92,7 +92,7 @@ class MixRecordUtils(
                 mRecorder?.start()
             }
             RecordState.RECORDING -> {
-                mRecorder?.stop()
+                mRecorder?.complete()
             }
             RecordState.PAUSED -> {
 
@@ -147,7 +147,7 @@ class MixRecordUtils(
      */
     private fun resolveError() {
         if (isRecording) {
-            mRecorder!!.stop()
+            mRecorder!!.complete()
         }
         cleanPath()
     }
@@ -156,7 +156,7 @@ class MixRecordUtils(
      * 停止录音
      */
     fun stopFullRecord() {
-        mRecorder?.stop()
+        mRecorder?.complete()
     }
 
     override fun needPermission() {
