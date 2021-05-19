@@ -43,8 +43,9 @@ interface RecordListener {
      * 录制成功
      * @param file 保存的文件
      * @param time 录制时间 （毫秒ms）
+     * @param isAutoComplete 是否是达到“最大”时间，自动完成的操作
      */
-    fun onSuccess(file: String, time: Long)
+    fun onSuccess(isAutoComplete:Boolean,file: String, time: Long)
 
 
     /**
@@ -56,12 +57,5 @@ interface RecordListener {
      * 计算时间错误时
      */
     fun onError(e: Exception)
-
-    /**
-     * 达到“最大”时间，自动完成的操作
-     * （毫秒ms）
-     */
-    fun autoComplete(file: String, time: Long)
-
 
 }

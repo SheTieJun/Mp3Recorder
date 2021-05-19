@@ -5,22 +5,17 @@ import android.content.Context
 import android.media.AudioFormat
 import android.media.AudioRecord
 import android.media.MediaRecorder
-import android.media.audiofx.AcousticEchoCanceler
-import android.media.audiofx.AutomaticGainControl
-import android.media.audiofx.NoiseSuppressor
 import android.net.Uri
 import android.os.Handler
 import android.os.Looper
 import android.os.Message
 import android.os.Process
 import android.text.TextUtils
-import android.util.Log
 import me.shetj.player.PlayerListener
 import me.shetj.recorder.core.*
 import me.shetj.recorder.util.LameUtils
 import java.io.File
 import java.io.IOException
-import java.util.concurrent.atomic.AtomicBoolean
 
 
 /**
@@ -28,50 +23,21 @@ import java.util.concurrent.atomic.AtomicBoolean
  */
 class MixRecorder : BaseRecorder {
 
-    private val TAG = this.javaClass.simpleName
     //region 参数
 
     //region  Lame Default Setting （Lame的设置）
-    private var defaultLameInChannel = 1 //声道数量
-    private var defaultLameMp3Quality = 3 //音频质量，好像LAME已经不使用它了
-    private var defaultLameMp3BitRate = 96 //32 太低，96,128 比较合适
-    private var defaultSamplingRate = 44100
-    private var is2Channel = false //默认是双声道
-    private var defaultAudioSource = MediaRecorder.AudioSource.VOICE_COMMUNICATION
-    private var defaultChannelConfig = AudioFormat.CHANNEL_IN_MONO
     private var mAudioRecord: AudioRecord? = null
     private var mPlayBackMusic: PlayBackMusic? = null
     private var mEncodeThread: MixEncodeThread? = null
-    private var mRecordFile: File? = null //文件输出，中途可以替换
     //endregion Lame Default Settings
 
-    //region 系统自带的去噪音，增强以及回音问题
-    private var mNoiseSuppressor: NoiseSuppressor? = null
-    private var mAcousticEchoCanceler: AcousticEchoCanceler? = null
-    private var mAutomaticGainControl: AutomaticGainControl? = null
-    //endregion 系统自带的去噪音，增强以及回音问题
-
-    //region 回调接口
-    private var mRecordListener: RecordListener? = null
-    private var mPermissionListener: PermissionListener? = null
-    //endregion 回调接口
-
     //region 背景音乐相关
-    private var backgroundMusicIsPlay: Boolean = false //记录是否暂停
-    private var bgLevel: Float = 0.30f//背景音乐
     private var plugConfigs: PlugConfigs? = null
     private var volumeConfig: VolumeConfig? = null
     //endregion 背景音乐相关
 
     //region 其他
     private var mSendError: Boolean = false
-    var isRemind: Boolean = true
-
-    //最大时间
-    private var mMaxTime: Long = 3600000
-
-    //提醒时间
-    private var mRemindTime = (3600000 - 10000).toLong()
 
     //通知速度，毫秒
     private var speed: Long = 300
@@ -79,11 +45,6 @@ class MixRecorder : BaseRecorder {
     //缓冲数量
     private var mBufferSize: Int = 0
     private var bytesPerSecond: Int = 0  //PCM文件大小=采样率采样时间采样位深/8*通道数（Bytes）
-    private var isContinue: Boolean = false //是否写在文件末尾
-    private var isAutoComplete = false
-
-    //声音增强
-    private var wax = 1f
     //endregion 其他
 
     //endregion 参数
@@ -118,13 +79,13 @@ class MixRecorder : BaseRecorder {
                 HANDLER_COMPLETE -> {
                     logInfo("msg.what = HANDLER_COMPLETE  \n mDuration = $duration")
                     if (mRecordListener != null && mRecordFile != null) {
-                        mRecordListener!!.onSuccess(mRecordFile!!.absolutePath, duration)
+                        mRecordListener!!.onSuccess(false,mRecordFile!!.absolutePath, duration)
                     }
                 }
                 HANDLER_AUTO_COMPLETE -> {
                     logInfo("msg.what = HANDLER_AUTO_COMPLETE  \n mDuration = $duration")
                     if (mRecordListener != null && mRecordFile != null) {
-                        mRecordListener!!.autoComplete(mRecordFile!!.absolutePath, duration)
+                        mRecordListener!!.onSuccess(true,mRecordFile!!.absolutePath, duration)
                     }
                 }
                 HANDLER_ERROR -> {
@@ -185,25 +146,6 @@ class MixRecorder : BaseRecorder {
         return this
     }
 
-    /**
-     * 获取相对音量。 超过最大值时取最大值。
-     *
-     * @return 音量
-     */
-    val volume: Int
-        get() = if (mVolume >= MAX_VOLUME) {
-            MAX_VOLUME
-        } else mVolume
-
-    /**
-     * 根据资料假定的最大值。 实测时有时超过此值。
-     *
-     * @return 最大音量值。
-     */
-    val maxVolume: Int
-        get() = MAX_VOLUME
-
-
     constructor()
 
     /**
@@ -260,7 +202,8 @@ class MixRecorder : BaseRecorder {
      * @param url
      */
     override fun setBackgroundMusic(url: String): MixRecorder {
-        setBackgroundMusic(url, true)
+        bgPlayer.setBackGroundUrl(url)
+        bgPlayer.setLoop(bgmIsLoop)
         return this
     }
 
@@ -271,14 +214,13 @@ class MixRecorder : BaseRecorder {
     ): MixRecorder {
         initPlayer()
         mPlayBackMusic!!.setBackGroundUrl(context, uri, header)
-        mPlayBackMusic!!.setLoop(true)
+        mPlayBackMusic!!.setLoop(this.bgmIsLoop)
         return this
     }
 
-    fun setBackgroundMusic(url: String?, isLoop: Boolean): MixRecorder {
-        initPlayer()
-        mPlayBackMusic!!.setBackGroundUrl(url!!)
-        mPlayBackMusic!!.setLoop(isLoop)
+    override fun setLoopMusic(isLoop: Boolean): BaseRecorder {
+        this.bgmIsLoop = isLoop
+        bgPlayer.setLoop(isLoop)
         return this
     }
 
@@ -508,7 +450,7 @@ class MixRecorder : BaseRecorder {
     /**
      * 重新开始
      */
-    override fun onResume() {
+    override fun resume() {
         if (state === RecordState.PAUSED) {
             this.isPause = false
             state = RecordState.RECORDING
@@ -522,7 +464,7 @@ class MixRecorder : BaseRecorder {
     /**
      * 暂停
      */
-    override fun onPause() {
+    override fun pause() {
         if (state === RecordState.RECORDING) {
             this.isPause = true
             state = RecordState.PAUSED
@@ -561,7 +503,7 @@ class MixRecorder : BaseRecorder {
     /**
      * 重置
      */
-    override fun onReset() {
+    override fun reset() {
         isRecording = false
         isPause = false
         state = RecordState.STOPPED
@@ -573,7 +515,7 @@ class MixRecorder : BaseRecorder {
     }
 
 
-    override fun onDestroy() {
+    override fun destroy() {
         isRecording = false
         isPause = false
         mRecordFile = null
@@ -690,79 +632,6 @@ class MixRecorder : BaseRecorder {
     }
 
 
-    private fun initAEC(mAudioSessionId: Int) {
-        if (mAudioSessionId != 0) {
-            if (NoiseSuppressor.isAvailable()) {
-                if (mNoiseSuppressor != null) {
-                    mNoiseSuppressor!!.release()
-                    mNoiseSuppressor = null
-                }
-
-                mNoiseSuppressor = NoiseSuppressor.create(mAudioSessionId)
-                if (mNoiseSuppressor != null) {
-                    mNoiseSuppressor!!.enabled = true
-                } else {
-                    Log.i(TAG, "Failed to create NoiseSuppressor.")
-                }
-            } else {
-                Log.i(TAG, "Doesn't support NoiseSuppressor")
-            }
-
-            if (AcousticEchoCanceler.isAvailable()) {
-                if (mAcousticEchoCanceler != null) {
-                    mAcousticEchoCanceler!!.release()
-                    mAcousticEchoCanceler = null
-                }
-
-                mAcousticEchoCanceler = AcousticEchoCanceler.create(mAudioSessionId)
-                if (mAcousticEchoCanceler != null) {
-                    mAcousticEchoCanceler!!.enabled = true
-                    // mAcousticEchoCanceler.setControlStatusListener(listener)setEnableStatusListener(listener)
-                } else {
-                    Log.i(TAG, "Failed to initAEC.")
-                    mAcousticEchoCanceler = null
-                }
-            } else {
-                Log.i(TAG, "Doesn't support AcousticEchoCanceler")
-            }
-
-            if (AutomaticGainControl.isAvailable()) {
-                if (mAutomaticGainControl != null) {
-                    mAutomaticGainControl!!.release()
-                    mAutomaticGainControl = null
-                }
-
-                mAutomaticGainControl = AutomaticGainControl.create(mAudioSessionId)
-                if (mAutomaticGainControl != null) {
-                    mAutomaticGainControl!!.enabled = true
-                } else {
-                    Log.i(TAG, "Failed to create AutomaticGainControl.")
-                }
-
-            } else {
-                Log.i(TAG, "Doesn't support AutomaticGainControl")
-            }
-        }
-
-    }
-
-    private fun release() {
-        if (null != mAcousticEchoCanceler) {
-            mAcousticEchoCanceler!!.enabled = false
-            mAcousticEchoCanceler!!.release()
-            mAcousticEchoCanceler = null
-        }
-        if (null != mAutomaticGainControl) {
-            mAutomaticGainControl!!.enabled = false
-            mAutomaticGainControl!!.release()
-            mAutomaticGainControl = null
-        }
-        if (null != mNoiseSuppressor) {
-            mNoiseSuppressor!!.enabled = false
-            mNoiseSuppressor!!.release()
-            mNoiseSuppressor = null
-        }
-    }
     //endregion
 
     companion object {
@@ -784,7 +653,6 @@ class MixRecorder : BaseRecorder {
 
         //==================================================================
         private val FRAME_COUNT = 160
-        private val MAX_VOLUME = 2000
     }
 }
 

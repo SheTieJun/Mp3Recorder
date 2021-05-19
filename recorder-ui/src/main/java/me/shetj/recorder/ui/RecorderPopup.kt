@@ -72,9 +72,13 @@ class RecorderPopup(
             mViewBinding.spreadView.start = true
         }
 
-        override fun autoComplete(file: String, time: Long) {
-            super.autoComplete(file, time)
-            onShowSuccessView()
+        override fun onSuccess(isAutoComplete: Boolean, file: String, time: Long) {
+            super.onSuccess(isAutoComplete, file, time)
+            if (isAutoComplete) {
+                onShowSuccessView()
+            }else {
+                mViewBinding.tvRecordTime.text = formatSeconds(maxSecond(), maxSecond())
+            }
             complete(time)
         }
 
@@ -110,12 +114,6 @@ class RecorderPopup(
             super.onMaxChange(time)
             val maxTimeInfo = "/" + formatSeconds(time / 1000, maxSecond())
             mViewBinding.tvRecordDuration.text = maxTimeInfo
-        }
-
-        override fun onSuccess(file: String, time: Long) {
-            super.onSuccess(file, time)
-            mViewBinding.tvRecordTime.text = formatSeconds(maxSecond(), maxSecond())
-            complete(time)
         }
 
         override fun onReset() {

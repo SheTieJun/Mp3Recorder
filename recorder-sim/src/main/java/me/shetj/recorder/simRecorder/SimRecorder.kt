@@ -27,35 +27,17 @@ import java.util.*
  * 目前只支持单声道
  */
 class SimRecorder : BaseRecorder {
-    private val TAG = javaClass.simpleName
-
-    //=======================AudioRecord Default Settings=======================
-    //    private static final int DEFAULT_AUDIO_SOURCE = MediaRecorder.AudioSource.VOICE_COMMUNICATION;//**对麦克风中类似ip通话的交流声音进行识别，默认会开启回声消除和自动增益*/
-    private var defaultAudioSource = MediaRecorder.AudioSource.MIC
-
     //======================Lame Default Settings=====================
-    private var defaultLameMp3Quality = 3
-    private var defaultLameMp3BitRate = 64 //32 太低，64 .96,128 比较合适  不要问为什么，产品说好
-    private var defaultSamplingRate = 44100
     private var mAudioRecord: AudioRecord? = null
     private var mEncodeThread: DataEncodeThread? = null
     private var backgroundPlayer: AudioPlayer? = null
-
     private var context: Context? = null
-
     /**
      * 输出的文件
      */
-    private var mRecordFile: File? = null
     private var dataList: ArrayList<Short>? = null
-
-    private var mRecordListener: RecordListener? = null
-    private var mPermissionListener: PermissionListener? = null
-
     private var mPCMBuffer: ShortArray? = null
     private var mSendError: Boolean = false
-    var isRemind: Boolean = true
-
     /**
      * 音量变化监听
      */
@@ -79,19 +61,7 @@ class SimRecorder : BaseRecorder {
             field = waveSpeed
         }
 
-    //最大时间
-    private var mMaxTime: Long = 3600000
-
-    //提醒时间
-    private var mRemindTime = (3600000 - 10000).toLong()
-
-    //声音增强
-    private var wax = 1f
-    private var bgLevel: Float = 03f
-    private var isContinue = false //是否继续录制
-
     //背景音乐相关
-    private var backgroundMusicIsPlay: Boolean = false //记录是否暂停
     private var backgroundMusicUrl: String? = null
     private var backgroundMusicPlayerListener: PlayerListener? = null
     private var backgroundMusicUri: Uri? = null
@@ -128,13 +98,13 @@ class SimRecorder : BaseRecorder {
                 HANDLER_COMPLETE -> {
                     logInfo("msg.what = HANDLER_COMPLETE  \n mDuration = $duration ")
                     if (mRecordListener != null) {
-                        mRecordListener!!.onSuccess(mRecordFile!!.absolutePath, duration)
+                        mRecordListener!!.onSuccess(false, mRecordFile!!.absolutePath, duration)
                     }
                 }
                 HANDLER_AUTO_COMPLETE -> {
                     logInfo("msg.what = HANDLER_AUTO_COMPLETE  \n mDuration = $duration ")
                     if (mRecordListener != null) {
-                        mRecordListener!!.autoComplete(mRecordFile!!.absolutePath, duration)
+                        mRecordListener!!.onSuccess(true, mRecordFile!!.absolutePath, duration)
                     }
                 }
                 HANDLER_ERROR -> {
@@ -225,6 +195,7 @@ class SimRecorder : BaseRecorder {
      */
     constructor(audioSource: Int = MediaRecorder.AudioSource.MIC) {
         this.defaultAudioSource = audioSource
+        release()
     }
 
     /**
@@ -393,6 +364,12 @@ class SimRecorder : BaseRecorder {
                     mAudioRecord = null
                 } catch (ex: Exception) {
                     ex.printStackTrace()
+                }finally {
+                    if (isAutoComplete) {
+                        handler.sendEmptyMessage(HANDLER_AUTO_COMPLETE)
+                    } else {
+                        handler.sendEmptyMessage(HANDLER_COMPLETE)
+                    }
                 }
 
                 if (isError) {
@@ -425,6 +402,11 @@ class SimRecorder : BaseRecorder {
         return this
     }
 
+    override fun setLoopMusic(isLoop: Boolean): BaseRecorder {
+        this.bgmIsLoop = isLoop
+        return this
+    }
+
     override fun setBackgroundMusicListener(listener: PlayerListener): SimRecorder {
         this.backgroundMusicPlayerListener = listener
         return this
@@ -434,7 +416,6 @@ class SimRecorder : BaseRecorder {
         if (state !== RecordState.STOPPED) {
             isPause = false
             isRecording = false
-            handler.sendEmptyMessage(HANDLER_COMPLETE)
             state = RecordState.STOPPED
             backgroundMusicIsPlay = false
             bgPlayer.stopPlay()
@@ -444,7 +425,7 @@ class SimRecorder : BaseRecorder {
     /**
      * 重新开始
      */
-    override fun onResume() {
+    override fun resume() {
         if (state === RecordState.PAUSED) {
             isPause = false
             state = RecordState.RECORDING
@@ -477,7 +458,7 @@ class SimRecorder : BaseRecorder {
     /**
      * 暂停
      */
-    override fun onPause() {
+    override fun pause() {
         if (state === RecordState.RECORDING) {
             isPause = true
             state = RecordState.PAUSED
@@ -494,7 +475,7 @@ class SimRecorder : BaseRecorder {
     /**
      * 重置
      */
-    override fun onReset() {
+    override fun reset() {
         isRecording = false
         isPause = false
         state = RecordState.STOPPED
@@ -506,11 +487,12 @@ class SimRecorder : BaseRecorder {
     }
 
 
-    override fun onDestroy() {
+    override fun destroy() {
         isRecording = false
         isPause = false
         state = RecordState.STOPPED
         mRecordFile = null
+        release()
         bgPlayer.stopPlay()
         handler.removeCallbacksAndMessages(null)
         volumeConfig?.unregisterReceiver()
@@ -578,6 +560,8 @@ class SimRecorder : BaseRecorder {
             mBufferSize
         )
         mPCMBuffer = ShortArray(mBufferSize)
+
+        initAEC(mAudioRecord!!.audioSessionId)
         /*
          * Initialize lame buffer
          * mp3 sampling rate is the same as the recorded pcm sampling rate
@@ -641,8 +625,8 @@ class SimRecorder : BaseRecorder {
     private fun initBgMusicPlayer() {
         if (backgroundPlayer == null) {
             backgroundPlayer = AudioPlayer()
-            backgroundPlayer!!.setLoop(true)
         }
+        backgroundPlayer!!.setLoop(this.bgmIsLoop)
     }
 
 
@@ -699,7 +683,7 @@ class SimRecorder : BaseRecorder {
         if (state !== RecordState.STOPPED) {
             isPause = false
             isRecording = false
-            handler.sendEmptyMessageDelayed(HANDLER_AUTO_COMPLETE, waveSpeed.toLong())
+            isAutoComplete = true
             state = RecordState.STOPPED
             backgroundMusicIsPlay = false
             bgPlayer.stopPlay()

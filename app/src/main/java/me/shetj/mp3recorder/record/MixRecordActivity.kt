@@ -88,21 +88,16 @@ class MixRecordActivity : BaseBindingActivity<BaseViewModel,ActivityMixRecordBin
     }
 
     private fun stopRecord() {
-        mixRecorder?.let {
-            if (mixRecorder!!.isRecording) {
-                mixRecorder?.stop()
-                ArmsUtils.makeText("停止录音")
-            }
-        }
+        mixRecorder?.stop()
     }
 
     private fun recordPauseOrResume() {
         when {
             mixRecorder?.state == RecordState.PAUSED -> {
-                mixRecorder?.onResume()
+                mixRecorder?.resume()
             }
             mixRecorder?.state == RecordState.RECORDING -> {
-                mixRecorder?.onPause()
+                mixRecorder?.pause()
             }
             else ->{
                 ArmsUtils.makeText(   "请先开始录音")
@@ -111,7 +106,7 @@ class MixRecordActivity : BaseBindingActivity<BaseViewModel,ActivityMixRecordBin
     }
 
     private fun startOrPause() {
-        if (mixRecorder!=null && !mixRecorder!!.isRecording) {
+        if (mixRecorder?.state != RecordState.RECORDING) {
             ArmsUtils.makeText(  "请先开始录音")
             return
         }
@@ -146,7 +141,7 @@ class MixRecordActivity : BaseBindingActivity<BaseViewModel,ActivityMixRecordBin
                 .setMaxTime(1800 * 1000) //设置最大时间
         }
         mixRecorder!!.setOutputFile(filePath)//设置输出文件
-        if (!mixRecorder!!.isRecording) {
+        if (mixRecorder?.state != RecordState.RECORDING) {
             mixRecorder!!.start()
             mixRecorder!!.startPlayMusic()
             ArmsUtils.makeText("开始录音")

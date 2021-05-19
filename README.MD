@@ -124,8 +124,8 @@ recorder {
 #### 2. 暂停、重新开始录音
 
 ```kotlin
- mRecorder?.onPause() //暂停
- mRecorder?.onResume() //重新开始
+ mRecorder?.pause() //暂停
+ mRecorder?.resume() //重新开始
  mRecorder?.state     //获取当前录音的状态 3个状态，停止，录音中，暂停
 ```
 

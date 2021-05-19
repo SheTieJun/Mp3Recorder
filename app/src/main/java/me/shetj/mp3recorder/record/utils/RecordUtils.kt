@@ -1,17 +1,14 @@
 package me.shetj.mp3recorder.record.utils
 
-import android.content.Context
 import me.shetj.base.tools.app.ArmsUtils
 import me.shetj.base.tools.app.Utils
 import me.shetj.base.tools.file.EnvironmentStorage
 import me.shetj.base.tools.file.FileUtils
 import me.shetj.base.tools.json.EmptyUtils
-import me.shetj.player.AudioPlayer
 import me.shetj.recorder.core.PermissionListener
 import me.shetj.player.PlayerListener
 import me.shetj.recorder.core.RecordListener
 import me.shetj.recorder.core.BaseRecorder
-import me.shetj.recorder.simRecorder.SimRecorder
 import me.shetj.recorder.core.RecordState
 import me.shetj.recorder.simRecorder.simRecorder
 import java.io.File
@@ -63,10 +60,10 @@ class RecordUtils(
                 mRecorder?.start()
             }
             RecordState.PAUSED -> {
-                mRecorder?.onResume()
+                mRecorder?.resume()
             }
             RecordState.RECORDING -> {
-                mRecorder?.onPause()
+                mRecorder?.pause()
             }
         }
     }
@@ -105,15 +102,15 @@ class RecordUtils(
     }
 
     fun pause() {
-        mRecorder?.onPause()
+        mRecorder?.pause()
     }
 
     fun clear() {
-        mRecorder?.onDestroy()
+        mRecorder?.destroy()
     }
 
     fun reset() {
-        mRecorder?.onReset()
+        mRecorder?.reset()
     }
 
     /**
@@ -177,8 +174,12 @@ class RecordUtils(
         ArmsUtils.makeText("已录制" + duration / 60000 + "分钟，本条录音还可以继续录制10秒")
     }
 
-    override fun onSuccess(file: String, time: Long) {
-        callBack?.onSuccess(file, (time / 1000).toInt())
+    override fun onSuccess(isAutoComplete:Boolean,file: String, time: Long) {
+        if (isAutoComplete){
+            callBack?.autoComplete(file, (time / 1000).toInt())
+        }else {
+            callBack?.onSuccess(file, (time / 1000).toInt())
+        }
     }
 
     override fun onMaxChange(time: Long) {
@@ -188,10 +189,6 @@ class RecordUtils(
     override fun onError(e: Exception) {
         resolveError()
         callBack?.onError(e)
-    }
-
-    override fun autoComplete(file: String, time: Long) {
-        callBack?.autoComplete(file, (time / 1000).toInt())
     }
 
 

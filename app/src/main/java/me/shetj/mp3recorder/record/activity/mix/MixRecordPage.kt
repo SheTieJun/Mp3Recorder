@@ -161,18 +161,33 @@ open class MixRecordPage(private val context: AppCompatActivity, mRoot: ViewGrou
                 mTvStateMsg!!.text = "已暂停，点击继续"
             }
 
-            override fun onSuccess(file: String, time: Long) {
+            override fun onSuccess(isAutoComplete:Boolean,file: String, time: Long) {
                 Timber.i( "onSuccess")
-                if (File(file).exists()) {
-                    TransitionManager.beginDelayedTransition(root)
-                    mIvRecordState!!.setImageResource(R.mipmap.icon_start_record)
-                    showSaveAndRe(View.INVISIBLE)
-                    mTvStateMsg!!.text = "点击录音"
-                    if (oldRecord == null) {
-                        saveRecord(file)
-                        callback.onEvent(1)
-                    } else {
-                        saveOldRecord(file, true)
+                if (isAutoComplete){
+                    if (File(file).exists()) {
+                        TransitionManager.beginDelayedTransition(root)
+                        mIvRecordState!!.setImageResource(R.mipmap.icon_start_record)
+                        showSaveAndRe(View.INVISIBLE)
+                        mTvStateMsg!!.text = "录制完成"
+                        if (oldRecord == null) {
+                            saveRecord(file)
+                            showRecordNewDialog()
+                        } else {
+                            saveOldRecord(file, false)
+                        }
+                    }
+                }else {
+                    if (File(file).exists()) {
+                        TransitionManager.beginDelayedTransition(root)
+                        mIvRecordState!!.setImageResource(R.mipmap.icon_start_record)
+                        showSaveAndRe(View.INVISIBLE)
+                        mTvStateMsg!!.text = "点击录音"
+                        if (oldRecord == null) {
+                            saveRecord(file)
+                            callback.onEvent(1)
+                        } else {
+                            saveOldRecord(file, true)
+                        }
                     }
                 }
             }
@@ -187,20 +202,6 @@ open class MixRecordPage(private val context: AppCompatActivity, mRoot: ViewGrou
                 setRecord(oldRecord)
             }
 
-            override fun autoComplete(file: String, time: Long) {
-                if (File(file).exists()) {
-                    TransitionManager.beginDelayedTransition(root)
-                    mIvRecordState!!.setImageResource(R.mipmap.icon_start_record)
-                    showSaveAndRe(View.INVISIBLE)
-                    mTvStateMsg!!.text = "录制完成"
-                    if (oldRecord == null) {
-                        saveRecord(file)
-                        showRecordNewDialog()
-                    } else {
-                        saveOldRecord(file, false)
-                    }
-                }
-            }
 
             override fun onReset() {
                 super.onReset()

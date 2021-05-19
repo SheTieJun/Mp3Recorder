@@ -4,8 +4,6 @@ import android.content.Context
 import android.text.TextUtils
 import me.shetj.player.PlayerListener
 import me.shetj.recorder.core.*
-import me.shetj.recorder.mixRecorder.MixRecorder
-import me.shetj.recorder.mixRecorder.PlayBackMusic
 import me.shetj.recorder.mixRecorder.mixRecorder
 import java.io.File
 
@@ -20,26 +18,18 @@ class MixRecordUtils(
 
     val isRecording: Boolean
         get() {
-            return if (mRecorder != null) {
-                mRecorder?.isRecording!! && !mRecorder?.isPause!!
-            } else {
-                false
-            }
+            return mRecorder?.state == RecordState.RECORDING
         }
 
     fun hasRecord(): Boolean {
-        return if (mRecorder != null) {
-            mRecorder?.duration!! > 0 && mRecorder!!.state != RecordState.STOPPED
-        } else {
-            false
-        }
+        return mRecorder?.state != RecordState.STOPPED
     }
 
     init {
         initRecorder()
     }
 
-    val mp3Path: String
+    private val mp3Path: String
         get() {
             val root = context.filesDir.absolutePath
             val path = StringBuilder(root)
@@ -73,10 +63,10 @@ class MixRecordUtils(
                 mRecorder?.start()
             }
             RecordState.PAUSED -> {
-                mRecorder?.onResume()
+                mRecorder?.resume()
             }
             RecordState.RECORDING -> {
-                mRecorder?.onPause()
+                mRecorder?.pause()
             }
         }
     }
@@ -134,15 +124,15 @@ class MixRecordUtils(
 
 
     fun pause() {
-        mRecorder?.onPause()
+        mRecorder?.pause()
     }
 
     fun clear() {
-        mRecorder?.onDestroy()
+        mRecorder?.destroy()
     }
 
     fun reset() {
-        mRecorder?.onReset()
+        mRecorder?.reset()
     }
 
     fun cleanPath() {
@@ -156,7 +146,7 @@ class MixRecordUtils(
      * 录音异常
      */
     private fun resolveError() {
-        if (mRecorder != null && mRecorder!!.isRecording) {
+        if (isRecording) {
             mRecorder!!.stop()
         }
         cleanPath()
@@ -197,9 +187,10 @@ class MixRecordUtils(
         callBack?.onRemind(duration)
     }
 
-    override fun onSuccess(file: String, time: Long) {
-        callBack?.onSuccess(file, time)
+    override fun onSuccess(isAutoComplete: Boolean, file: String, time: Long) {
+        callBack?.onSuccess(isAutoComplete, file, time)
     }
+
 
     override fun onMaxChange(time: Long) {
         callBack?.onMaxChange(time)
@@ -211,16 +202,13 @@ class MixRecordUtils(
         callBack?.onError(e)
     }
 
-    override fun autoComplete(file: String, time: Long) {
-        callBack?.autoComplete(file, time)
-    }
 
     fun setVolume(volume: Float) {
         mRecorder?.setVolume(volume)
     }
 
     fun destroy() {
-        mRecorder?.onDestroy()
+        mRecorder?.destroy()
     }
 
 

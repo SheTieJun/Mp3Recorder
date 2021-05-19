@@ -163,12 +163,12 @@ class BackgroundMixMusicView @JvmOverloads constructor(
 
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
-        VolumeConfig.getInstance(context).addChangeListener(onVolumeChange)
+        volumeConfig.addChangeListener(onVolumeChange)
     }
 
     override fun onDetachedFromWindow() {
         super.onDetachedFromWindow()
-        VolumeConfig.getInstance(context).removeChangeListener(onVolumeChange)
+        volumeConfig.removeChangeListener(onVolumeChange)
     }
 
     override fun onClick(v: View?) {

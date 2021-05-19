@@ -62,13 +62,17 @@ class PlugConfigs(private val context: Context, var connected: Boolean = false) 
 
         fun getInstance(context: Context): PlugConfigs {
             return sInstance ?: synchronized(PlugConfigs::class.java) {
-                return PlugConfigs(context).also {
+                return PlugConfigs(context.applicationContext).also {
                     it.connected = it.audioManager.isWiredHeadsetOn
                     sInstance = it
                 }
             }
         }
 
+        fun onDestroy() {
+            sInstance?.unregisterReceiver()
+            sInstance = null
+        }
     }
 
 }

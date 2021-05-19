@@ -43,7 +43,7 @@ class PlayPCMMusic(private val defaultChannel: Int = CHANNEL_OUT_STEREO) {
     private var mIsLoop = false
     var isIsPause = false
         private set
-    private val playHandler: PlayHandler
+    private val playHandler: PlayHandler = PlayHandler(this)
     private var audioTrack: AudioTrack? = null
     private var volume = 0.3f
     private var playerListener: PlayerListener? = null
@@ -68,10 +68,6 @@ class PlayPCMMusic(private val defaultChannel: Int = CHANNEL_OUT_STEREO) {
                 PROCESS_REPLAY -> playBackMusic.restartMusic()
             }
         }
-    }
-
-    init {
-        playHandler = PlayHandler(this)
     }
 
     /**

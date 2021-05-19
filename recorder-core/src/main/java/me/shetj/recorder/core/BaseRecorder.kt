@@ -1,7 +1,11 @@
 package me.shetj.recorder.core
 
 import android.content.Context
+import android.media.AudioFormat
 import android.media.MediaRecorder
+import android.media.audiofx.AcousticEchoCanceler
+import android.media.audiofx.AutomaticGainControl
+import android.media.audiofx.NoiseSuppressor
 import android.net.Uri
 import android.util.Log
 import me.shetj.player.PlayerListener
@@ -33,22 +37,48 @@ abstract class BaseRecorder {
         STEREO(2) //双声道
     }
     //endregion Record Type
+    protected var defaultAudioSource = MediaRecorder.AudioSource.VOICE_COMMUNICATION
+    protected var defaultChannelConfig = AudioFormat.CHANNEL_IN_MONO
+    protected var defaultLameInChannel = 1 //声道数量
+    protected var defaultLameMp3Quality = 3 //音频质量，好像LAME已经不使用它了
+    protected var defaultLameMp3BitRate = 96 //32 太低，96,128 比较合适
+    protected var defaultSamplingRate = 44100
+    protected var is2Channel = false //默认是双声道
+    protected var mRecordFile: File? = null //文件输出，中途可以替换
+    protected var mRecordListener: RecordListener? = null
+    protected var mPermissionListener: PermissionListener? = null
 
+    //region 系统自带的去噪音，增强以及回音问题
+    private var mNoiseSuppressor: NoiseSuppressor? = null
+    private var mAcousticEchoCanceler: AcousticEchoCanceler? = null
+    private var mAutomaticGainControl: AutomaticGainControl? = null
+    //endregion 系统自带的去噪音，增强以及回音问题
 
+    //最大时间
+    protected var mMaxTime: Long = 3600000
+
+    //提醒时间
+    protected var mRemindTime = (3600000 - 10000).toLong()
+    protected var isAutoComplete = false
     //region 录音的状态，声音和时间
     protected var mVolume: Int = 0
-
+    protected var backgroundMusicIsPlay: Boolean = false //记录是否暂停
+    protected var bgmIsLoop: Boolean = false
     var isRecording = false
         protected set
-
+    protected var isRemind: Boolean = true
+    protected var isContinue = false //是否继续录制
+    //声音增强,不建议使用
+    protected var wax = 1f
+    protected var bgLevel: Float = 03f
     //当前状态
     var state = RecordState.STOPPED
         protected set
-
     //录制时间
     var duration = 0L
         protected set
-    var isPause: Boolean = false
+    //是否暂停
+    protected var isPause: Boolean = true
     private var isDebug = false
     //endregion 录音的状态和时间
 
@@ -74,6 +104,8 @@ abstract class BaseRecorder {
 
     //设计背景音乐的url,本地的
     abstract fun setBackgroundMusic(url: String): BaseRecorder
+
+    abstract fun setLoopMusic(isLoop:Boolean):BaseRecorder
 
     //背景音乐的url,兼容Android Q
     abstract fun setBackgroundMusic(context: Context,uri: Uri,header:MutableMap<String,String>?): BaseRecorder
@@ -106,13 +138,14 @@ abstract class BaseRecorder {
     abstract fun stop()
 
     //重新开始录音
-    abstract fun onResume()
+    abstract fun resume
+                ()
 
     //替换输出文件
     abstract fun updateDataEncode(outputFilePath: String)
 
     //暂停录音
-    abstract fun onPause()
+    abstract fun pause()
 
     //是否设置了并且开始播放了背景音乐
     abstract fun isPlayMusic():Boolean
@@ -130,10 +163,10 @@ abstract class BaseRecorder {
     abstract fun resumeMusic()
 
     //重置
-    abstract fun onReset()
+    abstract fun reset()
 
     //结束释放
-    abstract fun onDestroy()
+    abstract fun destroy()
     //endregion public method
 
     //region  计算真正的时间，如果过程中有些数据太小，就直接置0，防止噪音
@@ -178,5 +211,80 @@ abstract class BaseRecorder {
             Log.d(TAG, info)
         }
     }
+
+    protected fun initAEC(mAudioSessionId: Int) {
+        if (mAudioSessionId != 0) {
+            if (NoiseSuppressor.isAvailable()) {
+                if (mNoiseSuppressor != null) {
+                    mNoiseSuppressor!!.release()
+                    mNoiseSuppressor = null
+                }
+
+                mNoiseSuppressor = NoiseSuppressor.create(mAudioSessionId)
+                if (mNoiseSuppressor != null) {
+                    mNoiseSuppressor!!.enabled = true
+                } else {
+                    Log.i(TAG, "Failed to create NoiseSuppressor.")
+                }
+            } else {
+                Log.i(TAG, "Doesn't support NoiseSuppressor")
+            }
+
+            if (AcousticEchoCanceler.isAvailable()) {
+                if (mAcousticEchoCanceler != null) {
+                    mAcousticEchoCanceler!!.release()
+                    mAcousticEchoCanceler = null
+                }
+
+                mAcousticEchoCanceler = AcousticEchoCanceler.create(mAudioSessionId)
+                if (mAcousticEchoCanceler != null) {
+                    mAcousticEchoCanceler!!.enabled = true
+                    // mAcousticEchoCanceler.setControlStatusListener(listener)setEnableStatusListener(listener)
+                } else {
+                    Log.i(TAG, "Failed to initAEC.")
+                    mAcousticEchoCanceler = null
+                }
+            } else {
+                Log.i(TAG, "Doesn't support AcousticEchoCanceler")
+            }
+
+            if (AutomaticGainControl.isAvailable()) {
+                if (mAutomaticGainControl != null) {
+                    mAutomaticGainControl!!.release()
+                    mAutomaticGainControl = null
+                }
+
+                mAutomaticGainControl = AutomaticGainControl.create(mAudioSessionId)
+                if (mAutomaticGainControl != null) {
+                    mAutomaticGainControl!!.enabled = true
+                } else {
+                    Log.i(TAG, "Failed to create AutomaticGainControl.")
+                }
+
+            } else {
+                Log.i(TAG, "Doesn't support AutomaticGainControl")
+            }
+        }
+
+    }
+
+    protected fun release() {
+        if (null != mAcousticEchoCanceler) {
+            mAcousticEchoCanceler!!.enabled = false
+            mAcousticEchoCanceler!!.release()
+            mAcousticEchoCanceler = null
+        }
+        if (null != mAutomaticGainControl) {
+            mAutomaticGainControl!!.enabled = false
+            mAutomaticGainControl!!.release()
+            mAutomaticGainControl = null
+        }
+        if (null != mNoiseSuppressor) {
+            mNoiseSuppressor!!.enabled = false
+            mNoiseSuppressor!!.release()
+            mNoiseSuppressor = null
+        }
+    }
+
     //endregion  计算真正的时间，如果过程中有些数据太小，就直接置0，防止噪音
 }

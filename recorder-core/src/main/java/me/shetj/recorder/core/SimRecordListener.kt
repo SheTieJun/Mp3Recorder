@@ -28,8 +28,9 @@ open class SimRecordListener : RecordListener, PermissionListener {
     override fun onRemind(duration: Long) {
     }
 
-    override fun onSuccess(file: String, time: Long) {
+    override fun onSuccess(isAutoComplete: Boolean, file: String, time: Long) {
     }
+
 
     override fun onMaxChange(time: Long) {
     }
@@ -37,6 +38,4 @@ open class SimRecordListener : RecordListener, PermissionListener {
     override fun onError(e: Exception) {
     }
 
-    override fun autoComplete(file: String, time: Long) {
-    }
 }
