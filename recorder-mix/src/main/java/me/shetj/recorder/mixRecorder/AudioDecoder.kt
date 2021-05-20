@@ -29,7 +29,7 @@ class AudioDecoder {
 
     private var headers: MutableMap<String, String> ?=null
 
-    var mediaFormat: MediaFormat? = null
+    internal var mediaFormat: MediaFormat? = null
         private set
 
     //记得加锁
@@ -60,6 +60,9 @@ class AudioDecoder {
 
     fun setMp3FilePath(path: String): AudioDecoder {
         mp3FilePath = path
+        if (path.startsWith("http")){
+            Log.i("mixRecorder", "the url  may be HTTP ,APP could ANR by MediaExtractor")
+        }
         mp3URi = null
         context = null
         return this
@@ -78,7 +81,7 @@ class AudioDecoder {
         initMediaDecode()
         if (isPCMExtractorEOS) {
             isPCMExtractorEOS = false
-            Thread({ srcAudioFormatToPCM() }).start()
+            Thread { srcAudioFormatToPCM() }.start()
         }
         return this
     }
@@ -92,6 +95,9 @@ class AudioDecoder {
         return this
     }
 
+    /**
+     * 如果是网络的链接可能会出现，ANR
+     */
     private fun initMediaDecode() {
         try {
             mediaExtractor = MediaExtractor()//此类可分离视频文件的音轨和视频轨道

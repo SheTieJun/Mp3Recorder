@@ -41,7 +41,7 @@ class PlayBackMusic(private var defaultChannel: Int = CHANNEL_OUT_MONO,var plugC
     private var need = AtomicBoolean(false)
     var isIsPause = false
         private set
-    private val playHandler: PlayHandler
+    private val playHandler: PlayHandler = PlayHandler(this)
     private var audioTrack: AudioTrack? = null
     private var volume = 0.3f
     private val frameListener = object : BackGroundFrameListener {
@@ -53,7 +53,7 @@ class PlayBackMusic(private var defaultChannel: Int = CHANNEL_OUT_MONO,var plugC
                     addBackGroundBytes(bytes)
                 }
             }else{
-                //如果没有设置耳机相关，直接写入和外放都用
+                //如果没有设置耳机相关，直接写入和外放都用,可能会有叠音
                 addBackGroundBytes(bytes)
             }
         }
@@ -82,10 +82,6 @@ class PlayBackMusic(private var defaultChannel: Int = CHANNEL_OUT_MONO,var plugC
                 PROCESS_REPLAY -> playBackMusic.restartMusic()
             }
         }
-    }
-
-    init {
-        playHandler = PlayHandler(this)
     }
 
     /**
@@ -162,16 +158,16 @@ class PlayBackMusic(private var defaultChannel: Int = CHANNEL_OUT_MONO,var plugC
      * 开始播放
      * @return
      */
-    fun startPlayBackMusic(): PlayBackMusic {
+    fun startPlayBackMusic() {
         if (mAudioDecoder == null) {
-            throw NullPointerException("AudioDecoder no null, please set setBackGroundUrl")
+            Log.e("mixRecorder","AudioDecoder no null, please set setBackGroundUrl first")
+            return
         }
         //开始加载音乐数据
         initPCMData()
         isPlayingMusic = true
         PlayNeedMixAudioTask(frameListener).start()
         playerListener?.onStart((mAudioDecoder?.mediaFormat?.getLong(MediaFormat.KEY_DURATION)?:1/ 1000).toInt())
-        return this
     }
 
 
@@ -221,6 +217,10 @@ class PlayBackMusic(private var defaultChannel: Int = CHANNEL_OUT_MONO,var plugC
         mAudioDecoder?.release()
         backGroundBytes.clear()
         return this
+    }
+
+    fun cleanMusic(){
+        releaseDecoder()
     }
 
     /**

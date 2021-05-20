@@ -17,6 +17,7 @@ import kotlin.math.sqrt
 
 abstract class BaseRecorder {
     private val TAG = this.javaClass.simpleName
+
     //region 录音的方式 /来源 Record Type
     enum class RecorderType {
         SIM, //
@@ -36,12 +37,13 @@ abstract class BaseRecorder {
         MONO(1), //单声道
         STEREO(2) //双声道
     }
+
     //endregion Record Type
     protected var defaultAudioSource = MediaRecorder.AudioSource.VOICE_COMMUNICATION
-    protected var defaultChannelConfig = AudioFormat.CHANNEL_IN_MONO
+    protected var defaultChannelConfig = AudioFormat.CHANNEL_IN_MONO // defaultLameInChannel =1
     protected var defaultLameInChannel = 1 //声道数量
     protected var defaultLameMp3Quality = 3 //音频质量，好像LAME已经不使用它了
-    protected var defaultLameMp3BitRate = 96 //32 太低，96,128 比较合适
+    protected var defaultLameMp3BitRate = 96 //32 太低，(96,128) 比较合适
     protected var defaultSamplingRate = 44100
     protected var is2Channel = false //默认是双声道
     protected var mRecordFile: File? = null //文件输出，中途可以替换
@@ -60,23 +62,28 @@ abstract class BaseRecorder {
     //提醒时间
     protected var mRemindTime = (3600000 - 10000).toLong()
     protected var isAutoComplete = false
+
     //region 录音的状态，声音和时间
     protected var mVolume: Int = 0
     protected var backgroundMusicIsPlay: Boolean = false //记录是否暂停
     protected var bgmIsLoop: Boolean = false
     protected var isRemind: Boolean = true
     protected var isContinue = false //是否继续录制
+
     //是否暂停
     protected var isPause: Boolean = true
     private var isDebug = false
+
     //声音增强,不建议使用
     protected var wax = 1f
     protected var bgLevel: Float = 03f
     var isRecording = false
         protected set
+
     //当前状态
     var state = RecordState.STOPPED
         protected set
+
     //录制时间
     var duration = 0L
         protected set
@@ -85,6 +92,7 @@ abstract class BaseRecorder {
     //region public method 公开的方法
     val realVolume: Int
         get() = mVolume
+
     //设置是否使用耳机配置方式
     abstract fun setContextToPlugConfig(context: Context): BaseRecorder
 
@@ -105,10 +113,15 @@ abstract class BaseRecorder {
     //设计背景音乐的url,本地的
     abstract fun setBackgroundMusic(url: String): BaseRecorder
 
-    abstract fun setLoopMusic(isLoop:Boolean):BaseRecorder
+    //是否循环播放，默认true
+    abstract fun setLoopMusic(isLoop: Boolean): BaseRecorder
 
     //背景音乐的url,兼容Android Q
-    abstract fun setBackgroundMusic(context: Context,uri: Uri,header:MutableMap<String,String>?): BaseRecorder
+    abstract fun setBackgroundMusic(
+        context: Context,
+        uri: Uri,
+        header: MutableMap<String, String>?
+    ): BaseRecorder
 
     //设置背景音乐的监听
     abstract fun setBackgroundMusicListener(listener: PlayerListener): BaseRecorder
@@ -129,7 +142,10 @@ abstract class BaseRecorder {
     abstract fun setWax(wax: Float): BaseRecorder
 
     //设置背景声音大小
-    abstract fun setVolume(volume: Float): BaseRecorder
+    abstract fun setBGMVolume(volume: Float): BaseRecorder
+
+    //移除背景音乐
+    abstract fun cleanBackgroundMusic()
 
     //开始录音
     abstract fun start()
@@ -147,7 +163,7 @@ abstract class BaseRecorder {
     abstract fun pause()
 
     //是否设置了并且开始播放了背景音乐
-    abstract fun isPlayMusic():Boolean
+    abstract fun isPlayMusic(): Boolean
 
     //开始播放音乐
     abstract fun startPlayMusic()
@@ -188,12 +204,12 @@ abstract class BaseRecorder {
             sum += abs((buffer[i] * buffer[i]).toDouble())
         }
         if (readSize > 0) {
-            mVolume = (log10(sqrt(sum / readSize)) *20).toInt()
+            mVolume = (log10(sqrt(sum / readSize)) * 20).toInt()
             if (mVolume < 5) {
                 for (i in 0 until readSize) {
                     buffer[i] = 0
                 }
-            }else if (mVolume > 100){
+            } else if (mVolume > 100) {
                 mVolume = 100
             }
         }
@@ -283,6 +299,21 @@ abstract class BaseRecorder {
             mNoiseSuppressor!!.release()
             mNoiseSuppressor = null
         }
+    }
+
+    protected companion object {
+        const val HANDLER_RECORDING = 0x101 //正在录音
+        const val HANDLER_START = HANDLER_RECORDING + 1//开始了
+        const val HANDLER_RESUME = HANDLER_START + 1//暂停后开始
+        const val HANDLER_COMPLETE = HANDLER_RESUME + 1//完成
+        const val HANDLER_AUTO_COMPLETE = HANDLER_COMPLETE + 1//最大时间完成
+        const val HANDLER_ERROR = HANDLER_AUTO_COMPLETE + 1//错误
+        const val HANDLER_PAUSE = HANDLER_ERROR + 1//暂停
+        const val HANDLER_RESET = HANDLER_PAUSE + 1//暂停
+        const val HANDLER_PERMISSION = HANDLER_RESET + 1//需要权限
+        const val HANDLER_MAX_TIME = HANDLER_PERMISSION + 1//设置了最大时间
+        const val FRAME_COUNT = 160
+        val DEFAULT_AUDIO_FORMAT = PCMFormat.PCM_16BIT
     }
 
     //endregion  计算真正的时间，如果过程中有些数据太小，就直接置0，防止噪音

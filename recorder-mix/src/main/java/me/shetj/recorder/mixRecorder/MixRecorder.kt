@@ -79,13 +79,13 @@ class MixRecorder : BaseRecorder {
                 HANDLER_COMPLETE -> {
                     logInfo("msg.what = HANDLER_COMPLETE  \n mDuration = $duration")
                     if (mRecordListener != null && mRecordFile != null) {
-                        mRecordListener!!.onSuccess(false,mRecordFile!!.absolutePath, duration)
+                        mRecordListener!!.onSuccess(false, mRecordFile!!.absolutePath, duration)
                     }
                 }
                 HANDLER_AUTO_COMPLETE -> {
                     logInfo("msg.what = HANDLER_AUTO_COMPLETE  \n mDuration = $duration")
                     if (mRecordListener != null && mRecordFile != null) {
-                        mRecordListener!!.onSuccess(true,mRecordFile!!.absolutePath, duration)
+                        mRecordListener!!.onSuccess(true, mRecordFile!!.absolutePath, duration)
                     }
                 }
                 HANDLER_ERROR -> {
@@ -315,7 +315,7 @@ class MixRecorder : BaseRecorder {
         return this
     }
 
-    override fun setVolume(volume: Float): MixRecorder {
+    override fun setBGMVolume(volume: Float): MixRecorder {
         val volume1 = when {
             volume < 0 -> 0f
             volume > 1 -> 1f
@@ -331,8 +331,13 @@ class MixRecorder : BaseRecorder {
         return this
     }
 
+    override fun cleanBackgroundMusic() {
+        bgPlayer.cleanMusic()
+    }
+
     /**
      * Start recording. Create an encoding thread. Start record from this
+     * u need start on the same thread
      */
     override fun start() {
         plugConfigs?.registerReceiver()
@@ -476,7 +481,7 @@ class MixRecorder : BaseRecorder {
     }
 
     override fun startPlayMusic() {
-        if (!bgPlayer.isPlayingMusic) {
+        if (!bgPlayer.isPlayingMusic && isRecording) {
             bgPlayer.startPlayBackMusic()
         }
     }
@@ -599,8 +604,8 @@ class MixRecorder : BaseRecorder {
     private fun onRecording(readTime: Double) {
         duration += readTime.toLong()
         if (state == RecordState.RECORDING) {
-            handler.sendEmptyMessageDelayed(HANDLER_RECORDING, speed)
-            if (mMaxTime in 1..(duration+100)) {
+            handler.sendEmptyMessage(HANDLER_RECORDING)
+            if (mMaxTime in 1..(duration + 100)) {
                 autoStop()
             }
         }
@@ -629,28 +634,6 @@ class MixRecorder : BaseRecorder {
         }
     }
 
-
     //endregion
-
-    companion object {
-        //region Handle 通知的Code
-        private val HANDLER_RECORDING = 0x101 //正在录音
-        private val HANDLER_START = 0x102//开始了
-        private val HANDLER_RESUME = 0x108//暂停后开始
-        private val HANDLER_COMPLETE = 0x103//完成
-        private val HANDLER_AUTO_COMPLETE = 0x104//最大时间完成
-        private val HANDLER_ERROR = 0x105//错误
-        private val HANDLER_PAUSE = 0x106//暂停
-        private val HANDLER_RESET = 0x109//暂停
-        private val HANDLER_PERMISSION = 0x107//需要权限
-        private val HANDLER_MAX_TIME = 0x110//设置了最大时间
-        //endregion Handle 通知的Code
-
-        //=======================AudioRecord Default Settings=======================
-        private val DEFAULT_AUDIO_FORMAT = PCMFormat.PCM_16BIT
-
-        //==================================================================
-        private val FRAME_COUNT = 160
-    }
 }
 

@@ -16,7 +16,6 @@ import me.shetj.recorder.core.*
 import me.shetj.recorder.util.LameUtils
 import java.io.File
 import java.io.IOException
-import java.util.*
 
 
 /**
@@ -32,12 +31,13 @@ class SimRecorder : BaseRecorder {
     private var mEncodeThread: DataEncodeThread? = null
     private var backgroundPlayer: AudioPlayer? = null
     private var context: Context? = null
+
     /**
      * 输出的文件
      */
-    private var dataList: ArrayList<Short>? = null
     private var mPCMBuffer: ShortArray? = null
     private var mSendError: Boolean = false
+
     /**
      * 音量变化监听
      */
@@ -46,14 +46,11 @@ class SimRecorder : BaseRecorder {
     //缓冲数量
     private var mBufferSize: Int = 0
 
-    //最大数量
-    private var mMaxSize: Int = 0
-    //波形速度
     /**
      * pcm数据的速度，默认300
      * 数据越大，速度越慢
      */
-    var waveSpeed = 300
+    private var waveSpeed = 300
         set(waveSpeed) {
             if (this.waveSpeed <= 0) {
                 return
@@ -151,7 +148,7 @@ class SimRecorder : BaseRecorder {
         }
 
     override fun setContextToPlugConfig(context: Context): BaseRecorder {
-        println("MP3Recorder no use it")
+        logInfo("SimRecorder no use it")
         return this
     }
 
@@ -160,25 +157,6 @@ class SimRecorder : BaseRecorder {
         volumeConfig?.registerReceiver()
         return this
     }
-
-    /**
-     * 获取相对音量。 超过最大值时取最大值。
-     *
-     * @return 音量
-     */
-    val volume: Int
-        get() = if (mVolume >= MAX_VOLUME) {
-            MAX_VOLUME
-        } else mVolume
-
-    /**
-     * 根据资料假定的最大值。 实测时有时超过此值。
-     *
-     * @return 最大音量值。
-     */
-    val maxVolume: Int
-        get() = MAX_VOLUME
-
 
     constructor()
 
@@ -340,7 +318,6 @@ class SimRecorder : BaseRecorder {
                             calculateRealVolume(mPCMBuffer!!, readSize)
                             //short 是2个字节 byte 是1个字节8位
                             onRecording(readTime)
-                            sendData(mPCMBuffer, readSize)
                         } else {
                             if (!mSendError) {
                                 mSendError = true
@@ -357,7 +334,7 @@ class SimRecorder : BaseRecorder {
                     mAudioRecord = null
                 } catch (ex: Exception) {
                     ex.printStackTrace()
-                }finally {
+                } finally {
                     if (isAutoComplete) {
                         handler.sendEmptyMessage(HANDLER_AUTO_COMPLETE)
                     } else {
@@ -432,7 +409,7 @@ class SimRecorder : BaseRecorder {
     /**
      * 设置背景音乐的大小
      */
-    override fun setVolume(volume: Float): SimRecorder {
+    override fun setBGMVolume(volume: Float): SimRecorder {
         if (volumeConfig == null) {
             val volume1 = when {
                 volume < 0 -> 0f
@@ -446,6 +423,13 @@ class SimRecorder : BaseRecorder {
             volumeConfig?.setAudioVoiceF(volume)
         }
         return this
+    }
+
+    override fun cleanBackgroundMusic() {
+        backgroundMusicUrl = null
+        backgroundMusicUri = null
+        header = null
+        bgPlayer.stopPlay()
     }
 
     /**
@@ -533,7 +517,7 @@ class SimRecorder : BaseRecorder {
     private fun initAudioRecorder() {
         mBufferSize = AudioRecord.getMinBufferSize(
             defaultSamplingRate,
-            DEFAULT_CHANNEL_CONFIG, DEFAULT_AUDIO_FORMAT.audioFormat
+            defaultChannelConfig, DEFAULT_AUDIO_FORMAT.audioFormat
         )
         val bytesPerFrame = DEFAULT_AUDIO_FORMAT.bytesPerFrame
         /* Get number of samples. Calculate the buffer size
@@ -549,20 +533,15 @@ class SimRecorder : BaseRecorder {
         /* Setup audio recorder */
         mAudioRecord = AudioRecord(
             defaultAudioSource,
-            defaultSamplingRate, DEFAULT_CHANNEL_CONFIG, DEFAULT_AUDIO_FORMAT.audioFormat,
+            defaultSamplingRate, defaultChannelConfig, DEFAULT_AUDIO_FORMAT.audioFormat,
             mBufferSize
         )
         mPCMBuffer = ShortArray(mBufferSize)
 
         initAEC(mAudioRecord!!.audioSessionId)
-        /*
-         * Initialize lame buffer
-         * mp3 sampling rate is the same as the recorded pcm sampling rate
-         * The bit rate is 32kbps
-         */
         LameUtils.init(
             defaultSamplingRate,
-            DEFAULT_LAME_IN_CHANNEL,
+            defaultLameInChannel,
             defaultSamplingRate,
             defaultLameMp3BitRate,
             defaultLameMp3Quality
@@ -571,46 +550,6 @@ class SimRecorder : BaseRecorder {
         mEncodeThread!!.start()
         mAudioRecord!!.setRecordPositionUpdateListener(mEncodeThread, mEncodeThread!!.handler)
         mAudioRecord!!.positionNotificationPeriod = FRAME_COUNT
-    }
-
-    private fun sendData(shorts: ShortArray?, readSize: Int) {
-        if (dataList != null) {
-            val length = readSize / waveSpeed
-            var resultMax: Short = 0
-            var i = 0
-            var k = 0
-            while (i < length) {
-                var j = k
-                var max: Short = 0
-                var min: Short = 1000
-                while (j < k + waveSpeed) {
-                    if (shorts!![j] > max) {
-                        max = shorts[j]
-                        resultMax = max
-                    } else if (shorts[j] < min) {
-                        min = shorts[j]
-                    }
-                    j++
-                }
-                if (dataList!!.size > mMaxSize) {
-                    dataList!!.removeAt(0)
-                }
-                dataList!!.add(resultMax)
-                i++
-                k += waveSpeed.toShort()
-            }
-        }
-    }
-
-    /**
-     * 设置数据的获取显示，设置最大的获取数，一般都是控件大小/线的间隔offset
-     *
-     * @param dataList 数据
-     * @param maxSize  最大个数
-     */
-    fun setDataList(dataList: ArrayList<Short>, maxSize: Int) {
-        this.dataList = dataList
-        this.mMaxSize = maxSize
     }
 
     /***************************private method  */
@@ -692,34 +631,5 @@ class SimRecorder : BaseRecorder {
             else -> 0
         }
     }
-
-    companion object {
-
-        private val HANDLER_RECORDING = 101 //正在录音
-        private val HANDLER_START = 102//开始了
-        private val HANDLER_COMPLETE = 103//完成
-        private val HANDLER_AUTO_COMPLETE = 104//最大时间完成
-        private val HANDLER_ERROR = 105//错误
-        private val HANDLER_PAUSE = 106//暂停
-        private val HANDLER_PERMISSION = 107//需要权限
-        private val HANDLER_RESUME = 108//暂停后开始
-        private val HANDLER_RESET = 109//暂停
-        private val HANDLER_MAX_TIME = 110//设置了最大时间
-
-        //region 以下三项为默认配置参数。Google Android文档明确表明只有以下3个参数是可以在所有设备上保证支持的。
-
-        private val DEFAULT_CHANNEL_CONFIG = AudioFormat.CHANNEL_IN_MONO
-        private val DEFAULT_AUDIO_FORMAT = PCMFormat.PCM_16BIT
-        //endregion
-
-        /**
-         * 与DEFAULT_CHANNEL_CONFIG相关，因为是mono单声，所以是1
-         */
-        private val DEFAULT_LAME_IN_CHANNEL = 1
-
-        private val FRAME_COUNT = 160
-        private val MAX_VOLUME = 100
-    }
-
 
 }

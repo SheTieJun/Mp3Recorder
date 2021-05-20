@@ -188,7 +188,7 @@ class MixRecordUtils(
     }
 
     fun setVolume(volume: Float) {
-        mRecorder?.setVolume(volume)
+        mRecorder?.setBGMVolume(volume)
     }
 
     fun setBackGroundUrl(context: Context?, url: Uri) {

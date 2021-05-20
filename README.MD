@@ -10,6 +10,9 @@
 - 可以使用耳机配置方式：如果没有连接耳机会只用外放的背景音乐，如果连接上了耳机，会使用写入合成背景音乐的方式
 - 其他...
 
+> tip: 背景音乐支持网络链接，但是网络差的时候可能导致ANR,所有请勿使用网络链接作为背景应用
+
+
 ### [Demo下载](http://d.zqapps.com/ne21)
 <img src="https://github.com/SheTieJun/Mp3Recorder/blob/master/doc/img/recorder.gif" width="35%" height="35%" />
 
@@ -133,11 +136,12 @@ recorder {
 
 ```kotlin
  mRecorder?.setBackgroundMusic(musicUrl)//设置背景音乐
- mRecorder?.setVolume(volume)//设置背景音乐大小0-1	
+ mRecorder?.setBGMVolume(volume)//设置背景音乐大小0-1
  mRecorder?.startPlayMusic() //开始播放背景音乐
  mRecorder?.pauseMusic() //暂停背景音乐
  mRecorder?.isPauseMusic()// 背景音乐是否暂停
  mRecorder?.resumeMusic() //重新开始播放
+ mRecorder?.cleanBackgroundMusic() //移除背景应用相关
 
  mRecorder?.setContextToPlugConfig(context) //设置次方法后，会使用耳机配置方式,只有 【MixRecorder】 有效
  mRecorder?.setContextToVolumeConfig(context) //设置方法后，将会使用系统的播放的音量进行控制
