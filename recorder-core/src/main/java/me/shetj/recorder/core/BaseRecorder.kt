@@ -43,6 +43,20 @@ abstract class BaseRecorder {
     protected var defaultChannelConfig = AudioFormat.CHANNEL_IN_MONO // defaultLameInChannel =1
     protected var defaultLameInChannel = 1 //声道数量
     protected var defaultLameMp3Quality = 3 //音频质量，好像LAME已经不使用它了
+    /*
+    * 16Kbps= 电话音质
+    * 24Kbps= 增加电话音质、短波广播、长波广播、欧洲制式中波广播
+    * 40Kbps= 美国制式中波广播
+    * 56Kbps= 话音
+    * 64Kbps= 增加话音（手机铃声最佳比特率设定值、手机单声道MP3播放器最佳设定值）
+    * 112Kbps= FM调频立体声广播
+    * 128Kbps= 磁带（手机立体声MP3播放器最佳设定值、低档MP3播放器最佳设定值）
+    * 160Kbps= HIFI高保真（中高档MP3播放器最佳设定值）
+    * 192Kbps= CD（高档MP3播放器最佳设定值）
+    * 256Kbps= Studio音乐工作室（音乐发烧友适用）
+    * 实际上随着技术的进步，比特率也越来越高，MP3的最高比特率为320Kbps，但一些格式可以达到更高的比特率和更高的音质。
+    * 比如正逐渐兴起的APE音频格式，能够提供真正发烧级的无损音质和相对于WAV格式更小的体积，其比特率通常为550kbps-----950kbps。
+     */
     protected var defaultLameMp3BitRate = 96 //32 太低，(96,128) 比较合适
     protected var defaultSamplingRate = 44100
     protected var is2Channel = false //默认是双声道

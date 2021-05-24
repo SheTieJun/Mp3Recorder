@@ -76,7 +76,7 @@ recorder {
     needUI = true  //是否集成UIKit 默认 false
     needSim = true// 是否集成simRecorder 默认false
     needMix = true // 是否集成mixRecorder 默认true
-    libVersion = "1.3.0"// lib版本 :默认1.3.0
+    libVersion = "1.6.0"// lib版本 :默认1.3.0
 }
 ```
 ### 缺点
