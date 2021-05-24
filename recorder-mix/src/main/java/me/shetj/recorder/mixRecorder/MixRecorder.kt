@@ -38,10 +38,6 @@ class MixRecorder : BaseRecorder {
 
     //region 其他
     private var mSendError: Boolean = false
-
-    //通知速度，毫秒
-    private var speed: Long = 300
-
     //缓冲数量
     private var mBufferSize: Int = 0
     private var bytesPerSecond: Int = 0  //PCM文件大小=采样率采样时间采样位深/8*通道数（Bytes）
@@ -301,15 +297,6 @@ class MixRecorder : BaseRecorder {
         return this
     }
 
-    /**
-     * 设置通知速度 毫秒
-     * @param speed 毫秒 默认300毫秒提醒一次
-     */
-    fun setSpeed(speed: Long): MixRecorder {
-        this.speed = speed
-        return this
-    }
-
     override fun setBackgroundMusicListener(listener: PlayerListener): MixRecorder {
         bgPlayer.setBackGroundPlayListener(listener)
         return this
@@ -373,11 +360,15 @@ class MixRecorder : BaseRecorder {
                 Process.setThreadPriority(Process.THREAD_PRIORITY_URGENT_AUDIO)
                 onStart()
                 while (isRecording) {
+                    /*
+                      这里需要与 背景音乐读取出来的数据长度 一样,
+                      如果没有背景音乐才使用获取 mBufferSize
+                     */
                     val samplesPerFrame =
-                        if (bgPlayer.isPlayingMusic) bgPlayer.bufferSize else mBufferSize  // 这里需要与 背景音乐读取出来的数据长度 一样
-                    val buffer: ByteArray = ByteArray(samplesPerFrame)
-                    val readSize = mAudioRecord!!.read(buffer, 0, samplesPerFrame)
-                    if (readSize == AudioRecord.ERROR_INVALID_OPERATION || readSize == AudioRecord.ERROR_BAD_VALUE) {
+                        if (bgPlayer.isPlayingMusic) bgPlayer.bufferSize else mBufferSize
+                    val buffer = ByteArray(samplesPerFrame)
+                    val readCode = mAudioRecord!!.read(buffer, 0, samplesPerFrame)
+                    if (readCode == AudioRecord.ERROR_INVALID_OPERATION || readCode == AudioRecord.ERROR_BAD_VALUE) {
                         if (!mSendError) {
                             mSendError = true
                             handler.sendEmptyMessage(HANDLER_PERMISSION)
@@ -385,20 +376,21 @@ class MixRecorder : BaseRecorder {
                             isError = true
                         }
                     } else {
-                        if (readSize > 0) {
+                        if (readCode > 0) {
                             if (isPause) {
                                 continue
                             }
-                            val readTime =
-                                1000.0 * readSize.toDouble() / bytesPerSecond
-                            onRecording(readTime) //计算时间长度
-                            mEncodeThread!!.addTask(
-                                buffer,
-                                wax,
-                                mPlayBackMusic!!.getBackGroundBytes(),
-                                volumeConfig?.currVolumeF ?: bgLevel
-                            )
-                            calculateRealVolume(buffer)
+                            val readTime = 1000.0 * readCode.toDouble() / bytesPerSecond
+                            //计算时间长度,同时判断是否达到最大录制时间
+                            if (onRecording(readTime)) {
+                                mEncodeThread!!.addTask(
+                                    buffer,
+                                    wax,
+                                    mPlayBackMusic!!.getBackGroundBytes(),
+                                    volumeConfig?.currVolumeF ?: bgLevel
+                                )
+                                calculateRealVolume(buffer)
+                            }
                         } else {
                             if (!mSendError) {
                                 mSendError = true
@@ -444,9 +436,9 @@ class MixRecorder : BaseRecorder {
             isPause = false
             if (mPlayBackMusic != null) {
                 mPlayBackMusic!!.setNeedRecodeDataEnable(false)
+                bgPlayer.release()
             }
         }
-        bgPlayer.release()
     }
 
     /**
@@ -593,6 +585,7 @@ class MixRecorder : BaseRecorder {
         backgroundMusicIsPlay = false
         if (mPlayBackMusic != null) {
             mPlayBackMusic!!.setNeedRecodeDataEnable(false)
+            bgPlayer.release()
         }
     }
 
@@ -600,15 +593,18 @@ class MixRecorder : BaseRecorder {
     /**
      * 计算时间
      * @param readTime
+     * @return boolean false 表示触发了自动完成
      */
-    private fun onRecording(readTime: Double) {
+    private fun onRecording(readTime: Double): Boolean {
         duration += readTime.toLong()
         if (state == RecordState.RECORDING) {
             handler.sendEmptyMessage(HANDLER_RECORDING)
-            if (mMaxTime in 1..(duration + 100)) {
+            if (mMaxTime in 1..duration) {
                 autoStop()
+                return false
             }
         }
+        return true
     }
 
 
@@ -621,7 +617,8 @@ class MixRecorder : BaseRecorder {
             isRecording = false
             backgroundMusicIsPlay = false
             if (mPlayBackMusic != null) {
-                mPlayBackMusic!!.setNeedRecodeDataEnable(false)
+                bgPlayer.setNeedRecodeDataEnable(false)
+                bgPlayer.release()
             }
         }
     }

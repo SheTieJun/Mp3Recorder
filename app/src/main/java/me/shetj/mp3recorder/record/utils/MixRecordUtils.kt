@@ -16,7 +16,7 @@ class MixRecordUtils(
     private val callBack: SimRecordListener?
 ) : RecordListener, PermissionListener {
 
-    val TIME = 5 * 60 * 1000
+    val TIME = 2 * 60 * 1000
 
     val isRecording: Boolean
         get() {
@@ -53,7 +53,6 @@ class MixRecordUtils(
                 } else {
                     this.saveFile = file
                 }
-                mRecorder?.reset()
                 mRecorder?.setOutputFile(saveFile, !TextUtils.isEmpty(file))
                 mRecorder?.start()
             }

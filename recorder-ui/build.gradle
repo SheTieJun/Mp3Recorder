@@ -50,7 +50,3 @@ dependencies {
     compileOnly 'androidx.constraintlayout:constraintlayout:2.0.4'
     implementation "com.github.SheTieJun:OrangeDialog:0.0.2"
 }
-
-
-apply from: 'bintrayConfig.gradle'
-apply from: '../bintray.gradle'

@@ -6,17 +6,13 @@ import android.media.MediaExtractor
 import android.media.MediaFormat
 import android.net.Uri
 import android.util.Log
-import java.nio.ByteBuffer
 import java.util.*
 
-@Suppress("DEPRECATION")
 class AudioDecoder {
 
     private val chunkPCMDataContainer = ArrayList<PCM>()//PCM数据块容器
     private var mediaExtractor: MediaExtractor? = null
     private var mediaDecode: MediaCodec? = null
-    private var decodeInputBuffers: Array<ByteBuffer>? = null
-    private var decodeOutputBuffers: Array<ByteBuffer>? = null
     private var decodeBufferInfo: MediaCodec.BufferInfo? = null
 
     internal var isPCMExtractorEOS = true
@@ -55,13 +51,14 @@ class AudioDecoder {
             if (chunkPCMDataContainer.isEmpty()) {
                 return BUFFER_SIZE
             }
-            return chunkPCMDataContainer[0]?.bufferSize ?: BUFFER_SIZE
+            return chunkPCMDataContainer[0].bufferSize
         }
 
     fun setMp3FilePath(path: String): AudioDecoder {
         mp3FilePath = path
         if (path.startsWith("http")){
-            Log.i("mixRecorder", "the url  may be HTTP ,APP could ANR by MediaExtractor")
+            Log.i("mixRecorder", "the url  may be HTTP ,APP could ANR by MediaExtractor," +
+                    "you could download it to use better than direct to use ")
         }
         mp3URi = null
         context = null
@@ -130,11 +127,6 @@ class AudioDecoder {
             return
         }
         mediaDecode!!.start()//启动MediaCodec ，等待传入数据
-        //MediaCodec在此ByteBuffer[]中获取输入数据
-        decodeInputBuffers = mediaDecode!!.inputBuffers
-        //MediaCodec将解码后的数据放到此ByteBuffer[]中 我们可以直接在这里面得到PCM数据
-        decodeOutputBuffers = mediaDecode!!.outputBuffers
-
         decodeBufferInfo = MediaCodec.BufferInfo()//用于描述解码得到的byte[]数据的相关信息
     }
 
@@ -166,35 +158,24 @@ class AudioDecoder {
                 }
 
                 if (!sawInputEOS) {
-                    val inputIndex =
-                        mediaDecode!!.dequeueInputBuffer(-1)//获取可用的inputBuffer -1代表一直等待，0表示不等待 建议-1,避免丢帧
+                    //获取可用的inputBuffer -1代表一直等待，0表示不等待 建议-1,避免丢帧
+                    val inputIndex = mediaDecode!!.dequeueInputBuffer(-1)
                     if (inputIndex >= 0) {
-                        val inputBuffer = decodeInputBuffers!![inputIndex]//拿到inputBuffer
-                        inputBuffer.clear()//清空之前传入inputBuffer内的数据
+                        val inputBuffer = mediaDecode!!.getInputBuffer(inputIndex) //拿到inputBuffer
+                        inputBuffer!!.clear()//清空之前传入inputBuffer内的数据
                         //这里有记录读取失败，导致直接结束跳出循环了
                         try {
-                            val sampleSize = mediaExtractor!!.readSampleData(
-                                inputBuffer,
-                                0
-                            )
+                            val sampleSize = mediaExtractor!!.readSampleData(inputBuffer, 0)
                             if (sampleSize < 0) {//小于0 代表所有数据已读取完成
                                 sawInputEOS = true
-                                mediaDecode!!.queueInputBuffer(
-                                    inputIndex,
-                                    0,
-                                    0,
-                                    0L,
+                                mediaDecode!!.queueInputBuffer(inputIndex, 0, 0, 0L,
                                     MediaCodec.BUFFER_FLAG_END_OF_STREAM
                                 )
                             } else {
                                 val presentationTimeUs = mediaExtractor!!.sampleTime
-                                mediaDecode!!.queueInputBuffer(
-                                    inputIndex,
-                                    0,
-                                    sampleSize,
-                                    presentationTimeUs,
-                                    0
-                                )//通知MediaDecode解码刚刚传入的数据
+                                mediaDecode!!.queueInputBuffer(inputIndex, 0, sampleSize,
+                                    presentationTimeUs, 0)
+                                //通知MediaDecode解码刚刚传入的数据
                                 mediaExtractor!!.advance()//MediaExtractor移动到下一取样处
                             }
                         } catch (e: Exception) {
@@ -211,19 +192,17 @@ class AudioDecoder {
                 if (outputIndex >= 0) {
                     // Simply ignore codec config buffers.
                     if (decodeBufferInfo!!.flags and MediaCodec.BUFFER_FLAG_CODEC_CONFIG != 0) {
+                        //这是初始化的数据，无需处理
                         mediaDecode!!.releaseOutputBuffer(outputIndex, false)
                         continue
                     }
-
                     if (decodeBufferInfo!!.size != 0) {
-
-                        val outBuf = decodeOutputBuffers!![outputIndex]//拿到用于存放PCM数据的Buffer
-
-                        outBuf.position(decodeBufferInfo!!.offset)
-                        outBuf.limit(decodeBufferInfo!!.offset + decodeBufferInfo!!.size)
-                        val data = ByteArray(decodeBufferInfo!!.size)//BufferInfo内定义了此数据块的大小
+                        val outBuf = mediaDecode!!.getOutputBuffer(outputIndex) //拿到用于存放PCM数据的Buffer
                         var successBufferGet = true
+                        val data = ByteArray(decodeBufferInfo!!.size)//BufferInfo内定义了此数据块的大小
                         try {
+                            outBuf!!.position(decodeBufferInfo!!.offset)
+                            outBuf.limit(decodeBufferInfo!!.offset + decodeBufferInfo!!.size)
                             //某些机器上buf可能 isAccessible false
                             outBuf.get(data)//将Buffer内的数据取出到字节数组中
                             outBuf.clear()
@@ -232,28 +211,18 @@ class AudioDecoder {
                             e.printStackTrace()
                         }
                         if (successBufferGet) {
-                            //                        Log.i("mixRecorder","try put pcm data ...");
-                            putPCMData(
-                                data,
-                                decodeBufferInfo!!.size,
-                                mediaExtractor!!.sampleTime
-                            )//自己定义的方法，供编码器所在的线程获取数据,下面会贴出代码
+                            //自己定义的方法，供编码器所在的线程获取数据,下面会贴出代码
+                            putPCMData(data, decodeBufferInfo!!.size, mediaExtractor!!.sampleTime)
                         }
                     }
-                    mediaDecode!!.releaseOutputBuffer(
-                        outputIndex,
-                        false
-                    )//此操作一定要做，不然MediaCodec用完所有的Buffer后 将不能向外输出数据
-
+                    mediaDecode!!.releaseOutputBuffer(outputIndex, false)
+                    //此操作一定要做，不然MediaCodec用完所有的Buffer后 将不能向外输出数据
                     if (decodeBufferInfo!!.flags and MediaCodec.BUFFER_FLAG_END_OF_STREAM != 0) {
                         isPCMExtractorEOS = true
                         Log.i("mixRecorder", "pcm finished..." + mp3FilePath!!)
                         //只有读取完成才
                         releaseDecode()
                     }
-
-                } else if (outputIndex == MediaCodec.INFO_OUTPUT_BUFFERS_CHANGED) {
-                    decodeOutputBuffers = mediaDecode!!.outputBuffers
                 }
             }
 

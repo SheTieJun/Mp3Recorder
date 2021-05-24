@@ -16,7 +16,7 @@ fun mp3Recorder(
     isDebug: Boolean = BuildConfig.DEBUG,
     mMaxTime: Int = 1800 * 1000,
     samplingRate: Int = 44100,
-    mp3BitRate: Int = 128,//96(高),32（低）
+    mp3BitRate: Int = 64,//96(高),32（低）
     mp3Quality: Int = 1,
     channel: BaseRecorder.AudioChannel = BaseRecorder.AudioChannel.STEREO,
     permissionListener: PermissionListener? = null,
@@ -50,7 +50,7 @@ fun mp3RecorderNoContext(
     isDebug: Boolean = BuildConfig.DEBUG,
     mMaxTime: Int = 1800 * 1000,
     samplingRate: Int = 44100,
-    mp3BitRate: Int = 128,//96(高),32（低）
+    mp3BitRate: Int = 64,//96(高),32（低）
     mp3Quality: Int = 1,
     channel: BaseRecorder.AudioChannel = BaseRecorder.AudioChannel.STEREO,
     permissionListener: PermissionListener? = null,
