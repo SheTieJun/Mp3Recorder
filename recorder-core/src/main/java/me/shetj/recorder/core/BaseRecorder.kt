@@ -98,7 +98,7 @@ abstract class BaseRecorder {
 
     abstract fun setContextToVolumeConfig(context: Context): BaseRecorder
 
-    //设置输出路径
+    //设置输出路径,isContinue 表示是否拼接在文件末尾，继续录制的一种
     abstract fun setOutputFile(outputFile: String, isContinue: Boolean = false): BaseRecorder
 
     //设置输出路径

@@ -227,7 +227,7 @@ object Util {
         var duration = "1"
         try {
             mmr.setDataSource(filename);
-            duration = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
+            duration = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION).toString()
         } catch (ex: Exception) {
         } finally {
             mmr.release()
