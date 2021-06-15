@@ -26,6 +26,9 @@ import java.io.IOException
  * 目前只支持单声道
  */
 class SimRecorder : BaseRecorder {
+
+    override val recorderType: RecorderType  = RecorderType.SIM
+
     //======================Lame Default Settings=====================
     private var mAudioRecord: AudioRecord? = null
     private var mEncodeThread: DataEncodeThread? = null

@@ -23,6 +23,7 @@ import java.io.IOException
  */
 class MixRecorder : BaseRecorder {
 
+    override val recorderType: RecorderType  = RecorderType.MIX
     //region 参数
 
     //region  Lame Default Setting （Lame的设置）

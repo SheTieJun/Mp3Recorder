@@ -19,7 +19,7 @@ abstract class BaseRecorder {
     private val TAG = this.javaClass.simpleName
 
     //region 录音的方式 /来源 Record Type
-    enum class RecorderType {
+    enum class RecorderType() {
         SIM, //
         MIX
     }
@@ -106,6 +106,9 @@ abstract class BaseRecorder {
     //region public method 公开的方法
     val realVolume: Int
         get() = mVolume
+
+    //录音的方式
+    abstract val recorderType:RecorderType
 
     //设置是否使用耳机配置方式
     abstract fun setContextToPlugConfig(context: Context): BaseRecorder
