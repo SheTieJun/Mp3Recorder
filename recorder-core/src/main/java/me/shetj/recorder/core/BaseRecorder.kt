@@ -149,6 +149,10 @@ abstract class BaseRecorder {
     //设置比特率，关系声音的质量
     abstract fun setMp3BitRate(mp3BitRate: Int): BaseRecorder
 
+    abstract fun setAudioChannel(channel: Int = 1):Boolean
+
+    abstract fun setAudioSource(audioSource: Int = MediaRecorder.AudioSource.MIC):Boolean
+
     //设置采样率
     abstract fun setSamplingRate(rate: Int): BaseRecorder
 

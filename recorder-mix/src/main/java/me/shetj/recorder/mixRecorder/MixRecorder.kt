@@ -23,7 +23,7 @@ import java.io.IOException
  */
 class MixRecorder : BaseRecorder {
 
-    override val recorderType: RecorderType  = RecorderType.MIX
+    override val recorderType: RecorderType = RecorderType.MIX
     //region 参数
 
     //region  Lame Default Setting （Lame的设置）
@@ -39,6 +39,7 @@ class MixRecorder : BaseRecorder {
 
     //region 其他
     private var mSendError: Boolean = false
+
     //缓冲数量
     private var mBufferSize: Int = 0
     private var bytesPerSecond: Int = 0  //PCM文件大小=采样率采样时间采样位深/8*通道数（Bytes）
@@ -164,7 +165,6 @@ class MixRecorder : BaseRecorder {
             }
             else -> defaultAudioSource
         }
-
     }
 
     override fun setMp3Quality(mp3Quality: Int): MixRecorder {
@@ -186,6 +186,37 @@ class MixRecorder : BaseRecorder {
         if (mp3BitRate < 32) return this //低于32 也没有意义
         this.defaultLameMp3BitRate = mp3BitRate
         return this
+    }
+
+    override fun setAudioChannel(channel: Int): Boolean {
+        if (!isRecording) {
+            is2Channel = channel == 2
+            defaultLameInChannel = when {
+                channel <= 1 -> {
+                    defaultChannelConfig = AudioFormat.CHANNEL_IN_MONO
+                    release()
+                    initPlayer()
+                    1
+                }
+                channel >= 2 -> {
+                    defaultChannelConfig = AudioFormat.CHANNEL_IN_STEREO
+                    release()
+                    initPlayer()
+                    2
+                }
+                else -> defaultAudioSource
+            }
+            return true
+        }
+        return false
+    }
+
+    override fun setAudioSource(audioSource: Int): Boolean {
+        if (!isRecording) {
+            defaultAudioSource = audioSource
+            return true
+        }
+        return false
     }
 
     /***************************public method  */

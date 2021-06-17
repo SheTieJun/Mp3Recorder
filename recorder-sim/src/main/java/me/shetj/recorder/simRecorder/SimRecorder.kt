@@ -210,6 +210,35 @@ class SimRecorder : BaseRecorder {
         return this
     }
 
+    override fun setAudioChannel(channel: Int): Boolean {
+        if (isRecording) {
+            return false
+        }
+        is2Channel = channel == 2
+        defaultLameInChannel = when {
+            channel <= 1 -> {
+                defaultChannelConfig = AudioFormat.CHANNEL_IN_MONO
+                release()
+                1
+            }
+            channel >= 2 -> {
+                defaultChannelConfig = AudioFormat.CHANNEL_IN_STEREO
+                release()
+                2
+            }
+            else -> defaultAudioSource
+        }
+        return true
+    }
+
+    override fun setAudioSource(audioSource: Int): Boolean {
+        if (!isRecording) {
+            defaultAudioSource = audioSource
+            return true
+        }
+        return false
+    }
+
 
     /**
      * 设置录音输出文件

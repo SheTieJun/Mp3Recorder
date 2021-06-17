@@ -3,6 +3,7 @@ package me.shetj.mp3recorder.record.utils
 import android.content.Context
 import android.net.Uri
 import android.text.TextUtils
+import me.shetj.base.ktx.logi
 import me.shetj.base.tools.app.Utils
 import me.shetj.base.tools.file.EnvironmentStorage
 import me.shetj.player.PlayerListener
@@ -193,8 +194,8 @@ class MixRecordUtils(
     fun setBackGroundUrl(context: Context?, url: Uri) {
         if (context != null) {
             mRecorder!!.setBackgroundMusic(context, url, null)
+            AudioUtils.getAudioChannel(context,url).toString().logi()
         }
     }
-
 
 }

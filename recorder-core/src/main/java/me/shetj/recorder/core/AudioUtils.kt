@@ -1,5 +1,10 @@
 package me.shetj.recorder.core
 
+import android.content.Context
+import android.media.MediaExtractor
+import android.media.MediaFormat
+import android.net.Uri
+
 object AudioUtils {
 
     /**
@@ -27,4 +32,29 @@ object AudioUtils {
         return array
     }
 
+
+    fun getAudioFormat(url:String): MediaFormat {
+        val mediaExtractor = MediaExtractor()//此类可分离视频文件的音轨和视频轨道
+        mediaExtractor.setDataSource(url)//媒体文件的位置
+        return mediaExtractor.getTrackFormat(0).also {
+            mediaExtractor.release()
+        }
+    }
+
+    fun getAudioChannel(url:String): Int {
+        return getAudioFormat(url).getInteger(MediaFormat.KEY_CHANNEL_COUNT)
+    }
+
+
+    fun getAudioFormat(context: Context, url: Uri): MediaFormat {
+        val mediaExtractor = MediaExtractor()//此类可分离视频文件的音轨和视频轨道
+        mediaExtractor.setDataSource(context,url,null)//媒体文件的位置
+        return mediaExtractor.getTrackFormat(0).also {
+            mediaExtractor.release()
+        }
+    }
+
+    fun getAudioChannel(context: Context, url: Uri): Int {
+        return getAudioFormat(context,url).getInteger(MediaFormat.KEY_CHANNEL_COUNT)
+    }
 }

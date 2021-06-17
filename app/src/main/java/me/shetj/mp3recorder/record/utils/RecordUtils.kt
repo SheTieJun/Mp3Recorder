@@ -1,15 +1,13 @@
 package me.shetj.mp3recorder.record.utils
 
+import me.shetj.base.ktx.logi
 import me.shetj.base.tools.app.ArmsUtils
 import me.shetj.base.tools.app.Utils
 import me.shetj.base.tools.file.EnvironmentStorage
 import me.shetj.base.tools.file.FileUtils
 import me.shetj.base.tools.json.EmptyUtils
-import me.shetj.recorder.core.PermissionListener
 import me.shetj.player.PlayerListener
-import me.shetj.recorder.core.RecordListener
-import me.shetj.recorder.core.BaseRecorder
-import me.shetj.recorder.core.RecordState
+import me.shetj.recorder.core.*
 import me.shetj.recorder.simRecorder.simRecorder
 import java.io.File
 
@@ -83,6 +81,7 @@ class RecordUtils(
 
     fun setBackgroundMusic(url: String) {
         mRecorder?.setBackgroundMusic(url)
+        AudioUtils.getAudioChannel(url).toString().logi()
     }
 
     fun setBackgroundPlayerListener(listener: PlayerListener) {
