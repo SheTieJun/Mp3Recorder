@@ -113,7 +113,6 @@ class PlayBackMusic(private var defaultChannel: Int = CHANNEL_OUT_MONO,var plugC
             initDecoder(context,uri,header)
             isIsPause = false
         }
-        isPlayingMusic = false
         return this
     }
 
@@ -136,6 +135,7 @@ class PlayBackMusic(private var defaultChannel: Int = CHANNEL_OUT_MONO,var plugC
             mAudioDecoder?.release()
             mAudioDecoder = null
         }
+        isPlayingMusic = false
     }
 
     /**
@@ -188,10 +188,7 @@ class PlayBackMusic(private var defaultChannel: Int = CHANNEL_OUT_MONO,var plugC
         return backGroundBytes.size
     }
 
-    /**
-     * 暂停播放
-     * @return
-     */
+
     fun stop() {
         isPlayingMusic = false
         playerListener?.onStop()
@@ -204,6 +201,8 @@ class PlayBackMusic(private var defaultChannel: Int = CHANNEL_OUT_MONO,var plugC
             playerListener?.onResume()
         }
     }
+
+
 
     fun pause() {
         if (isPlayingMusic) {
@@ -380,6 +379,9 @@ class PlayBackMusic(private var defaultChannel: Int = CHANNEL_OUT_MONO,var plugC
         }
     }
 
+    /**
+     * 更新声道数量
+     */
     internal fun updateChannel(channel: Int) {
         defaultChannel = when {
             channel <= 1 -> {

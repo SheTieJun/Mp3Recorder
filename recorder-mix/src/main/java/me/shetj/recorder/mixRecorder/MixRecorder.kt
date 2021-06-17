@@ -207,6 +207,7 @@ class MixRecorder : BaseRecorder {
             bgPlayer.updateChannel(defaultLameInChannel)
             return true
         }
+        logInfo("setAudioChannel error ,need state  isn't Recording ")
         return false
     }
 
@@ -215,6 +216,7 @@ class MixRecorder : BaseRecorder {
             defaultAudioSource = audioSource
             return true
         }
+        logInfo("setAudioSource error ,need state  isn't Recording ")
         return false
     }
 

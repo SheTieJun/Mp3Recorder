@@ -10,8 +10,9 @@
 - 可以使用耳机配置方式：如果没有连接耳机会只用外放的背景音乐，如果连接上了耳机，会使用写入合成背景音乐的方式
 - 其他...
 
-> tip: 背景音乐支持网络链接，但是网络差的时候可能导致ANR,所有请尽量不要使用网络链接作为背景应用
-> 最低版本提升到：`21` 如果需要`19`的请使用`1.5.0`以前的版本
+> tip: 背景音乐支持网络链接，但是网络差的时候可能导致ANR,所有请尽量不要使用网络链接作为背景音乐应用
+> 最低版本提升到：`21`
+> 如果需要`19`的请使用`1.5.0`以前的版本
 
 
 ### [Demo下载](http://d.zqapps.com/ne21)
@@ -76,7 +77,7 @@ recorder {
     needUI = true  //是否集成UIKit 默认 false
     needSim = true// 是否集成simRecorder 默认false
     needMix = true // 是否集成mixRecorder 默认true
-    libVersion = "1.6.0"// lib版本 :默认1.3.0
+    libVersion = "1.6.1"// lib版本 :默认1.3.0
 }
 ```
 ### 缺点
@@ -143,7 +144,6 @@ recorder {
  mRecorder?.isPauseMusic()// 背景音乐是否暂停
  mRecorder?.resumeMusic() //重新开始播放
  mRecorder?.cleanBackgroundMusic() //移除背景应用相关
-
  mRecorder?.setContextToPlugConfig(context) //设置次方法后，会使用耳机配置方式,只有 【MixRecorder】 有效
  mRecorder?.setContextToVolumeConfig(context) //设置方法后，将会使用系统的播放的音量进行控制
 ```
@@ -158,7 +158,6 @@ recorder {
  mRecorder?.complete()  //完成录音，回调接口onSuccess()
 ```
 
-
 #### 6.新增录音参数修改，必须在start()之前调用才有效
 ```
     //初始Lame录音输出质量
@@ -167,6 +166,10 @@ recorder {
     mRecorder?.setMp3BitRate(mp3BitRate)
     //设置采样率
     mRecorder?.setSamplingRate(rate)
+    //设置音频声道数量，每次录音只能设置一次，如果有背景音乐建议配合背景音乐使用
+    mRecorder?. setAudioChannel(channel: Int = 1):Boolean
+    //设置音频来源，每次录音只能设置一次
+    mRecorder?.setAudioSource(audioSource: Int = MediaRecorder.AudioSource.MIC):Boolean
 ```
 #### 7.中途直接结束.停止录音
 ```
