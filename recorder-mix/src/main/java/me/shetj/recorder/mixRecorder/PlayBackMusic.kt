@@ -5,6 +5,7 @@ package me.shetj.recorder.mixRecorder
 import android.content.Context
 import android.media.*
 import android.media.AudioFormat.CHANNEL_OUT_MONO
+import android.media.AudioFormat.CHANNEL_OUT_STEREO
 import android.net.Uri
 import android.os.Build
 import android.os.Handler
@@ -112,6 +113,7 @@ class PlayBackMusic(private var defaultChannel: Int = CHANNEL_OUT_MONO,var plugC
             initDecoder(context,uri,header)
             isIsPause = false
         }
+        isPlayingMusic = false
         return this
     }
 
@@ -376,6 +378,19 @@ class PlayBackMusic(private var defaultChannel: Int = CHANNEL_OUT_MONO,var plugC
                 audioTrack!!.setStereoVolume(volume, volume)
             }
         }
+    }
+
+    internal fun updateChannel(channel: Int) {
+        defaultChannel = when {
+            channel <= 1 -> {
+                CHANNEL_OUT_MONO
+            }
+            channel >= 2 -> {
+                CHANNEL_OUT_STEREO
+            }
+            else -> CHANNEL_OUT_MONO
+        }
+        audioTrack = null
     }
 
     internal interface BackGroundFrameListener {

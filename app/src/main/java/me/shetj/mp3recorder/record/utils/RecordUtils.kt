@@ -80,8 +80,9 @@ class RecordUtils(
     }
 
     fun setBackgroundMusic(url: String) {
-        mRecorder?.setBackgroundMusic(url)
+        mRecorder!!.setAudioChannel(AudioUtils.getAudioChannel(url))
         AudioUtils.getAudioChannel(url).toString().logi()
+        mRecorder?.setBackgroundMusic(url)
     }
 
     fun setBackgroundPlayerListener(listener: PlayerListener) {

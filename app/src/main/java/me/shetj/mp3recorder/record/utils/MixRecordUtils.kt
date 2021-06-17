@@ -193,8 +193,9 @@ class MixRecordUtils(
 
     fun setBackGroundUrl(context: Context?, url: Uri) {
         if (context != null) {
-            mRecorder!!.setBackgroundMusic(context, url, null)
             AudioUtils.getAudioChannel(context,url).toString().logi()
+            mRecorder!!.setAudioChannel(AudioUtils.getAudioChannel(context,url))
+            mRecorder!!.setBackgroundMusic(context, url, null)
         }
     }
 

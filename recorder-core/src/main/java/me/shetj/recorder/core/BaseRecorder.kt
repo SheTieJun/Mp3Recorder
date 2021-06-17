@@ -149,8 +149,10 @@ abstract class BaseRecorder {
     //设置比特率，关系声音的质量
     abstract fun setMp3BitRate(mp3BitRate: Int): BaseRecorder
 
+    //设置音频声道数量，每次录音只能设置一次
     abstract fun setAudioChannel(channel: Int = 1):Boolean
 
+    //设置音频来源，每次录音只能设置一次
     abstract fun setAudioSource(audioSource: Int = MediaRecorder.AudioSource.MIC):Boolean
 
     //设置采样率

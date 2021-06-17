@@ -194,18 +194,17 @@ class MixRecorder : BaseRecorder {
             defaultLameInChannel = when {
                 channel <= 1 -> {
                     defaultChannelConfig = AudioFormat.CHANNEL_IN_MONO
-                    release()
-                    initPlayer()
                     1
                 }
                 channel >= 2 -> {
                     defaultChannelConfig = AudioFormat.CHANNEL_IN_STEREO
-                    release()
-                    initPlayer()
                     2
                 }
                 else -> defaultAudioSource
             }
+            release()
+            initPlayer()
+            bgPlayer.updateChannel(defaultLameInChannel)
             return true
         }
         return false
