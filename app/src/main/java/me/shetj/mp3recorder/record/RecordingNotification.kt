@@ -6,7 +6,6 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
-import android.graphics.Bitmap
 import android.os.Build
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
@@ -19,10 +18,9 @@ import me.shetj.mp3recorder.R
  */
 object RecordingNotification {
 
-    @SuppressLint("ObsoleteSdkInt")
     fun notify(context: Context) {
         //默认没有播放 需要用户点击开始播放
-        notify(context,3)
+        notify(context, 3)
     }
 
     /**
@@ -30,7 +28,7 @@ object RecordingNotification {
      * @param bitmap 展示图片
      */
     @SuppressLint("ObsoleteSdkInt")
-    fun notify(context: Context,type:Int,bitmap: Bitmap? =null) {
+    fun notify(context: Context, type: Int) {
 
         val notification = getNotification(type, context)
         notify(context, notification)
@@ -44,25 +42,24 @@ object RecordingNotification {
         }
         val intents =
                 context.packageManager.getLaunchIntentForPackage(context.packageName)
-        val intentGo= PendingIntent.getActivity(context, 0, intents,
+        val intentGo = PendingIntent.getActivity(context, 0, intents,
                 PendingIntent.FLAG_UPDATE_CURRENT)
 
         val builder = NotificationCompat.Builder(context, createNotificationChannel(context))
                 .setSmallIcon(R.mipmap.record)
-                .setContentTitle("录音")
+                .setContentTitle("录音Mp3Recorder")
                 .setContentText(content)
                 .setOngoing(false)
                 .setContentIntent(intentGo)
                 .setSound(null)
-                .setDefaults(NotificationCompat.FLAG_ONLY_ALERT_ONCE)
                 .setColor(ContextCompat.getColor(context.applicationContext, R.color.colorPrimary))
-                .setPriority(NotificationCompat.PRIORITY_MIN)
+                .setPriority(NotificationCompat.PRIORITY_HIGH)
         return builder.build()
     }
 
 
     private fun notify(context: Context, notification: Notification) {
-        NotificationManagerCompat.from(context).notify(100001, notification)
+        NotificationManagerCompat.from(context).notify(110, notification)
     }
 
     /**
@@ -70,7 +67,7 @@ object RecordingNotification {
      * [.notify].
      */
     fun cancel(context: Context) {
-        NotificationManagerCompat.from(context).cancel(100001.hashCode())
+        NotificationManagerCompat.from(context).cancel(110)
     }
 
     /**

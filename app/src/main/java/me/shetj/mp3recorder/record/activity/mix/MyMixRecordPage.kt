@@ -20,11 +20,7 @@ import me.shetj.mp3recorder.record.adapter.RecordAdapter
 import me.shetj.mp3recorder.record.bean.Record
 import me.shetj.mp3recorder.record.bean.RecordDbUtils
 import me.shetj.mp3recorder.record.utils.EventCallback
-import me.shetj.mp3recorder.record.utils.MainThreadEvent
 import me.shetj.mp3recorder.record.view.RecordBottomSheetDialog
-import org.greenrobot.eventbus.EventBus
-import org.greenrobot.eventbus.Subscribe
-import org.greenrobot.eventbus.ThreadMode
 import java.util.*
 
 /**
@@ -85,7 +81,6 @@ class MyMixRecordPage(
     }
 
     private fun initView(view: View?) {
-        EventBus.getDefault().register(this)
         //绑定view
         mRecyclerView = view!!.findViewById(R.id.recycler_view)
         mIvRecordState = view.findViewById(R.id.iv_record_state)
@@ -107,6 +102,7 @@ class MyMixRecordPage(
                 }
             }
         }
+        recordAdapter.addChildClickViewIds(R.id.tv_more)
         recordAdapter.setOnItemLongClickListener { adapter, _, position ->
             val dialog = showBottomDialog(position, adapter)
             dialog?.showBottomSheet()
@@ -151,22 +147,7 @@ class MyMixRecordPage(
     }
 
 
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    fun refreshData(event: MainThreadEvent<*>) {
-        when (event.type) {
-            MainThreadEvent.RECORD_REFRESH_RECORD -> {
-                //继续录制后，保存后刷新
-                val i = recordAdapter.data.indexOf(event.content)
-                if (i != -1) {
-                    recordAdapter.notifyItemChanged(i + recordAdapter.headerLayoutCount)
-                }
-            }
-        }
-    }
-
-
     fun onDestroy() {
-        EventBus.getDefault().unregister(this)
         recordAdapter.onDestroy()
         root = null
     }

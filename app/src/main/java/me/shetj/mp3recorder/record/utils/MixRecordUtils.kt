@@ -16,7 +16,7 @@ class MixRecordUtils(
     private val callBack: SimRecordListener?
 ) : RecordListener, PermissionListener {
 
-    val TIME = 2 * 60 * 1000
+    val TIME = 5 * 60 * 1000
 
     val isRecording: Boolean
         get() {

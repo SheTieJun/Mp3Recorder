@@ -62,7 +62,6 @@ class RecordAdapter(data: MutableList<Record>?) : BaseQuickAdapter<Record, BaseV
                 .setText(R.id.tv_time_all, Util.formatSeconds3(item.audioLength))
                 .setText(R.id.tv_read_time, Util.formatSeconds3(0))
                 .setText(R.id.tv_time, Util.formatSeconds2(item.audioLength))
-            addChildClickViewIds(R.id.tv_more)
             holder.getView<View>(R.id.tv_upload).setOnClickListener { startUpload(holder, item) }
         }
     }

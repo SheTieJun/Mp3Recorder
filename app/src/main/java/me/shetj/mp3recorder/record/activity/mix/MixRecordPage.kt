@@ -235,7 +235,6 @@ open class MixRecordPage(private val context: AppCompatActivity, mRoot: ViewGrou
                     oldRecord!!.audioContent = mEditInfo!!.text.toString()
                     oldRecord!!.audioLength = o
                     RecordDbUtils.getInstance().update(oldRecord!!)
-                    EventBus.getDefault().post(MainThreadEvent(MainThreadEvent.RECORD_REFRESH_RECORD, oldRecord!!))
                 }
                 if (isFinish) {
                     callback.onEvent(1)
@@ -280,7 +279,6 @@ open class MixRecordPage(private val context: AppCompatActivity, mRoot: ViewGrou
             val record = Record("1", file, System.currentTimeMillis().toString() + "",
                 Util.getAudioLength(file), mEditInfo!!.text.toString())
             RecordDbUtils.getInstance().save(record)
-            EventBus.getDefault().post(MainThreadEvent(MainThreadEvent.RECORD_REFRESH_MY, record))
         } catch (e: Exception) {
             Timber.i(e.message)
         }

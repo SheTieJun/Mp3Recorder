@@ -114,8 +114,7 @@ class AudioDecoder {
             val mime = mediaFormat!!.getString(MediaFormat.KEY_MIME)
             // 检查是否为音频文件
             if (!mime!!.startsWith("audio/")) {
-                Log.e("mixRecorder", "不是音频文件!")
-                return
+                error("$mp3FilePath is not audio file")
             }
             //选择此音频轨道，因为是音频只有一条
             mediaExtractor!!.selectTrack(0)
@@ -124,7 +123,6 @@ class AudioDecoder {
             mediaDecode!!.configure(mediaFormat, null, null, 0)
         } catch (e: Exception) {
             e.printStackTrace()
-            Log.e("mixRecorder", "error :: " + e.message)
             return
         }
 

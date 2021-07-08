@@ -199,24 +199,6 @@ object Util {
         return file2.absolutePath
     }
 
-    /**
-     * 针对6.0动态请求权限问题
-     * 判断是否允许此权限
-     *
-     * @param permissions  权限
-     * @return hasPermission
-     */
-    fun hasPermission(context: Context?, vararg permissions: String?): Boolean {
-        for (permission in permissions) {
-            if (ContextCompat.checkSelfPermission(context!!, permission!!)
-                != PackageManager.PERMISSION_GRANTED
-            ) {
-                return false
-            }
-        }
-        return true
-    }
-
     fun getAudioLength(filename: String?): Int {
       return  filename?.let { getAudioLength(it).toInt()/1000 }?:0
     }
