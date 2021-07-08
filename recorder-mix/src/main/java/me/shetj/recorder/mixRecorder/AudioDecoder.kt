@@ -20,10 +20,10 @@ class AudioDecoder {
 
     private var mp3FilePath: String? = null
 
-    private var context:Context ?=null
+    private var context: Context? = null
     private var mp3URi: Uri? = null
 
-    private var headers: MutableMap<String, String> ?=null
+    private var headers: MutableMap<String, String>? = null
 
     internal var mediaFormat: MediaFormat? = null
         private set
@@ -56,16 +56,22 @@ class AudioDecoder {
 
     fun setMp3FilePath(path: String): AudioDecoder {
         mp3FilePath = path
-        if (path.startsWith("http")){
-            Log.i("mixRecorder", "the url  may be HTTP ,APP could ANR by MediaExtractor," +
-                    "you could download it to use better than direct to use ")
+        if (path.startsWith("http")) {
+            Log.w(
+                "mixRecorder", "the url  may be HTTP ,APP could ANR by MediaExtractor," +
+                        "you could download it to use better than direct to use "
+            )
         }
         mp3URi = null
         context = null
         return this
     }
 
-    fun setMp3FilePath(context: Context,uri: Uri,headers: MutableMap<String, String>?): AudioDecoder {
+    fun setMp3FilePath(
+        context: Context,
+        uri: Uri,
+        headers: MutableMap<String, String>?
+    ): AudioDecoder {
         this.context = context.applicationContext
         mp3URi = uri
         mp3FilePath = null
@@ -101,8 +107,8 @@ class AudioDecoder {
             if (mp3FilePath != null) {
                 Log.i("mixRecorder", "mp3FilePath = " + mp3FilePath!!)
                 mediaExtractor!!.setDataSource(mp3FilePath!!)//媒体文件的位置
-            }else if (context != null && mp3URi != null){
-                mediaExtractor!!.setDataSource(context!!,mp3URi!!,headers)//媒体文件的位置
+            } else if (context != null && mp3URi != null) {
+                mediaExtractor!!.setDataSource(context!!, mp3URi!!, headers)//媒体文件的位置
             }
             mediaFormat = mediaExtractor!!.getTrackFormat(0)
             val mime = mediaFormat!!.getString(MediaFormat.KEY_MIME)
@@ -168,13 +174,16 @@ class AudioDecoder {
                             val sampleSize = mediaExtractor!!.readSampleData(inputBuffer, 0)
                             if (sampleSize < 0) {//小于0 代表所有数据已读取完成
                                 sawInputEOS = true
-                                mediaDecode!!.queueInputBuffer(inputIndex, 0, 0, 0L,
+                                mediaDecode!!.queueInputBuffer(
+                                    inputIndex, 0, 0, 0L,
                                     MediaCodec.BUFFER_FLAG_END_OF_STREAM
                                 )
                             } else {
                                 val presentationTimeUs = mediaExtractor!!.sampleTime
-                                mediaDecode!!.queueInputBuffer(inputIndex, 0, sampleSize,
-                                    presentationTimeUs, 0)
+                                mediaDecode!!.queueInputBuffer(
+                                    inputIndex, 0, sampleSize,
+                                    presentationTimeUs, 0
+                                )
                                 //通知MediaDecode解码刚刚传入的数据
                                 mediaExtractor!!.advance()//MediaExtractor移动到下一取样处
                             }
@@ -227,7 +236,7 @@ class AudioDecoder {
             }
 
         } catch (e: Exception) {
-            Log.e("mixRecorder", "message = ${e.message}")
+            e.printStackTrace()
         }
     }
 
@@ -236,12 +245,14 @@ class AudioDecoder {
             if (mediaDecode != null) {
                 mediaDecode!!.stop()
                 mediaDecode!!.release()
+                mediaDecode = null
             }
             if (mediaExtractor != null) {
                 mediaExtractor!!.release()
+                mediaExtractor = null
             }
         } catch (e: Exception) {
-            Log.e("mixRecorder", "message = ${e.message}")
+            e.printStackTrace()
         }
     }
 

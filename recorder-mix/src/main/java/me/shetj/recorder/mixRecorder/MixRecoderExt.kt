@@ -2,12 +2,33 @@ package me.shetj.recorder.mixRecorder
 
 import android.content.Context
 import me.shetj.recorder.core.BaseRecorder
+import me.shetj.recorder.core.Mp3RecorderOption
 import me.shetj.recorder.core.PermissionListener
 import me.shetj.recorder.core.RecordListener
 
 
 
+fun Mp3RecorderOption.build(context: Context?=null): BaseRecorder {
+    return with(this) {
+        MixRecorder(audioSource.type, channel.type)
+            .setMaxTime(mMaxTime)
+            .setMp3Quality(mp3Quality)
+            .setSamplingRate(samplingRate)
+            .setMp3BitRate(mp3BitRate)
+            .setPermissionListener(permissionListener)
+            .setRecordListener(recordListener)
+            .setDebug(isDebug)
+            .setWax(wax).apply {
+                context?.let {
+                    setContextToVolumeConfig(context)
+                    setContextToPlugConfig(context)
+                }
+            }
+    }
+}
 
+
+@Deprecated("此方法，后面版本将会去掉",replaceWith = ReplaceWith("RecorderBuilder"))
 @JvmOverloads
 fun mixRecorder(
     context: Context,
@@ -41,6 +62,7 @@ fun mixRecorder(
 /**
  * 混合音频的录制
  */
+@Deprecated("此方法，后面版本将会去掉",replaceWith = ReplaceWith("buildMp3Recorder"))
 @JvmOverloads
 fun mixRecorder(
     audioSource: BaseRecorder.AudioSource = BaseRecorder.AudioSource.MIC,

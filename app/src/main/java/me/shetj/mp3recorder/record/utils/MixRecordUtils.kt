@@ -4,11 +4,10 @@ import android.content.Context
 import android.net.Uri
 import android.text.TextUtils
 import me.shetj.base.ktx.logi
-import me.shetj.base.tools.app.Utils
 import me.shetj.base.tools.file.EnvironmentStorage
 import me.shetj.player.PlayerListener
 import me.shetj.recorder.core.*
-import me.shetj.recorder.mixRecorder.mixRecorder
+import me.shetj.recorder.mixRecorder.build
 
 /**
  * 录音工具类
@@ -71,13 +70,14 @@ class MixRecordUtils(
      * MIC 麦克风- 因为有噪音问题
      */
     private fun initRecorder() {
-        mRecorder = mixRecorder(
-            Utils.app,
-            mMaxTime = TIME,
-            isDebug = true,
-            recordListener = this,
-            permissionListener = this
-        )
+
+        mRecorder = RecorderBuilder {
+            mMaxTime = TIME
+            isDebug = true
+            recordListener = this@MixRecordUtils
+            permissionListener = this@MixRecordUtils
+        }.build()
+
         mRecorder?.setMaxTime(TIME, TIME - 20 * 1000)
     }
 
@@ -193,8 +193,8 @@ class MixRecordUtils(
 
     fun setBackGroundUrl(context: Context?, url: Uri) {
         if (context != null) {
-            AudioUtils.getAudioChannel(context,url).toString().logi()
-            mRecorder!!.setAudioChannel(AudioUtils.getAudioChannel(context,url))
+            AudioUtils.getAudioChannel(context, url).toString().logi()
+            mRecorder!!.setAudioChannel(AudioUtils.getAudioChannel(context, url))
             mRecorder!!.setBackgroundMusic(context, url, null)
         }
     }

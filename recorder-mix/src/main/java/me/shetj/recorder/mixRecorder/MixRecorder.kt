@@ -207,7 +207,7 @@ class MixRecorder : BaseRecorder {
             bgPlayer.updateChannel(defaultLameInChannel)
             return true
         }
-        logInfo("setAudioChannel error ,need state  isn't Recording ")
+        logInfo("setAudioChannel error ,need state  isn't Recording|录音没有完成，无法进行修改 ")
         return false
     }
 
@@ -216,7 +216,7 @@ class MixRecorder : BaseRecorder {
             defaultAudioSource = audioSource
             return true
         }
-        logInfo("setAudioSource error ,need state  isn't Recording ")
+        logInfo("setAudioSource error ,need state  isn't Recording |录音没有完成，无法进行修改 ")
         return false
     }
 
@@ -381,6 +381,7 @@ class MixRecorder : BaseRecorder {
             }
             onError()
             handler.sendEmptyMessage(HANDLER_PERMISSION)
+            ex.printStackTrace()
             return
         }
 
