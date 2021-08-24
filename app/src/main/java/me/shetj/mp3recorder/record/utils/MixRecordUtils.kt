@@ -4,10 +4,11 @@ import android.content.Context
 import android.net.Uri
 import android.text.TextUtils
 import me.shetj.base.ktx.logi
+import me.shetj.base.tools.app.Utils
 import me.shetj.base.tools.file.EnvironmentStorage
 import me.shetj.player.PlayerListener
 import me.shetj.recorder.core.*
-import me.shetj.recorder.mixRecorder.build
+import me.shetj.recorder.mixRecorder.buildMix
 
 /**
  * 录音工具类
@@ -70,14 +71,16 @@ class MixRecordUtils(
      * MIC 麦克风- 因为有噪音问题
      */
     private fun initRecorder() {
-
-        mRecorder = RecorderBuilder {
-            mMaxTime = TIME
+        mRecorder = recorder {
+            mMaxTime = 5 * 60 * 1000
             isDebug = true
+            wax = 1f
+            samplingRate = 44100
+            audioSource = BaseRecorder.AudioSource.MIC
+            audioChannel = BaseRecorder.AudioChannel.STEREO
             recordListener = this@MixRecordUtils
             permissionListener = this@MixRecordUtils
-        }.build()
-
+        }.buildMix(Utils.app)
         mRecorder?.setMaxTime(TIME, TIME - 20 * 1000)
     }
 

@@ -11,7 +11,9 @@
 - 其他...
 
 > tip: 背景音乐支持网络链接，但是网络差的时候可能导致ANR,所有请尽量不要使用网络链接作为背景音乐应用
+
 > 最低版本提升到：`21`
+
 > 如果需要`19`的请使用`1.5.0`以前的版本
 
 
@@ -31,6 +33,12 @@
 
 
 #### [接入配置文档](https://github.com/SheTieJun/Mp3Recorder/wiki/%E6%8E%A5%E5%85%A5%E6%96%87%E6%A1%A3)
+
+推荐(背景音乐支持耳机)：
+```
+implementation 'com.github.SheTieJun.Mp3Recorder:recorder-mix:+'
+implementation 'com.github.SheTieJun.Mp3Recorder:recorder-core:+'
+```
 
 #### [API使用文档](https://github.com/SheTieJun/Mp3Recorder/wiki/%E4%BD%BF%E7%94%A8%E6%96%87%E6%A1%A3)
 

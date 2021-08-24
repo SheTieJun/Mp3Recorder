@@ -8,6 +8,8 @@ import me.shetj.base.tools.file.FileUtils
 import me.shetj.base.tools.json.EmptyUtils
 import me.shetj.player.PlayerListener
 import me.shetj.recorder.core.*
+import me.shetj.recorder.mixRecorder.buildMix
+import me.shetj.recorder.simRecorder.buildSim
 import me.shetj.recorder.simRecorder.simRecorder
 import java.io.File
 
@@ -71,12 +73,11 @@ class RecordUtils(
      * MIC 麦克风- 因为有噪音问题
      */
     private fun initRecorder() {
-        mRecorder = simRecorder(
-            context = Utils.app,
-            permissionListener = this,
-            recordListener = this
-        )
-        mRecorder!!.setContextToVolumeConfig(Utils.app)
+        mRecorder = recorder {
+            isDebug = true
+            recordListener = this@RecordUtils
+            permissionListener = this@RecordUtils
+        }.buildSim(Utils.app)
     }
 
     fun setBackgroundMusic(url: String) {

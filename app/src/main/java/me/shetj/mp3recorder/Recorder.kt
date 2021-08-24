@@ -4,6 +4,7 @@ import android.content.Context
 import me.shetj.recorder.core.PermissionListener
 import me.shetj.recorder.core.RecordListener
 import me.shetj.recorder.core.BaseRecorder
+import me.shetj.recorder.core.RecorderBuilder
 import me.shetj.recorder.mixRecorder.mixRecorder
 import me.shetj.recorder.simRecorder.simRecorder
 

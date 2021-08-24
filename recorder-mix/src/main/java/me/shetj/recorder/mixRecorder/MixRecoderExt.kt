@@ -7,10 +7,12 @@ import me.shetj.recorder.core.PermissionListener
 import me.shetj.recorder.core.RecordListener
 
 
-
-fun Mp3RecorderOption.build(context: Context?=null): BaseRecorder {
+/**
+ * @param context 用来时设置监听系统声音和耳机变化的
+ */
+fun Mp3RecorderOption.buildMix(context: Context?=null): BaseRecorder {
     return with(this) {
-        MixRecorder(audioSource.type, channel.type)
+        MixRecorder(audioSource.type, audioChannel.type)
             .setMaxTime(mMaxTime)
             .setMp3Quality(mp3Quality)
             .setSamplingRate(samplingRate)
@@ -62,7 +64,7 @@ fun mixRecorder(
 /**
  * 混合音频的录制
  */
-@Deprecated("此方法，后面版本将会去掉",replaceWith = ReplaceWith("buildMp3Recorder"))
+@Deprecated("此方法，后面版本将会去掉",replaceWith = ReplaceWith("RecorderBuilder"))
 @JvmOverloads
 fun mixRecorder(
     audioSource: BaseRecorder.AudioSource = BaseRecorder.AudioSource.MIC,

@@ -161,7 +161,7 @@ abstract class BaseRecorder {
     //初始最大录制时间 和提醒时间 remind = maxTime - remindDiffTime
     abstract fun setMaxTime(maxTime: Int, remindDiffTime: Int? = null): BaseRecorder
 
-    //设置增强系数
+    //设置增强系数(不建议修改，因为会产生噪音~)
     abstract fun setWax(wax: Float): BaseRecorder
 
     //设置背景声音大小

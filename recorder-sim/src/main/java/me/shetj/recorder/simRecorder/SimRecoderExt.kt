@@ -8,9 +8,10 @@ import me.shetj.recorder.core.RecordListener
 
 
 
-
-
-fun Mp3RecorderOption.build(context: Context?=null): BaseRecorder {
+/**
+ * @param context 用来时设置监听系统声音和耳机变化的
+ */
+fun Mp3RecorderOption.buildSim(context: Context?=null): BaseRecorder {
     return with(this) {
         SimRecorder(audioSource.type)
             .setMaxTime(mMaxTime)
@@ -39,7 +40,7 @@ fun simRecorder(
     isDebug: Boolean = false,
     mMaxTime: Int = 1800 * 1000,
     samplingRate: Int = 44100,
-    mp3BitRate: Int = 64,//96(高),32（低）
+    mp3BitRate: Int = 32,//96(高),32（低）
     mp3Quality: Int = 1,
     permissionListener: PermissionListener? = null,
     recordListener: RecordListener? = null,
@@ -69,7 +70,7 @@ fun simRecorder(
     isDebug: Boolean = false,
     mMaxTime: Int = 1800 * 1000,
     samplingRate: Int = 44100,
-    mp3BitRate: Int = 64,//96(高),32（低）
+    mp3BitRate: Int = 32,//96(高),32（低）
     mp3Quality: Int = 1,
     permissionListener: PermissionListener? = null,
     recordListener: RecordListener? = null,
