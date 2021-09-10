@@ -55,10 +55,6 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation 'androidx.appcompat:appcompat:1.2.0'
     implementation 'androidx.core:core-ktx:1.3.2'
-//    implementation 'com.github.SheTieJun.Mp3Recorder:recorder-ui:1.2.4'
-//    implementation 'com.github.SheTieJun.Mp3Recorder:recorder-sim:1.2.4'
-//    implementation 'com.github.SheTieJun.Mp3Recorder:recorder-mix:1.2.4'
-//    implementation 'com.github.SheTieJun.Mp3Recorder:recorder-core:1.2.4'
     implementation project(path: ':recorder-mix')
     implementation project(path: ':recorder-sim')
     implementation project(path: ':recorder-core')
@@ -66,7 +62,7 @@ dependencies {
     testImplementation 'junit:junit:4.13.1'
     androidTestImplementation 'androidx.test:runner:1.3.0'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
-    implementation 'com.github.SheTieJun:BaseKit:802b325438'
+    implementation 'com.github.SheTieJun:BaseKit:af6fe7626c'
     def version = "2.3.0-alpha02"
     kapt "androidx.room:room-compiler:$version" //
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"

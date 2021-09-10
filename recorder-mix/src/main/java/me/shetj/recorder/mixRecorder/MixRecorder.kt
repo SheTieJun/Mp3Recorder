@@ -6,15 +6,11 @@ import android.media.AudioFormat
 import android.media.AudioRecord
 import android.media.MediaRecorder
 import android.net.Uri
-import android.os.Handler
-import android.os.Looper
-import android.os.Message
 import android.os.Process
-import android.text.TextUtils
+import android.util.Log
 import me.shetj.player.PlayerListener
 import me.shetj.recorder.core.*
 import me.shetj.recorder.util.LameUtils
-import java.io.File
 import java.io.IOException
 
 
@@ -46,78 +42,6 @@ class MixRecorder : BaseRecorder {
     //endregion 其他
 
     //endregion 参数
-    private val handler = object : Handler(Looper.getMainLooper()) {
-        override fun handleMessage(msg: Message) {
-            super.handleMessage(msg)
-            when (msg.what) {
-                HANDLER_RECORDING -> {
-                    if (mRecordListener != null && state == RecordState.RECORDING) {
-                        logInfo("msg.what = HANDLER_RECORDING  \n mDuration = $duration ,volume = $realVolume and state is recording  = ${state == RecordState.RECORDING}")
-                        //录制回调
-                        mRecordListener!!.onRecording(duration, realVolume)
-                        //提示快到录音时间了
-                        if (isRemind && duration > mRemindTime) {
-                            isRemind = false
-                            mRecordListener!!.onRemind(duration)
-                        }
-                    }
-                }
-                HANDLER_START -> {
-                    logInfo("msg.what = HANDLER_START  \n mDuration = $duration\n mRemindTime = $mRemindTime")
-                    if (mRecordListener != null) {
-                        mRecordListener!!.onStart()
-                    }
-                }
-                HANDLER_RESUME -> {
-                    logInfo("msg.what = HANDLER_RESUME  \n mDuration = $duration")
-                    if (mRecordListener != null) {
-                        mRecordListener!!.onResume()
-                    }
-                }
-                HANDLER_COMPLETE -> {
-                    logInfo("msg.what = HANDLER_COMPLETE  \n mDuration = $duration")
-                    if (mRecordListener != null && mRecordFile != null) {
-                        mRecordListener!!.onSuccess(false, mRecordFile!!.absolutePath, duration)
-                    }
-                }
-                HANDLER_AUTO_COMPLETE -> {
-                    logInfo("msg.what = HANDLER_AUTO_COMPLETE  \n mDuration = $duration")
-                    if (mRecordListener != null && mRecordFile != null) {
-                        mRecordListener!!.onSuccess(true, mRecordFile!!.absolutePath, duration)
-                    }
-                }
-                HANDLER_ERROR -> {
-                    logInfo("msg.what = HANDLER_ERROR  \n mDuration = $duration")
-                    if (mRecordListener != null) {
-                        mRecordListener!!.onError(Exception("record error!"))
-                    }
-                }
-                HANDLER_PAUSE -> {
-                    logInfo("msg.what = HANDLER_PAUSE  \n mDuration = $duration")
-                    if (mRecordListener != null) {
-                        mRecordListener!!.onPause()
-                    }
-                }
-                HANDLER_PERMISSION -> {
-                    logInfo("msg.what = HANDLER_PERMISSION  \n mDuration = $duration")
-                    if (mPermissionListener != null) {
-                        mPermissionListener!!.needPermission()
-                    }
-                }
-                HANDLER_RESET -> {
-                    logInfo("msg.what = HANDLER_RESET  \n mDuration = $duration")
-                    if (mRecordListener != null) {
-                        mRecordListener!!.onReset()
-                    }
-                }
-                HANDLER_MAX_TIME -> if (mRecordListener != null) {
-                    mRecordListener!!.onMaxChange(mMaxTime)
-                }
-                else -> {
-                }
-            }
-        }
-    }
     //region 公开方法！
     /**
      * 返回背景音乐的
@@ -167,30 +91,9 @@ class MixRecorder : BaseRecorder {
         }
     }
 
-    override fun setMp3Quality(mp3Quality: Int): MixRecorder {
-        this.defaultLameMp3Quality = when {
-            mp3Quality < 0 -> 0
-            mp3Quality > 9 -> 9
-            else -> mp3Quality
-        }
-        return this
-    }
-
-    override fun setSamplingRate(rate: Int): MixRecorder {
-        if (defaultSamplingRate < 8000) return this //低于8000 没有意义
-        this.defaultSamplingRate = rate
-        return this
-    }
-
-    override fun setMp3BitRate(mp3BitRate: Int): MixRecorder {
-        if (mp3BitRate < 32) return this //低于32 也没有意义
-        this.defaultLameMp3BitRate = mp3BitRate
-        return this
-    }
-
     override fun setAudioChannel(channel: Int): Boolean {
         if (!isRecording) {
-            is2Channel = channel == 2
+            is2Channel = channel >= 2
             defaultLameInChannel = when {
                 channel <= 1 -> {
                     defaultChannelConfig = AudioFormat.CHANNEL_IN_MONO
@@ -207,7 +110,7 @@ class MixRecorder : BaseRecorder {
             bgPlayer.updateChannel(defaultLameInChannel)
             return true
         }
-        logInfo("setAudioChannel error ,need state  isn't Recording|录音没有完成，无法进行修改 ")
+        Log.w(TAG, "setAudioChannel error ,need state isn't Recording|录音没有完成，无法进行修改 ")
         return false
     }
 
@@ -216,7 +119,7 @@ class MixRecorder : BaseRecorder {
             defaultAudioSource = audioSource
             return true
         }
-        logInfo("setAudioSource error ,need state  isn't Recording |录音没有完成，无法进行修改 ")
+        Log.w(TAG, "setAudioSource error ,need state isn't Recording |录音没有完成，无法进行修改 ")
         return false
     }
 
@@ -261,33 +164,6 @@ class MixRecorder : BaseRecorder {
         }
     }
 
-    /**
-     * 设置录音输出文件
-     * @param outputFile
-     */
-    override fun setOutputFile(outputFile: String, isContinue: Boolean): MixRecorder {
-        if (TextUtils.isEmpty(outputFile)) {
-            val message = Message.obtain()
-            message.what = HANDLER_ERROR
-            message.obj = Exception("outputFile is not null")
-            handler.sendMessage(message)
-        } else {
-            setOutputFile(File(outputFile), isContinue)
-        }
-        return this
-    }
-
-    /**
-     * 设置录音输出文件
-     * @param outputFile
-     */
-    override fun setOutputFile(outputFile: File, isContinue: Boolean): MixRecorder {
-        mRecordFile = outputFile
-        this.isContinue = isContinue
-        return this
-    }
-
-
     override fun updateDataEncode(outputFilePath: String) {
         setOutputFile(outputFilePath, false)
         mEncodeThread?.update(outputFilePath)
@@ -321,15 +197,6 @@ class MixRecorder : BaseRecorder {
         return this
     }
 
-    /**
-     * 设置增强系数
-     * @param wax
-     */
-    override fun setWax(wax: Float): MixRecorder {
-        this.wax = wax
-        return this
-    }
-
     override fun setBackgroundMusicListener(listener: PlayerListener): MixRecorder {
         bgPlayer.setBackGroundPlayListener(listener)
         return this
@@ -360,14 +227,15 @@ class MixRecorder : BaseRecorder {
      * u need start on the same thread
      */
     override fun start() {
-        plugConfigs?.registerReceiver()
         if (mRecordFile == null) {
             logInfo("mRecordFile is Null")
             return
         }
-        if (isRecording) {
+        //非录音中，并且录音线程已经结束
+        if (isRecording || recordThread?.isAlive == true) {
             return
         }
+        plugConfigs?.registerReceiver()
         // 提早，防止init或startRecording被多次调用
         isRecording = true
         //初始化
@@ -380,7 +248,6 @@ class MixRecorder : BaseRecorder {
                 mRecordListener!!.onError(ex)
             }
             onError()
-            handler.sendEmptyMessage(HANDLER_PERMISSION)
             ex.printStackTrace()
             return
         }
@@ -457,6 +324,8 @@ class MixRecorder : BaseRecorder {
                 }
             }
 
+        }.also {
+            recordThread = it
         }.start()
     }
 

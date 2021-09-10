@@ -59,7 +59,8 @@ class AudioDecoder {
         if (path.startsWith("http")) {
             Log.w(
                 "mixRecorder", "the url  may be HTTP ,APP could ANR by MediaExtractor," +
-                        "you could download it to use better than direct to use "
+                        "you should download it to use better than direct to use|| 如果使用HTTP的url, APP可能ANR," +
+                        "你应该下载它后再用，会比只直接用url好很多"
             )
         }
         mp3URi = null

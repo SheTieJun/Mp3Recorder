@@ -46,7 +46,7 @@ object  LocalMusicUtils {
             if (musicList.size > 0) {
                 emitter.onNext(musicList)
             } else {
-                emitter.onError(Throwable("本地没有音乐~"))
+                emitter.onComplete()
             }
         }, BackpressureStrategy.BUFFER)
                 .subscribeOn(Schedulers.io())

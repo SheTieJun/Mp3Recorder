@@ -4,7 +4,7 @@ import android.content.Context
 import android.text.TextUtils
 import me.shetj.player.PlayerListener
 import me.shetj.recorder.core.*
-import me.shetj.recorder.mixRecorder.mixRecorder
+import me.shetj.recorder.mixRecorder.buildMix
 import java.io.File
 
 /**
@@ -105,12 +105,11 @@ class MixRecordUtils(
      * MIC 麦克风- 因为有噪音问题
      */
     private fun initRecorder() {
-        mRecorder = mixRecorder(
-            context,
-            recordListener = this,
-            permissionListener = this,
+        mRecorder = recorder {
+            recordListener = this@MixRecordUtils
+            permissionListener = this@MixRecordUtils
             isDebug = false
-        )
+        }.buildMix(context)
         mRecorder?.setMaxTime(maxTime, 60 * 1000)
     }
 

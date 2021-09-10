@@ -84,10 +84,6 @@ class MixRecordUtils(
         mRecorder?.setMaxTime(TIME, TIME - 20 * 1000)
     }
 
-    fun isPause(): Boolean {
-        return mRecorder?.state == RecordState.PAUSED
-    }
-
     fun startOrPauseBGM() {
         if (mRecorder?.isPlayMusic() == true) {
             if (mRecorder?.isPauseMusic() == true) {

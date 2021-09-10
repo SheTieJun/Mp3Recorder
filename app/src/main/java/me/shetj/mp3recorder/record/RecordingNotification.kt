@@ -18,6 +18,10 @@ import me.shetj.mp3recorder.R
  */
 object RecordingNotification {
 
+    const val RECORD_NOTIFICATION_ID = 110
+    const val RECORD_NOTIFICATION_RECORD_ING = 1
+    const val RECORD_NOTIFICATION_RECORD_PAUSE = RECORD_NOTIFICATION_RECORD_ING + 1
+    const val RECORD_NOTIFICATION_RECORD_COMPLETE = RECORD_NOTIFICATION_RECORD_PAUSE + 1
     fun notify(context: Context) {
         //默认没有播放 需要用户点击开始播放
         notify(context, 3)
@@ -36,30 +40,33 @@ object RecordingNotification {
 
     fun getNotification(type: Int, context: Context): Notification {
         val content = when (type) {
-            1 -> "正在录音..."
-            2 -> "录音已暂停"
-            else -> "录音已完成"
+            RECORD_NOTIFICATION_RECORD_ING -> "正在录音..."
+            RECORD_NOTIFICATION_RECORD_PAUSE -> "录音已暂停"
+            RECORD_NOTIFICATION_RECORD_COMPLETE -> "录音已完成"
+            else -> "录音工具"
         }
         val intents =
-                context.packageManager.getLaunchIntentForPackage(context.packageName)
-        val intentGo = PendingIntent.getActivity(context, 0, intents,
-                PendingIntent.FLAG_UPDATE_CURRENT)
+            context.packageManager.getLaunchIntentForPackage(context.packageName)
+        val intentGo = PendingIntent.getActivity(
+            context, 0, intents,
+            PendingIntent.FLAG_UPDATE_CURRENT
+        )
 
         val builder = NotificationCompat.Builder(context, createNotificationChannel(context))
-                .setSmallIcon(R.mipmap.record)
-                .setContentTitle("录音Mp3Recorder")
-                .setContentText(content)
-                .setOngoing(false)
-                .setContentIntent(intentGo)
-                .setSound(null)
-                .setColor(ContextCompat.getColor(context.applicationContext, R.color.colorPrimary))
-                .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setSmallIcon(R.mipmap.record)
+            .setContentTitle("录音Mp3Recorder")
+            .setContentText(content)
+            .setOngoing(false)
+            .setContentIntent(intentGo)
+            .setSound(null)
+            .setColor(ContextCompat.getColor(context.applicationContext, R.color.colorPrimary))
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
         return builder.build()
     }
 
 
     private fun notify(context: Context, notification: Notification) {
-        NotificationManagerCompat.from(context).notify(110, notification)
+        NotificationManagerCompat.from(context).notify(RECORD_NOTIFICATION_ID, notification)
     }
 
     /**
@@ -67,7 +74,7 @@ object RecordingNotification {
      * [.notify].
      */
     fun cancel(context: Context) {
-        NotificationManagerCompat.from(context).cancel(110)
+        NotificationManagerCompat.from(context).cancel(RECORD_NOTIFICATION_ID)
     }
 
     /**
@@ -75,10 +82,17 @@ object RecordingNotification {
      */
     private fun createNotificationChannel(context: Context): String {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channelId ="录音机"
+            val channelId = "录音机"
             val channelName = "录音机"
             val channelDescription = "录音机"
-            val channelImportance = NotificationManager.IMPORTANCE_DEFAULT
+            /*
+                NotificationManager.IMPORTANCE_NONE          关闭通知
+                NotificationManager.IMPORTANCE_MIN              开启通知，不会弹出，但没有提示音，状态栏中无显示
+                NotificationManager.IMPORTANCE_LOW             开启通知，不会弹出，不发出提示音，状态栏中显示
+                NotificationManager.IMPORTANCE_DEFAULT     开启通知，不会弹出，发出提示音，状态栏中显示
+                NotificationManager. IMPORTANCE_HIGH           开启通知，会弹出，发出提示音，状态栏中显示
+             */
+            val channelImportance = NotificationManager.IMPORTANCE_LOW
 
             val notificationChannel = NotificationChannel(channelId, channelName, channelImportance)
             // 设置描述 最长30字符
@@ -90,7 +104,8 @@ object RecordingNotification {
             // 不要呼吸灯
             notificationChannel.enableLights(false)
 
-            val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            val notificationManager =
+                context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             notificationManager.createNotificationChannel(notificationChannel)
 
             return channelId
@@ -98,7 +113,6 @@ object RecordingNotification {
             return ""
         }
     }
-
 
 
 }

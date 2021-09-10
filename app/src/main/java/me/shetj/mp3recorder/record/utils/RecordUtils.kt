@@ -8,9 +8,7 @@ import me.shetj.base.tools.file.FileUtils
 import me.shetj.base.tools.json.EmptyUtils
 import me.shetj.player.PlayerListener
 import me.shetj.recorder.core.*
-import me.shetj.recorder.mixRecorder.buildMix
 import me.shetj.recorder.simRecorder.buildSim
-import me.shetj.recorder.simRecorder.simRecorder
 import java.io.File
 
 class RecordUtils(
@@ -135,7 +133,7 @@ class RecordUtils(
      */
     private fun resolveError() {
         FileUtils.deleteFile(File(saveFile))
-        if (mRecorder != null && mRecorder!!.isRecording) {
+        if (  mRecorder!!.isRecording) {
             mRecorder!!.complete()
         }
     }

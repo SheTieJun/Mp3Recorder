@@ -5,7 +5,6 @@ import android.content.Intent
 import android.os.Binder
 import android.os.IBinder
 import android.os.Message
-import android.util.Log
 import me.shetj.base.base.BaseService
 import me.shetj.mp3recorder.record.utils.RecordCallBack
 import me.shetj.mp3recorder.record.utils.RecordUtils
@@ -24,11 +23,6 @@ class RecordService : BaseService() {
             work = Work()
         }
         return work!!
-    }
-
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    open fun onEvent(message: Message) {
-
     }
 
     override fun onBind(intent: Intent): IBinder? {
@@ -87,7 +81,7 @@ class RecordService : BaseService() {
     }
 
 
-    override fun init() {
+    override suspend fun init() {
         createRecordUtils = RecordUtils( object : RecordCallBack {
             override fun start() {
                 callBacks?.start()

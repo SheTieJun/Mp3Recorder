@@ -1,4 +1,4 @@
-package me.shetj.recorder.mixRecorder
+package me.shetj.recorder.simRecorder
 
 import android.content.Context
 import me.shetj.recorder.core.BaseRecorder
@@ -10,20 +10,22 @@ import me.shetj.recorder.core.RecordListener
 /**
  * @param context 用来时设置监听系统声音和耳机变化的
  */
-fun Mp3RecorderOption.buildMix(context: Context?=null): BaseRecorder {
+fun Mp3RecorderOption.buildSim(context: Context?=null): BaseRecorder {
     return with(this) {
-        MixRecorder(audioSource.type, audioChannel.type)
+        SimRecorder(audioSource.type)
             .setMaxTime(mMaxTime)
             .setMp3Quality(mp3Quality)
             .setSamplingRate(samplingRate)
             .setMp3BitRate(mp3BitRate)
             .setPermissionListener(permissionListener)
             .setRecordListener(recordListener)
-            .setDebug(isDebug)
             .setWax(wax).apply {
+                setDebug(isDebug)
+
+            }.apply {
                 context?.let {
-                    setContextToVolumeConfig(context)
                     setContextToPlugConfig(context)
+                    setContextToVolumeConfig(context)
                 }
             }
     }

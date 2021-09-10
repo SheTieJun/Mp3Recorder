@@ -5,16 +5,11 @@ import android.media.AudioFormat
 import android.media.AudioRecord
 import android.media.MediaRecorder
 import android.net.Uri
-import android.os.Handler
-import android.os.Looper
-import android.os.Message
 import android.os.Process
-import android.text.TextUtils
 import me.shetj.player.AudioPlayer
 import me.shetj.player.PlayerListener
 import me.shetj.recorder.core.*
 import me.shetj.recorder.util.LameUtils
-import java.io.File
 import java.io.IOException
 
 
@@ -67,78 +62,7 @@ class SimRecorder : BaseRecorder {
     private var backgroundMusicUri: Uri? = null
     private var header: MutableMap<String, String>? = null
 
-    private val handler = object : Handler(Looper.getMainLooper()) {
-        override fun handleMessage(msg: Message) {
-            super.handleMessage(msg)
-            when (msg.what) {
-                HANDLER_RECORDING -> {
-                    logInfo("msg.what = HANDLER_RECORDING  \n mDuration = $duration ")
-                    if (mRecordListener != null) {
-                        //录制回调
-                        mRecordListener!!.onRecording(duration, realVolume)
-                        //提示快到录音时间了
-                        if (isRemind && duration > mRemindTime) {
-                            isRemind = false
-                            mRecordListener!!.onRemind(duration)
-                        }
-                    }
-                }
-                HANDLER_START -> {
-                    logInfo("msg.what = HANDLER_START  \n mDuration =$duration ")
-                    if (mRecordListener != null) {
-                        mRecordListener!!.onStart()
-                    }
-                }
-                HANDLER_RESUME -> {
-                    logInfo("msg.what = HANDLER_RESUME  \n mDuration = $duration ")
-                    if (mRecordListener != null) {
-                        mRecordListener!!.onResume()
-                    }
-                }
-                HANDLER_COMPLETE -> {
-                    logInfo("msg.what = HANDLER_COMPLETE  \n mDuration = $duration ")
-                    if (mRecordListener != null) {
-                        mRecordListener!!.onSuccess(false, mRecordFile!!.absolutePath, duration)
-                    }
-                }
-                HANDLER_AUTO_COMPLETE -> {
-                    logInfo("msg.what = HANDLER_AUTO_COMPLETE  \n mDuration = $duration ")
-                    if (mRecordListener != null) {
-                        mRecordListener!!.onSuccess(true, mRecordFile!!.absolutePath, duration)
-                    }
-                }
-                HANDLER_ERROR -> {
-                    logInfo("msg.what = HANDLER_ERROR  \n mDuration = $duration ")
-                    if (mRecordListener != null) {
-                        mRecordListener!!.onError(Exception("record error!"))
-                    }
-                }
-                HANDLER_PAUSE -> {
-                    logInfo("msg.what = HANDLER_PAUSE  \n mDuration = $duration ")
-                    if (mRecordListener != null) {
-                        mRecordListener!!.onPause()
-                    }
-                }
-                HANDLER_PERMISSION -> {
-                    logInfo("msg.what = HANDLER_PERMISSION  \n mDuration = $duration ")
-                    if (mPermissionListener != null) {
-                        mPermissionListener!!.needPermission()
-                    }
-                }
-                HANDLER_RESET -> {
-                    logInfo("msg.what = HANDLER_RESET  \n mDuration = $duration ")
-                    if (mRecordListener != null) {
-                        mRecordListener!!.onReset()
-                    }
-                }
-                HANDLER_MAX_TIME -> if (mRecordListener != null) {
-                    mRecordListener!!.onMaxChange(mMaxTime)
-                }
-                else -> {
-                }
-            }
-        }
-    }
+
     /***************************public method  */
     /**
      * 返回背景音乐的播放器
@@ -161,7 +85,8 @@ class SimRecorder : BaseRecorder {
         return this
     }
 
-    constructor()
+    constructor(){
+    }
 
     /**
      *
@@ -172,41 +97,12 @@ class SimRecorder : BaseRecorder {
         release()
     }
 
-    /**
-     * 设置录音输出文件
-     * @param outputFile
-     */
-    override fun setOutputFile(outputFile: String, isContinue: Boolean): SimRecorder {
-        if (TextUtils.isEmpty(outputFile)) {
-            val message = Message.obtain()
-            message.what = HANDLER_ERROR
-            message.obj = Exception("outputFile is not null")
-            handler.sendMessage(message)
-        } else {
-            setOutputFile(File(outputFile), isContinue)
-        }
-        return this
-    }
-
     override fun setMp3Quality(mp3Quality: Int): SimRecorder {
         this.defaultLameMp3Quality = when {
             mp3Quality < 0 -> 0
             mp3Quality > 9 -> 9
             else -> mp3Quality
         }
-        return this
-    }
-
-    override fun setSamplingRate(rate: Int): SimRecorder {
-        if (defaultSamplingRate < 8000) return this
-        this.defaultSamplingRate = rate
-        return this
-    }
-
-
-    override fun setMp3BitRate(mp3BitRate: Int): SimRecorder {
-        if (mp3BitRate < 32) return this
-        this.defaultLameMp3BitRate = mp3BitRate
         return this
     }
 
@@ -239,29 +135,9 @@ class SimRecorder : BaseRecorder {
         return false
     }
 
-
-    /**
-     * 设置录音输出文件
-     * @param outputFile
-     */
-    override fun setOutputFile(outputFile: File, isContinue: Boolean): SimRecorder {
-        mRecordFile = outputFile
-        this.isContinue = isContinue
-        return this
-    }
-
     override fun updateDataEncode(outputFilePath: String) {
         setOutputFile(outputFilePath, false)
         mEncodeThread?.update(outputFilePath)
-    }
-
-    /**
-     * 设置增强系数
-     * @param wax
-     */
-    override fun setWax(wax: Float): SimRecorder {
-        this.wax = wax
-        return this
     }
 
     /**
@@ -298,7 +174,7 @@ class SimRecorder : BaseRecorder {
             logInfo("mRecordFile is Null")
             return
         }
-        if (isRecording) {
+        if (isRecording || recordThread?.isAlive == true) {
             return
         }
         // 提早，防止init或startRecording被多次调用
@@ -317,7 +193,7 @@ class SimRecorder : BaseRecorder {
             return
         }
 
-        object : Thread() {
+       object : Thread() {
             var isError = false
 
             //PCM文件大小 = 采样率采样时间采样位深 / 8*通道数（Bytes）
@@ -381,7 +257,9 @@ class SimRecorder : BaseRecorder {
                 }
             }
 
-        }.start()
+        }.also {
+           recordThread = it
+       }.start()
     }
     // endregion Start recording. Create an encoding thread. Start record from this
 

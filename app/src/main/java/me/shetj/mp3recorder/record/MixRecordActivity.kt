@@ -1,6 +1,7 @@
 package me.shetj.mp3recorder.record
 
 import android.os.Bundle
+import android.text.TextUtils
 import me.shetj.base.ktx.showToast
 import me.shetj.base.mvvm.BaseBindingActivity
 import me.shetj.base.mvvm.BaseViewModel
@@ -70,21 +71,25 @@ class MixRecordActivity : BaseBindingActivity<BaseViewModel,ActivityMixRecordBin
     }
 
     private fun changeMusic() {
-        position = when (position) {
-            0 -> 1
-            1->2
-            2->3
-            else -> 0
+        try {
+            position = when (position) {
+                0 -> 1
+                1->2
+                2->3
+                else -> 0
+            }
+            musicUrl = LocalMusicUtils.loadFileData(this)!!.blockingFirst()[position].url
+            /**
+             * 切换背景音乐
+             */
+            mixRecorder?.setBackgroundMusic(musicUrl!!)
+            /**
+             * 开始播放背景音乐，demo是直接开始播放背景音乐
+             */
+            mixRecorder?.startPlayMusic()
+        }catch (e:Exception){
+            e.printStackTrace()
         }
-        musicUrl=   LocalMusicUtils.loadFileData(this)!!.blockingFirst()[position].url
-        /**
-         * 切换背景音乐
-         */
-        mixRecorder?.setBackgroundMusic(musicUrl!!)
-        /**
-         * 开始播放背景音乐，demo是直接开始播放背景音乐
-         */
-        mixRecorder?.startPlayMusic()
     }
 
     private fun stopRecord() {
@@ -92,18 +97,19 @@ class MixRecordActivity : BaseBindingActivity<BaseViewModel,ActivityMixRecordBin
     }
 
     private fun recordPauseOrResume() {
-        when {
-            mixRecorder?.state == RecordState.PAUSED -> {
+        when (mixRecorder?.state) {
+            RecordState.PAUSED -> {
                 mixRecorder?.resume()
             }
-            mixRecorder?.state == RecordState.RECORDING -> {
+            RecordState.RECORDING -> {
                 mixRecorder?.pause()
             }
-            else ->{
+            else -> {
                 ArmsUtils.makeText(   "请先开始录音")
             }
         }
     }
+
 
     private fun startOrPause() {
         if (mixRecorder?.state != RecordState.RECORDING) {
@@ -122,7 +128,6 @@ class MixRecordActivity : BaseBindingActivity<BaseViewModel,ActivityMixRecordBin
     private fun mixRecord() {
         val  filePath = EnvironmentStorage.getPath(packagePath = "record") + "/" + System.currentTimeMillis() +  "bg.mp3"
         if (mixRecorder == null) {
-//            mixRecorder = simpleRecorderBuilder(BaseRecorder.RecorderType.MIX,BaseRecorder.AudioSource.VOICE_COMMUNICATION)
             mixRecorder = mp3RecorderNoContext(
                 BaseRecorder.RecorderType.MIX,
                 BaseRecorder.AudioSource.MIC,
@@ -150,7 +155,6 @@ class MixRecordActivity : BaseBindingActivity<BaseViewModel,ActivityMixRecordBin
 
     override fun onDestroy() {
         stopRecord()
-//        mixRecorder?.onDestroy()
         super.onDestroy()
     }
 }

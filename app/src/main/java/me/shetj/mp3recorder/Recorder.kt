@@ -1,11 +1,12 @@
 package me.shetj.mp3recorder
 
 import android.content.Context
+import me.shetj.recorder.core.BaseRecorder
 import me.shetj.recorder.core.PermissionListener
 import me.shetj.recorder.core.RecordListener
-import me.shetj.recorder.core.BaseRecorder
-import me.shetj.recorder.mixRecorder.mixRecorder
-import me.shetj.recorder.simRecorder.simRecorder
+import me.shetj.recorder.core.recorder
+import me.shetj.recorder.mixRecorder.buildMix
+import me.shetj.recorder.simRecorder.buildSim
 
 
 @JvmOverloads
@@ -23,20 +24,23 @@ fun mp3Recorder(
     recordListener: RecordListener? = null,
     wax: Float = 1f
 ): BaseRecorder {
-   return mp3RecorderNoContext(
-        simpleName,
-        audioSource,
-        isDebug,
-        mMaxTime,
-        samplingRate,
-        mp3BitRate,
-        mp3Quality,
-        channel,
-        permissionListener,
-        recordListener,
-        wax
-    ).setContextToVolumeConfig(context)
-        .setContextToVolumeConfig(context)
+    return recorder {
+        this.audioSource = audioSource
+        this.isDebug = isDebug
+        this.audioChannel = channel
+        this.mMaxTime = mMaxTime
+        this.mp3Quality = mp3Quality
+        this.samplingRate = samplingRate
+        this.mp3BitRate = mp3BitRate
+        this.permissionListener = permissionListener
+        this.recordListener = recordListener
+        this.wax = wax
+    }.let {
+        when (simpleName) {
+            BaseRecorder.RecorderType.MIX -> it.buildMix(context)
+            BaseRecorder.RecorderType.SIM -> it.buildSim(context)
+        }
+    }
 }
 
 /**
@@ -57,31 +61,21 @@ fun mp3RecorderNoContext(
     recordListener: RecordListener? = null,
     wax: Float = 1f
 ): BaseRecorder {
-    return when (simpleName) {
-        BaseRecorder.RecorderType.MIX ->
-            mixRecorder(
-                audioSource = audioSource,
-                isDebug = isDebug,
-                channel = channel,
-                mMaxTime = mMaxTime,
-                mp3Quality = mp3Quality,
-                samplingRate = samplingRate,
-                mp3BitRate = mp3BitRate,
-                permissionListener = permissionListener,
-                recordListener = recordListener,
-                wax = wax
-            )
-        BaseRecorder.RecorderType.SIM ->
-             simRecorder(
-                audioSource = audioSource,
-                isDebug = isDebug,
-                mMaxTime = mMaxTime,
-                mp3Quality = mp3Quality,
-                samplingRate = samplingRate,
-                mp3BitRate = mp3BitRate,
-                permissionListener = permissionListener,
-                recordListener = recordListener,
-                wax = wax
-            )
+    return recorder {
+        this.audioSource = audioSource
+        this.isDebug = isDebug
+        this.audioChannel = channel
+        this.mMaxTime = mMaxTime
+        this.mp3Quality = mp3Quality
+        this.samplingRate = samplingRate
+        this.mp3BitRate = mp3BitRate
+        this.permissionListener = permissionListener
+        this.recordListener = recordListener
+        this.wax = wax
+    }.let {
+        when (simpleName) {
+            BaseRecorder.RecorderType.MIX -> it.buildMix()
+            BaseRecorder.RecorderType.SIM -> it.buildSim()
+        }
     }
 }
