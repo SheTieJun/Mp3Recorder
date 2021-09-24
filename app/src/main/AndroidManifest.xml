@@ -26,7 +26,7 @@
             </intent-filter>
         </activity>
 
-        <service android:name=".record.RecordService" android:process=":remote"/>
+        <service android:name=".record.RecordService"/>
 
         <activity android:name=".record.activity.mix.MyMixRecordActivity"
             android:configChanges="orientation|screenSize|keyboardHidden"
