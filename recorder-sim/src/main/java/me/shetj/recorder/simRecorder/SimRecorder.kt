@@ -15,12 +15,8 @@ import java.io.IOException
 
 /**
  * 录制MP3 边录边转
- * 1.可以去换录制来源
- * 2.可以增强录制的声音
- *
- * 目前只支持单声道
  */
-class SimRecorder : BaseRecorder {
+internal class SimRecorder : BaseRecorder {
 
     override val recorderType: RecorderType  = RecorderType.SIM
 

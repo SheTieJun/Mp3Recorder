@@ -21,7 +21,7 @@ import java.util.*
  * @param isContinue 是否写在文件末尾
  * @throws FileNotFoundException file not found
  */
-class MixEncodeThread
+internal class MixEncodeThread
 @Throws(FileNotFoundException::class)
 constructor(file: File, bufferSize: Int, isContinue: Boolean, private val is2CHANNEL: Boolean) :
     HandlerThread("MixEncodeThread"), AudioRecord.OnRecordPositionUpdateListener {

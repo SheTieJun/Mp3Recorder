@@ -133,13 +133,13 @@ fun BaseRecorder.setRecordListener(
 }
 
 inline fun BaseRecorder.setVolumeSeekBar(
-    mSeekBar: SeekBar,
+    seekBar: SeekBar,
     volumeConfig: VolumeConfig,
     crossinline onSeek: (seekBar: SeekBar, progress: Int) -> Unit
 ) {
-    mSeekBar.max = volumeConfig.getMaxVoice()
-    mSeekBar.progress = volumeConfig.getCurVolume()
-    mSeekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+    seekBar.max = volumeConfig.getMaxVoice()
+    seekBar.progress = volumeConfig.getCurVolume()
+    seekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
         override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
             seekBar?.let {
                 onSeek(seekBar, progress)

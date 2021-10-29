@@ -8,13 +8,9 @@
 - 可设置最大录制时间
 - 录音中途可以替换输出文件，比如每60秒替换一个输出文件，然后发送
 - 可以使用耳机配置方式：如果没有连接耳机会只用外放的背景音乐，如果连接上了耳机，会使用写入合成背景音乐的方式
-- 其他...
 
-> tip: 背景音乐支持网络链接，但是网络差的时候可能导致ANR,所有请尽量不要使用网络链接作为背景音乐应用
 
-> 最低版本提升到：`21`
-
-> 如果需要`19`的请使用`1.5.0`以前的版本
+> tip: 背景音乐支持网络链接，但是网络差的时候可能导致卡顿,所有请尽量不要使用网络链接作为背景音乐应用
 
 
 ### [Demo下载](http://d.zqapps.com/ne21)
@@ -36,12 +32,122 @@
 
 推荐(背景音乐支持耳机)：
 ```
-implementation 'com.github.SheTieJun.Mp3Recorder:recorder-mix:+'
-implementation 'com.github.SheTieJun.Mp3Recorder:recorder-core:+'
+implementation 'com.github.SheTieJun.Mp3Recorder:recorder-mix:1.6.5'
+implementation 'com.github.SheTieJun.Mp3Recorder:recorder-core:1.6.5'
 ```
 
-#### [API使用文档](https://github.com/SheTieJun/Mp3Recorder/wiki/%E4%BD%BF%E7%94%A8%E6%96%87%E6%A1%A3)
+### [API使用说明文档](https://github.com/SheTieJun/Mp3Recorder/wiki/%E4%BD%BF%E7%94%A8%E6%96%87%E6%A1%A3)
+```
+abstract class BaseRecorder {
 
+    var isRecording = false
+
+    //当前状态
+    var state = RecordState.STOPPED
+
+    //录制时间
+    var duration = 0L
+
+    //设置是否使用耳机配置方式
+    abstract fun setContextToPlugConfig(context: Context): BaseRecorder
+
+    //设置声音配置，设置后，修改设置声音大小会修改系统播放声音的大小
+    abstract fun setContextToVolumeConfig(context: Context): BaseRecorder
+
+    //设置录音输出文件,
+    abstract fun setOutputFile(outputFile: String, isContinue: Boolean = false): BaseRecorder
+
+    /**
+     * 设置录音输出文件
+     * @param outputFile 设置输出路径
+     * @param isContinue 表示是否拼接在文件末尾，实现继续录制的一种方式
+     */
+     abstract fun setOutputFile(outputFile: File, isContinue: Boolean = false): BaseRecorder
+
+    //设置录音监听
+    abstract fun setRecordListener(recordListener: RecordListener?): BaseRecorder
+
+    //设置权限监听
+    abstract fun setPermissionListener(permissionListener: PermissionListener?): BaseRecorder
+
+    //设计背景音乐的url,本地的(网络的可能造成卡死)
+    abstract fun setBackgroundMusic(url: String): BaseRecorder
+
+    //是否循环播放，默认true
+    abstract fun setLoopMusic(isLoop: Boolean): BaseRecorder
+
+    //背景音乐的url,兼容Android Q
+    abstract fun setBackgroundMusic(context: Context,uri: Uri,header: MutableMap<String, String>?): BaseRecorder
+
+    //设置背景音乐的监听
+    abstract fun setBackgroundMusicListener(listener: PlayerListener): BaseRecorder
+
+    //初始Lame录音输出质量
+    abstract fun setMp3Quality(mp3Quality: Int): BaseRecorder
+
+    //设置比特率，关系声音的质量
+    abstract fun setMp3BitRate(mp3BitRate: Int): BaseRecorder
+
+    //设置采样率
+    abstract fun setSamplingRate(rate: Int): BaseRecorder
+
+    //设置音频声道数量，每次录音前可以设置修改，开始录音后无法修改
+    abstract fun setAudioChannel(channel: Int = 1):Boolean
+
+    //设置音频来源，每次录音前可以设置修改，开始录音后无法修改
+    abstract fun setAudioSource(audioSource: Int = MediaRecorder.AudioSource.MIC):Boolean
+
+
+    //初始最大录制时间 和提醒时间 remind = maxTime - remindDiffTime
+    abstract fun setMaxTime(maxTime: Int, remindDiffTime: Int? = null): BaseRecorder
+
+
+    //设置增强系数(不建议修改，因为会产生噪音~)
+    abstract fun setWax(wax: Float): BaseRecorder
+
+    //设置背景声音大小
+    abstract fun setBGMVolume(volume: Float): BaseRecorder
+
+    //移除背景音乐
+    abstract fun cleanBackgroundMusic()
+
+    //开始录音
+    abstract fun start()
+
+    //完成录音
+    abstract fun complete()
+
+    //重新开始录音
+    abstract fun resume()
+
+    //替换输出文件
+    abstract fun updateDataEncode(outputFilePath: String)
+
+    //暂停录音
+    abstract fun pause()
+
+    //是否设置了并且开始播放了背景音乐
+    abstract fun isPlayMusic(): Boolean
+
+    //开始播放音乐
+    abstract fun startPlayMusic()
+
+    //是否在播放音乐
+    abstract fun isPauseMusic(): Boolean
+
+    //暂停背景音乐
+    abstract fun pauseMusic()
+
+    //重新播放背景音乐
+    abstract fun resumeMusic()
+
+    //重置
+    abstract fun reset()
+
+    //结束释放
+    abstract fun destroy()
+}
+```
 ### [**Old version**](https://github.com/SheTieJun/Mp3Recorder/tree/master_copy)
 
 ### [Update_log](https://github.com/SheTieJun/Mp3Recorder/wiki/%E6%9B%B4%E6%96%B0%E6%97%A5%E5%BF%97)

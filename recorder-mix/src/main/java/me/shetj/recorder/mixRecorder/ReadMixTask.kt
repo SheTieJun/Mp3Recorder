@@ -4,7 +4,7 @@ package me.shetj.recorder.mixRecorder
 import android.util.Log
 import me.shetj.recorder.core.BytesTransUtil
 
-class ReadMixTask(
+internal class ReadMixTask(
     rawData: ByteArray,//录制的人声音
     private val wax: Float,//人声音增强
     private val bgData: ByteArray?,//录制的背景音乐 可能没有

@@ -26,7 +26,7 @@ import java.util.concurrent.LinkedBlockingDeque
  * TODO seekTo 缺失功能
  *
  */
-class PlayPCMMusic(private val defaultChannel: Int = CHANNEL_OUT_STEREO) {
+internal class PlayPCMMusic(private val defaultChannel: Int = CHANNEL_OUT_STEREO) {
 
     fun getBufferSize(): Int {
         if (backGroundBytes.isEmpty()) {

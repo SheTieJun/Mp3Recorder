@@ -7,8 +7,6 @@ android {
     defaultConfig {
         minSdkVersion 21
         targetSdkVersion 30
-        versionCode 1
-        versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"
@@ -25,9 +23,13 @@ android {
             jniLibs.srcDirs = ['libs']
         }
     }
+    kotlinOptions {
+        jvmTarget = "11"
+    }
+
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
     }
 }
 
@@ -35,3 +37,5 @@ dependencies {
     api fileTree(dir: "libs", include: ["*.jar"])
     compileOnly project(path: ':recorder-core')
 }
+
+apply from : "uploadLocal.gradle"

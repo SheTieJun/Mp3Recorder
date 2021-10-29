@@ -19,7 +19,7 @@ import java.util.*
  * @param isContinue 是否写在文件末尾
  * @throws FileNotFoundException file not found
  */
-class DataEncodeThread @Throws(FileNotFoundException::class)
+internal class DataEncodeThread @Throws(FileNotFoundException::class)
 constructor(file: File, bufferSize: Int, isContinue: Boolean) : HandlerThread("DataEncodeThread"),
     AudioRecord.OnRecordPositionUpdateListener {
     private var mHandler: StopHandler? = null

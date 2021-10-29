@@ -30,7 +30,7 @@ import java.util.concurrent.atomic.AtomicBoolean
  * TODO seekTo 缺失功能
  *
  */
-class PlayBackMusic(private var defaultChannel: Int = CHANNEL_OUT_MONO,var plugConfigs: PlugConfigs?) {
+internal class PlayBackMusic(private var defaultChannel: Int = CHANNEL_OUT_MONO,var plugConfigs: PlugConfigs?) {
 
     private var mAudioDecoder: AudioDecoder? = null
     private val backGroundBytes =

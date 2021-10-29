@@ -17,7 +17,7 @@ import java.io.IOException
 /**
  * 混合录音
  */
-class MixRecorder : BaseRecorder {
+internal class MixRecorder : BaseRecorder {
 
     override val recorderType: RecorderType = RecorderType.MIX
     //region 参数

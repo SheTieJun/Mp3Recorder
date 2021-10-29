@@ -8,7 +8,7 @@ import android.net.Uri
 import android.util.Log
 import java.util.*
 
-class AudioDecoder {
+internal class AudioDecoder {
 
     private val chunkPCMDataContainer = ArrayList<PCM>()//PCM数据块容器
     private var mediaExtractor: MediaExtractor? = null
