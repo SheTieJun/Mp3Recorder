@@ -3,7 +3,9 @@
 buildscript {
     ext.kotlin_version  = '1.5.31'
 
-    ext.sdk_version = '1.6.5'
+    ext.sdk_version = '1.6.6'
+
+    ext.local_group_id = 'com.github.SheTieJun.Mp3Recorder'
 
     repositories {
         mavenLocal()

@@ -1,6 +1,8 @@
 package me.shetj.mp3recorder.record.utils
 
 import android.content.Context
+import android.media.AudioFormat
+import android.media.MediaRecorder
 import android.net.Uri
 import android.text.TextUtils
 import me.shetj.base.ktx.logi
@@ -9,6 +11,7 @@ import me.shetj.base.tools.file.EnvironmentStorage
 import me.shetj.player.PlayerListener
 import me.shetj.recorder.core.*
 import me.shetj.recorder.mixRecorder.buildMix
+import me.shetj.recorder.simRecorder.buildSim
 
 /**
  * 录音工具类
@@ -76,11 +79,12 @@ class MixRecordUtils(
             isDebug = true
             wax = 1f
             samplingRate = 44100
-            audioSource = BaseRecorder.AudioSource.MIC
-            audioChannel = BaseRecorder.AudioChannel.STEREO
+            audioSource = MediaRecorder.AudioSource.VOICE_COMMUNICATION
+            audioChannel = AudioFormat.CHANNEL_IN_MONO
             recordListener = this@MixRecordUtils
             permissionListener = this@MixRecordUtils
-        }.buildMix(Utils.app)
+        }.buildMix(Utils.app)  //.buildSim(Utils.app)
+
         mRecorder?.setMaxTime(TIME, TIME - 20 * 1000)
     }
 

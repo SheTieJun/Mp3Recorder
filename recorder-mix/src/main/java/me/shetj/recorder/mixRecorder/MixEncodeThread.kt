@@ -197,6 +197,10 @@ constructor(file: File, bufferSize: Int, isContinue: Boolean, private val is2CHA
     }
 
 
+    /**
+     * 为什么要这么做，因为分割路由功能的时候直接分割的
+     * 系统自带的播放器会漏字
+     */
     private fun addOldData(task: ReadMixTask) {
         if (mOldTasks.size > 10) {
             //自己调整数量多少合适，我写的是10

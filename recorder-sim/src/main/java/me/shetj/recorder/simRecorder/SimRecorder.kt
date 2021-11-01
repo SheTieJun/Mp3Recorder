@@ -5,6 +5,7 @@ import android.media.AudioFormat
 import android.media.AudioRecord
 import android.media.MediaRecorder
 import android.net.Uri
+import android.os.Message
 import android.os.Process
 import me.shetj.player.AudioPlayer
 import me.shetj.player.PlayerListener
@@ -20,7 +21,6 @@ internal class SimRecorder : BaseRecorder {
 
     override val recorderType: RecorderType  = RecorderType.SIM
 
-    //======================Lame Default Settings=====================
     private var mAudioRecord: AudioRecord? = null
     private var mEncodeThread: DataEncodeThread? = null
     private var backgroundPlayer: AudioPlayer? = null
@@ -88,19 +88,11 @@ internal class SimRecorder : BaseRecorder {
      *
      * @param audioSource MediaRecorder.AudioSource.MIC
      */
-    constructor(audioSource: Int = MediaRecorder.AudioSource.MIC) {
+    constructor(@Source audioSource: Int = MediaRecorder.AudioSource.MIC) {
         this.defaultAudioSource = audioSource
         release()
     }
 
-    override fun setMp3Quality(mp3Quality: Int): SimRecorder {
-        this.defaultLameMp3Quality = when {
-            mp3Quality < 0 -> 0
-            mp3Quality > 9 -> 9
-            else -> mp3Quality
-        }
-        return this
-    }
 
     override fun setAudioChannel(channel: Int): Boolean {
         if (isRecording) {
@@ -175,17 +167,14 @@ internal class SimRecorder : BaseRecorder {
         }
         // 提早，防止init或startRecording被多次调用
         isRecording = true
+        mSendError = false
         //初始化
         duration = 0
         try {
             initAudioRecorder()
             mAudioRecord!!.startRecording()
         } catch (ex: Exception) {
-            if (mRecordListener != null) {
-                mRecordListener!!.onError(ex)
-            }
-            onError()
-            handler.sendEmptyMessage(HANDLER_PERMISSION)
+            onError(ex)
             return
         }
 
@@ -236,23 +225,23 @@ internal class SimRecorder : BaseRecorder {
                     mAudioRecord!!.stop()
                     mAudioRecord!!.release()
                     mAudioRecord = null
+                    if (isError) {
+                        mEncodeThread!!.sendErrorMessage()
+                    } else {
+                        mEncodeThread!!.sendStopMessage()
+                    }
                 } catch (ex: Exception) {
                     ex.printStackTrace()
                 } finally {
-                    if (isAutoComplete) {
-                        handler.sendEmptyMessage(HANDLER_AUTO_COMPLETE)
-                    } else {
-                        handler.sendEmptyMessage(HANDLER_COMPLETE)
+                    if (!isError) {
+                        if (isAutoComplete) {
+                            handler.sendEmptyMessage(HANDLER_AUTO_COMPLETE)
+                        } else {
+                            handler.sendEmptyMessage(HANDLER_COMPLETE)
+                        }
                     }
                 }
-
-                if (isError) {
-                    mEncodeThread!!.sendErrorMessage()
-                } else {
-                    mEncodeThread!!.sendStopMessage()
-                }
             }
-
         }.also {
            recordThread = it
        }.start()
@@ -494,10 +483,13 @@ internal class SimRecorder : BaseRecorder {
     }
 
 
-    private fun onError() {
+    private fun onError(ex: Exception?=null) {
         isPause = false
         isRecording = false
-        handler.sendEmptyMessage(HANDLER_ERROR)
+        val message = Message.obtain()
+        message.what = HANDLER_ERROR
+        message.obj = ex
+        handler.sendMessage(message)
         state = RecordState.STOPPED
         backgroundMusicIsPlay = false
         bgPlayer.stopPlay()

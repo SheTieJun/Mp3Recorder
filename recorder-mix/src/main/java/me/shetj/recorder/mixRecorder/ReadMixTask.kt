@@ -2,6 +2,7 @@ package me.shetj.recorder.mixRecorder
 
 
 import android.util.Log
+import me.shetj.recorder.core.BaseRecorder
 import me.shetj.recorder.core.BytesTransUtil
 
 internal class ReadMixTask(
@@ -34,7 +35,7 @@ internal class ReadMixTask(
             }
             return buffer
         } catch (e: Exception) {
-            Log.e("mixRecorder", "mixBuffer error : ${e.message}")
+            Log.e(BaseRecorder.TAG, "mixBuffer error : ${e.message}")
             return buffer
         }
     }

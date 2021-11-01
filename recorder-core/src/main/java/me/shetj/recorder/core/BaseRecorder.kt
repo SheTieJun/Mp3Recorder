@@ -12,6 +12,7 @@ import android.os.Looper
 import android.os.Message
 import android.text.TextUtils
 import android.util.Log
+import androidx.annotation.IntRange
 import me.shetj.player.PlayerListener
 import java.io.File
 import kotlin.math.abs
@@ -20,26 +21,11 @@ import kotlin.math.sqrt
 
 
 abstract class BaseRecorder {
-    protected val TAG = this.javaClass.simpleName
 
     //region 录音的方式 /来源 Record Type
-    enum class RecorderType() {
+    enum class RecorderType {
         SIM, //
         MIX
-    }
-
-    enum class AudioSource(var type: Int) {
-        MIC(MediaRecorder.AudioSource.MIC),
-        VOICE_COMMUNICATION(MediaRecorder.AudioSource.VOICE_COMMUNICATION)
-    }
-
-    /**
-     *   MONO(1), //单声道
-     *   STEREO(2) //双声道
-     */
-    enum class AudioChannel(var type: Int) {
-        MONO(1), //单声道
-        STEREO(2) //双声道
     }
 
     //endregion Record Type
@@ -55,7 +41,7 @@ abstract class BaseRecorder {
     * 64Kbps= 增加话音（手机铃声最佳比特率设定值、手机单声道MP3播放器最佳设定值）
     * 112Kbps= FM调频立体声广播
     * 128Kbps= 磁带（手机立体声MP3播放器最佳设定值、低档MP3播放器最佳设定值）
-    * 160Kbps= HIFI高保真（中高档MP3播放器最佳设定值）
+    * 160Kbps= HIFI 高保真（中高档MP3播放器最佳设定值）
     * 192Kbps= CD（高档MP3播放器最佳设定值）
     * 256Kbps= Studio音乐工作室（音乐发烧友适用）
     * 实际上随着技术的进步，比特率也越来越高，MP3的最高比特率为320Kbps，但一些格式可以达到更高的比特率和更高的音质。
@@ -118,7 +104,7 @@ abstract class BaseRecorder {
             when (msg.what) {
                 HANDLER_RECORDING -> {
                     if (mRecordListener != null && state == RecordState.RECORDING) {
-                        logInfo("msg.what = HANDLER_RECORDING  \n mDuration = $duration ,volume = $realVolume and state is recording  = ${state == RecordState.RECORDING}")
+                        logInfo("Recording:  mDuration = $duration ,volume = $realVolume and state is recording  = ${state == RecordState.RECORDING}")
                         //录制回调
                         mRecordListener!!.onRecording(duration, realVolume)
                         //提示快到录音时间了
@@ -129,49 +115,53 @@ abstract class BaseRecorder {
                     }
                 }
                 HANDLER_START -> {
-                    logInfo("msg.what = HANDLER_START  \n mDuration = $duration\n mRemindTime = $mRemindTime")
+                    logInfo("started:  mDuration = $duration , mRemindTime = $mRemindTime")
                     if (mRecordListener != null) {
                         mRecordListener!!.onStart()
                     }
                 }
                 HANDLER_RESUME -> {
-                    logInfo("msg.what = HANDLER_RESUME  \n mDuration = $duration")
+                    logInfo("resume:  mDuration = $duration")
                     if (mRecordListener != null) {
                         mRecordListener!!.onResume()
                     }
                 }
                 HANDLER_COMPLETE -> {
-                    logInfo("msg.what = HANDLER_COMPLETE  \n mDuration = $duration")
+                    logInfo("complete: mDuration = $duration")
                     if (mRecordListener != null && mRecordFile != null) {
                         mRecordListener!!.onSuccess(false, mRecordFile!!.absolutePath, duration)
                     }
                 }
                 HANDLER_AUTO_COMPLETE -> {
-                    logInfo("msg.what = HANDLER_AUTO_COMPLETE  \n mDuration = $duration")
+                    logInfo("auto complete: mDuration = $duration")
                     if (mRecordListener != null && mRecordFile != null) {
                         mRecordListener!!.onSuccess(true, mRecordFile!!.absolutePath, duration)
                     }
                 }
                 HANDLER_ERROR -> {
-                    logInfo("msg.what = HANDLER_ERROR  \n mDuration = $duration")
+                    logInfo("error : mDuration = $duration")
                     if (mRecordListener != null) {
-                        mRecordListener!!.onError(Exception("record error：AudioRecord read MIC error maybe not permission!"))
+                        if (msg.obj != null){
+                            mRecordListener!!.onError(msg.obj as Exception)
+                        }else{
+                            mRecordListener!!.onError(Exception("record error：AudioRecord read MIC error maybe not permission!"))
+                        }
                     }
                 }
                 HANDLER_PAUSE -> {
-                    logInfo("msg.what = HANDLER_PAUSE  \n mDuration = $duration")
+                    logInfo("pause:  mDuration = $duration")
                     if (mRecordListener != null) {
                         mRecordListener!!.onPause()
                     }
                 }
                 HANDLER_PERMISSION -> {
-                    logInfo("msg.what = HANDLER_PERMISSION  \n mDuration = $duration")
+                    logInfo("permission：record fail ,maybe need permission")
                     if (mPermissionListener != null) {
                         mPermissionListener!!.needPermission()
                     }
                 }
                 HANDLER_RESET -> {
-                    logInfo("msg.what = HANDLER_RESET  \n mDuration = $duration")
+                    logInfo("reset:")
                     if (mRecordListener != null) {
                         mRecordListener!!.onReset()
                     }
@@ -219,7 +209,7 @@ abstract class BaseRecorder {
      */
      open fun setOutputFile(outputFile: File, isContinue: Boolean = false): BaseRecorder {
         if (outputFile.exists()){
-            Log.w(TAG, "setOutputFile: outputFile is exists, if not Continue may cover it", )
+            Log.w(TAG, "setOutputFile: outputFile is exists, if not Continue may cover it(如果没有isContinue = true,会覆盖文件)", )
         }
         mRecordFile = outputFile
         this.isContinue = isContinue
@@ -249,25 +239,19 @@ abstract class BaseRecorder {
     abstract fun setBackgroundMusicListener(listener: PlayerListener): BaseRecorder
 
     //初始Lame录音输出质量
-    open fun setMp3Quality(mp3Quality: Int): BaseRecorder {
-        this.defaultLameMp3Quality = when {
-            mp3Quality < 0 -> 0
-            mp3Quality > 9 -> 9
-            else -> mp3Quality
-        }
+    open fun setMp3Quality(@IntRange(from = 0 ,to = 9)mp3Quality: Int): BaseRecorder {
+        this.defaultLameMp3Quality = mp3Quality
         return this
     }
 
     //设置比特率，关系声音的质量
-    open fun setMp3BitRate(mp3BitRate: Int): BaseRecorder {
-        if (mp3BitRate < 16) return this //低于32 也没有意义
+    open fun setMp3BitRate(@IntRange(from = 16) mp3BitRate: Int): BaseRecorder {
         this.defaultLameMp3BitRate = mp3BitRate
         return this
     }
 
     //设置采样率
-    open fun setSamplingRate(rate: Int): BaseRecorder {
-        if (defaultSamplingRate < 8000) return this //低于8000 没有意义
+    open fun setSamplingRate(@IntRange(from = 8000) rate: Int): BaseRecorder {
         this.defaultSamplingRate = rate
         return this
     }
@@ -276,7 +260,7 @@ abstract class BaseRecorder {
     abstract fun setAudioChannel(channel: Int = 1):Boolean
 
     //设置音频来源，每次录音前可以设置修改，开始录音后无法修改
-    abstract fun setAudioSource(audioSource: Int = MediaRecorder.AudioSource.MIC):Boolean
+    abstract fun setAudioSource(@Source audioSource: Int = MediaRecorder.AudioSource.MIC):Boolean
 
 
     //初始最大录制时间 和提醒时间 remind = maxTime - remindDiffTime
@@ -449,7 +433,7 @@ abstract class BaseRecorder {
         }
     }
 
-    protected companion object {
+    companion object {
         const val HANDLER_RECORDING = 0x101 //正在录音
         const val HANDLER_START = HANDLER_RECORDING + 1//开始了
         const val HANDLER_RESUME = HANDLER_START + 1//暂停后开始
@@ -462,6 +446,7 @@ abstract class BaseRecorder {
         const val HANDLER_MAX_TIME = HANDLER_PERMISSION + 1//设置了最大时间
         const val FRAME_COUNT = 160
         val DEFAULT_AUDIO_FORMAT = PCMFormat.PCM_16BIT
+        const val TAG = "Recorder"
     }
 
     //endregion  计算真正的时间，如果过程中有些数据太小，就直接置0，防止噪音

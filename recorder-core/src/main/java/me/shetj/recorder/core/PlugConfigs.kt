@@ -7,15 +7,18 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.media.AudioManager
+import java.lang.ref.WeakReference
 import java.util.concurrent.atomic.AtomicBoolean
 
 /**
  * 用来判断是否连接上了耳机
  */
-class PlugConfigs(private val context: Context, var connected: Boolean = false) {
+class PlugConfigs(private val context: WeakReference<Context>, var connected: Boolean = false) {
 
+    private var force = false //强制返回true
     private val isRegister = AtomicBoolean(false)
-    private val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
+    private val audioManager =
+        context.get()?.getSystemService(Context.AUDIO_SERVICE) as? AudioManager
 
     private val mReceiver: BroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
@@ -23,9 +26,9 @@ class PlugConfigs(private val context: Context, var connected: Boolean = false) 
             if (action == Intent.ACTION_HEADSET_PLUG) {
                 if (intent.hasExtra("state")) {
                     if (intent.getIntExtra("state", 0) == 0) {
-                        getInstance(context).connected = false
+                        connected = false
                     } else if (intent.getIntExtra("state", 0) == 1) {
-                        getInstance(context).connected = true
+                        connected = true
                     }
                 }
             }
@@ -35,26 +38,25 @@ class PlugConfigs(private val context: Context, var connected: Boolean = false) 
 
     fun registerReceiver() {
         if (isRegister.compareAndSet(false, true)) {
-            connected = audioManager.isWiredHeadsetOn
-            context.registerReceiver(mReceiver, intentFilter)
+            connected = audioManager?.isWiredHeadsetOn ?: false
+            context.get()?.registerReceiver(mReceiver, intentFilter)
         }
     }
 
     fun unregisterReceiver() {
         if (isRegister.compareAndSet(true, false)) {
-            context.unregisterReceiver(mReceiver)
+            context.get()?.unregisterReceiver(mReceiver)
         }
     }
 
-    fun getMaxVoice() = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC)
-
-    fun setAudioVoice(volume: Int) {
-        audioManager.setStreamVolume(
-            AudioManager.STREAM_MUSIC,
-            volume,
-            0
-        )
+    fun setForce(force:Boolean){
+        this.force = force
     }
+
+    fun needBGBytes(): Boolean {
+        return force or connected
+    }
+
 
     companion object {
         @Volatile
@@ -62,8 +64,8 @@ class PlugConfigs(private val context: Context, var connected: Boolean = false) 
 
         fun getInstance(context: Context): PlugConfigs {
             return sInstance ?: synchronized(PlugConfigs::class.java) {
-                return PlugConfigs(context.applicationContext).also {
-                    it.connected = it.audioManager.isWiredHeadsetOn
+                return PlugConfigs(WeakReference(context.applicationContext)).also {
+                    it.connected = it.audioManager?.isWiredHeadsetOn ?: false
                     sInstance = it
                 }
             }

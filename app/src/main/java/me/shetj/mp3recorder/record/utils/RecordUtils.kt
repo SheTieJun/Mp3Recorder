@@ -1,5 +1,7 @@
 package me.shetj.mp3recorder.record.utils
 
+import android.media.AudioFormat
+import android.media.MediaRecorder
 import me.shetj.base.ktx.logi
 import me.shetj.base.tools.app.ArmsUtils
 import me.shetj.base.tools.app.Utils
@@ -75,6 +77,8 @@ class RecordUtils(
             isDebug = true
             recordListener = this@RecordUtils
             permissionListener = this@RecordUtils
+            audioChannel = AudioFormat.CHANNEL_IN_STEREO
+            audioSource =  MediaRecorder.AudioSource.MIC
         }.buildSim(Utils.app)
     }
 

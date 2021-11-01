@@ -13,6 +13,7 @@ import android.os.Looper
 import android.os.Message
 import android.util.Log
 import me.shetj.player.PlayerListener
+import me.shetj.recorder.core.BaseRecorder
 import me.shetj.recorder.core.PlugConfigs
 import java.util.concurrent.LinkedBlockingDeque
 import java.util.concurrent.atomic.AtomicBoolean
@@ -32,16 +33,23 @@ import java.util.concurrent.atomic.AtomicBoolean
  */
 internal class PlayBackMusic(private var defaultChannel: Int = CHANNEL_OUT_MONO,var plugConfigs: PlugConfigs?) {
 
-    private var mAudioDecoder: AudioDecoder? = null
-    private val backGroundBytes =
-        LinkedBlockingDeque<ByteArray>()//new ArrayDeque<>();// ArrayDeque不是线程安全的
+
     var isPlayingMusic = false
         private set
-    private var mIsRecording = false
-    private var mIsLoop = false
-    private var need = AtomicBoolean(false)
     var isIsPause = false
         private set
+    val bufferSize: Int
+        get() = if (mAudioDecoder == null) {
+            AudioDecoder.BUFFER_SIZE
+        } else {
+            mAudioDecoder!!.bufferSize
+        }
+
+    private var mAudioDecoder: AudioDecoder? = null
+    private val backGroundBytes = LinkedBlockingDeque<ByteArray>()//new ArrayDeque<>();// ArrayDeque不是线程安全的
+    private var mIsRecording = false // 路由中
+    private var mIsLoop = false //循环
+    private var need = AtomicBoolean(false) //是否需要进行延迟
     private val playHandler: PlayHandler = PlayHandler(this)
     private var audioTrack: AudioTrack? = null
     private var volume = 0.3f
@@ -50,7 +58,7 @@ internal class PlayBackMusic(private var defaultChannel: Int = CHANNEL_OUT_MONO,
             //如果设置耳机配置相关
             if (plugConfigs !=null ) {
                 //只有连上了耳机才会使用写入的方式，否则只用外放的方式
-                if (plugConfigs?.connected == true) {
+                if (plugConfigs?.needBGBytes() == true) {
                     addBackGroundBytes(bytes)
                 }
             }else{
@@ -68,15 +76,7 @@ internal class PlayBackMusic(private var defaultChannel: Int = CHANNEL_OUT_MONO,
             mAudioDecoder!!.isPCMExtractorEOS
         }
 
-    val bufferSize: Int
-        get() = if (mAudioDecoder == null) {
-            AudioDecoder.BUFFER_SIZE
-        } else {
-            mAudioDecoder!!.bufferSize
-        }
-
-    private class PlayHandler(private val playBackMusic: PlayBackMusic) :
-        Handler(Looper.getMainLooper()) {
+    private class PlayHandler(private val playBackMusic: PlayBackMusic) : Handler(Looper.getMainLooper()) {
         override fun handleMessage(msg: Message) {
             when (msg.what) {
                 PROCESS_STOP, PROCESS_ERROR -> playBackMusic.release()
@@ -152,8 +152,9 @@ internal class PlayBackMusic(private var defaultChannel: Int = CHANNEL_OUT_MONO,
      * 是否循环播放
      * @param isLoop 是否循环
      */
-    fun setLoop(isLoop: Boolean) {
+    fun setLoop(isLoop: Boolean):PlayBackMusic {
         mIsLoop = isLoop
+        return this
     }
 
     /**
@@ -162,14 +163,14 @@ internal class PlayBackMusic(private var defaultChannel: Int = CHANNEL_OUT_MONO,
      */
     fun startPlayBackMusic() {
         if (mAudioDecoder == null) {
-            Log.e("mixRecorder","AudioDecoder no null, please set setBackGroundUrl first")
+            Log.e(BaseRecorder.TAG,"AudioDecoder no null, please set setBackGroundUrl first")
             return
         }
         //开始加载音乐数据
         initPCMData()
         isPlayingMusic = true
         PlayNeedMixAudioTask(frameListener).start()
-        playerListener?.onStart((mAudioDecoder?.mediaFormat?.getLong(MediaFormat.KEY_DURATION)?:1/ 1000).toInt())
+        playerListener?.onStart(((mAudioDecoder?.mediaFormat?.getLong(MediaFormat.KEY_DURATION)?:1)/ 1000).toInt())
     }
 
 
@@ -243,13 +244,14 @@ internal class PlayBackMusic(private var defaultChannel: Int = CHANNEL_OUT_MONO,
             //重新开始播放mp3 -> pcm
             initPCMData()
         }
-        Log.i("PlayBackMusic", "restartMusic")
+        Log.i(BaseRecorder.TAG, "restartMusic")
     }
 
     /**
      * 解析 mp3 --> pcm
      */
     private fun initPCMData() {
+        Log.i(BaseRecorder.TAG, "initPCMData")
         mAudioDecoder!!.startPcmExtractor()
     }
 
@@ -281,8 +283,9 @@ internal class PlayBackMusic(private var defaultChannel: Int = CHANNEL_OUT_MONO,
                         val temp = pcm?.bufferBytes
                         if (pcm == null || temp == null) {
                             if (mIsLoop) {
+                                Log.e(BaseRecorder.TAG, "PlayBackMusic start Loop ")
                                 playHandler.sendEmptyMessage(PROCESS_REPLAY)
-                                sleep(100)
+                                sleep(99)
                             }
                             continue
                         }
@@ -310,7 +313,7 @@ internal class PlayBackMusic(private var defaultChannel: Int = CHANNEL_OUT_MONO,
                 audioTrack!!.release()
                 audioTrack = null
             } catch (e: Exception) {
-                Log.e("mp3Recorder", "error:" + e.message)
+                Log.e(BaseRecorder.TAG, "PlayBackMusic error:" + e.message)
                 playerListener?.onError(e)
             } finally {
                 isPlayingMusic = false
@@ -371,11 +374,7 @@ internal class PlayBackMusic(private var defaultChannel: Int = CHANNEL_OUT_MONO,
     fun setVolume(volume: Float) {
         this.volume = volume
         if (audioTrack != null) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                audioTrack!!.setVolume(volume)
-            } else {
-                audioTrack!!.setStereoVolume(volume, volume)
-            }
+            audioTrack!!.setVolume(volume)
         }
     }
 

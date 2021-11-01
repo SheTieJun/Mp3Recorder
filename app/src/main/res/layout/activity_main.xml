@@ -19,19 +19,11 @@
 
 
     <Button
-        android:id="@+id/btn_demo2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="mixTest"
-        android:layout_toRightOf="@id/btn_demo"
-        android:textAllCaps="false"/>
-
-    <Button
         android:id="@+id/btn_demo3"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="mixDemo"
-        android:layout_toRightOf="@id/btn_demo2"
+        android:layout_toRightOf="@id/btn_demo"
         android:textAllCaps="false"/>
 
     <Button

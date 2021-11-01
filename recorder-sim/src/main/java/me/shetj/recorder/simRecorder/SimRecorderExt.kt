@@ -12,7 +12,7 @@ import me.shetj.recorder.core.RecordListener
  */
 fun Mp3RecorderOption.buildSim(context: Context?=null): BaseRecorder {
     return with(this) {
-        SimRecorder(audioSource.type)
+        SimRecorder(audioSource)
             .setMaxTime(mMaxTime)
             .setMp3Quality(mp3Quality)
             .setSamplingRate(samplingRate)

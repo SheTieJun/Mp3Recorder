@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.media.AudioManager
+import java.lang.ref.WeakReference
 import java.util.concurrent.atomic.AtomicBoolean
 
 
@@ -13,11 +14,11 @@ typealias OnVolumeChange = Float.() -> Unit
 /**
  * 声音音量控制
  */
-class VolumeConfig(private val context: Context, var currVolumeF: Float = 1f) {
+class VolumeConfig(private val context: WeakReference<Context>, var currVolumeF: Float = 1f) {
 
     private val isRegister = AtomicBoolean(false)
-    private val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
-    private val max = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC)
+    private val audioManager = context.get()?.getSystemService(Context.AUDIO_SERVICE) as? AudioManager
+    private val max = audioManager?.getStreamMaxVolume(AudioManager.STREAM_MUSIC)?:10
     private var onVolumeChanges:MutableList<OnVolumeChange>  = ArrayList()
 
 
@@ -37,7 +38,7 @@ class VolumeConfig(private val context: Context, var currVolumeF: Float = 1f) {
     }
 
     fun getCurVolume(): Int {
-        return audioManager.getStreamVolume(AudioManager.STREAM_MUSIC)
+        return audioManager?.getStreamVolume(AudioManager.STREAM_MUSIC)?:1
     }
 
     fun addChangeListener(onVolumeChange: OnVolumeChange){
@@ -52,13 +53,13 @@ class VolumeConfig(private val context: Context, var currVolumeF: Float = 1f) {
 
     fun registerReceiver() {
         if (isRegister.compareAndSet(false, true)) {
-            context.registerReceiver(mReceiver, intentFilter)
+            context.get()?.registerReceiver(mReceiver, intentFilter)
         }
     }
 
     fun unregisterReceiver() {
         if (isRegister.compareAndSet(true, false)) {
-            context.unregisterReceiver(mReceiver)
+            context.get()?.unregisterReceiver(mReceiver)
         }
     }
 
@@ -69,7 +70,7 @@ class VolumeConfig(private val context: Context, var currVolumeF: Float = 1f) {
     }
 
     fun setAudioVoice(volume: Int) {
-        audioManager.setStreamVolume(
+        audioManager?.setStreamVolume(
             AudioManager.STREAM_MUSIC,
             volume,
             0
@@ -82,7 +83,7 @@ class VolumeConfig(private val context: Context, var currVolumeF: Float = 1f) {
 
         fun getInstance(context: Context): VolumeConfig {
             return sInstance ?: synchronized(VolumeConfig::class.java) {
-                return VolumeConfig(context.applicationContext).also {
+                return VolumeConfig(WeakReference(context.applicationContext)).also {
                     it.currVolumeF = it.getCurVolume() / it.getMaxVoice().toFloat()
                     sInstance = it
                 }

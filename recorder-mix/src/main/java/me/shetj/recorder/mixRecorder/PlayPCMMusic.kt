@@ -10,6 +10,7 @@ import android.os.Looper
 import android.os.Message
 import android.util.Log
 import me.shetj.player.PlayerListener
+import me.shetj.recorder.core.BaseRecorder
 import java.nio.ByteBuffer
 import java.util.concurrent.LinkedBlockingDeque
 
@@ -55,7 +56,6 @@ internal class PlayPCMMusic(private val defaultChannel: Int = CHANNEL_OUT_STEREO
     private var decodeOutputBuffers: Array<ByteBuffer>? = null
     private var decodeBufferInfo: MediaCodec.BufferInfo? = null
     private var mediaFormat: MediaFormat? = null
-        private set
     private var mp3FilePath: String? = null
     internal var isPCMExtractorEOS = true
         private set
@@ -135,8 +135,9 @@ internal class PlayPCMMusic(private val defaultChannel: Int = CHANNEL_OUT_STEREO
             }
         }).start()
         playerListener?.onStart(
-            (mediaFormat?.getLong(MediaFormat.KEY_DURATION) ?: 1 / 1000).toInt()
+            ((mediaFormat?.getLong(MediaFormat.KEY_DURATION) ?: 1 )/ 1000).toInt()
         )
+        Log.e(BaseRecorder.TAG, "startPlayPCMBackMusic" )
         return this
     }
 
@@ -207,7 +208,7 @@ internal class PlayPCMMusic(private val defaultChannel: Int = CHANNEL_OUT_STEREO
 
     /**
      */
-    private inner class PlayNeedMixAudioTask internal constructor(private val listener: BackGroundFrameListener?) :
+    private inner class PlayNeedMixAudioTask(private val listener: BackGroundFrameListener?) :
         Thread() {
         override fun run() {
             try {
@@ -235,7 +236,7 @@ internal class PlayPCMMusic(private val defaultChannel: Int = CHANNEL_OUT_STEREO
                 audioTrack!!.release()
                 audioTrack = null
             } catch (e: Exception) {
-                Log.e("mp3Recorder", "error:" + e.message)
+                Log.e(BaseRecorder.TAG, "error:" + e.message)
                 playerListener?.onError(e)
             } finally {
                 isPlayingMusic = false

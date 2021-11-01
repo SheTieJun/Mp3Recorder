@@ -4,6 +4,7 @@ afterEvaluate {
     publishing {
         publications {
             release(MavenPublication) {
+                groupId local_group_id
                 from components.release
                 artifactId = 'recorder-core'
                 version = sdk_version

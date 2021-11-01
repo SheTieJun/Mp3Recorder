@@ -6,6 +6,7 @@ import android.media.AudioFormat
 import android.media.AudioRecord
 import android.media.MediaRecorder
 import android.net.Uri
+import android.os.Message
 import android.os.Process
 import android.util.Log
 import me.shetj.player.PlayerListener
@@ -71,17 +72,17 @@ internal class MixRecorder : BaseRecorder {
      * @param audioSource 最好是  [MediaRecorder.AudioSource.VOICE_COMMUNICATION] 或者 [MediaRecorder.AudioSource.MIC]
      * @param channel 声道数量 (1 或者 2)
      */
-    constructor(audioSource: Int = MediaRecorder.AudioSource.MIC, channel: Int = 1) {
+    constructor(audioSource: Int = MediaRecorder.AudioSource.MIC,@Channel channel: Int = AudioFormat.CHANNEL_IN_MONO ) {
         defaultAudioSource = audioSource
         is2Channel = channel == 2
-        defaultLameInChannel = when {
-            channel <= 1 -> {
-                defaultChannelConfig = AudioFormat.CHANNEL_IN_MONO
+        defaultChannelConfig = channel
+        defaultLameInChannel = when (channel) {
+            AudioFormat.CHANNEL_IN_MONO -> {
                 release()
                 initPlayer()
                 1
             }
-            channel >= 2 -> {
+            AudioFormat.CHANNEL_IN_STEREO -> {
                 defaultChannelConfig = AudioFormat.CHANNEL_IN_STEREO
                 release()
                 initPlayer()
@@ -238,16 +239,15 @@ internal class MixRecorder : BaseRecorder {
         plugConfigs?.registerReceiver()
         // 提早，防止init或startRecording被多次调用
         isRecording = true
+        mSendError = false
         //初始化
         duration = 0
         try {
             initAudioRecorder()
             mAudioRecord!!.startRecording()
+            logInfo("startRecording")
         } catch (ex: Exception) {
-            if (mRecordListener != null) {
-                mRecordListener!!.onError(ex)
-            }
-            onError()
+            onError(ex)
             ex.printStackTrace()
             return
         }
@@ -307,23 +307,23 @@ internal class MixRecorder : BaseRecorder {
                     mAudioRecord!!.stop()
                     mAudioRecord!!.release()
                     mAudioRecord = null
+                    if (isError) {
+                        mEncodeThread!!.sendErrorMessage()
+                    } else {
+                        mEncodeThread!!.sendStopMessage()
+                    }
                 } catch (ex: Exception) {
                     ex.printStackTrace()
                 } finally {
-                    if (isAutoComplete) {
-                        handler.sendEmptyMessage(HANDLER_AUTO_COMPLETE)
-                    } else {
-                        handler.sendEmptyMessage(HANDLER_COMPLETE)
+                    if (!isError) {
+                        if (isAutoComplete) {
+                            handler.sendEmptyMessage(HANDLER_AUTO_COMPLETE)
+                        } else {
+                            handler.sendEmptyMessage(HANDLER_COMPLETE)
+                        }
                     }
                 }
-
-                if (isError) {
-                    mEncodeThread!!.sendErrorMessage()
-                } else {
-                    mEncodeThread!!.sendStopMessage()
-                }
             }
-
         }.also {
             recordThread = it
         }.start()
@@ -332,6 +332,7 @@ internal class MixRecorder : BaseRecorder {
 
     override fun complete() {
         if (state != RecordState.STOPPED) {
+
             state = RecordState.STOPPED
             isAutoComplete = false
             plugConfigs?.unregisterReceiver()
@@ -462,6 +463,9 @@ internal class MixRecorder : BaseRecorder {
         mEncodeThread!!.start()
         mAudioRecord!!.setRecordPositionUpdateListener(mEncodeThread, mEncodeThread!!.handler)
         mAudioRecord!!.positionNotificationPeriod = FRAME_COUNT
+
+        //强制加上背景音乐
+        plugConfigs?.setForce(defaultAudioSource == MediaRecorder.AudioSource.VOICE_COMMUNICATION)
     }
     //endregion
 
@@ -480,10 +484,13 @@ internal class MixRecorder : BaseRecorder {
     }
 
 
-    private fun onError() {
+    private fun onError(ex: Exception?=null) {
         isPause = false
         isRecording = false
-        handler.sendEmptyMessage(HANDLER_ERROR)
+        val message = Message.obtain()
+        message.what = HANDLER_ERROR
+        message.obj = ex
+        handler.sendMessage(message)
         state = RecordState.STOPPED
         backgroundMusicIsPlay = false
         if (mPlayBackMusic != null) {

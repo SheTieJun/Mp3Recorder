@@ -1,5 +1,6 @@
 package me.shetj.mp3recorder.record.activity.sim
 
+import android.annotation.SuppressLint
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
@@ -144,6 +145,7 @@ open class RecordPage(
         }
     }
 
+    @SuppressLint("SoonBlockedPrivateApi")
     private fun buildEditTextView(): EditText {
         mBunceSv!!.removeAllViews()
         val editText = EditText(this.context)
@@ -294,7 +296,7 @@ open class RecordPage(
             .setTitle("录音已保存")
             .setContent("已成功录满${1200 / 60}分钟，录音已保存。是否继续录制下一条？")
             .setNegativeText("查看本条")
-            .setOnNegativeCallBack { dialog, dialogAction ->  callback.onEvent(1)}
+            .setOnNegativeCallBack { _, _ ->  callback.onEvent(1)}
             .setPositiveText("录下一条")
             .setonPositiveCallBack {  _, _ ->
                 setRecord(null)

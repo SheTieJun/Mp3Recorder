@@ -12,7 +12,7 @@ import me.shetj.recorder.core.RecordListener
  */
 fun Mp3RecorderOption.buildMix(context: Context?=null): BaseRecorder {
     return with(this) {
-        MixRecorder(audioSource.type, audioChannel.type)
+        MixRecorder(audioSource, audioChannel)
             .setMaxTime(mMaxTime)
             .setMp3Quality(mp3Quality)
             .setSamplingRate(samplingRate)
@@ -28,3 +28,8 @@ fun Mp3RecorderOption.buildMix(context: Context?=null): BaseRecorder {
             }
     }
 }
+
+/**
+ * 默认build 是mix
+ */
+fun Mp3RecorderOption.build(context: Context?=null) = buildMix(context)
