@@ -17,7 +17,7 @@ typealias OnVolumeChange = Float.() -> Unit
 class VolumeConfig(private val context: WeakReference<Context>, var currVolumeF: Float = 1f) {
 
     private val isRegister = AtomicBoolean(false)
-    private val audioManager = context.get()?.getSystemService(Context.AUDIO_SERVICE) as? AudioManager
+    private var audioManager:AudioManager?=null
     private val max = audioManager?.getStreamMaxVolume(AudioManager.STREAM_MUSIC)?:10
     private var onVolumeChanges:MutableList<OnVolumeChange>  = ArrayList()
 
@@ -53,6 +53,10 @@ class VolumeConfig(private val context: WeakReference<Context>, var currVolumeF:
 
     fun registerReceiver() {
         if (isRegister.compareAndSet(false, true)) {
+            if (audioManager == null) {
+                audioManager =
+                    context.get()?.getSystemService(Context.AUDIO_SERVICE) as? AudioManager
+            }
             context.get()?.registerReceiver(mReceiver, intentFilter)
         }
     }
@@ -60,6 +64,7 @@ class VolumeConfig(private val context: WeakReference<Context>, var currVolumeF:
     fun unregisterReceiver() {
         if (isRegister.compareAndSet(true, false)) {
             context.get()?.unregisterReceiver(mReceiver)
+            audioManager = null
         }
     }
 

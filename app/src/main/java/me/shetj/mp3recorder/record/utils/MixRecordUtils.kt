@@ -11,7 +11,6 @@ import me.shetj.base.tools.file.EnvironmentStorage
 import me.shetj.player.PlayerListener
 import me.shetj.recorder.core.*
 import me.shetj.recorder.mixRecorder.buildMix
-import me.shetj.recorder.simRecorder.buildSim
 
 /**
  * 录音工具类
@@ -137,10 +136,10 @@ class MixRecordUtils(
      * 录音异常
      */
     private fun resolveError() {
-        FileUtils.deleteFile(saveFile)
-        if (mRecorder != null && mRecorder!!.isRecording) {
+        if (mRecorder != null && mRecorder!!.isActive) {
             mRecorder!!.complete()
         }
+        FileUtils.deleteFile(saveFile)
     }
 
     /**

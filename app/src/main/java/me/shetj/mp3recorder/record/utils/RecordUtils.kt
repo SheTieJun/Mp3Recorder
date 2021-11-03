@@ -19,7 +19,7 @@ class RecordUtils(
     val isRecording: Boolean
         get() {
             return if (mRecorder != null) {
-                mRecorder?.isRecording!!
+                mRecorder?.isActive!!
             } else {
                 false
             }
@@ -137,7 +137,7 @@ class RecordUtils(
      */
     private fun resolveError() {
         FileUtils.deleteFile(File(saveFile))
-        if (  mRecorder!!.isRecording) {
+        if (  mRecorder!!.isActive) {
             mRecorder!!.complete()
         }
     }

@@ -17,8 +17,7 @@ class PlugConfigs(private val context: WeakReference<Context>, var connected: Bo
 
     private var force = false //强制返回true
     private val isRegister = AtomicBoolean(false)
-    private val audioManager =
-        context.get()?.getSystemService(Context.AUDIO_SERVICE) as? AudioManager
+    private var audioManager :AudioManager?=null
 
     private val mReceiver: BroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
@@ -38,6 +37,10 @@ class PlugConfigs(private val context: WeakReference<Context>, var connected: Bo
 
     fun registerReceiver() {
         if (isRegister.compareAndSet(false, true)) {
+            if (audioManager == null) {
+                audioManager =
+                    context.get()?.getSystemService(Context.AUDIO_SERVICE) as? AudioManager
+            }
             connected = audioManager?.isWiredHeadsetOn ?: false
             context.get()?.registerReceiver(mReceiver, intentFilter)
         }
@@ -46,6 +49,7 @@ class PlugConfigs(private val context: WeakReference<Context>, var connected: Bo
     fun unregisterReceiver() {
         if (isRegister.compareAndSet(true, false)) {
             context.get()?.unregisterReceiver(mReceiver)
+            audioManager = null
         }
     }
 

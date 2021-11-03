@@ -95,7 +95,7 @@ internal class SimRecorder : BaseRecorder {
 
 
     override fun setAudioChannel(channel: Int): Boolean {
-        if (isRecording) {
+        if (isActive) {
             return false
         }
         is2Channel = channel == 2
@@ -116,7 +116,7 @@ internal class SimRecorder : BaseRecorder {
     }
 
     override fun setAudioSource(audioSource: Int): Boolean {
-        if (!isRecording) {
+        if (!isActive) {
             defaultAudioSource = audioSource
             return true
         }
@@ -162,11 +162,11 @@ internal class SimRecorder : BaseRecorder {
             logInfo("mRecordFile is Null")
             return
         }
-        if (isRecording || recordThread?.isAlive == true) {
+        if (isActive || recordThread?.isAlive == true) {
             return
         }
         // 提早，防止init或startRecording被多次调用
-        isRecording = true
+        isActive = true
         mSendError = false
         //初始化
         duration = 0
@@ -189,7 +189,7 @@ internal class SimRecorder : BaseRecorder {
                 //设置线程权限
                 Process.setThreadPriority(Process.THREAD_PRIORITY_URGENT_AUDIO)
                 onStart()
-                while (isRecording) {
+                while (isActive) {
                     val readSize = mAudioRecord!!.read(mPCMBuffer!!, 0, mBufferSize)
                     if (readSize == AudioRecord.ERROR_INVALID_OPERATION || readSize == AudioRecord.ERROR_BAD_VALUE) {
                         if (!mSendError) {
@@ -280,7 +280,7 @@ internal class SimRecorder : BaseRecorder {
     override fun complete() {
         if (state !== RecordState.STOPPED) {
             isPause = false
-            isRecording = false
+            isActive = false
             state = RecordState.STOPPED
             backgroundMusicIsPlay = false
             bgPlayer.stopPlay()
@@ -348,7 +348,7 @@ internal class SimRecorder : BaseRecorder {
      * 重置
      */
     override fun reset() {
-        isRecording = false
+        isActive = false
         isPause = false
         state = RecordState.STOPPED
         duration = 0L
@@ -360,7 +360,7 @@ internal class SimRecorder : BaseRecorder {
 
 
     override fun destroy() {
-        isRecording = false
+        isActive = false
         isPause = false
         state = RecordState.STOPPED
         mRecordFile = null
@@ -485,7 +485,7 @@ internal class SimRecorder : BaseRecorder {
 
     private fun onError(ex: Exception?=null) {
         isPause = false
-        isRecording = false
+        isActive = false
         val message = Message.obtain()
         message.what = HANDLER_ERROR
         message.obj = ex
@@ -513,7 +513,7 @@ internal class SimRecorder : BaseRecorder {
     private fun autoStop() {
         if (state !== RecordState.STOPPED) {
             isPause = false
-            isRecording = false
+            isActive = false
             isAutoComplete = true
             state = RecordState.STOPPED
             backgroundMusicIsPlay = false

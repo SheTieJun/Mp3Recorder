@@ -82,7 +82,8 @@ abstract class BaseRecorder {
     //声音增强,不建议使用
     protected var wax = 1f
     protected var bgLevel: Float = 03f
-    var isRecording = false
+    // 录音Recorder 是否在活动,暂停的时候 isActive 还是true,只有录音结束了才会为false
+    var isActive = false
         protected set
 
     //当前状态
@@ -257,7 +258,7 @@ abstract class BaseRecorder {
     }
 
     //设置音频声道数量，每次录音前可以设置修改，开始录音后无法修改
-    abstract fun setAudioChannel(channel: Int = 1):Boolean
+    abstract fun setAudioChannel(@IntRange(from = 1,to = 2)channel: Int = 1):Boolean
 
     //设置音频来源，每次录音前可以设置修改，开始录音后无法修改
     abstract fun setAudioSource(@Source audioSource: Int = MediaRecorder.AudioSource.MIC):Boolean

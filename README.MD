@@ -1,6 +1,6 @@
 # 录音工具-Mp3Recorder 
 
- [![](https://jitpack.io/v/SheTieJun/Mp3Recorder.svg)](https://jitpack.io/#SheTieJun/Mp3Recorder)
+ [![](https://jitpack.io/v/SheTieJun/Mp3Recorder.svg)](https://jitpack.io/#SheTieJun/Mp3Recorder) ![buildWorkflow](https://github.com/SheTieJun/Mp3Recorder/actions/workflows/android.yml/badge.svg)
 
 - 边录边转码MP3,支持暂停，实时返回已录制时长和当前声音大小。
 - 可添加背景音乐,可以设置背景音乐声音的大小
@@ -40,7 +40,8 @@ implementation 'com.github.SheTieJun.Mp3Recorder:recorder-core:1.6.5'
 ```
 abstract class BaseRecorder {
 
-    var isRecording = false
+    // 录音Recorder 是否在活动，暂停的时候isActive 还是true,只有录音结束了才会为false
+    var isActive = false
 
     //当前状态
     var state = RecordState.STOPPED
@@ -82,20 +83,21 @@ abstract class BaseRecorder {
     //设置背景音乐的监听
     abstract fun setBackgroundMusicListener(listener: PlayerListener): BaseRecorder
 
+
     //初始Lame录音输出质量
-    abstract fun setMp3Quality(mp3Quality: Int): BaseRecorder
+    abstract fun setMp3Quality(@IntRange(from = 0 ,to = 9)mp3Quality: Int): BaseRecorder
 
     //设置比特率，关系声音的质量
-    abstract fun setMp3BitRate(mp3BitRate: Int): BaseRecorder
+    abstract fun setMp3BitRate(@IntRange(from = 16) mp3BitRate: Int): BaseRecorder
 
-    //设置采样率
-    abstract fun setSamplingRate(rate: Int): BaseRecorder
+    //设置采样率，默认44100
+    abstract fun setSamplingRate(@IntRange(from = 8000) rate: Int): BaseRecorder
 
     //设置音频声道数量，每次录音前可以设置修改，开始录音后无法修改
-    abstract fun setAudioChannel(channel: Int = 1):Boolean
+    abstract fun setAudioChannel(@IntRange(from = 1,to = 2)channel: Int = 1):Boolean
 
     //设置音频来源，每次录音前可以设置修改，开始录音后无法修改
-    abstract fun setAudioSource(audioSource: Int = MediaRecorder.AudioSource.MIC):Boolean
+    abstract fun setAudioSource(@Source audioSource: Int = MediaRecorder.AudioSource.MIC):Boolean
 
 
     //初始最大录制时间 和提醒时间 remind = maxTime - remindDiffTime

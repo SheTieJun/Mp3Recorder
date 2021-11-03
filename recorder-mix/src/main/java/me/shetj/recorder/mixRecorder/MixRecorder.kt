@@ -70,30 +70,23 @@ internal class MixRecorder : BaseRecorder {
 
     /**
      * @param audioSource 最好是  [MediaRecorder.AudioSource.VOICE_COMMUNICATION] 或者 [MediaRecorder.AudioSource.MIC]
-     * @param channel 声道数量 (1 或者 2)
+     * @param channel 声道数量 ([AudioFormat.CHANNEL_IN_MONO] 或者 [AudioFormat.CHANNEL_IN_STEREO])
      */
     constructor(audioSource: Int = MediaRecorder.AudioSource.MIC,@Channel channel: Int = AudioFormat.CHANNEL_IN_MONO ) {
         defaultAudioSource = audioSource
-        is2Channel = channel == 2
         defaultChannelConfig = channel
         defaultLameInChannel = when (channel) {
-            AudioFormat.CHANNEL_IN_MONO -> {
-                release()
-                initPlayer()
-                1
-            }
-            AudioFormat.CHANNEL_IN_STEREO -> {
-                defaultChannelConfig = AudioFormat.CHANNEL_IN_STEREO
-                release()
-                initPlayer()
-                2
-            }
-            else -> defaultAudioSource
+            AudioFormat.CHANNEL_IN_MONO -> 1
+            AudioFormat.CHANNEL_IN_STEREO -> 2
+            else -> 1
         }
+        is2Channel = defaultLameInChannel == 2
+        release()
+        bgPlayer.updateChannel(defaultLameInChannel)
     }
 
     override fun setAudioChannel(channel: Int): Boolean {
-        if (!isRecording) {
+        if (!isActive) {
             is2Channel = channel >= 2
             defaultLameInChannel = when {
                 channel <= 1 -> {
@@ -107,20 +100,19 @@ internal class MixRecorder : BaseRecorder {
                 else -> defaultAudioSource
             }
             release()
-            initPlayer()
             bgPlayer.updateChannel(defaultLameInChannel)
             return true
         }
-        Log.w(TAG, "setAudioChannel error ,need state isn't Recording|录音没有完成，无法进行修改 ")
+        Log.w(TAG, "setAudioChannel error ,need state isn't isActive|录音没有完成，无法进行修改 ")
         return false
     }
 
     override fun setAudioSource(audioSource: Int): Boolean {
-        if (!isRecording) {
+        if (!isActive) {
             defaultAudioSource = audioSource
             return true
         }
-        Log.w(TAG, "setAudioSource error ,need state isn't Recording |录音没有完成，无法进行修改 ")
+        Log.w(TAG, "setAudioSource error ,need state isn't isActive |录音没有完成，无法进行修改 ")
         return false
     }
 
@@ -233,12 +225,12 @@ internal class MixRecorder : BaseRecorder {
             return
         }
         //非录音中，并且录音线程已经结束
-        if (isRecording || recordThread?.isAlive == true) {
+        if (isActive || recordThread?.isAlive == true) {
             return
         }
         plugConfigs?.registerReceiver()
         // 提早，防止init或startRecording被多次调用
-        isRecording = true
+        isActive = true
         mSendError = false
         //初始化
         duration = 0
@@ -260,7 +252,7 @@ internal class MixRecorder : BaseRecorder {
                 //设置线程权限
                 Process.setThreadPriority(Process.THREAD_PRIORITY_URGENT_AUDIO)
                 onStart()
-                while (isRecording) {
+                while (isActive) {
                     /*
                       这里需要与 背景音乐读取出来的数据长度 一样,
                       如果没有背景音乐才使用获取 mBufferSize
@@ -336,7 +328,7 @@ internal class MixRecorder : BaseRecorder {
             state = RecordState.STOPPED
             isAutoComplete = false
             plugConfigs?.unregisterReceiver()
-            isRecording = false
+            isActive = false
             isPause = false
             if (mPlayBackMusic != null) {
                 mPlayBackMusic!!.setNeedRecodeDataEnable(false)
@@ -377,7 +369,7 @@ internal class MixRecorder : BaseRecorder {
     }
 
     override fun startPlayMusic() {
-        if (!bgPlayer.isPlayingMusic && isRecording) {
+        if (!bgPlayer.isPlayingMusic && isActive) {
             bgPlayer.startPlayBackMusic()
         }
     }
@@ -402,7 +394,7 @@ internal class MixRecorder : BaseRecorder {
      * 重置
      */
     override fun reset() {
-        isRecording = false
+        isActive = false
         isPause = false
         state = RecordState.STOPPED
         duration = 0L
@@ -414,7 +406,7 @@ internal class MixRecorder : BaseRecorder {
 
 
     override fun destroy() {
-        isRecording = false
+        isActive = false
         isPause = false
         mRecordFile = null
         bgPlayer.release()
@@ -486,7 +478,7 @@ internal class MixRecorder : BaseRecorder {
 
     private fun onError(ex: Exception?=null) {
         isPause = false
-        isRecording = false
+        isActive = false
         val message = Message.obtain()
         message.what = HANDLER_ERROR
         message.obj = ex
@@ -524,7 +516,7 @@ internal class MixRecorder : BaseRecorder {
             isAutoComplete = true
             plugConfigs?.unregisterReceiver()
             isPause = false
-            isRecording = false
+            isActive = false
             backgroundMusicIsPlay = false
             if (mPlayBackMusic != null) {
                 bgPlayer.setNeedRecodeDataEnable(false)
