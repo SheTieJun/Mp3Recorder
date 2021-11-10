@@ -6,7 +6,7 @@ import android.os.HandlerThread
 import android.os.Looper
 import android.os.Message
 import me.shetj.recorder.core.FileUtils
-import me.shetj.recorder.util.LameUtils
+import me.shetj.ndk.lame.LameUtils
 import java.io.File
 import java.io.FileNotFoundException
 import java.io.FileOutputStream

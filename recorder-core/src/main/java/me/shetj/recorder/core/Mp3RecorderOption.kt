@@ -1,6 +1,5 @@
 package me.shetj.recorder.core
 
-import android.media.AudioFormat
 import android.media.MediaRecorder
 import android.media.MediaRecorder.AudioSource
 import androidx.annotation.IntDef
@@ -14,8 +13,8 @@ import androidx.annotation.IntDef
 data class Mp3RecorderOption(
     //声音来源：默认麦克风；如果使用VOICE_COMMUNICATION，系统会自动优化录音，但是声音会变小
     @Source var audioSource: Int = AudioSource.MIC,
-    //声道设置：单双声道
-    @Channel var audioChannel: Int = AudioFormat.CHANNEL_IN_STEREO,
+    //声道设置：单双声道，1单声道，2双声道
+    @Channel var audioChannel: Int = 1,
     // debug，输出录音过程日志
     var isDebug: Boolean = false,
     //最大录制事件
@@ -60,6 +59,6 @@ fun recorder(block: Mp3RecorderOption.() -> Unit): Mp3RecorderOption {
 @Retention(AnnotationRetention.SOURCE )
 annotation class Source
 
-@IntDef(value = [AudioFormat.CHANNEL_IN_STEREO, AudioFormat.CHANNEL_IN_MONO])
+@IntDef(value = [1,2])
 @Retention(AnnotationRetention.SOURCE)
 annotation class Channel

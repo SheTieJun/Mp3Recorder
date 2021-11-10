@@ -3,8 +3,6 @@ package me.shetj.recorder.simRecorder
 import android.content.Context
 import me.shetj.recorder.core.BaseRecorder
 import me.shetj.recorder.core.Mp3RecorderOption
-import me.shetj.recorder.core.PermissionListener
-import me.shetj.recorder.core.RecordListener
 
 
 /**
@@ -20,8 +18,8 @@ fun Mp3RecorderOption.buildSim(context: Context?=null): BaseRecorder {
             .setPermissionListener(permissionListener)
             .setRecordListener(recordListener)
             .setWax(wax).apply {
+                setAudioChannel(audioChannel)
                 setDebug(isDebug)
-
             }.apply {
                 context?.let {
                     setContextToPlugConfig(context)

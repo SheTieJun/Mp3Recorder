@@ -3,8 +3,6 @@ package me.shetj.recorder.mixRecorder
 import android.content.Context
 import me.shetj.recorder.core.BaseRecorder
 import me.shetj.recorder.core.Mp3RecorderOption
-import me.shetj.recorder.core.PermissionListener
-import me.shetj.recorder.core.RecordListener
 
 
 /**

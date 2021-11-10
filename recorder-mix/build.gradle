@@ -30,4 +30,4 @@ dependencies {
     compileOnly project(path: ':recorder-core')
 }
 
-apply from : "uploadLocal.gradle"
+apply from: "uploadLocal.gradle"

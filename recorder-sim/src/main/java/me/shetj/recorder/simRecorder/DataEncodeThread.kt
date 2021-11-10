@@ -7,7 +7,7 @@ import android.os.HandlerThread
 import android.os.Looper
 import android.os.Message
 import me.shetj.recorder.core.FileUtils
-import me.shetj.recorder.util.LameUtils
+import me.shetj.ndk.lame.LameUtils
 import java.io.File
 import java.io.FileNotFoundException
 import java.io.FileOutputStream
@@ -20,7 +20,7 @@ import java.util.*
  * @throws FileNotFoundException file not found
  */
 internal class DataEncodeThread @Throws(FileNotFoundException::class)
-constructor(file: File, bufferSize: Int, isContinue: Boolean) : HandlerThread("DataEncodeThread"),
+constructor(file: File, bufferSize: Int, isContinue: Boolean,private val is2CHANNEL: Boolean) : HandlerThread("DataEncodeThread"),
     AudioRecord.OnRecordPositionUpdateListener {
     private var mHandler: StopHandler? = null
     private val mMp3Buffer: ByteArray
@@ -113,8 +113,15 @@ constructor(file: File, bufferSize: Int, isContinue: Boolean) : HandlerThread("D
             val task = mTasks.removeAt(0)
             addOldData(task)
             val buffer = task.data
-            val readSize = task.readSize
-            val encodedSize = LameUtils.encode(buffer, buffer, readSize, mMp3Buffer)
+            val encodedSize: Int
+            val readSize: Int
+            if (is2CHANNEL) {
+                readSize = buffer.size / 2
+                encodedSize = LameUtils.encodeInterleaved(buffer, readSize, mMp3Buffer)
+            } else {
+                readSize = buffer.size
+                encodedSize = LameUtils.encode(buffer, buffer, readSize, mMp3Buffer)
+            }
             if (encodedSize > 0) {
                 try {
                     mFileOutputStream!!.write(mMp3Buffer, 0, encodedSize)
@@ -173,8 +180,15 @@ constructor(file: File, bufferSize: Int, isContinue: Boolean) : HandlerThread("D
         if (mOldTasks.size > 0 && mFileOutputStream !=null) {
             val task = mOldTasks.removeAt(0)
             val buffer = task.data
-            val readSize = task.readSize
-            val encodedSize = LameUtils.encode(buffer, buffer, readSize, mMp3Buffer)
+            val encodedSize: Int
+            val readSize: Int
+            if (is2CHANNEL) {
+                readSize = buffer.size / 2
+                encodedSize = LameUtils.encodeInterleaved(buffer, readSize, mMp3Buffer)
+            } else {
+                readSize = buffer.size
+                encodedSize = LameUtils.encode(buffer, buffer, readSize, mMp3Buffer)
+            }
             if (encodedSize > 0) {
                 try {
                     mFileOutputStream!!.write(mMp3Buffer, 0, encodedSize)

@@ -37,7 +37,7 @@ object AudioTrackPlayer {
 
     private fun init() {
         val audioFormatEncode = AudioFormat.ENCODING_PCM_16BIT
-        val channelConfig = AudioFormat.CHANNEL_IN_STEREO
+        val channelConfig = AudioFormat.CHANNEL_OUT_MONO
         val mSampleRate = 44100
 
         bufferSize = AudioTrack.getMinBufferSize(mSampleRate, channelConfig, audioFormatEncode)

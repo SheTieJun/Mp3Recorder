@@ -10,7 +10,7 @@ import android.os.Process
 import me.shetj.player.AudioPlayer
 import me.shetj.player.PlayerListener
 import me.shetj.recorder.core.*
-import me.shetj.recorder.util.LameUtils
+import me.shetj.ndk.lame.LameUtils
 import java.io.IOException
 
 
@@ -88,27 +88,35 @@ internal class SimRecorder : BaseRecorder {
      *
      * @param audioSource MediaRecorder.AudioSource.MIC
      */
-    constructor(@Source audioSource: Int = MediaRecorder.AudioSource.MIC) {
+    constructor(@Source audioSource: Int = MediaRecorder.AudioSource.MIC,@Channel channel: Int = 1) {
         this.defaultAudioSource = audioSource
+        this.defaultLameInChannel = channel
+        this.defaultChannelConfig = when (channel) {
+            1 -> {
+                AudioFormat.CHANNEL_IN_MONO
+            }
+            2 -> {
+                AudioFormat.CHANNEL_IN_STEREO
+            }
+            else -> defaultAudioSource
+        }
+        this.is2Channel = defaultLameInChannel == 2
         release()
     }
 
 
-    override fun setAudioChannel(channel: Int): Boolean {
+    override fun setAudioChannel(@Channel channel: Int): Boolean {
         if (isActive) {
             return false
         }
-        is2Channel = channel == 2
-        defaultLameInChannel = when {
-            channel <= 1 -> {
-                defaultChannelConfig = AudioFormat.CHANNEL_IN_MONO
-                release()
-                1
+        this.is2Channel = channel == 2
+        this.defaultLameInChannel = channel
+        this.defaultChannelConfig = when (channel) {
+            1 -> {
+                AudioFormat.CHANNEL_IN_MONO
             }
-            channel >= 2 -> {
-                defaultChannelConfig = AudioFormat.CHANNEL_IN_STEREO
-                release()
-                2
+            2 -> {
+                AudioFormat.CHANNEL_IN_STEREO
             }
             else -> defaultAudioSource
         }
@@ -441,7 +449,7 @@ internal class SimRecorder : BaseRecorder {
             defaultLameMp3BitRate,
             defaultLameMp3Quality
         )
-        mEncodeThread = DataEncodeThread(mRecordFile!!, mBufferSize, isContinue)
+        mEncodeThread = DataEncodeThread(mRecordFile!!, mBufferSize, isContinue,       defaultChannelConfig == AudioFormat.CHANNEL_IN_STEREO)
         mEncodeThread!!.start()
         mAudioRecord!!.setRecordPositionUpdateListener(mEncodeThread, mEncodeThread!!.handler)
         mAudioRecord!!.positionNotificationPeriod = FRAME_COUNT

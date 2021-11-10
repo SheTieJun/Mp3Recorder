@@ -11,7 +11,7 @@ import android.os.Process
 import android.util.Log
 import me.shetj.player.PlayerListener
 import me.shetj.recorder.core.*
-import me.shetj.recorder.util.LameUtils
+import me.shetj.ndk.lame.LameUtils
 import java.io.IOException
 
 
@@ -72,30 +72,33 @@ internal class MixRecorder : BaseRecorder {
      * @param audioSource 最好是  [MediaRecorder.AudioSource.VOICE_COMMUNICATION] 或者 [MediaRecorder.AudioSource.MIC]
      * @param channel 声道数量 ([AudioFormat.CHANNEL_IN_MONO] 或者 [AudioFormat.CHANNEL_IN_STEREO])
      */
-    constructor(audioSource: Int = MediaRecorder.AudioSource.MIC,@Channel channel: Int = AudioFormat.CHANNEL_IN_MONO ) {
+    constructor(audioSource: Int = MediaRecorder.AudioSource.MIC,@Channel channel: Int = 1 ) {
         defaultAudioSource = audioSource
-        defaultChannelConfig = channel
-        defaultLameInChannel = when (channel) {
-            AudioFormat.CHANNEL_IN_MONO -> 1
-            AudioFormat.CHANNEL_IN_STEREO -> 2
-            else -> 1
+        defaultLameInChannel = channel
+        defaultChannelConfig = when (channel) {
+            1 -> {
+                AudioFormat.CHANNEL_IN_MONO
+            }
+            2 -> {
+                AudioFormat.CHANNEL_IN_STEREO
+            }
+            else -> defaultAudioSource
         }
         is2Channel = defaultLameInChannel == 2
         release()
         bgPlayer.updateChannel(defaultLameInChannel)
     }
 
-    override fun setAudioChannel(channel: Int): Boolean {
+    override fun setAudioChannel(@Channel  channel: Int): Boolean {
         if (!isActive) {
-            is2Channel = channel >= 2
-            defaultLameInChannel = when {
-                channel <= 1 -> {
-                    defaultChannelConfig = AudioFormat.CHANNEL_IN_MONO
-                    1
+            is2Channel = channel == 2
+            defaultLameInChannel = channel
+            defaultChannelConfig = when (channel) {
+                1 -> {
+                    AudioFormat.CHANNEL_IN_MONO
                 }
-                channel >= 2 -> {
-                    defaultChannelConfig = AudioFormat.CHANNEL_IN_STEREO
-                    2
+                2 -> {
+                    AudioFormat.CHANNEL_IN_STEREO
                 }
                 else -> defaultAudioSource
             }

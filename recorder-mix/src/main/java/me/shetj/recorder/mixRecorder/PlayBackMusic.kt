@@ -14,6 +14,7 @@ import android.os.Message
 import android.util.Log
 import me.shetj.player.PlayerListener
 import me.shetj.recorder.core.BaseRecorder
+import me.shetj.recorder.core.Channel
 import me.shetj.recorder.core.PlugConfigs
 import java.util.concurrent.LinkedBlockingDeque
 import java.util.concurrent.atomic.AtomicBoolean
@@ -381,12 +382,12 @@ internal class PlayBackMusic(private var defaultChannel: Int = CHANNEL_OUT_MONO,
     /**
      * 更新声道数量
      */
-    internal fun updateChannel(channel: Int) {
-        defaultChannel = when {
-            channel <= 1 -> {
+    internal fun updateChannel(@Channel channel: Int) {
+        defaultChannel = when (channel) {
+            1 -> {
                 CHANNEL_OUT_MONO
             }
-            channel >= 2 -> {
+            2 -> {
                 CHANNEL_OUT_STEREO
             }
             else -> CHANNEL_OUT_MONO
