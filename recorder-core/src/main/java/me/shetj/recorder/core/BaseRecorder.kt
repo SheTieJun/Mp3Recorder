@@ -324,6 +324,10 @@ abstract class BaseRecorder {
         return this
     }
 
+    open fun getSoundTouch():ISoundTouchCore{
+        throw error("该录音工具不支持变音功能；The recorder does not support SoundTouch")
+    }
+
     /**
      *
      * 求得平均值之后，如果是平方和则代入常数系数为10的公式中，
@@ -358,6 +362,10 @@ abstract class BaseRecorder {
         if (isDebug) {
             Log.d(TAG, info)
         }
+    }
+
+    protected fun logError(info: String) {
+        Log.e(TAG, info)
     }
 
     protected fun initAEC(mAudioSessionId: Int) {

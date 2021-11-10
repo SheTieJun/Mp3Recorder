@@ -34,7 +34,6 @@
             android:theme="@style/AppTheme.NoActionBar"
             android:windowSoftInputMode="stateHidden|adjustPan"/>
         <activity android:name=".record.activity.sim.MyRecordActivity"/>
-        <activity android:name=".record.MixRecordActivity"/>
     </application>
 
 </manifest>

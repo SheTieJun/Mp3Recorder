@@ -11,6 +11,7 @@ import me.shetj.base.tools.file.EnvironmentStorage
 import me.shetj.player.PlayerListener
 import me.shetj.recorder.core.*
 import me.shetj.recorder.mixRecorder.buildMix
+import me.shetj.recorder.soundtouch.buildST
 
 /**
  * 录音工具类
@@ -56,6 +57,7 @@ class MixRecordUtils(
                 } else {
                     this.saveFile = file
                 }
+                saveFile.logi()
                 mRecorder?.setOutputFile(saveFile, !TextUtils.isEmpty(file))
                 mRecorder?.start()
             }
@@ -78,11 +80,11 @@ class MixRecordUtils(
             isDebug = true
             wax = 1f
             samplingRate = 44100
-            audioSource = MediaRecorder.AudioSource.VOICE_COMMUNICATION
-            audioChannel = AudioFormat.CHANNEL_IN_MONO
+            audioSource = MediaRecorder.AudioSource.MIC
+            audioChannel = 2
             recordListener = this@MixRecordUtils
             permissionListener = this@MixRecordUtils
-        }.buildMix(Utils.app)  //.buildSim(Utils.app)
+        }.buildMix(Utils.app)  //.buildSim(Utils.app)//BuildST()
 
         mRecorder?.setMaxTime(TIME, TIME - 20 * 1000)
     }
@@ -108,6 +110,7 @@ class MixRecordUtils(
     }
 
     fun clear() {
+        mRecorder?.getSoundTouch()?.close()
         mRecorder?.destroy()
     }
 

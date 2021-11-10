@@ -197,7 +197,6 @@ open class RecordPage(
              * @param volume
              */
             override fun onRecording(time: Int, volume: Int) {
-                Timber.i("time = $time\nvolume$volume")
                 AndroidSchedulers.mainThread().scheduleDirect {
                     mProgressBarRecord!!.progress = time
                     mTvRecordTime!!.text = Util.formatSeconds3(time)
