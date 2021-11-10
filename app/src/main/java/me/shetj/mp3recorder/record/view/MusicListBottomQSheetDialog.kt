@@ -8,12 +8,8 @@ import com.chad.library.adapter.base.listener.OnItemClickListener
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import me.shetj.mp3recorder.R
-import me.shetj.mp3recorder.record.adapter.MusicAdapter
 import me.shetj.mp3recorder.record.adapter.MusicQAdapter
 import me.shetj.mp3recorder.record.utils.LocalMusicQUtils
-import me.shetj.mp3recorder.record.utils.LocalMusicUtils
-import me.shetj.player.AudioPlayer
-import me.shetj.player.SimPlayerListener
 import timber.log.Timber
 
 /**

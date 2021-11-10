@@ -10,6 +10,7 @@ import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.AppCompatButton
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.BackpressureStrategy
 import io.reactivex.rxjava3.core.Flowable
@@ -25,16 +26,18 @@ import me.shetj.mp3recorder.record.utils.*
 import me.shetj.mp3recorder.record.view.BackgroundMixMusicView
 import me.shetj.mp3recorder.record.view.MusicListBottomQSheetDialog
 import me.shetj.recorder.core.SimRecordListener
-import org.greenrobot.eventbus.EventBus
-import org.greenrobot.eventbus.Subscribe
-import org.greenrobot.eventbus.ThreadMode
 import timber.log.Timber
 import java.io.File
 
 /**
  * 录制声音界面
  */
-open class MixRecordPage(private val context: AppCompatActivity, mRoot: ViewGroup, private val callback: EventCallback) : View.OnClickListener {
+open class MixRecordPage(
+    private val context: AppCompatActivity,
+    mRoot: ViewGroup,
+    private val callback: EventCallback,
+    private  val btnRecorderType: AppCompatButton
+) : View.OnClickListener {
 
     private val root: RelativeLayout = LayoutInflater.from(context).inflate(R.layout.page_record_mix, null) as RelativeLayout
     private var mEditInfo: EditText? = null
@@ -61,7 +64,8 @@ open class MixRecordPage(private val context: AppCompatActivity, mRoot: ViewGrou
             }
         }
     }
-    private var recordUtils:MixRecordUtils?=null
+
+    var recordUtils:MixRecordUtils?=null
 
 
     init {
@@ -89,15 +93,7 @@ open class MixRecordPage(private val context: AppCompatActivity, mRoot: ViewGrou
         addMusic!!.setOnClickListener(this)
     }
 
-    @Subscribe(threadMode= ThreadMode.MAIN)
-    fun refreshData(event: MainThreadEvent<*>) {
-        when (event.type) {
-            MainThreadEvent.REMOVE_MUSIC -> {
-                musicView?.removeMusic()
-                addMusic?.visibility = View.VISIBLE
-            }
-        }
-    }
+
     fun clearMusic() {
         musicView?.resetMusic()
     }
@@ -217,6 +213,12 @@ open class MixRecordPage(private val context: AppCompatActivity, mRoot: ViewGrou
         musicView?.setRecordUtil(recordUtils)
         musicView!!.setAddMusicView(addMusic!!)//要先设置“添加控件”，因为后面又隐藏
         musicView!!.setDialog(musicDialog)
+        recordUtils!!.recorderLiveDate.observe(context){
+            btnRecorderType.text = recordUtils!!.getRecorderTypeName()
+        }
+        btnRecorderType.setOnClickListener {
+            recordUtils!!.showChangeDialog(context)
+        }
     }
 
     /**

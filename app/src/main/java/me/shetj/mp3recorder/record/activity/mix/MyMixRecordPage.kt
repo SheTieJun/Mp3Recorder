@@ -140,7 +140,7 @@ class MyMixRecordPage(
             (mRecyclerView!!.findViewHolderForAdapterPosition(position + adapter.headerLayoutCount) as BaseViewHolder).let { it1 ->
                 RecordBottomSheetDialog(
                     context, position, it,
-                    it1, callback
+                    callback
                 )
             }
         }

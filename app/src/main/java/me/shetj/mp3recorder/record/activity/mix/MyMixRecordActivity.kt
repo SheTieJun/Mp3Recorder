@@ -6,6 +6,8 @@ import android.transition.Transition
 import android.transition.TransitionInflater
 import android.transition.TransitionManager
 import android.widget.FrameLayout
+import androidx.appcompat.widget.AppCompatButton
+import androidx.core.view.isVisible
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import me.shetj.base.ktx.hasPermission
 import me.shetj.base.mvp.BaseActivity
@@ -28,6 +30,7 @@ class MyMixRecordActivity : BaseActivity<EmptyPresenter>(), EventCallback {
     private var isRecord = false
     private var recordTransition: Transition? = null
     private var myRecordTransition: Transition? = null
+    private var btnRecorderType:AppCompatButton?=null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -39,6 +42,7 @@ class MyMixRecordActivity : BaseActivity<EmptyPresenter>(), EventCallback {
         statuInScreen( true)
         canRecord()
         mFrameLayout = findViewById(R.id.frameLayout)
+        btnRecorderType = findViewById(R.id.btn_recorderType)
         myRecordAction = MyMixRecordPage(
             this,
             mFrameLayout,
@@ -47,7 +51,8 @@ class MyMixRecordActivity : BaseActivity<EmptyPresenter>(), EventCallback {
         recordAction = MixRecordPage(
             this,
             mFrameLayout,
-            this
+            this,
+            btnRecorderType!!
         )
         //设置录音界面的动画
         recordTransition = TransitionInflater.from(this).inflateTransition(R.transition.record_page_slide)
@@ -68,6 +73,7 @@ class MyMixRecordActivity : BaseActivity<EmptyPresenter>(), EventCallback {
                 TransitionManager.go(recordAction!!.scene, recordTransition)
                 recordAction!!.setRecord(null)
                 isRecord = true
+                btnRecorderType?.isVisible = true
             }
             1 -> {
                 setTitle(R.string.my_record)
@@ -77,6 +83,7 @@ class MyMixRecordActivity : BaseActivity<EmptyPresenter>(), EventCallback {
                     TransitionManager.go(myRecordAction!!.scene, myRecordTransition)
                 },200,TimeUnit.MICROSECONDS)
                 isRecord = false
+                btnRecorderType?.isVisible = false
             }
             2 -> {
                 setTitle(R.string.record)
@@ -84,6 +91,7 @@ class MyMixRecordActivity : BaseActivity<EmptyPresenter>(), EventCallback {
                 recordAction!!.setRecord(curRecord)
                 TransitionManager.go(recordAction!!.scene, recordTransition)
                 isRecord = true
+                btnRecorderType?.isVisible = true
             }
             3 -> canRecord()
             else -> {

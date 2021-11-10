@@ -12,11 +12,9 @@ import androidx.core.animation.doOnEnd
 import com.chad.library.adapter.base.BaseQuickAdapter
 import com.chad.library.adapter.base.viewholder.BaseViewHolder
 import io.reactivex.rxjava3.disposables.CompositeDisposable
-import io.reactivex.rxjava3.disposables.Disposable
 import me.shetj.base.tools.app.ArmsUtils
 import me.shetj.mp3recorder.R
 import me.shetj.mp3recorder.record.bean.Record
-import me.shetj.mp3recorder.record.utils.LifecycleListener
 import me.shetj.mp3recorder.record.utils.MediaPlayerUtils
 import me.shetj.mp3recorder.record.utils.RecordPlayerListener
 import me.shetj.mp3recorder.record.utils.Util
@@ -34,12 +32,12 @@ import java.io.File
  * 5.上传成功后重置
  * @author shetj
  */
-class RecordAdapter(data: MutableList<Record>?) : BaseQuickAdapter<Record, BaseViewHolder>(R.layout.item_record_view, data),
-    LifecycleListener {
+class RecordAdapter(data: MutableList<Record>?) :
+    BaseQuickAdapter<Record, BaseViewHolder>(R.layout.item_record_view, data) {
 
     var curPosition = -1
         private set
-    private val mediaUtils: MediaPlayerUtils= MediaPlayerUtils()
+    private val mediaUtils: MediaPlayerUtils = MediaPlayerUtils()
     private var mCompositeDisposable: CompositeDisposable? = null
 
     override fun convert(holder: BaseViewHolder, item: Record) {
@@ -78,12 +76,16 @@ class RecordAdapter(data: MutableList<Record>?) : BaseQuickAdapter<Record, BaseV
      */
     private fun startUpload(helper: BaseViewHolder, item: Record) {
         helper.setGone(R.id.rl_record_view2, false)
-                .setVisible(R.id.tv_time, true)
+            .setVisible(R.id.tv_time, true)
         curPosition = -1
         if (!mediaUtils.isPause) {
             mediaUtils.pause()
         }
-        uploadMusic(item.audio_url, helper.getView(R.id.progressbar_upload), helper.getView(R.id.tv_progress))
+        uploadMusic(
+            item.audio_url,
+            helper.getView(R.id.progressbar_upload),
+            helper.getView(R.id.tv_progress)
+        )
     }
 
     /**
@@ -110,7 +112,13 @@ class RecordAdapter(data: MutableList<Record>?) : BaseQuickAdapter<Record, BaseV
     /**
      * 展示进度动画
      */
-    private fun showAnimator(progressBar: ProgressBar, tvProgress: TextView, start: Int, end: Int, time: Int): ValueAnimator {
+    private fun showAnimator(
+        progressBar: ProgressBar,
+        tvProgress: TextView,
+        start: Int,
+        end: Int,
+        time: Int
+    ): ValueAnimator {
         val valueAnimator = ValueAnimator.ofInt(start, end)
         valueAnimator.duration = time.toLong()
         valueAnimator.interpolator = AccelerateDecelerateInterpolator()
@@ -141,10 +149,10 @@ class RecordAdapter(data: MutableList<Record>?) : BaseQuickAdapter<Record, BaseV
             this.curPosition = targetPos
             // -1 表示默认不做任何变化
             if (old != -1) {
-                notifyItemChanged(old + headerLayoutCount,1)
+                notifyItemChanged(old + headerLayoutCount, 1)
             }
             if (targetPos != -1) {
-                notifyItemChanged(targetPos + headerLayoutCount,1)
+                notifyItemChanged(targetPos + headerLayoutCount, 1)
             }
         }
     }
@@ -154,42 +162,16 @@ class RecordAdapter(data: MutableList<Record>?) : BaseQuickAdapter<Record, BaseV
         mediaUtils.playOrStop(url!!, listener)
     }
 
-    override fun onStart() {}
 
-    override fun onStop() {
-        mediaUtils.stopPlay()
-    }
-
-    override fun onResume() {
-        mediaUtils.resume()
-    }
-
-
-    override fun onPause() {
+    fun onPause() {
         mediaUtils.pause()
     }
 
-    override fun onDestroy() {
+    fun onDestroy() {
         mediaUtils.stopPlay()
         unDispose()
     }
 
-    /**
-     * 将 [Disposable] 添加到 [CompositeDisposable] 中统一管理
-     * 可在 {onDestroy() 中使用 [.unDispose] 停止正在执行的 RxJava 任务,避免内存泄漏
-     *
-     * @param disposable
-     */
-    fun addDispose(disposable: Disposable) {
-        if (mCompositeDisposable == null) {
-            mCompositeDisposable = CompositeDisposable()
-        }
-        mCompositeDisposable!!.add(disposable)
-    }
-
-    /**
-     * 停止集合中正在执行的 RxJava 任务
-     */
     fun unDispose() {
         if (mCompositeDisposable != null) {
             mCompositeDisposable!!.clear()

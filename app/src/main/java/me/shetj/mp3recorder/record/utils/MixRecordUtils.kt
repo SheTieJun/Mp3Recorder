@@ -5,12 +5,18 @@ import android.media.AudioFormat
 import android.media.MediaRecorder
 import android.net.Uri
 import android.text.TextUtils
+import android.view.View
+import androidx.lifecycle.MutableLiveData
 import me.shetj.base.ktx.logi
 import me.shetj.base.tools.app.Utils
 import me.shetj.base.tools.file.EnvironmentStorage
+import me.shetj.dialog.OrangeDialog
+import me.shetj.dialog.SingleChoiceCallback
+import me.shetj.dialog.orangeSingeDialog
 import me.shetj.player.PlayerListener
 import me.shetj.recorder.core.*
 import me.shetj.recorder.mixRecorder.buildMix
+import me.shetj.recorder.simRecorder.buildSim
 import me.shetj.recorder.soundtouch.buildST
 
 /**
@@ -19,6 +25,8 @@ import me.shetj.recorder.soundtouch.buildST
 class MixRecordUtils(
     private val callBack: SimRecordListener?
 ) : RecordListener, PermissionListener {
+
+    private var recorderType: BaseRecorder.RecorderType = BaseRecorder.RecorderType.MIX
 
     val TIME = 5 * 60 * 1000
 
@@ -39,9 +47,11 @@ class MixRecordUtils(
         initRecorder()
     }
 
+
     private var startTime: Long = 0 //秒 s
     private var mRecorder: BaseRecorder? = null
     private var saveFile = ""
+    val recorderLiveDate:MutableLiveData<BaseRecorder.RecorderType> = MutableLiveData()
 
     @JvmOverloads
     fun startOrPause(file: String = "") {
@@ -70,6 +80,67 @@ class MixRecordUtils(
         }
     }
 
+    fun showChangeDialog(context: Context) {
+        orangeSingeDialog(
+            context = context,
+            title = "切换录音工具",
+            content = "建议不要在录音中进行切换，切换时会自动默认完成",
+            items = arrayOf("MixRecorder", "SimRecorder", "STRecorder"),
+            selectIndex = getSelectPosition(recorderType),
+            singleChoiceCallBack = object : SingleChoiceCallback {
+                override fun invoke(
+                    dialog: OrangeDialog,
+                    itemView: View,
+                    which: Int,
+                    text: CharSequence?
+                ): Boolean {
+                    updateRecorderType(which)
+                    dialog.dismiss()
+                    return true
+                }
+            }
+        )
+    }
+
+    fun getRecorderTypeName(): String {
+        return when (recorderType) {
+            BaseRecorder.RecorderType.MIX -> "MixRecorder"
+            BaseRecorder.RecorderType.SIM -> "SimRecorder"
+            BaseRecorder.RecorderType.ST -> "STRecorder"
+        }
+    }
+
+    private fun getSelectPosition(recorderType: BaseRecorder.RecorderType): Int {
+        return when (recorderType) {
+            BaseRecorder.RecorderType.MIX -> 0
+            BaseRecorder.RecorderType.SIM -> 1
+            BaseRecorder.RecorderType.ST -> 2
+        }
+    }
+
+    fun updateRecorderType(position: Int) {
+        val recorderType = when (position) {
+            0 -> BaseRecorder.RecorderType.MIX
+            1 -> BaseRecorder.RecorderType.SIM
+            2 -> BaseRecorder.RecorderType.ST
+            else -> BaseRecorder.RecorderType.MIX
+        }
+        updateRecorderType(recorderType)
+    }
+
+    /**
+     * 更新录音模式
+     */
+    private fun updateRecorderType(recorderType: BaseRecorder.RecorderType) {
+        if (hasRecord()) {
+            mRecorder?.complete()
+        }
+        "updateRecorderType:${getRecorderTypeName()}".logi()
+        this.recorderType = recorderType
+        recorderLiveDate.postValue(recorderType)
+        initRecorder()
+    }
+
     /**
      * VOICE_COMMUNICATION 消除回声和噪声问题
      * MIC 麦克风- 因为有噪音问题
@@ -84,8 +155,13 @@ class MixRecordUtils(
             audioChannel = 2
             recordListener = this@MixRecordUtils
             permissionListener = this@MixRecordUtils
-        }.buildMix(Utils.app)  //.buildSim(Utils.app)//BuildST()
-
+        }.let {
+            when (recorderType) {
+                BaseRecorder.RecorderType.MIX -> it.buildMix(Utils.app)
+                BaseRecorder.RecorderType.SIM -> it.buildSim(Utils.app)
+                BaseRecorder.RecorderType.ST -> it.buildST(Utils.app)
+            }
+        }
         mRecorder?.setMaxTime(TIME, TIME - 20 * 1000)
     }
 

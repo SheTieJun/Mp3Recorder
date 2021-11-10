@@ -16,7 +16,7 @@
 
 ## [接入配置文档](https://github.com/SheTieJun/Mp3Recorder/wiki/%E6%8E%A5%E5%85%A5%E6%96%87%E6%A1%A3)
 
-### 1. 背景音乐录制推荐：
+### 1. [背景音乐录制推荐](recorder-sim)：
 
 ```
 implementation 'com.github.SheTieJun.Mp3Recorder:recorder-mix:版本号'
@@ -35,14 +35,14 @@ implementation 'com.github.SheTieJun.Mp3Recorder:recorder-core:版本号'
 - 如果设置单声道，播放的背景是双声道，（MIX）会让音乐拉长；反之双声音合成，背景音乐是单声音，节奏会变快
 - tip: 背景音乐支持网络链接，但是网络差的时候可能导致卡顿,所有请尽量不要使用网络链接作为背景音乐应用
 
-### 2. 变音录音推荐:
+### 2. [变音录音推荐](recorder-st):
 
 ```
 implementation 'com.github.SheTieJun.Mp3Recorder:recorder-core:版本号'
 implementation 'com.github.SheTieJun.Mp3Recorder:recorder-st:版本号'
 ```
 
-#### 1). 变音录制相关(SoundTouch)
+#### 1). 变音录制相关(SoundTouch):初步完成，未完善
 
 - 录制中可以随时中断、重新继续进行变音、变速等等功能
 

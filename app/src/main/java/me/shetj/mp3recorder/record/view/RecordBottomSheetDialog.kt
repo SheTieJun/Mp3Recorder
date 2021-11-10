@@ -3,7 +3,6 @@ package me.shetj.mp3recorder.record.view
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
-import com.chad.library.adapter.base.viewholder.BaseViewHolder
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import me.shetj.mp3recorder.R
 import me.shetj.mp3recorder.record.bean.Record
@@ -15,10 +14,9 @@ import me.shetj.mp3recorder.record.utils.EventCallback
  * 录音更多菜单
  */
 class RecordBottomSheetDialog(
-    private val context: Context,
+    context: Context,
     position: Int,
     private val record: Record,
-    private val baseViewHolder: BaseViewHolder,
     private val callback: EventCallback
 ) : View.OnClickListener {
     private val easyBottomSheetDialog: BottomSheetDialog?

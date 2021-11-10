@@ -114,13 +114,13 @@
         >
     </ScrollView>
 
-    <me.shetj.mp3recorder.record.view.BackgroundMusicView
+    <me.shetj.mp3recorder.record.view.BackgroundMixMusicView
         android:id="@+id/bg_music_view"
         android:layout_width="match_parent"
         android:layout_above="@id/rl_record_view"
         android:layout_height="102dp"
         android:visibility="gone">
-    </me.shetj.mp3recorder.record.view.BackgroundMusicView>
+    </me.shetj.mp3recorder.record.view.BackgroundMixMusicView>
 
     <LinearLayout
         android:id="@+id/ll_add_music"

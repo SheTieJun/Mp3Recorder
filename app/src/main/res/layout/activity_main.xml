@@ -10,20 +10,12 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
-    <Button
-        android:id="@+id/btn_demo"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="simDemo"
-        android:textAllCaps="false"/>
-
 
     <Button
         android:id="@+id/btn_demo3"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="mixDemo"
-        android:layout_toRightOf="@id/btn_demo"
+        android:text="RecorderDemo"
         android:textAllCaps="false"/>
 
     <Button

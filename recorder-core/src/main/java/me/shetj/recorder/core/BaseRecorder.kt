@@ -25,7 +25,8 @@ abstract class BaseRecorder {
     //region 录音的方式 /来源 Record Type
     enum class RecorderType {
         SIM, //
-        MIX
+        MIX,// 背景音乐
+        ST //变音
     }
 
     //endregion Record Type
@@ -325,7 +326,8 @@ abstract class BaseRecorder {
     }
 
     open fun getSoundTouch():ISoundTouchCore{
-        throw error("该录音工具不支持变音功能；The recorder does not support SoundTouch")
+        throw NullPointerException("该录音工具不支持变音功能；The recorder does not support SoundTouch," +
+                "u should add 'com.github.SheTieJun.Mp3Recorder:recorder-st:版本号' ")
     }
 
     /**

@@ -6,6 +6,7 @@ import android.media.MediaRecorder
 import me.shetj.recorder.core.*
 import me.shetj.recorder.mixRecorder.buildMix
 import me.shetj.recorder.simRecorder.buildSim
+import me.shetj.recorder.soundtouch.buildST
 
 @JvmOverloads
 fun mp3Recorder(
@@ -17,7 +18,7 @@ fun mp3Recorder(
     samplingRate: Int = 44100,
     mp3BitRate: Int = 64,//96(高),32（低）
     mp3Quality: Int = 1,
-    @Channel channel: Int = AudioFormat.CHANNEL_IN_STEREO,
+    @Channel channel: Int = 2,
     permissionListener: PermissionListener? = null,
     recordListener: RecordListener? = null,
     wax: Float = 1f
@@ -37,6 +38,7 @@ fun mp3Recorder(
         when (simpleName) {
             BaseRecorder.RecorderType.MIX -> it.buildMix(context)
             BaseRecorder.RecorderType.SIM -> it.buildSim(context)
+            BaseRecorder.RecorderType.ST -> it.buildST(context)
         }
     }
 }
