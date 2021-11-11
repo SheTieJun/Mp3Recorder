@@ -433,8 +433,12 @@ internal class MixRecorder : BaseRecorder {
             frameSize += FRAME_COUNT - frameSize % FRAME_COUNT
             mBufferSize = frameSize * bytesPerFrame
         }
-        //获取合适的buffer大小
-        /* Setup audio recorder */
+        /* Setup audio recorder
+      * 音频源：可以使用麦克风作为采集音频的数据源。defaultAudioSource
+      * 采样率：一秒钟对声音数据的采样次数，采样率越高，音质越好。defaultSamplingRate
+      * 音频通道：单声道，双声道等，defaultChannelConfig
+      * 缓冲区大小：音频数据写入缓冲区的总数：mBufferSize
+      * */
         mAudioRecord = AudioRecord(
             defaultAudioSource,
             defaultSamplingRate, defaultChannelConfig, DEFAULT_AUDIO_FORMAT.audioFormat,
@@ -528,13 +532,6 @@ internal class MixRecorder : BaseRecorder {
         }
     }
 
-    private fun mapFormat(format: Int): Int {
-        return when (format) {
-            AudioFormat.ENCODING_PCM_8BIT -> 8
-            AudioFormat.ENCODING_PCM_16BIT -> 16
-            else -> 0
-        }
-    }
 
     //endregion
 }

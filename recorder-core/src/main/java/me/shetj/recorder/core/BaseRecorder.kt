@@ -24,9 +24,9 @@ abstract class BaseRecorder {
 
     //region 录音的方式 /来源 Record Type
     enum class RecorderType {
-        SIM, //
-        MIX,// 背景音乐
-        ST //变音
+        SIM, // 只转码MP3
+        MIX,// 背景音乐（需要混音+转码，所以较慢）
+        ST // 变音(需要变音+转码，所以较慢)
     }
 
     //endregion Record Type
@@ -34,6 +34,7 @@ abstract class BaseRecorder {
     protected var defaultChannelConfig = AudioFormat.CHANNEL_IN_MONO // defaultLameInChannel =1
     protected var defaultLameInChannel = 1 //声道数量
     protected var defaultLameMp3Quality = 3 //音频质量，好像LAME已经不使用它了
+
     /*
     * 16Kbps= 电话音质
     * 24Kbps= 增加电话音质、短波广播、长波广播、欧洲制式中波广播
@@ -49,7 +50,7 @@ abstract class BaseRecorder {
     * 比如正逐渐兴起的APE音频格式，能够提供真正发烧级的无损音质和相对于WAV格式更小的体积，其比特率通常为550kbps-----950kbps。
      */
     protected var defaultLameMp3BitRate = 96 //32 太低，(96,128) 比较合适
-    protected var defaultSamplingRate = 44100
+    protected var defaultSamplingRate = 48000
     protected var is2Channel = false //默认是双声道
     protected var mRecordFile: File? = null //文件输出，中途可以替换
     protected var mRecordListener: RecordListener? = null
@@ -83,6 +84,7 @@ abstract class BaseRecorder {
     //声音增强,不建议使用
     protected var wax = 1f
     protected var bgLevel: Float = 03f
+
     // 录音Recorder 是否在活动,暂停的时候 isActive 还是true,只有录音结束了才会为false
     var isActive = false
         protected set
@@ -143,9 +145,9 @@ abstract class BaseRecorder {
                 HANDLER_ERROR -> {
                     logInfo("error : mDuration = $duration")
                     if (mRecordListener != null) {
-                        if (msg.obj != null){
+                        if (msg.obj != null) {
                             mRecordListener!!.onError(msg.obj as Exception)
-                        }else{
+                        } else {
                             mRecordListener!!.onError(Exception("record error：AudioRecord read MIC error maybe not permission!"))
                         }
                     }
@@ -178,7 +180,7 @@ abstract class BaseRecorder {
     }
 
     //录音的方式
-    abstract val recorderType:RecorderType
+    abstract val recorderType: RecorderType
 
     //设置是否使用耳机配置方式
     abstract fun setContextToPlugConfig(context: Context): BaseRecorder
@@ -209,9 +211,12 @@ abstract class BaseRecorder {
      * @param outputFile 设置输出路径
      * @param isContinue 表示是否拼接在文件末尾，继续录制的一种
      */
-     open fun setOutputFile(outputFile: File, isContinue: Boolean = false): BaseRecorder {
-        if (outputFile.exists()){
-            Log.w(TAG, "setOutputFile: outputFile is exists, if not Continue may cover it(如果没有isContinue = true,会覆盖文件)", )
+    open fun setOutputFile(outputFile: File, isContinue: Boolean = false): BaseRecorder {
+        if (outputFile.exists()) {
+            Log.w(
+                TAG,
+                "setOutputFile: outputFile is exists, if not Continue may cover it(如果没有isContinue = true,会覆盖文件)",
+            )
         }
         mRecordFile = outputFile
         this.isContinue = isContinue
@@ -241,7 +246,7 @@ abstract class BaseRecorder {
     abstract fun setBackgroundMusicListener(listener: PlayerListener): BaseRecorder
 
     //初始Lame录音输出质量
-    open fun setMp3Quality(@IntRange(from = 0 ,to = 9)mp3Quality: Int): BaseRecorder {
+    open fun setMp3Quality(@IntRange(from = 0, to = 9) mp3Quality: Int): BaseRecorder {
         this.defaultLameMp3Quality = mp3Quality
         return this
     }
@@ -252,17 +257,17 @@ abstract class BaseRecorder {
         return this
     }
 
-    //设置采样率
+    //设置采样率 48000
     open fun setSamplingRate(@IntRange(from = 8000) rate: Int): BaseRecorder {
         this.defaultSamplingRate = rate
         return this
     }
 
     //设置音频声道数量，每次录音前可以设置修改，开始录音后无法修改
-    abstract fun setAudioChannel(@IntRange(from = 1,to = 2)channel: Int = 1):Boolean
+    abstract fun setAudioChannel(@IntRange(from = 1, to = 2) channel: Int = 1): Boolean
 
     //设置音频来源，每次录音前可以设置修改，开始录音后无法修改
-    abstract fun setAudioSource(@Source audioSource: Int = MediaRecorder.AudioSource.MIC):Boolean
+    abstract fun setAudioSource(@Source audioSource: Int = MediaRecorder.AudioSource.MIC): Boolean
 
 
     //初始最大录制时间 和提醒时间 remind = maxTime - remindDiffTime
@@ -320,14 +325,17 @@ abstract class BaseRecorder {
 
     //region  计算真正的时间，如果过程中有些数据太小，就直接置0，防止噪音
 
-    fun setDebug(isDebug: Boolean): BaseRecorder {
+    open fun setDebug(isDebug: Boolean): BaseRecorder {
         this.isDebug = isDebug
         return this
     }
 
-    open fun getSoundTouch():ISoundTouchCore{
-        throw NullPointerException("该录音工具不支持变音功能；The recorder does not support SoundTouch," +
-                "u should add 'com.github.SheTieJun.Mp3Recorder:recorder-st:版本号' ")
+    open fun getSoundTouch(): ISoundTouchCore {
+        throw NullPointerException(
+            "该录音工具不支持变音功能,使用 recorderType =  st ；" +
+                    "\n The recorder recorderType does not support SoundTouch," +
+                    "u should add 'com.github.SheTieJun.Mp3Recorder:recorder-st:版本号' ,STRecorder "
+        )
     }
 
     /**
@@ -366,8 +374,8 @@ abstract class BaseRecorder {
         }
     }
 
-    protected fun logError(info: String) {
-        Log.e(TAG, info)
+    protected fun logError(error: String) {
+        Log.e(TAG, error)
     }
 
     protected fun initAEC(mAudioSessionId: Int) {
@@ -444,6 +452,15 @@ abstract class BaseRecorder {
         }
     }
 
+
+    fun mapFormat(format: Int): Int {
+        return when (format) {
+            AudioFormat.ENCODING_PCM_8BIT -> 8
+            AudioFormat.ENCODING_PCM_16BIT -> 16
+            else -> 0
+        }
+    }
+
     companion object {
         const val HANDLER_RECORDING = 0x101 //正在录音
         const val HANDLER_START = HANDLER_RECORDING + 1//开始了
@@ -452,7 +469,7 @@ abstract class BaseRecorder {
         const val HANDLER_AUTO_COMPLETE = HANDLER_COMPLETE + 1//最大时间完成
         const val HANDLER_ERROR = HANDLER_AUTO_COMPLETE + 1//错误
         const val HANDLER_PAUSE = HANDLER_ERROR + 1//暂停
-        const val HANDLER_RESET = HANDLER_PAUSE + 1//暂停
+        const val HANDLER_RESET = HANDLER_PAUSE + 1//重置
         const val HANDLER_PERMISSION = HANDLER_RESET + 1//需要权限
         const val HANDLER_MAX_TIME = HANDLER_PERMISSION + 1//设置了最大时间
         const val FRAME_COUNT = 160

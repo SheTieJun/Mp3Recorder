@@ -37,7 +37,7 @@ internal class STKit : ISoundTouch {
     private var handle: Long = 0
 
 
-    override fun init(channels: Int, sampleRate: Int, tempo: Int, pitch: Float, rate: Float) {
+    override fun init(channels: Int, sampleRate: Int, tempo: Float, pitch: Float, rate: Float) {
         if (handle == 0L) {
             handle = soundTouch.newInstance()
         }

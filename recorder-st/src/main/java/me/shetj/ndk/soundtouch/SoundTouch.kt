@@ -7,7 +7,7 @@ package me.shetj.ndk.soundtouch
  * @Email 375105540@qq.com
  */
 
-internal class SoundTouch {
+class SoundTouch {
 
 
     external fun newInstance(): Long
@@ -18,9 +18,9 @@ internal class SoundTouch {
     external fun init(
         channels: Int, //设置声道(1单,2双)
         sampleRate: Int,//设置采样率
-        tempo: Int, //指定节拍，设置新的节拍tempo，源tempo=1.0，小于1则变慢；大于1变快
-        pitch: Float, //指定音调值
-        speed: Float//指定播放速率
+        tempo: Float, //指定节拍，设置新的节拍tempo，源tempo=1.0，小于1则变慢；大于1变快
+        pitch: Float, //指定音调值重点， 大于0 是变女生，小于0是变男声
+        speed: Float //指定播放速率 源rate=1.0，小于1变慢；大于1
     )
 
     // 在原速1.0基础上，按百分比做增量，取值(-50 .. +100 %)

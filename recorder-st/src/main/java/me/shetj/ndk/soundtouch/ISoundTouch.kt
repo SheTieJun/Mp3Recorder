@@ -14,14 +14,14 @@ import androidx.annotation.FloatRange
  * @Email 375105540@qq.com
  */
 
-internal interface ISoundTouch {
+interface ISoundTouch {
 
     fun init(
         channels: Int, //设置声道(1单,2双)
         sampleRate: Int,//设置采样率
-        tempo: Int, //指定节拍，设置新的节拍tempo，源tempo=1.0，小于1则变慢；大于1变快,通过拉伸时间，改变声音的播放速率而不影响音调。
-        @FloatRange(from = -12.0, to = 12.0) pitch: Float,//pitch 是音调 这个就是我们的重点了， 大于0 是变女生，小于0是变男声
-        rate: Float//指定播放速率，源rate=1.0，小于1变慢；大于1变快 rate (-50 .. +100 %)
+        tempo: Float, //指定节拍，设置新的节拍tempo，源tempo=1.0，小于1则变慢；大于1变快,通过拉伸时间，改变声音的播放速率而不影响音调。
+        @FloatRange(from = -12.0, to = 12.0) pitch: Float,//音调, 重点， 大于0 是变女生，小于0是变男声
+        rate: Float//指定播放速率，源rate=1.0，小于1变慢；大于1
     )
 
     //指定播放速率

@@ -8,9 +8,11 @@ import android.media.MediaRecorder
 import android.net.Uri
 import android.os.Message
 import android.os.Process
+import android.util.Log
 import me.shetj.player.PlayerListener
 import me.shetj.recorder.core.*
 import me.shetj.ndk.lame.LameUtils
+import me.shetj.ndk.soundtouch.STKit
 import java.io.IOException
 
 
@@ -23,7 +25,6 @@ internal class STRecorder : BaseRecorder {
 
     private var mAudioRecord: AudioRecord? = null
     private var mEncodeThread: DataSTEncodeThread? = null
-    private var context: Context? = null
 
     /**
      * 输出的文件
@@ -51,21 +52,14 @@ internal class STRecorder : BaseRecorder {
             field = waveSpeed
         }
 
-    //背景音乐相关
-    private var backgroundMusicUrl: String? = null
-    private var backgroundMusicPlayerListener: PlayerListener? = null
-    private var backgroundMusicUri: Uri? = null
-    private var header: MutableMap<String, String>? = null
-
 
     override fun setContextToPlugConfig(context: Context): BaseRecorder {
-        logInfo("SimRecorder no use it")
+        logInfo("STRecorder no use it")
         return this
     }
 
     override fun setContextToVolumeConfig(context: Context): BaseRecorder {
-        volumeConfig = VolumeConfig.getInstance(context.applicationContext)
-        volumeConfig?.registerReceiver()
+        logInfo("STRecorder no use it")
         return this
     }
 
@@ -76,7 +70,10 @@ internal class STRecorder : BaseRecorder {
      *
      * @param audioSource MediaRecorder.AudioSource.MIC
      */
-    constructor(@Source audioSource: Int = MediaRecorder.AudioSource.MIC,@Channel channel: Int = 1) {
+    constructor(
+        @Source audioSource: Int = MediaRecorder.AudioSource.MIC,
+        @Channel channel: Int = 1
+    ) {
         this.defaultAudioSource = audioSource
         defaultLameInChannel = channel
         defaultChannelConfig = when (channel) {
@@ -98,6 +95,7 @@ internal class STRecorder : BaseRecorder {
 
     override fun setAudioChannel(@Channel channel: Int): Boolean {
         if (isActive) {
+            Log.e(TAG, "setAudioSource error ,need state isn't isActive|录音没有完成，无法进行修改 ")
             return false
         }
         is2Channel = channel == 2
@@ -122,6 +120,7 @@ internal class STRecorder : BaseRecorder {
             defaultAudioSource = audioSource
             return true
         }
+        Log.e(TAG, "setAudioSource error ,need state isn't isActive|录音没有完成，无法进行修改 ")
         return false
     }
 
@@ -183,7 +182,7 @@ internal class STRecorder : BaseRecorder {
         object : Thread() {
             var isError = false
 
-            //PCM文件大小 = 采样率采样时间采样位深 / 8*通道数（Bytes）
+            //1秒PCM文件大小 = 采样率采样时间采样位深 / 8*通道数（Bytes）
             var bytesPerSecond =
                 mAudioRecord!!.sampleRate * mapFormat(mAudioRecord!!.audioFormat) / 8 * mAudioRecord!!.channelCount
 
@@ -251,9 +250,6 @@ internal class STRecorder : BaseRecorder {
     @Deprecated("不支持背景音乐", replaceWith = ReplaceWith("no use"))
     override fun setBackgroundMusic(url: String): STRecorder {
         logError("不支持背景音乐")
-        this.backgroundMusicUri = null
-        this.header = null
-        this.backgroundMusicUrl = url
         return this
     }
 
@@ -264,10 +260,6 @@ internal class STRecorder : BaseRecorder {
         header: MutableMap<String, String>?
     ): BaseRecorder {
         logError("不支持背景音乐")
-        this.context = context.applicationContext
-        this.backgroundMusicUrl = null
-        this.backgroundMusicUri = uri
-        this.header = header
         return this
     }
 
@@ -315,9 +307,6 @@ internal class STRecorder : BaseRecorder {
     }
 
     override fun cleanBackgroundMusic() {
-        backgroundMusicUrl = null
-        backgroundMusicUri = null
-        header = null
     }
 
     /**
@@ -347,6 +336,7 @@ internal class STRecorder : BaseRecorder {
         duration = 0L
         mRecordFile = null
         handler.sendEmptyMessage(HANDLER_RESET)
+        SoundTouchKit.getInstance().clean()
     }
 
 
@@ -358,7 +348,7 @@ internal class STRecorder : BaseRecorder {
         release()
         handler.removeCallbacksAndMessages(null)
         volumeConfig?.unregisterReceiver()
-        SoundTouchKit.onDestroy()
+        STKit.onDestroy()
     }
 
 
@@ -373,7 +363,7 @@ internal class STRecorder : BaseRecorder {
         return true
     }
 
-    @Deprecated("不支持背景音乐")
+    @Deprecated("不支持背景音乐", replaceWith = ReplaceWith("no use"))
     override fun pauseMusic() {
         logError("不支持背景音乐")
     }
@@ -403,16 +393,26 @@ internal class STRecorder : BaseRecorder {
             frameSize += FRAME_COUNT - frameSize % FRAME_COUNT
             mBufferSize = frameSize * bytesPerFrame
         }
-//        Log.i(TAG, "mBufferSize = $mBufferSize")
-        /* Setup audio recorder */
+        /* Setup audio recorder
+        * 音频源：可以使用麦克风作为采集音频的数据源。defaultAudioSource
+        * 采样率：一秒钟对声音数据的采样次数，采样率越高，音质越好。defaultSamplingRate
+        * 音频通道：单声道，双声道等，defaultChannelConfig
+        * 缓冲区大小：音频数据写入缓冲区的总数：mBufferSize
+        * */
         mAudioRecord = AudioRecord(
             defaultAudioSource,
             defaultSamplingRate, defaultChannelConfig, DEFAULT_AUDIO_FORMAT.audioFormat,
             mBufferSize
         )
+
+        //缓冲区大小
         mPCMBuffer = ShortArray(mBufferSize)
 
+        //初始化变音
+        SoundTouchKit.getInstance().init(defaultLameInChannel, defaultSamplingRate)
+
         initAEC(mAudioRecord!!.audioSessionId)
+
         LameUtils.init(
             defaultSamplingRate,
             defaultLameInChannel,
@@ -484,13 +484,5 @@ internal class STRecorder : BaseRecorder {
         }
     }
 
-
-    private fun mapFormat(format: Int): Int {
-        return when (format) {
-            AudioFormat.ENCODING_PCM_8BIT -> 8
-            AudioFormat.ENCODING_PCM_16BIT -> 16
-            else -> 16
-        }
-    }
 
 }

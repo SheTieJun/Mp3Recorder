@@ -7,6 +7,7 @@ import android.media.MediaRecorder
 import android.net.Uri
 import android.os.Message
 import android.os.Process
+import android.util.Log
 import me.shetj.player.AudioPlayer
 import me.shetj.player.PlayerListener
 import me.shetj.recorder.core.*
@@ -107,6 +108,7 @@ internal class SimRecorder : BaseRecorder {
 
     override fun setAudioChannel(@Channel channel: Int): Boolean {
         if (isActive) {
+            Log.e(TAG, "setAudioChannel error ,need state isn't isActive|录音没有完成，无法进行修改 ")
             return false
         }
         this.is2Channel = channel == 2
@@ -128,6 +130,7 @@ internal class SimRecorder : BaseRecorder {
             defaultAudioSource = audioSource
             return true
         }
+        Log.e(TAG, "setAudioChannel error ,need state isn't isActive|录音没有完成，无法进行修改 ")
         return false
     }
 
@@ -432,8 +435,12 @@ internal class SimRecorder : BaseRecorder {
             frameSize += FRAME_COUNT - frameSize % FRAME_COUNT
             mBufferSize = frameSize * bytesPerFrame
         }
-//        Log.i(TAG, "mBufferSize = $mBufferSize")
-        /* Setup audio recorder */
+        /* Setup audio recorder
+              * 音频源：可以使用麦克风作为采集音频的数据源。defaultAudioSource
+              * 采样率：一秒钟对声音数据的采样次数，采样率越高，音质越好。defaultSamplingRate
+              * 音频通道：单声道，双声道等，defaultChannelConfig
+              * 缓冲区大小：音频数据写入缓冲区的总数：mBufferSize
+              * */
         mAudioRecord = AudioRecord(
             defaultAudioSource,
             defaultSamplingRate, defaultChannelConfig, DEFAULT_AUDIO_FORMAT.audioFormat,
@@ -529,13 +536,5 @@ internal class SimRecorder : BaseRecorder {
         }
     }
 
-
-    private fun mapFormat(format: Int): Int {
-        return when (format) {
-            AudioFormat.ENCODING_PCM_8BIT -> 8
-            AudioFormat.ENCODING_PCM_16BIT -> 16
-            else -> 0
-        }
-    }
 
 }

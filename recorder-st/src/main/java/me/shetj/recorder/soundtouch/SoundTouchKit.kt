@@ -1,5 +1,6 @@
 package me.shetj.recorder.soundtouch
 
+import androidx.annotation.FloatRange
 import me.shetj.ndk.soundtouch.STKit
 import me.shetj.recorder.core.ISoundTouchCore
 
@@ -11,7 +12,11 @@ import me.shetj.recorder.core.ISoundTouchCore
  */
 internal class SoundTouchKit private constructor() : ISoundTouchCore {
 
-    private var isUseST: Boolean = true
+    private var isUseST: Boolean = true //是否进行变音
+
+    private var tempo: Float = 1f //指定节拍，设置新的节拍tempo，源tempo=1.0，小于1则变慢；大于1变快
+    private var pitch: Float = 0f//指定音调值大于0 是变女生，小于0是变男声
+    private var rate: Float = 1f//指定播放速率，源rate=1.0，小于1变慢；大于1
 
     companion object {
 
@@ -23,10 +28,11 @@ internal class SoundTouchKit private constructor() : ISoundTouchCore {
                 return SoundTouchKit()
             }
         }
+    }
 
-        fun onDestroy() {
-            sInstance = null
-        }
+
+    internal fun init(channel: Int, samplingRate: Int) {
+        STKit.getInstance().init(channel, samplingRate, tempo, pitch, rate)
     }
 
 
@@ -34,69 +40,52 @@ internal class SoundTouchKit private constructor() : ISoundTouchCore {
         this.isUseST = isUseST
     }
 
-    fun isUse(): Boolean {
+    override fun isUse(): Boolean {
         return isUseST
-    }
-
-    /**
-     *   fun init(
-    channels: Int, //设置声道(1单,2双)
-    sampleRate: Int,//设置采样率
-    tempo: Int, //指定节拍，设置新的节拍tempo，源tempo=1.0，小于1则变慢；大于1变快,通过拉伸时间，改变声音的播放速率而不影响音调。
-    @FloatRange(from = -12.0, to = 12.0) pitch: Float,//pitch 是音调 这个就是我们的重点了， 大于0 是变女生，小于0是变男声
-    rate: Float//指定播放速率，源rate=1.0，小于1变慢；大于1变快
-    )
-     */
-    override fun init(channels: Int, sampleRate: Int, tempo: Int, pitch: Float, rate: Float) {
-        STKit.getInstance().init(channels, sampleRate, tempo, pitch, rate)
     }
 
     /**
      * rate (-50 .. +100 %)
      */
-    override fun setRateChange(rateChange: Float) {
+    override fun setRateChange(@FloatRange(from = -50.0, to = 100.0) rateChange: Float) {
+        this.rate = 1f + 0.01f * rateChange
         STKit.getInstance().setRateChange(rateChange)
     }
 
-    override fun setTempoChange(tempoChange: Float) {
+    override fun setTempoChange(@FloatRange(from = -50.0, to = 100.0) tempoChange: Float) {
+        this.tempo = 1f + 0.01f * tempoChange
         STKit.getInstance().setTempoChange(tempoChange)
     }
 
 
-    //处理玩最后的数据
-    fun flush(mp3buf: ShortArray): Int {
-        return STKit.getInstance().flush(mp3buf)
-    }
-
-    override fun close() {
-        STKit.getInstance().close()
-    }
-
     //  指定节拍，设置新的节拍tempo，源tempo=1.0，小于1则变慢；大于1变快
     override fun setTempo(tempo: Float) {
+        this.tempo = tempo
         STKit.getInstance().setTempo(tempo)
     }
 
     //在源pitch的基础上，使用半音(Semitones)设置新的pitch [-12.0,12.0]
-    override fun setPitchSemiTones(pitch: Float) {
+    override fun setPitchSemiTones(@FloatRange(from = -12.0, to = 12.0) pitch: Float) {
+        this.pitch = pitch
         STKit.getInstance().setPitchSemiTones(pitch)
     }
 
-    //指定播放速率
-    override fun setRate(speed: Float) {
-        STKit.getInstance().setRate(speed)
+    ////指定播放速率，源rate=1.0，小于1变慢；大于1
+    override fun setRate(rate: Float) {
+        this.rate = rate
+        STKit.getInstance().setRate(rate)
     }
 
+    //只处理wav 文件
     override fun processFile(inputFile: String, outputFile: String): Boolean {
         return STKit.getInstance().processFile(inputFile, outputFile)
     }
 
-    fun putSamples(samples: ShortArray, len: Int) {
-        return STKit.getInstance().putSamples(samples, len)
-    }
-
-    fun receiveSamples(outputBuf: ShortArray): Int {
-        return STKit.getInstance().receiveSamples(outputBuf)
+    //重置到最开始的值
+    fun clean() {
+        tempo = 1f
+        pitch = 0f
+        rate = 1f
     }
 
 }

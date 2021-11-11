@@ -10,13 +10,26 @@
 - 录音中途可以替换输出文件，比如每60秒替换一个输出文件，然后发送
 - 可以使用耳机配置方式：如果没有连接耳机会只用外放的背景音乐，如果连接上了耳机，会使用写入合成背景音乐的方式
 
-### [Demo下载](http://d.zqapps.com/ne21)
-
+### [Demo1 APP下载](http://d.zqapps.com/ne21)
 <img src="https://github.com/SheTieJun/Mp3Recorder/blob/master/doc/img/recorder.gif" width="35%" height="35%" />
 
-## [接入配置文档](https://github.com/SheTieJun/Mp3Recorder/wiki/%E6%8E%A5%E5%85%A5%E6%96%87%E6%A1%A3)
+### [Demo2 多进程录音代码示例](https://github.com/SheTieJun/Beloved/blob/master/M-recorder/src/main/java/me/shetj/recorder/func/service/RecordService.kt)
 
-### 1. [背景音乐录制推荐](recorder-sim)：
+## 一、[接入配置文档](https://github.com/SheTieJun/Mp3Recorder/wiki/%E6%8E%A5%E5%85%A5%E6%96%87%E6%A1%A3)
+
+### 1. 如何选择介入
+
+```
+implementation "com.github.SheTieJun.Mp3Recorder:recorder-core:$sdk_version"//必选
+implementation "com.github.SheTieJun.Mp3Recorder:recorder-sim:$sdk_version"//可选  implementation "com.github.SheTieJun.Mp3Recorder:recorder-mix:$sdk_version"//可选  
+implementation "com.github.SheTieJun.Mp3Recorder:recorder-st:$sdk_version" //可选，未测试
+```
+
+- 如果只是录音，对背景音乐没有要求，带耳机后没有背景音乐：[SimRecorder](recorder-sim)
+- 如果录音中，需要随时添加背景音乐，而且要求支持带耳机后也有背景音乐：[MixRecorder](recorder-mix)
+- 如果录音中，没有背景音乐，但是支持随时进行变音：[STRecorder](recorder-st)
+
+### 2. [背景音乐录制推荐](recorder-sim)：
 
 ```
 implementation 'com.github.SheTieJun.Mp3Recorder:recorder-mix:版本号'
@@ -35,18 +48,18 @@ implementation 'com.github.SheTieJun.Mp3Recorder:recorder-core:版本号'
 - 如果设置单声道，播放的背景是双声道，（MIX）会让音乐拉长；反之双声音合成，背景音乐是单声音，节奏会变快
 - tip: 背景音乐支持网络链接，但是网络差的时候可能导致卡顿,所有请尽量不要使用网络链接作为背景音乐应用
 
-### 2. [变音录音推荐](recorder-st):
+### 3. [变音录音推荐](recorder-st)(初步完成，未完善):
 
 ```
 implementation 'com.github.SheTieJun.Mp3Recorder:recorder-core:版本号'
 implementation 'com.github.SheTieJun.Mp3Recorder:recorder-st:版本号'
 ```
 
-#### 1). 变音录制相关(SoundTouch):初步完成，未完善
+#### 1). 变音录制相关(SoundTouch)
 
 - 录制中可以随时中断、重新继续进行变音、变速等等功能
 
-## [API使用说明文档](https://github.com/SheTieJun/Mp3Recorder/wiki/%E4%BD%BF%E7%94%A8%E6%96%87%E6%A1%A3)
+## 二、[API使用说明文档](https://github.com/SheTieJun/Mp3Recorder/wiki/%E4%BD%BF%E7%94%A8%E6%96%87%E6%A1%A3)
 
 ```
 abstract class BaseRecorder {
@@ -160,15 +173,15 @@ abstract class BaseRecorder {
     //结束释放
     abstract fun destroy()
 
-    //2021年11月10号，新增变音 STRecorder(SoundTouchRecorder)
-    open fun getSoundTouch():ISoundTouchCore{
-            throw error("该录音工具不支持变音功能；The recorder does not support SoundTouch")
-    }
+    //2021年11月10号，新增变音：STRecorder(SoundTouchRecorder)，其他抛出异常
+    open fun getSoundTouch():ISoundTouchCore 
 }
 ```
-### [Old version](https://github.com/SheTieJun/Mp3Recorder/tree/master_copy)
+## 其他
 
-### [Update_log](https://github.com/SheTieJun/Mp3Recorder/wiki/%E6%9B%B4%E6%96%B0%E6%97%A5%E5%BF%97)
+### 1. [Old version](https://github.com/SheTieJun/Mp3Recorder/tree/master_copy)
 
-### [License](https://github.com/SheTieJun/Mp3Recorder/blob/master/LICENSE)
+### 2. [Update_log](https://github.com/SheTieJun/Mp3Recorder/wiki/%E6%9B%B4%E6%96%B0%E6%97%A5%E5%BF%97)
+
+### 3. [License](https://github.com/SheTieJun/Mp3Recorder/blob/master/LICENSE)
 

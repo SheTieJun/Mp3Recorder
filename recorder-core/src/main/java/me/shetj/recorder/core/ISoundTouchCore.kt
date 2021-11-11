@@ -16,19 +16,14 @@ import androidx.annotation.FloatRange
 
 interface ISoundTouchCore {
 
-    fun init(
-        channels: Int, //设置声道(1单,2双)
-        sampleRate: Int,//设置采样率
-        tempo: Int, //指定节拍，设置新的节拍tempo，源tempo=1.0，小于1则变慢；大于1变快,通过拉伸时间，改变声音的播放速率而不影响音调。
-        @FloatRange(from = -12.0, to = 12.0) pitch: Float,//pitch 是音调 这个就是我们的重点了， 大于0 是变女生，小于0是变男声
-        rate: Float//指定播放速率，源rate=1.0，小于1变慢；大于1变快 rate (-50 .. +100 %)
-    )
-
     //是否使用变音，中途可以切换变音
     fun changeUse(isUseST: Boolean)
 
-    //指定播放速率
-    fun setRate(speed: Float)
+    //是否使用变音功能
+    fun isUse():Boolean
+
+    //指定播放速率，源rate=1.0，小于1变慢；大于1
+    fun setRate(rate: Float)
 
     //一般用来设置倍速，我们变音，默认 1.0就好
     fun setTempo(tempo: Float)
@@ -44,11 +39,8 @@ interface ISoundTouchCore {
     //女声:+10
     fun setPitchSemiTones(@FloatRange(from = -12.0, to = 12.0) pitch: Float)
 
-    //处理文件
+    //只处理wav 文件
     fun processFile(inputFile: String, outputFile: String): Boolean
-
-    //关闭，后必须重新初始化（init）
-    fun close()
 
 
 }
