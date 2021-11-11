@@ -10,10 +10,12 @@
 - 录音中途可以替换输出文件，比如每60秒替换一个输出文件，然后发送
 - 可以使用耳机配置方式：如果没有连接耳机会只用外放的背景音乐，如果连接上了耳机，会使用写入合成背景音乐的方式
 
-### [Demo1 APP下载](http://d.zqapps.com/ne21)
+
+
+### Demo1 [APP下载](http://d.zqapps.com/ne21)
 <img src="https://github.com/SheTieJun/Mp3Recorder/blob/master/doc/img/recorder.gif" width="35%" height="35%" />
 
-### [Demo2 多进程录音代码示例](https://github.com/SheTieJun/Beloved/blob/master/M-recorder/src/main/java/me/shetj/recorder/func/service/RecordService.kt)
+### Demo2 [多进程录音代码示例](https://github.com/SheTieJun/Beloved/blob/master/M-recorder/src/main/java/me/shetj/recorder/func/service/RecordService.kt)
 
 ## 一、[接入配置文档](https://github.com/SheTieJun/Mp3Recorder/wiki/%E6%8E%A5%E5%85%A5%E6%96%87%E6%A1%A3)
 
@@ -21,13 +23,16 @@
 
 ```
 implementation "com.github.SheTieJun.Mp3Recorder:recorder-core:$sdk_version"//必选
-implementation "com.github.SheTieJun.Mp3Recorder:recorder-sim:$sdk_version"//可选  implementation "com.github.SheTieJun.Mp3Recorder:recorder-mix:$sdk_version"//可选  
+implementation "com.github.SheTieJun.Mp3Recorder:recorder-sim:$sdk_version"//可选
+implementation "com.github.SheTieJun.Mp3Recorder:recorder-mix:$sdk_version"//可选
 implementation "com.github.SheTieJun.Mp3Recorder:recorder-st:$sdk_version" //可选，未测试
 ```
 
 - 如果只是录音，对背景音乐没有要求，带耳机后没有背景音乐：[SimRecorder](recorder-sim)
 - 如果录音中，需要随时添加背景音乐，而且要求支持带耳机后也有背景音乐：[MixRecorder](recorder-mix)
 - 如果录音中，没有背景音乐，但是支持随时进行变音：[STRecorder](recorder-st)
+
+**请选择合适的Recorder进行编写功能**
 
 ### 2. [背景音乐录制推荐](recorder-sim)：
 

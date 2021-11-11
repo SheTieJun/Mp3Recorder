@@ -186,7 +186,6 @@ class MixRecordUtils(
     }
 
     fun clear() {
-        mRecorder?.getSoundTouch()?.close()
         mRecorder?.destroy()
     }
 

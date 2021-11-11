@@ -51,7 +51,7 @@ abstract class BaseRecorder {
      */
     protected var defaultLameMp3BitRate = 96 //32 太低，(96,128) 比较合适
     protected var defaultSamplingRate = 48000
-    protected var is2Channel = false //默认是双声道
+    protected var is2Channel = false //默认是单声道
     protected var mRecordFile: File? = null //文件输出，中途可以替换
     protected var mRecordListener: RecordListener? = null
     protected var mPermissionListener: PermissionListener? = null

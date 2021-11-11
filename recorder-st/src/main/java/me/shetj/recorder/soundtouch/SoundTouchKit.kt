@@ -70,7 +70,7 @@ internal class SoundTouchKit private constructor() : ISoundTouchCore {
         STKit.getInstance().setPitchSemiTones(pitch)
     }
 
-    ////指定播放速率，源rate=1.0，小于1变慢；大于1
+    //指定播放速率，源rate=1.0，小于1变慢；大于1
     override fun setRate(rate: Float) {
         this.rate = rate
         STKit.getInstance().setRate(rate)
