@@ -12,7 +12,6 @@ import android.util.Log
 import me.shetj.player.PlayerListener
 import me.shetj.recorder.core.*
 import me.shetj.ndk.lame.LameUtils
-import me.shetj.ndk.soundtouch.STKit
 import java.io.IOException
 
 
@@ -52,6 +51,7 @@ internal class STRecorder : BaseRecorder {
             field = waveSpeed
         }
 
+    private val soundTouch: SoundTouchKit by lazy { SoundTouchKit() }
 
     override fun setContextToPlugConfig(context: Context): BaseRecorder {
         logInfo("STRecorder no use it")
@@ -90,7 +90,7 @@ internal class STRecorder : BaseRecorder {
     }
 
     override fun getSoundTouch(): ISoundTouchCore {
-        return SoundTouchKit.getInstance()
+        return soundTouch
     }
 
     override fun setAudioChannel(@Channel channel: Int): Boolean {
@@ -336,7 +336,7 @@ internal class STRecorder : BaseRecorder {
         duration = 0L
         mRecordFile = null
         handler.sendEmptyMessage(HANDLER_RESET)
-        SoundTouchKit.getInstance().clean()
+        soundTouch.clean()
     }
 
 
@@ -348,7 +348,7 @@ internal class STRecorder : BaseRecorder {
         release()
         handler.removeCallbacksAndMessages(null)
         volumeConfig?.unregisterReceiver()
-        STKit.onDestroy()
+        soundTouch.destroy()
     }
 
 
@@ -409,7 +409,7 @@ internal class STRecorder : BaseRecorder {
         mPCMBuffer = ShortArray(mBufferSize)
 
         //初始化变音
-        SoundTouchKit.getInstance().init(defaultLameInChannel, defaultSamplingRate)
+        soundTouch.init(defaultLameInChannel, defaultSamplingRate)
 
         initAEC(mAudioRecord!!.audioSessionId)
 
@@ -424,7 +424,8 @@ internal class STRecorder : BaseRecorder {
             mRecordFile!!,
             mBufferSize,
             isContinue,
-            defaultChannelConfig == AudioFormat.CHANNEL_IN_STEREO
+            defaultChannelConfig == AudioFormat.CHANNEL_IN_STEREO,
+            soundTouch
         )
         mEncodeThread!!.start()
         mAudioRecord!!.setRecordPositionUpdateListener(

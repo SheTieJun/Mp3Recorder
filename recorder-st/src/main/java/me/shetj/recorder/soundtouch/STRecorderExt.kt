@@ -2,7 +2,6 @@ package me.shetj.recorder.soundtouch
 
 import android.content.Context
 import android.media.AudioFormat
-import me.shetj.ndk.soundtouch.STKit
 import me.shetj.recorder.core.BaseRecorder
 import me.shetj.recorder.core.Mp3RecorderOption
 

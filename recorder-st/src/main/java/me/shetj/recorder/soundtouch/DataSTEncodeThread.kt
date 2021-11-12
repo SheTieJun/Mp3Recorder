@@ -7,7 +7,6 @@ import android.os.HandlerThread
 import android.os.Looper
 import android.os.Message
 import me.shetj.ndk.lame.LameUtils
-import me.shetj.ndk.soundtouch.STKit
 import me.shetj.recorder.core.FileUtils
 import java.io.File
 import java.io.FileNotFoundException
@@ -22,7 +21,11 @@ import java.util.*
  * @throws FileNotFoundException file not found
  */
 internal class DataSTEncodeThread @Throws(FileNotFoundException::class)
-constructor(file: File, bufferSize: Int, isContinue: Boolean, private val is2CHANNEL: Boolean) :
+constructor(file: File, bufferSize: Int,
+            isContinue: Boolean,
+            private val is2CHANNEL: Boolean,
+            private val soundTouchKit: SoundTouchKit
+            ) :
     HandlerThread("DataSTEncodeThread"),
     AudioRecord.OnRecordPositionUpdateListener {
     private var mHandler: StopHandler? = null
@@ -105,11 +108,11 @@ constructor(file: File, bufferSize: Int, isContinue: Boolean, private val is2CHA
         if (mTasks.size > 0) {
             val task = mTasks.removeAt(0)
             //处理变音，如果需要变音，仅需要得到变音后的数据，以及长度
-            return if (SoundTouchKit.getInstance().isUse()) {
+            return if (soundTouchKit.isUse()) {
                 var processSamples: Int
-                STKit.getInstance().putSamples(task.data, task.readSize)
+                soundTouchKit.putSamples(task.data, task.readSize)
                 do {
-                    processSamples = STKit.getInstance().receiveSamples(mSTBuffer)
+                    processSamples = soundTouchKit.receiveSamples(mSTBuffer)
                     if (processSamples != 0) {
                         processBuffer(mSTBuffer,processSamples)
                     }
@@ -148,7 +151,7 @@ constructor(file: File, bufferSize: Int, isContinue: Boolean, private val is2CHA
      * Flush all data left in lame buffer to file
      */
     private fun flushAndRelease() {
-        STKit.getInstance().flush(mSTBuffer)
+        soundTouchKit.flush(mSTBuffer)
         val flushResult = LameUtils.flush(mMp3Buffer)
         if (flushResult > 0) {
             try {
