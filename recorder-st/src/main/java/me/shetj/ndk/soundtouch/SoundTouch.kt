@@ -7,15 +7,21 @@ package me.shetj.ndk.soundtouch
  * @Email 375105540@qq.com
  */
 
-class SoundTouch {
+internal class SoundTouch {
 
+    companion object{
+        init {
+            System.loadLibrary("soundTouch")
+        }
+    }
 
     external fun newInstance(): Long
-    external fun deleteInstance()
+    external fun deleteInstance(handle: Long)
     external fun getVersionString(): String
     external fun getErrorString(): String
 
     external fun init(
+        handle: Long,
         channels: Int, //设置声道(1单,2双)
         sampleRate: Int,//设置采样率
         tempo: Float, //指定节拍，设置新的节拍tempo，源tempo=1.0，小于1则变慢；大于1变快
@@ -24,24 +30,25 @@ class SoundTouch {
     )
 
     // 在原速1.0基础上，按百分比做增量，取值(-50 .. +100 %)
-    external fun setRateChange(rateChange: Float)
-    external fun setTempoChange(tempoChange: Float)
-    external fun setTempo(tempo: Float)
-    external fun setPitchSemiTones(pitch: Float)
-    external fun setRate(speed: Float)
+    external fun setRateChange(handle: Long, rateChange: Float)
+    external fun setTempoChange(handle: Long, tempoChange: Float)
+    external fun setTempo(handle: Long, tempo: Float)
+    external fun setPitchSemiTones(handle: Long, pitch: Float)
+    external fun setRate(handle: Long, speed: Float)
 
     //直接WAV处理文件
-    external fun processFile(inputFile: String, outputFile: String): Int
+    external fun processFile(handle: Long, inputFile: String, outputFile: String): Int
 
 
     //putSamples 的次数可能小于receiveSamples
-    external fun putSamples(samples: ShortArray, len: Int)
-    external fun receiveSamples(outputBuf: ShortArray): Int
+    external fun putSamples(handle: Long, samples: ShortArray, len: Int)
 
+    //读取数据
+    external fun receiveSamples(handle: Long, outputBuf: ShortArray): Int
 
 
     //获取最后一段数据
-    external fun flush(mp3buf: ShortArray): Int
+    external fun flush(handle: Long, mp3buf: ShortArray): Int
 
 
 }

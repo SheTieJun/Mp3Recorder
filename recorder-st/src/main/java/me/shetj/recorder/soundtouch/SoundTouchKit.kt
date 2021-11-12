@@ -27,7 +27,7 @@ internal class SoundTouchKit : ISoundTouchCore {
         if (handle == 0L) {
             handle = soundTouch.newInstance()
         }
-        soundTouch.init(channel, samplingRate, tempo, pitch, rate)
+        soundTouch.init(handle,channel, samplingRate, tempo, pitch, rate)
     }
 
 
@@ -44,36 +44,36 @@ internal class SoundTouchKit : ISoundTouchCore {
      */
     override fun setRateChange(@FloatRange(from = -50.0, to = 100.0) rateChange: Float) {
         this.rate = 1f + 0.01f * rateChange
-        soundTouch.setRateChange(rateChange)
+        soundTouch.setRateChange(handle,rateChange)
     }
 
     override fun setTempoChange(@FloatRange(from = -50.0, to = 100.0) tempoChange: Float) {
         this.tempo = 1f + 0.01f * tempoChange
-        soundTouch.setTempoChange(tempoChange)
+        soundTouch.setTempoChange(handle,tempoChange)
     }
 
 
     //  指定节拍，设置新的节拍tempo，源tempo=1.0，小于1则变慢；大于1变快
     override fun setTempo(tempo: Float) {
         this.tempo = tempo
-        soundTouch.setTempo(tempo)
+        soundTouch.setTempo(handle,tempo)
     }
 
     //在源pitch的基础上，使用半音(Semitones)设置新的pitch [-12.0,12.0]
     override fun setPitchSemiTones(@FloatRange(from = -12.0, to = 12.0) pitch: Float) {
         this.pitch = pitch
-        soundTouch.setPitchSemiTones(pitch)
+        soundTouch.setPitchSemiTones(handle,pitch)
     }
 
     //指定播放速率，源rate=1.0，小于1变慢；大于1
     override fun setRate(rate: Float) {
         this.rate = rate
-        soundTouch.setRate(rate)
+        soundTouch.setRate(handle,rate)
     }
 
     //只处理wav 文件
     override fun processFile(inputFile: String, outputFile: String): Boolean {
-        return if (soundTouch.processFile(inputFile, outputFile) == 0) {
+        return if (soundTouch.processFile(handle,inputFile, outputFile) == 0) {
             true
         } else {
             Log.e("soundTouch", soundTouch.getErrorString())
@@ -82,11 +82,13 @@ internal class SoundTouchKit : ISoundTouchCore {
     }
 
     fun receiveSamples(outputBuf: ShortArray): Int {
-        return soundTouch.receiveSamples(outputBuf)
+        print("putSamples :$handle")
+        return soundTouch.receiveSamples(handle,outputBuf)
     }
 
     fun putSamples(samples: ShortArray, len: Int) {
-        soundTouch.putSamples(samples, len)
+        print("putSamples :$handle")
+        soundTouch.putSamples(handle,samples, len)
     }
 
     //重置到最开始的值
@@ -98,14 +100,14 @@ internal class SoundTouchKit : ISoundTouchCore {
 
     fun destroy() {
         if (handle != 0L) {
-            soundTouch.deleteInstance()
+            soundTouch.deleteInstance(handle)
             handle = 0
         }
     }
 
     //处理玩最后的数据
     fun flush(mp3buf: ShortArray): Int {
-        return soundTouch.flush(mp3buf)
+        return soundTouch.flush(handle,mp3buf)
     }
 
 }
