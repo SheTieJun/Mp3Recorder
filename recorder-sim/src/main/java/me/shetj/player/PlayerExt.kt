@@ -1,7 +1,29 @@
+/*
+ * MIT License
+ *
+ * Copyright (c) 2019 SheTieJun
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
 package me.shetj.player
 
 import android.widget.SeekBar
-
 
 /**
  * 设置URL,
@@ -9,7 +31,7 @@ import android.widget.SeekBar
  */
 fun AudioPlayer.playNoStart(
     url: String,
-    onStart: ( duration: Int) -> Unit = { _: Int -> },
+    onStart: (duration: Int) -> Unit = { _: Int -> },
     onPause: () -> Unit = {},
     onResume: () -> Unit = {},
     onStop: () -> Unit = {},
@@ -18,35 +40,38 @@ fun AudioPlayer.playNoStart(
     onProgress: (current: Int, duration: Int) -> Unit = { _: Int, _: Int -> }
 ): AudioPlayer {
 
-    playNoStart(url, object : PlayerListener {
-        override fun onStart(duration: Int) {
-            onStart( duration)
-        }
+    playNoStart(
+        url,
+        object : PlayerListener {
+            override fun onStart(duration: Int) {
+                onStart(duration)
+            }
 
-        override fun onPause() {
-            onPause()
-        }
+            override fun onPause() {
+                onPause()
+            }
 
-        override fun onResume() {
-            onResume()
-        }
+            override fun onResume() {
+                onResume()
+            }
 
-        override fun onStop() {
-            onStop()
-        }
+            override fun onStop() {
+                onStop()
+            }
 
-        override fun onCompletion() {
-            onCompletion()
-        }
+            override fun onCompletion() {
+                onCompletion()
+            }
 
-        override fun onError(throwable: Exception) {
-            onError(throwable)
-        }
+            override fun onError(throwable: Exception) {
+                onError(throwable)
+            }
 
-        override fun onProgress(current: Int, duration: Int) {
-            onProgress(current, duration)
+            override fun onProgress(current: Int, duration: Int) {
+                onProgress(current, duration)
+            }
         }
-    })
+    )
     return this
 }
 
@@ -56,7 +81,7 @@ fun AudioPlayer.playNoStart(
  */
 fun AudioPlayer.playOrPause(
     url: String,
-    onStart: (duration: Int) -> Unit = {  _: Int -> },
+    onStart: (duration: Int) -> Unit = { _: Int -> },
     onPause: () -> Unit = {},
     onResume: () -> Unit = {},
     onStop: () -> Unit = {},
@@ -65,35 +90,38 @@ fun AudioPlayer.playOrPause(
     onProgress: (current: Int, duration: Int) -> Unit = { _: Int, _: Int -> }
 ): AudioPlayer {
 
-    playOrPause(url, object : PlayerListener {
-        override fun onStart( duration: Int) {
-            onStart(duration)
-        }
+    playOrPause(
+        url,
+        object : PlayerListener {
+            override fun onStart(duration: Int) {
+                onStart(duration)
+            }
 
-        override fun onPause() {
-            onPause()
-        }
+            override fun onPause() {
+                onPause()
+            }
 
-        override fun onResume() {
-            onResume()
-        }
+            override fun onResume() {
+                onResume()
+            }
 
-        override fun onStop() {
-            onStop()
-        }
+            override fun onStop() {
+                onStop()
+            }
 
-        override fun onCompletion() {
-            onCompletion()
-        }
+            override fun onCompletion() {
+                onCompletion()
+            }
 
-        override fun onError(throwable: Exception) {
-            onError(throwable)
-        }
+            override fun onError(throwable: Exception) {
+                onError(throwable)
+            }
 
-        override fun onProgress(current: Int, duration: Int) {
-            onProgress(current, duration)
+            override fun onProgress(current: Int, duration: Int) {
+                onProgress(current, duration)
+            }
         }
-    })
+    )
     return this
 }
 
@@ -120,7 +148,7 @@ fun AudioPlayer.setSeekBar(seekBar: SeekBar?) {
  * 如果需要替换全部 [AudioPlayer.updateListener(listener: PlayerListener)]
  */
 fun AudioPlayer.updateListener(
-    onStart: (duration: Int) -> Unit = {_: Int -> },
+    onStart: (duration: Int) -> Unit = { _: Int -> },
     onPause: () -> Unit = {},
     onResume: () -> Unit = {},
     onStop: () -> Unit = {},
@@ -129,7 +157,7 @@ fun AudioPlayer.updateListener(
     onProgress: (current: Int, duration: Int) -> Unit = { _: Int, _: Int -> }
 ): AudioPlayer {
     updateListener(object : PlayerListener {
-        override fun onStart( duration: Int) {
+        override fun onStart(duration: Int) {
             onStart(duration)
         }
 
@@ -159,7 +187,3 @@ fun AudioPlayer.updateListener(
     })
     return this
 }
-
-
-
-

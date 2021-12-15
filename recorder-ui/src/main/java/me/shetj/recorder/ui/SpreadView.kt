@@ -1,3 +1,26 @@
+/*
+ * MIT License
+ *
+ * Copyright (c) 2019 SheTieJun
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
 package me.shetj.recorder.ui
 
 import android.content.Context
@@ -32,6 +55,7 @@ class SpreadView : AppCompatImageView {
             }
             invalidate()
         }
+
     /**
      * 背景的宽高
      */
@@ -42,12 +66,14 @@ class SpreadView : AppCompatImageView {
      * 扩散圆半径增加的粒度
      */
     private var grain: Float = 1f
+
     /**
      * 最大半径和最小半径差，等分 255 。
      */
     private var oneUnitInAlpha: Int = 1
 
     var trigger: Boolean = false
+
     @ColorInt
     private var spreadColor: Int = -1
 
@@ -80,7 +106,6 @@ class SpreadView : AppCompatImageView {
         Rect()
     }
 
-
     private var delayMilliseconds = 0
     private val spreadRadiusList: ArrayList<Float> by lazy {
         ArrayList<Float>(12)
@@ -95,7 +120,6 @@ class SpreadView : AppCompatImageView {
      */
     private var circleCount: Int = 255
 
-
     constructor(context: Context) : super(context)
 
     constructor(context: Context, attrs: AttributeSet?) : super(context, attrs) {
@@ -105,15 +129,15 @@ class SpreadView : AppCompatImageView {
             maxRadius = getDimension(R.styleable.SpreadView_spread_max_radius, maxRadius)
             minRadius = getDimension(R.styleable.SpreadView_spread_min_radius, minRadius)
             circleCount =
-                    getInt(R.styleable.SpreadView_spread_circle_count, circleCount).trapMaxCircle()
+                getInt(R.styleable.SpreadView_spread_circle_count, circleCount).trapMaxCircle()
 
             centerColor = getColor(
-                    R.styleable.SpreadView_spread_center_color,
-                    ContextCompat.getColor(context, R.color.pop_main_color)
+                R.styleable.SpreadView_spread_center_color,
+                ContextCompat.getColor(context, R.color.pop_main_color)
             )
             spreadColor = getColor(
-                    R.styleable.SpreadView_spread_spread_color,
-                    ContextCompat.getColor(context, R.color.pop_main_color)
+                R.styleable.SpreadView_spread_spread_color,
+                ContextCompat.getColor(context, R.color.pop_main_color)
             )
             distance = getDimension(R.styleable.SpreadView_spread_distance, distance)
             bg = getDrawable(R.styleable.SpreadView_spread_src)
@@ -132,9 +156,9 @@ class SpreadView : AppCompatImageView {
     }
 
     constructor(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : super(
-            context,
-            attrs,
-            defStyleAttr
+        context,
+        attrs,
+        defStyleAttr
     )
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
@@ -145,10 +169,10 @@ class SpreadView : AppCompatImageView {
             maxRadius = min(w, h).toFloat() / 2
         }
         bgRect.set(
-                (centerX - bgWidth / 2).toInt(),
-                (centerY - bgHeight / 2).toInt(),
-                (centerX + bgWidth / 2).toInt(),
-                (centerY + bgHeight / 2).toInt()
+            (centerX - bgWidth / 2).toInt(),
+            (centerY - bgHeight / 2).toInt(),
+            (centerX + bgWidth / 2).toInt(),
+            (centerY + bgHeight / 2).toInt()
         )
     }
 
@@ -182,7 +206,7 @@ class SpreadView : AppCompatImageView {
             }
         }
 
-        if (isUniformSpeed){
+        if (isUniformSpeed) {
             // 匀速水波纹
             drawUniform()
         } else {
@@ -204,10 +228,13 @@ class SpreadView : AppCompatImageView {
         }
     }
 
-
     private fun drawUniform() {
         // 当最外层扩散圆半径达到最大半径时添加新扩散圆
-        if (spreadRadiusList.size == 0 || (spreadRadiusList.size in 1 until circleCount && spreadRadiusList.last() - minRadius > distance)) {
+        if (spreadRadiusList.size == 0 || (
+            spreadRadiusList.size in 1 until circleCount &&
+                spreadRadiusList.last() - minRadius > distance
+            )
+        ) {
             spreadRadiusList.add(minRadius)
             alphaList.add(255)
             trigger = false
@@ -238,7 +265,6 @@ class SpreadView : AppCompatImageView {
     fun setBg(bgRes: Int) {
         bg = ContextCompat.getDrawable(context, bgRes)
     }
-
 }
 
 private fun <E> java.util.ArrayList<E>.hadSpreadOut(maxRadius: Float): Boolean {

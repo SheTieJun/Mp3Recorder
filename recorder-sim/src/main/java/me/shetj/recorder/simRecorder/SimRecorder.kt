@@ -1,3 +1,26 @@
+/*
+ * MIT License
+ *
+ * Copyright (c) 2019 SheTieJun
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
 package me.shetj.recorder.simRecorder
 
 import android.content.Context
@@ -8,19 +31,24 @@ import android.net.Uri
 import android.os.Message
 import android.os.Process
 import android.util.Log
+import java.io.IOException
+import me.shetj.ndk.lame.LameUtils
 import me.shetj.player.AudioPlayer
 import me.shetj.player.PlayerListener
-import me.shetj.recorder.core.*
-import me.shetj.ndk.lame.LameUtils
-import java.io.IOException
-
+import me.shetj.recorder.core.BaseRecorder
+import me.shetj.recorder.core.Channel
+import me.shetj.recorder.core.PermissionListener
+import me.shetj.recorder.core.RecordListener
+import me.shetj.recorder.core.RecordState
+import me.shetj.recorder.core.Source
+import me.shetj.recorder.core.VolumeConfig
 
 /**
  * 录制MP3 边录边转
  */
 internal class SimRecorder : BaseRecorder {
 
-    override val recorderType: RecorderType  = RecorderType.SIM
+    override val recorderType: RecorderType = RecorderType.SIM
 
     private var mAudioRecord: AudioRecord? = null
     private var mEncodeThread: DataEncodeThread? = null
@@ -38,7 +66,7 @@ internal class SimRecorder : BaseRecorder {
      */
     private var volumeConfig: VolumeConfig? = null
 
-    //缓冲数量
+    // 缓冲数量
     private var mBufferSize: Int = 0
 
     /**
@@ -53,12 +81,11 @@ internal class SimRecorder : BaseRecorder {
             field = waveSpeed
         }
 
-    //背景音乐相关
+    // 背景音乐相关
     private var backgroundMusicUrl: String? = null
     private var backgroundMusicPlayerListener: PlayerListener? = null
     private var backgroundMusicUri: Uri? = null
     private var header: MutableMap<String, String>? = null
-
 
     /***************************public method  */
     /**
@@ -82,14 +109,14 @@ internal class SimRecorder : BaseRecorder {
         return this
     }
 
-    constructor(){
+    constructor() {
     }
 
     /**
      *
      * @param audioSource MediaRecorder.AudioSource.MIC
      */
-    constructor(@Source audioSource: Int = MediaRecorder.AudioSource.MIC,@Channel channel: Int = 1) {
+    constructor(@Source audioSource: Int = MediaRecorder.AudioSource.MIC, @Channel channel: Int = 1) {
         this.defaultAudioSource = audioSource
         this.defaultLameInChannel = channel
         this.defaultChannelConfig = when (channel) {
@@ -104,7 +131,6 @@ internal class SimRecorder : BaseRecorder {
         this.is2Channel = defaultLameInChannel == 2
         release()
     }
-
 
     override fun setAudioChannel(@Channel channel: Int): Boolean {
         if (isActive) {
@@ -179,7 +205,7 @@ internal class SimRecorder : BaseRecorder {
         // 提早，防止init或startRecording被多次调用
         isActive = true
         mSendError = false
-        //初始化
+        // 初始化
         duration = 0
         try {
             initAudioRecorder()
@@ -189,15 +215,15 @@ internal class SimRecorder : BaseRecorder {
             return
         }
 
-       object : Thread() {
+        object : Thread() {
             var isError = false
 
-            //PCM文件大小 = 采样率采样时间采样位深 / 8*通道数（Bytes）
+            // PCM文件大小 = 采样率采样时间采样位深 / 8*通道数（Bytes）
             var bytesPerSecond =
                 mAudioRecord!!.sampleRate * mapFormat(mAudioRecord!!.audioFormat) / 8 * mAudioRecord!!.channelCount
 
             override fun run() {
-                //设置线程权限
+                // 设置线程权限
                 Process.setThreadPriority(Process.THREAD_PRIORITY_URGENT_AUDIO)
                 onStart()
                 while (isActive) {
@@ -220,7 +246,7 @@ internal class SimRecorder : BaseRecorder {
                             val readTime = 1000.0 * readSize.toDouble() * 2 / bytesPerSecond
                             mEncodeThread!!.addTask(mPCMBuffer!!, readSize)
                             calculateRealVolume(mPCMBuffer!!, readSize)
-                            //short 是2个字节 byte 是1个字节8位
+                            // short 是2个字节 byte 是1个字节8位
                             onRecording(readTime)
                         } else {
                             if (!mSendError) {
@@ -254,8 +280,8 @@ internal class SimRecorder : BaseRecorder {
                 }
             }
         }.also {
-           recordThread = it
-       }.start()
+            recordThread = it
+        }.start()
     }
     // endregion Start recording. Create an encoding thread. Start record from this
 
@@ -369,7 +395,6 @@ internal class SimRecorder : BaseRecorder {
         bgPlayer.stopPlay()
     }
 
-
     override fun destroy() {
         isActive = false
         isPause = false
@@ -380,7 +405,6 @@ internal class SimRecorder : BaseRecorder {
         handler.removeCallbacksAndMessages(null)
         volumeConfig?.unregisterReceiver()
     }
-
 
     override fun startPlayMusic() {
         if (!bgPlayer.isPlaying) {
@@ -456,7 +480,12 @@ internal class SimRecorder : BaseRecorder {
             defaultLameMp3BitRate,
             defaultLameMp3Quality
         )
-        mEncodeThread = DataEncodeThread(mRecordFile!!, mBufferSize, isContinue,       defaultChannelConfig == AudioFormat.CHANNEL_IN_STEREO)
+        mEncodeThread = DataEncodeThread(
+            mRecordFile!!,
+            mBufferSize,
+            isContinue,
+            defaultChannelConfig == AudioFormat.CHANNEL_IN_STEREO
+        )
         mEncodeThread!!.start()
         mAudioRecord!!.setRecordPositionUpdateListener(mEncodeThread, mEncodeThread!!.handler)
         mAudioRecord!!.positionNotificationPeriod = FRAME_COUNT
@@ -470,7 +499,6 @@ internal class SimRecorder : BaseRecorder {
         }
         backgroundPlayer!!.setLoop(this.bgmIsLoop)
     }
-
 
     private fun onStart() {
         if (state !== RecordState.RECORDING) {
@@ -497,8 +525,7 @@ internal class SimRecorder : BaseRecorder {
         }
     }
 
-
-    private fun onError(ex: Exception?=null) {
+    private fun onError(ex: Exception? = null) {
         isPause = false
         isActive = false
         val message = Message.obtain()
@@ -509,7 +536,6 @@ internal class SimRecorder : BaseRecorder {
         backgroundMusicIsPlay = false
         bgPlayer.stopPlay()
     }
-
 
     /**
      * 计算时间
@@ -535,6 +561,4 @@ internal class SimRecorder : BaseRecorder {
             bgPlayer.stopPlay()
         }
     }
-
-
 }

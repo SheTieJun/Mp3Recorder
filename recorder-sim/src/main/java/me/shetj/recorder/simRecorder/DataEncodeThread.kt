@@ -1,18 +1,40 @@
+/*
+ * MIT License
+ *
+ * Copyright (c) 2019 SheTieJun
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
 package me.shetj.recorder.simRecorder
-
 
 import android.media.AudioRecord
 import android.os.Handler
 import android.os.HandlerThread
 import android.os.Looper
 import android.os.Message
-import me.shetj.recorder.core.FileUtils
-import me.shetj.ndk.lame.LameUtils
 import java.io.File
 import java.io.FileNotFoundException
 import java.io.FileOutputStream
 import java.io.IOException
-import java.util.*
+import java.util.Collections
+import me.shetj.ndk.lame.LameUtils
+import me.shetj.recorder.core.FileUtils
 /**
  * @param file       file
  * @param bufferSize bufferSize
@@ -20,7 +42,8 @@ import java.util.*
  * @throws FileNotFoundException file not found
  */
 internal class DataEncodeThread @Throws(FileNotFoundException::class)
-constructor(file: File, bufferSize: Int, isContinue: Boolean,private val is2CHANNEL: Boolean) : HandlerThread("DataEncodeThread"),
+constructor(file: File, bufferSize: Int, isContinue: Boolean, private val is2CHANNEL: Boolean) :
+    HandlerThread("DataEncodeThread"),
     AudioRecord.OnRecordPositionUpdateListener {
     private var mHandler: StopHandler? = null
     private val mMp3Buffer: ByteArray
@@ -42,14 +65,14 @@ constructor(file: File, bufferSize: Int, isContinue: Boolean,private val is2CHAN
 
         override fun handleMessage(msg: Message) {
             if (msg.what == PROCESS_STOP) {
-                //处理缓冲区中的数据
+                // 处理缓冲区中的数据
                 while (encodeThread.processData() > 0);
                 // Cancel any event left in the queue
                 removeCallbacksAndMessages(null)
                 encodeThread.flushAndRelease()
                 looper.quit()
             } else if (msg.what == PROCESS_ERROR) {
-                //处理缓冲区中的数据
+                // 处理缓冲区中的数据
                 while (encodeThread.processData() > 0);
                 // Cancel any event left in the queue
                 removeCallbacksAndMessages(null)
@@ -91,9 +114,6 @@ constructor(file: File, bufferSize: Int, isContinue: Boolean,private val is2CHAN
         needUpdate = true
     }
 
-
-
-
     override fun onMarkerReached(recorder: AudioRecord) {
         // Do nothing
     }
@@ -129,7 +149,6 @@ constructor(file: File, bufferSize: Int, isContinue: Boolean,private val is2CHAN
                 } catch (e: IOException) {
                     e.printStackTrace()
                 }
-
             }
             return readSize
         }
@@ -140,7 +159,7 @@ constructor(file: File, bufferSize: Int, isContinue: Boolean,private val is2CHAN
      * Flush all data left in lame buffer to file
      */
     private fun flushAndRelease() {
-        //将MP3结尾信息写入buffer中
+        // 将MP3结尾信息写入buffer中
         val flushResult = LameUtils.flush(mMp3Buffer)
         if (flushResult > 0) {
             try {
@@ -154,13 +173,11 @@ constructor(file: File, bufferSize: Int, isContinue: Boolean,private val is2CHAN
                     } catch (e: IOException) {
                         e.printStackTrace()
                     }
-
                 }
                 LameUtils.close()
             }
         }
     }
-
 
     private fun checkCut() {
         if (needUpdate) {
@@ -176,8 +193,8 @@ constructor(file: File, bufferSize: Int, isContinue: Boolean,private val is2CHAN
         }
     }
 
-    private fun setOldDateToFile() : Int{
-        if (mOldTasks.size > 0 && mFileOutputStream !=null) {
+    private fun setOldDateToFile(): Int {
+        if (mOldTasks.size > 0 && mFileOutputStream != null) {
             val task = mOldTasks.removeAt(0)
             val buffer = task.data
             val encodedSize: Int
@@ -201,10 +218,9 @@ constructor(file: File, bufferSize: Int, isContinue: Boolean,private val is2CHAN
         return 0
     }
 
-
-    private fun addOldData(task : ReadTask) {
+    private fun addOldData(task: ReadTask) {
         if (mOldTasks.size > 10) {
-            //自己调整数量多少合适，我写的是10
+            // 自己调整数量多少合适，我写的是10
             mOldTasks.removeAt(0)
         }
         mOldTasks.add(task)
@@ -218,6 +234,4 @@ constructor(file: File, bufferSize: Int, isContinue: Boolean,private val is2CHAN
         private const val PROCESS_STOP = 1
         private const val PROCESS_ERROR = 2
     }
-
-
 }

@@ -39,3 +39,4 @@ dependencies {
 }
 
 apply from : "uploadLocal.gradle"
+apply from: "../spotless.gradle"

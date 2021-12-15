@@ -1,24 +1,50 @@
+/*
+ * MIT License
+ *
+ * Copyright (c) 2019 SheTieJun
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
 @file:Suppress("DEPRECATION")
 
 package me.shetj.recorder.mixRecorder
 
 import android.content.Context
-import android.media.*
+import android.media.AudioAttributes
+import android.media.AudioFormat
 import android.media.AudioFormat.CHANNEL_OUT_MONO
 import android.media.AudioFormat.CHANNEL_OUT_STEREO
+import android.media.AudioManager
+import android.media.AudioTrack
+import android.media.MediaFormat
 import android.net.Uri
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.os.Message
 import android.util.Log
+import java.util.concurrent.LinkedBlockingDeque
+import java.util.concurrent.atomic.AtomicBoolean
 import me.shetj.player.PlayerListener
 import me.shetj.recorder.core.BaseRecorder
 import me.shetj.recorder.core.Channel
 import me.shetj.recorder.core.PlugConfigs
-import java.util.concurrent.LinkedBlockingDeque
-import java.util.concurrent.atomic.AtomicBoolean
-
 
 /**
  * 播放音乐，用来播放PCM
@@ -32,8 +58,7 @@ import java.util.concurrent.atomic.AtomicBoolean
  * TODO seekTo 缺失功能
  *
  */
-internal class PlayBackMusic(private var defaultChannel: Int = CHANNEL_OUT_MONO,var plugConfigs: PlugConfigs?) {
-
+internal class PlayBackMusic(private var defaultChannel: Int = CHANNEL_OUT_MONO, var plugConfigs: PlugConfigs?) {
 
     var isPlayingMusic = false
         private set
@@ -47,23 +72,23 @@ internal class PlayBackMusic(private var defaultChannel: Int = CHANNEL_OUT_MONO,
         }
 
     private var mAudioDecoder: AudioDecoder? = null
-    private val backGroundBytes = LinkedBlockingDeque<ByteArray>()//new ArrayDeque<>();// ArrayDeque不是线程安全的
+    private val backGroundBytes = LinkedBlockingDeque<ByteArray>() // new ArrayDeque<>();// ArrayDeque不是线程安全的
     private var mIsRecording = false // 路由中
-    private var mIsLoop = false //循环
-    private var need = AtomicBoolean(false) //是否需要进行延迟
+    private var mIsLoop = false // 循环
+    private var need = AtomicBoolean(false) // 是否需要进行延迟
     private val playHandler: PlayHandler = PlayHandler(this)
     private var audioTrack: AudioTrack? = null
     private var volume = 0.3f
     private val frameListener = object : BackGroundFrameListener {
         override fun onFrameArrive(bytes: ByteArray) {
-            //如果设置耳机配置相关
-            if (plugConfigs !=null ) {
-                //只有连上了耳机才会使用写入的方式，否则只用外放的方式
+            // 如果设置耳机配置相关
+            if (plugConfigs != null) {
+                // 只有连上了耳机才会使用写入的方式，否则只用外放的方式
                 if (plugConfigs?.needBGBytes() == true) {
                     addBackGroundBytes(bytes)
                 }
-            }else{
-                //如果没有设置耳机相关，直接写入和外放都用,可能会有叠音
+            } else {
+                // 如果没有设置耳机相关，直接写入和外放都用,可能会有叠音
                 addBackGroundBytes(bytes)
             }
         }
@@ -104,14 +129,14 @@ internal class PlayBackMusic(private var defaultChannel: Int = CHANNEL_OUT_MONO,
         return this
     }
 
-    fun setBackGroundUrl(context: Context,uri: Uri,header: MutableMap<String,String>?): PlayBackMusic {
+    fun setBackGroundUrl(context: Context, uri: Uri, header: MutableMap<String, String>?): PlayBackMusic {
         if (isIsPause) {
             releaseDecoder()
-            initDecoder(context,uri,header)
+            initDecoder(context, uri, header)
         } else {
             isIsPause = true
             releaseDecoder()
-            initDecoder(context,uri,header)
+            initDecoder(context, uri, header)
             isIsPause = false
         }
         return this
@@ -126,9 +151,9 @@ internal class PlayBackMusic(private var defaultChannel: Int = CHANNEL_OUT_MONO,
         mAudioDecoder?.setMp3FilePath(path)
     }
 
-    private fun initDecoder(context: Context,uri: Uri,header: MutableMap<String,String>?) {
+    private fun initDecoder(context: Context, uri: Uri, header: MutableMap<String, String>?) {
         mAudioDecoder = AudioDecoder()
-        mAudioDecoder?.setMp3FilePath(context,uri,header)
+        mAudioDecoder?.setMp3FilePath(context, uri, header)
     }
 
     private fun releaseDecoder() {
@@ -153,7 +178,7 @@ internal class PlayBackMusic(private var defaultChannel: Int = CHANNEL_OUT_MONO,
      * 是否循环播放
      * @param isLoop 是否循环
      */
-    fun setLoop(isLoop: Boolean):PlayBackMusic {
+    fun setLoop(isLoop: Boolean): PlayBackMusic {
         mIsLoop = isLoop
         return this
     }
@@ -164,16 +189,17 @@ internal class PlayBackMusic(private var defaultChannel: Int = CHANNEL_OUT_MONO,
      */
     fun startPlayBackMusic() {
         if (mAudioDecoder == null) {
-            Log.e(BaseRecorder.TAG,"AudioDecoder no null, please set setBackGroundUrl first")
+            Log.e(BaseRecorder.TAG, "AudioDecoder no null, please set setBackGroundUrl first")
             return
         }
-        //开始加载音乐数据
+        // 开始加载音乐数据
         initPCMData()
         isPlayingMusic = true
         PlayNeedMixAudioTask(frameListener).start()
-        playerListener?.onStart(((mAudioDecoder?.mediaFormat?.getLong(MediaFormat.KEY_DURATION)?:1)/ 1000).toInt())
+        playerListener?.onStart(
+            ((mAudioDecoder?.mediaFormat?.getLong(MediaFormat.KEY_DURATION) ?: 1) / 1000).toInt()
+        )
     }
-
 
     fun getBackGroundBytes(): ByteArray? {
         if (backGroundBytes.isEmpty()) {
@@ -190,7 +216,6 @@ internal class PlayBackMusic(private var defaultChannel: Int = CHANNEL_OUT_MONO,
         return backGroundBytes.size
     }
 
-
     fun stop() {
         isPlayingMusic = false
         playerListener?.onStop()
@@ -199,12 +224,10 @@ internal class PlayBackMusic(private var defaultChannel: Int = CHANNEL_OUT_MONO,
     fun resume() {
         if (isPlayingMusic) {
             isIsPause = false
-            need.compareAndSet(false,true)
+            need.compareAndSet(false, true)
             playerListener?.onResume()
         }
     }
-
-
 
     fun pause() {
         if (isPlayingMusic) {
@@ -212,7 +235,6 @@ internal class PlayBackMusic(private var defaultChannel: Int = CHANNEL_OUT_MONO,
             playerListener?.onPause()
         }
     }
-
 
     fun release(): PlayBackMusic {
         isPlayingMusic = false
@@ -222,7 +244,7 @@ internal class PlayBackMusic(private var defaultChannel: Int = CHANNEL_OUT_MONO,
         return this
     }
 
-    fun cleanMusic(){
+    fun cleanMusic() {
         releaseDecoder()
     }
 
@@ -239,10 +261,10 @@ internal class PlayBackMusic(private var defaultChannel: Int = CHANNEL_OUT_MONO,
      * 重新开始播放
      */
     private fun restartMusic() {
-        //等于 mAudioDecoder.isPCMExtractorEOS()  = true 表示已经结束了
-        //如果是循环模式要重新开始解码
+        // 等于 mAudioDecoder.isPCMExtractorEOS()  = true 表示已经结束了
+        // 如果是循环模式要重新开始解码
         if (isPCMDataEos && mIsLoop) {
-            //重新开始播放mp3 -> pcm
+            // 重新开始播放mp3 -> pcm
             initPCMData()
         }
         Log.i(BaseRecorder.TAG, "restartMusic")
@@ -273,11 +295,11 @@ internal class PlayBackMusic(private var defaultChannel: Int = CHANNEL_OUT_MONO,
                 }
                 // 开始播放
                 audioTrack!!.play()
-                //延迟合成
+                // 延迟合成
                 fixAudioZip()
                 while (isPlayingMusic) {
                     if (!isIsPause) {
-                        if (need.compareAndSet(true,false)){
+                        if (need.compareAndSet(true, false)) {
                             fixAudioZip()
                         }
                         val pcm = mAudioDecoder!!.pcmData
@@ -299,9 +321,9 @@ internal class PlayBackMusic(private var defaultChannel: Int = CHANNEL_OUT_MONO,
                         }
                         listener?.onFrameArrive(temp)
                     } else {
-                        //如果是暂停
+                        // 如果是暂停
                         try {
-                            //防止死循环ANR
+                            // 防止死循环ANR
                             sleep(500)
                         } catch (e: InterruptedException) {
                             e.printStackTrace()
@@ -325,12 +347,12 @@ internal class PlayBackMusic(private var defaultChannel: Int = CHANNEL_OUT_MONO,
 
         private fun fixAudioZip() {
             if (defaultChannel == CHANNEL_OUT_MONO) {
-                //音乐实际开始会慢一点
+                // 音乐实际开始会慢一点
                 repeat(10) {
                     listener?.onFrameArrive(ByteArray(1))
                 }
             } else {
-                //30 的时候 外放 快于 合成
+                // 30 的时候 外放 快于 合成
                 repeat(8) {
                     listener?.onFrameArrive(ByteArray(1))
                 }
@@ -371,7 +393,6 @@ internal class PlayBackMusic(private var defaultChannel: Int = CHANNEL_OUT_MONO,
         }
     }
 
-
     fun setVolume(volume: Float) {
         this.volume = volume
         if (audioTrack != null) {
@@ -404,6 +425,6 @@ internal class PlayBackMusic(private var defaultChannel: Int = CHANNEL_OUT_MONO,
         private const val PROCESS_ERROR = 4
         private const val PROCESS_REPLAY = 5
         private const val mSampleRate = 44100
-        private const val mAudioEncoding = AudioFormat.ENCODING_PCM_16BIT//一个采样点16比特-2个字节
+        private const val mAudioEncoding = AudioFormat.ENCODING_PCM_16BIT // 一个采样点16比特-2个字节
     }
 }

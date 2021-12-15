@@ -1,19 +1,47 @@
+/*
+ * MIT License
+ *
+ * Copyright (c) 2019 SheTieJun
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
 @file:Suppress("DEPRECATION")
 
 package me.shetj.recorder.mixRecorder
 
-import android.media.*
+import android.media.AudioAttributes
+import android.media.AudioFormat
 import android.media.AudioFormat.CHANNEL_OUT_STEREO
+import android.media.AudioManager
+import android.media.AudioTrack
+import android.media.MediaCodec
+import android.media.MediaExtractor
+import android.media.MediaFormat
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
 import android.os.Message
 import android.util.Log
-import me.shetj.player.PlayerListener
-import me.shetj.recorder.core.BaseRecorder
 import java.nio.ByteBuffer
 import java.util.concurrent.LinkedBlockingDeque
-
+import me.shetj.player.PlayerListener
+import me.shetj.recorder.core.BaseRecorder
 
 /**
  * 播放音乐，用来播放PCM
@@ -37,7 +65,7 @@ internal class PlayPCMMusic(private val defaultChannel: Int = CHANNEL_OUT_STEREO
     }
 
     private val backGroundBytes =
-        LinkedBlockingDeque<ByteArray>()//new ArrayDeque<>();// ArrayDeque不是线程安全的
+        LinkedBlockingDeque<ByteArray>() // new ArrayDeque<>();// ArrayDeque不是线程安全的
     var isPlayingMusic = false
         private set
     private var mIsRecording = false
@@ -49,7 +77,7 @@ internal class PlayPCMMusic(private val defaultChannel: Int = CHANNEL_OUT_STEREO
     private var volume = 0.3f
     private var playerListener: PlayerListener? = null
 
-    //音频解码PCM相关
+    // 音频解码PCM相关
     private var mediaExtractor: MediaExtractor? = null
     private var mediaDecode: MediaCodec? = null
     private var decodeInputBuffers: Array<ByteBuffer>? = null
@@ -91,7 +119,6 @@ internal class PlayPCMMusic(private val defaultChannel: Int = CHANNEL_OUT_STEREO
     fun setBackGroundPlayListener(playerListener: PlayerListener) {
         this.playerListener = playerListener
     }
-
 
     private fun releaseDecoder() {
         if (mediaDecode != null) {
@@ -135,12 +162,11 @@ internal class PlayPCMMusic(private val defaultChannel: Int = CHANNEL_OUT_STEREO
             }
         }).start()
         playerListener?.onStart(
-            ((mediaFormat?.getLong(MediaFormat.KEY_DURATION) ?: 1 )/ 1000).toInt()
+            ((mediaFormat?.getLong(MediaFormat.KEY_DURATION) ?: 1) / 1000).toInt()
         )
-        Log.e(BaseRecorder.TAG, "startPlayPCMBackMusic" )
+        Log.e(BaseRecorder.TAG, "startPlayPCMBackMusic")
         return this
     }
-
 
     fun getBackGroundBytes(): ByteArray? {
         if (backGroundBytes.isEmpty()) {
@@ -180,7 +206,6 @@ internal class PlayPCMMusic(private val defaultChannel: Int = CHANNEL_OUT_STEREO
         }
     }
 
-
     fun release(): PlayPCMMusic {
         isPlayingMusic = false
         isIsPause = false
@@ -205,7 +230,6 @@ internal class PlayPCMMusic(private val defaultChannel: Int = CHANNEL_OUT_STEREO
         initMediaDecode()
     }
 
-
     /**
      */
     private inner class PlayNeedMixAudioTask(private val listener: BackGroundFrameListener?) :
@@ -223,7 +247,7 @@ internal class PlayPCMMusic(private val defaultChannel: Int = CHANNEL_OUT_STEREO
                         continue
                     } else {
                         try {
-                            //防止死循环ANR
+                            // 防止死循环ANR
                             sleep(500)
                         } catch (e: InterruptedException) {
                             e.printStackTrace()
@@ -251,7 +275,7 @@ internal class PlayPCMMusic(private val defaultChannel: Int = CHANNEL_OUT_STEREO
                 while (!isPCMExtractorEOS && isPlayingMusic) {
                     if (isIsPause) {
                         try {
-                            //防止死循环ANR
+                            // 防止死循环ANR
                             sleep(500)
                         } catch (e: InterruptedException) {
                             e.printStackTrace()
@@ -260,15 +284,15 @@ internal class PlayPCMMusic(private val defaultChannel: Int = CHANNEL_OUT_STEREO
                     }
                     if (!sawInputEOS) {
                         val inputIndex =
-                            mediaDecode!!.dequeueInputBuffer(-1)//获取可用的inputBuffer -1代表一直等待，0表示不等待 建议-1,避免丢帧
+                            mediaDecode!!.dequeueInputBuffer(-1) // 获取可用的inputBuffer -1代表一直等待，0表示不等待 建议-1,避免丢帧
                         if (inputIndex >= 0) {
-                            val inputBuffer = decodeInputBuffers!![inputIndex]//拿到inputBuffer
-                            inputBuffer.clear()//清空之前传入inputBuffer内的数据
+                            val inputBuffer = decodeInputBuffers!![inputIndex] // 拿到inputBuffer
+                            inputBuffer.clear() // 清空之前传入inputBuffer内的数据
                             val sampleSize = mediaExtractor!!.readSampleData(
                                 inputBuffer,
                                 0
                             )
-                            if (sampleSize < 0) {//小于0 代表所有数据已读取完成
+                            if (sampleSize < 0) { // 小于0 代表所有数据已读取完成
                                 sawInputEOS = true
                                 mediaDecode!!.queueInputBuffer(
                                     inputIndex,
@@ -285,14 +309,14 @@ internal class PlayPCMMusic(private val defaultChannel: Int = CHANNEL_OUT_STEREO
                                     sampleSize,
                                     presentationTimeUs,
                                     0
-                                )//通知MediaDecode解码刚刚传入的数据
-                                mediaExtractor!!.advance()//MediaExtractor移动到下一取样处
+                                ) // 通知MediaDecode解码刚刚传入的数据
+                                mediaExtractor!!.advance() // MediaExtractor移动到下一取样处
                             }
                         }
                     }
 
-                    //获取解码得到的byte[]数据 参数BufferInfo上面已介绍 10000同样为等待时间 同上-1代表一直等待，0代表不等待。此处单位为微秒
-                    //此处建议不要填-1 有些时候并没有数据输出，那么他就会一直卡在这 等待
+                    // 获取解码得到的byte[]数据 参数BufferInfo上面已介绍 10000同样为等待时间 同上-1代表一直等待，0代表不等待。此处单位为微秒
+                    // 此处建议不要填-1 有些时候并没有数据输出，那么他就会一直卡在这 等待
                     val outputIndex = mediaDecode!!.dequeueOutputBuffer(decodeBufferInfo!!, 10000)
                     if (outputIndex >= 0) {
                         // Simply ignore codec config buffers.
@@ -302,11 +326,11 @@ internal class PlayPCMMusic(private val defaultChannel: Int = CHANNEL_OUT_STEREO
                         }
 
                         if (decodeBufferInfo!!.size != 0) {
-                            val outBuf = decodeOutputBuffers!![outputIndex]//拿到用于存放PCM数据的Buffer
+                            val outBuf = decodeOutputBuffers!![outputIndex] // 拿到用于存放PCM数据的Buffer
                             outBuf.position(decodeBufferInfo!!.offset)
                             outBuf.limit(decodeBufferInfo!!.offset + decodeBufferInfo!!.size)
-                            val data = ByteArray(decodeBufferInfo!!.size)//BufferInfo内定义了此数据块的大小
-                            outBuf.get(data)//将Buffer内的数据取出到字节数组中
+                            val data = ByteArray(decodeBufferInfo!!.size) // BufferInfo内定义了此数据块的大小
+                            outBuf.get(data) // 将Buffer内的数据取出到字节数组中
                             // Log.i("mixRecorder","try put pcm data ...");
                             val pcm = AudioDecoder.PCM(
                                 data,
@@ -320,13 +344,12 @@ internal class PlayPCMMusic(private val defaultChannel: Int = CHANNEL_OUT_STEREO
                         mediaDecode!!.releaseOutputBuffer(
                             outputIndex,
                             false
-                        )//此操作一定要做，不然MediaCodec用完所有的Buffer后 将不能向外输出数据
+                        ) // 此操作一定要做，不然MediaCodec用完所有的Buffer后 将不能向外输出数据
 
                         if (decodeBufferInfo!!.flags and MediaCodec.BUFFER_FLAG_END_OF_STREAM != 0) {
                             isPCMExtractorEOS = true
 //                            Log.i("mixRecorder", "pcm finished..." + mp3FilePath!!)
                         }
-
                     } else if (outputIndex == MediaCodec.INFO_OUTPUT_BUFFERS_CHANGED) {
                         decodeOutputBuffers = mediaDecode!!.outputBuffers
                     }
@@ -395,8 +418,8 @@ internal class PlayPCMMusic(private val defaultChannel: Int = CHANNEL_OUT_STEREO
 
     private fun initMediaDecode() {
         try {
-            mediaExtractor = MediaExtractor()//此类可分离视频文件的音轨和视频轨道
-            mediaExtractor!!.setDataSource(mp3FilePath!!)//媒体文件的位置
+            mediaExtractor = MediaExtractor() // 此类可分离视频文件的音轨和视频轨道
+            mediaExtractor!!.setDataSource(mp3FilePath!!) // 媒体文件的位置
             mediaFormat = mediaExtractor!!.getTrackFormat(0)
             val mime = mediaFormat!!.getString(MediaFormat.KEY_MIME)
             // 检查是否为音频文件
@@ -404,9 +427,9 @@ internal class PlayPCMMusic(private val defaultChannel: Int = CHANNEL_OUT_STEREO
                 Log.e("mixRecorder", "不是音频文件!")
                 return
             }
-            //选择此音频轨道，因为是音频只有一条
+            // 选择此音频轨道，因为是音频只有一条
             mediaExtractor!!.selectTrack(0)
-            //创建Decode解码器
+            // 创建Decode解码器
             mediaDecode = MediaCodec.createDecoderByType(mime)
             mediaDecode!!.configure(mediaFormat, null, null, 0)
         } catch (e: Exception) {
@@ -418,15 +441,14 @@ internal class PlayPCMMusic(private val defaultChannel: Int = CHANNEL_OUT_STEREO
             Log.e("mixRecorder", "create mediaDecode failed")
             return
         }
-        mediaDecode!!.start()//启动MediaCodec ，等待传入数据
-        //MediaCodec在此ByteBuffer[]中获取输入数据
+        mediaDecode!!.start() // 启动MediaCodec ，等待传入数据
+        // MediaCodec在此ByteBuffer[]中获取输入数据
         decodeInputBuffers = mediaDecode!!.inputBuffers
-        //MediaCodec将解码后的数据放到此ByteBuffer[]中 我们可以直接在这里面得到PCM数据
+        // MediaCodec将解码后的数据放到此ByteBuffer[]中 我们可以直接在这里面得到PCM数据
         decodeOutputBuffers = mediaDecode!!.outputBuffers
-        decodeBufferInfo = MediaCodec.BufferInfo()//用于描述解码得到的byte[]数据的相关信息
+        decodeBufferInfo = MediaCodec.BufferInfo() // 用于描述解码得到的byte[]数据的相关信息
         isPCMExtractorEOS = false
     }
-
 
     fun setVolume(volume: Float) {
         this.volume = volume
@@ -448,6 +470,6 @@ internal class PlayPCMMusic(private val defaultChannel: Int = CHANNEL_OUT_STEREO
         private val PROCESS_ERROR = 4
         private val PROCESS_REPLAY = 5
         private val mSampleRate = 44100
-        private val mAudioEncoding = AudioFormat.ENCODING_PCM_16BIT//一个采样点16比特-2个字节
+        private val mAudioEncoding = AudioFormat.ENCODING_PCM_16BIT // 一个采样点16比特-2个字节
     }
 }

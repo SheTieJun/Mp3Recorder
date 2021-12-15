@@ -1,11 +1,40 @@
+/*
+ * MIT License
+ *
+ * Copyright (c) 2019 SheTieJun
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
 package me.shetj.recorder.ui
 
 import android.content.Context
 import android.text.TextUtils
-import me.shetj.player.PlayerListener
-import me.shetj.recorder.core.*
-import me.shetj.recorder.mixRecorder.buildMix
 import java.io.File
+import me.shetj.player.PlayerListener
+import me.shetj.recorder.core.BaseRecorder
+import me.shetj.recorder.core.FileUtils
+import me.shetj.recorder.core.PermissionListener
+import me.shetj.recorder.core.RecordListener
+import me.shetj.recorder.core.RecordState
+import me.shetj.recorder.core.SimRecordListener
+import me.shetj.recorder.core.recorder
+import me.shetj.recorder.mixRecorder.buildMix
 
 /**
  * 录音工具类
@@ -41,7 +70,7 @@ class MixRecordUtils(
             return path.toString()
         }
 
-    private var startTime: Long = 0 //秒 s
+    private var startTime: Long = 0 // 秒 s
     private var mRecorder: BaseRecorder? = null
     var saveFile: String? = null
         private set
@@ -95,7 +124,6 @@ class MixRecordUtils(
                 mRecorder?.complete()
             }
             RecordState.PAUSED -> {
-
             }
         }
     }
@@ -120,7 +148,6 @@ class MixRecordUtils(
     fun setBackgroundPlayerListener(listener: PlayerListener) {
         mRecorder?.setBackgroundMusicListener(listener)
     }
-
 
     fun pause() {
         mRecorder?.pause()
@@ -190,7 +217,6 @@ class MixRecordUtils(
         callBack?.onSuccess(isAutoComplete, file, time)
     }
 
-
     override fun onMaxChange(time: Long) {
         callBack?.onMaxChange(time)
     }
@@ -201,7 +227,6 @@ class MixRecordUtils(
         callBack?.onError(e)
     }
 
-
     fun setVolume(volume: Float) {
         mRecorder?.setBGMVolume(volume)
     }
@@ -209,6 +234,4 @@ class MixRecordUtils(
     fun destroy() {
         mRecorder?.destroy()
     }
-
-
 }

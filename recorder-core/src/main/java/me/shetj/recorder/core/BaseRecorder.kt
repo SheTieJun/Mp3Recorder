@@ -1,3 +1,26 @@
+/*
+ * MIT License
+ *
+ * Copyright (c) 2019 SheTieJun
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
 package me.shetj.recorder.core
 
 import android.content.Context
@@ -13,27 +36,26 @@ import android.os.Message
 import android.text.TextUtils
 import android.util.Log
 import androidx.annotation.IntRange
-import me.shetj.player.PlayerListener
 import java.io.File
 import kotlin.math.abs
 import kotlin.math.log10
 import kotlin.math.sqrt
-
+import me.shetj.player.PlayerListener
 
 abstract class BaseRecorder {
 
     //region 录音的方式 /来源 Record Type
     enum class RecorderType {
         SIM, // 只转码MP3
-        MIX,// 背景音乐（需要混音+转码，所以较慢）
+        MIX, // 背景音乐（需要混音+转码，所以较慢）
         ST // 变音(需要变音+转码，所以较慢)
     }
 
     //endregion Record Type
     protected var defaultAudioSource = MediaRecorder.AudioSource.VOICE_COMMUNICATION
     protected var defaultChannelConfig = AudioFormat.CHANNEL_IN_MONO // defaultLameInChannel =1
-    protected var defaultLameInChannel = 1 //声道数量
-    protected var defaultLameMp3Quality = 3 //音频质量，好像LAME已经不使用它了
+    protected var defaultLameInChannel = 1 // 声道数量
+    protected var defaultLameMp3Quality = 3 // 音频质量，好像LAME已经不使用它了
 
     /*
     * 16Kbps= 电话音质
@@ -49,10 +71,10 @@ abstract class BaseRecorder {
     * 实际上随着技术的进步，比特率也越来越高，MP3的最高比特率为320Kbps，但一些格式可以达到更高的比特率和更高的音质。
     * 比如正逐渐兴起的APE音频格式，能够提供真正发烧级的无损音质和相对于WAV格式更小的体积，其比特率通常为550kbps-----950kbps。
      */
-    protected var defaultLameMp3BitRate = 96 //32 太低，(96,128) 比较合适
+    protected var defaultLameMp3BitRate = 96 // 32 太低，(96,128) 比较合适
     protected var defaultSamplingRate = 48000
-    protected var is2Channel = false //默认是单声道
-    protected var mRecordFile: File? = null //文件输出，中途可以替换
+    protected var is2Channel = false // 默认是单声道
+    protected var mRecordFile: File? = null // 文件输出，中途可以替换
     protected var mRecordListener: RecordListener? = null
     protected var mPermissionListener: PermissionListener? = null
 
@@ -62,26 +84,26 @@ abstract class BaseRecorder {
     private var mAutomaticGainControl: AutomaticGainControl? = null
     //endregion 系统自带的去噪音，增强以及回音问题
 
-    //最大时间
+    // 最大时间
     protected var mMaxTime: Long = 3600000
 
-    //提醒时间
+    // 提醒时间
     protected var mRemindTime = (3600000 - 10000).toLong()
     protected var isAutoComplete = false
 
     //region 录音的状态，声音和时间
     protected var mVolume: Int = 0
-    protected var backgroundMusicIsPlay: Boolean = false //记录是否暂停
+    protected var backgroundMusicIsPlay: Boolean = false // 记录是否暂停
     protected var bgmIsLoop: Boolean = false
     protected var isRemind: Boolean = true
-    protected var isContinue = false //是否继续录制
+    protected var isContinue = false // 是否继续录制
 
-    //是否暂停
+    // 是否暂停
     protected var recordThread: Thread? = null
     protected var isPause: Boolean = true
     private var isDebug = false
 
-    //声音增强,不建议使用
+    // 声音增强,不建议使用
     protected var wax = 1f
     protected var bgLevel: Float = 03f
 
@@ -89,11 +111,11 @@ abstract class BaseRecorder {
     var isActive = false
         protected set
 
-    //当前状态
+    // 当前状态
     var state = RecordState.STOPPED
         protected set
 
-    //录制时间
+    // 录制时间
     var duration = 0L
         protected set
     //endregion 录音的状态和时间
@@ -108,10 +130,13 @@ abstract class BaseRecorder {
             when (msg.what) {
                 HANDLER_RECORDING -> {
                     if (mRecordListener != null && state == RecordState.RECORDING) {
-                        logInfo("Recording:  mDuration = $duration ,volume = $realVolume and state is recording  = ${state == RecordState.RECORDING}")
-                        //录制回调
+                        logInfo(
+                            "Recording:  mDuration = $duration ,volume = " +
+                                "$realVolume and state is recording  = ${state == RecordState.RECORDING}"
+                        )
+                        // 录制回调
                         mRecordListener!!.onRecording(duration, realVolume)
-                        //提示快到录音时间了
+                        // 提示快到录音时间了
                         if (isRemind && duration > mRemindTime) {
                             isRemind = false
                             mRecordListener!!.onRemind(duration)
@@ -148,7 +173,11 @@ abstract class BaseRecorder {
                         if (msg.obj != null) {
                             mRecordListener!!.onError(msg.obj as Exception)
                         } else {
-                            mRecordListener!!.onError(Exception("record error：AudioRecord read MIC error maybe not permission!"))
+                            mRecordListener!!.onError(
+                                Exception(
+                                    "record error：AudioRecord read MIC error maybe not permission!"
+                                )
+                            )
                         }
                     }
                 }
@@ -179,13 +208,13 @@ abstract class BaseRecorder {
         }
     }
 
-    //录音的方式
+    // 录音的方式
     abstract val recorderType: RecorderType
 
-    //设置是否使用耳机配置方式
+    // 设置是否使用耳机配置方式
     abstract fun setContextToPlugConfig(context: Context): BaseRecorder
 
-    //设置声音配置，设置后，修改设置声音大小会修改系统播放声音的大小
+    // 设置声音配置，设置后，修改设置声音大小会修改系统播放声音的大小
     abstract fun setContextToVolumeConfig(context: Context): BaseRecorder
 
     /**
@@ -205,7 +234,6 @@ abstract class BaseRecorder {
         return this
     }
 
-
     /**
      * 设置录音输出文件
      * @param outputFile 设置输出路径
@@ -215,7 +243,8 @@ abstract class BaseRecorder {
         if (outputFile.exists()) {
             Log.w(
                 TAG,
-                "setOutputFile: outputFile is exists, if not Continue may cover it(如果没有isContinue = true,会覆盖文件)",
+                "setOutputFile: outputFile is exists, " +
+                    "if not Continue may cover it(如果没有isContinue = true,会覆盖文件)",
             )
         }
         mRecordFile = outputFile
@@ -223,103 +252,101 @@ abstract class BaseRecorder {
         return this
     }
 
-    //设置录音监听
+    // 设置录音监听
     abstract fun setRecordListener(recordListener: RecordListener?): BaseRecorder
 
-    //设置权限监听
+    // 设置权限监听
     abstract fun setPermissionListener(permissionListener: PermissionListener?): BaseRecorder
 
-    //设计背景音乐的url,本地的
+    // 设计背景音乐的url,本地的
     abstract fun setBackgroundMusic(url: String): BaseRecorder
 
-    //是否循环播放，默认true
+    // 是否循环播放，默认true
     abstract fun setLoopMusic(isLoop: Boolean): BaseRecorder
 
-    //背景音乐的url,兼容Android Q
+    // 背景音乐的url,兼容Android Q
     abstract fun setBackgroundMusic(
         context: Context,
         uri: Uri,
         header: MutableMap<String, String>?
     ): BaseRecorder
 
-    //设置背景音乐的监听
+    // 设置背景音乐的监听
     abstract fun setBackgroundMusicListener(listener: PlayerListener): BaseRecorder
 
-    //初始Lame录音输出质量
+    // 初始Lame录音输出质量
     open fun setMp3Quality(@IntRange(from = 0, to = 9) mp3Quality: Int): BaseRecorder {
         this.defaultLameMp3Quality = mp3Quality
         return this
     }
 
-    //设置比特率，关系声音的质量
+    // 设置比特率，关系声音的质量
     open fun setMp3BitRate(@IntRange(from = 16) mp3BitRate: Int): BaseRecorder {
         this.defaultLameMp3BitRate = mp3BitRate
         return this
     }
 
-    //设置采样率 48000
+    // 设置采样率 48000
     open fun setSamplingRate(@IntRange(from = 8000) rate: Int): BaseRecorder {
         this.defaultSamplingRate = rate
         return this
     }
 
-    //设置音频声道数量，每次录音前可以设置修改，开始录音后无法修改
+    // 设置音频声道数量，每次录音前可以设置修改，开始录音后无法修改
     abstract fun setAudioChannel(@IntRange(from = 1, to = 2) channel: Int = 1): Boolean
 
-    //设置音频来源，每次录音前可以设置修改，开始录音后无法修改
+    // 设置音频来源，每次录音前可以设置修改，开始录音后无法修改
     abstract fun setAudioSource(@Source audioSource: Int = MediaRecorder.AudioSource.MIC): Boolean
 
-
-    //初始最大录制时间 和提醒时间 remind = maxTime - remindDiffTime
+    // 初始最大录制时间 和提醒时间 remind = maxTime - remindDiffTime
     abstract fun setMaxTime(maxTime: Int, remindDiffTime: Int? = null): BaseRecorder
 
-
-    //设置增强系数(不建议修改，因为会产生噪音~)
+    // 设置增强系数(不建议修改，因为会产生噪音~)
     open fun setWax(wax: Float): BaseRecorder {
         this.wax = wax
         return this
     }
 
-    //设置背景声音大小
+    // 设置背景声音大小
     abstract fun setBGMVolume(volume: Float): BaseRecorder
 
-    //移除背景音乐
+    // 移除背景音乐
     abstract fun cleanBackgroundMusic()
 
-    //开始录音
+    // 开始录音
     abstract fun start()
 
-    //完成录音
+    // 完成录音
     abstract fun complete()
 
-    //重新开始录音
+    // 重新开始录音
     abstract fun resume()
 
-    //替换输出文件
+    // 替换输出文件
     abstract fun updateDataEncode(outputFilePath: String)
 
-    //暂停录音
+    // 暂停录音
     abstract fun pause()
 
-    //是否设置了并且开始播放了背景音乐
+    // 是否设置了并且开始播放了背景音乐
     abstract fun isPlayMusic(): Boolean
 
-    //开始播放音乐
+    // 开始播放音乐
     abstract fun startPlayMusic()
 
-    //是否在播放音乐
+    // 是否在播放音乐
     abstract fun isPauseMusic(): Boolean
 
-    //暂停背景音乐
+    // 暂停背景音乐
     abstract fun pauseMusic()
 
-    //重新播放背景音乐
+    // 重新播放背景音乐
     abstract fun resumeMusic()
 
-    //重置
+    // 重置
     abstract fun reset()
 
-    //结束释放
+    // 结束释放
     abstract fun destroy()
     //endregion public method
 
@@ -333,8 +360,8 @@ abstract class BaseRecorder {
     open fun getSoundTouch(): ISoundTouchCore {
         throw NullPointerException(
             "该录音工具不支持变音功能,使用 recorderType =  st ；" +
-                    "\n The recorder recorderType does not support SoundTouch," +
-                    "u should add 'com.github.SheTieJun.Mp3Recorder:recorder-st:版本号' ,STRecorder "
+                "\n The recorder recorderType does not support SoundTouch," +
+                "u should add 'com.github.SheTieJun.Mp3Recorder:recorder-st:版本号' ,STRecorder "
         )
     }
 
@@ -426,12 +453,10 @@ abstract class BaseRecorder {
                 } else {
                     Log.i(TAG, "Failed to create AutomaticGainControl.")
                 }
-
             } else {
                 Log.i(TAG, "Doesn't support AutomaticGainControl")
             }
         }
-
     }
 
     protected fun release() {
@@ -452,7 +477,6 @@ abstract class BaseRecorder {
         }
     }
 
-
     fun mapFormat(format: Int): Int {
         return when (format) {
             AudioFormat.ENCODING_PCM_8BIT -> 8
@@ -462,16 +486,16 @@ abstract class BaseRecorder {
     }
 
     companion object {
-        const val HANDLER_RECORDING = 0x101 //正在录音
-        const val HANDLER_START = HANDLER_RECORDING + 1//开始了
-        const val HANDLER_RESUME = HANDLER_START + 1//暂停后开始
-        const val HANDLER_COMPLETE = HANDLER_RESUME + 1//完成
-        const val HANDLER_AUTO_COMPLETE = HANDLER_COMPLETE + 1//最大时间完成
-        const val HANDLER_ERROR = HANDLER_AUTO_COMPLETE + 1//错误
-        const val HANDLER_PAUSE = HANDLER_ERROR + 1//暂停
-        const val HANDLER_RESET = HANDLER_PAUSE + 1//重置
-        const val HANDLER_PERMISSION = HANDLER_RESET + 1//需要权限
-        const val HANDLER_MAX_TIME = HANDLER_PERMISSION + 1//设置了最大时间
+        const val HANDLER_RECORDING = 0x101 // 正在录音
+        const val HANDLER_START = HANDLER_RECORDING + 1 // 开始了
+        const val HANDLER_RESUME = HANDLER_START + 1 // 暂停后开始
+        const val HANDLER_COMPLETE = HANDLER_RESUME + 1 // 完成
+        const val HANDLER_AUTO_COMPLETE = HANDLER_COMPLETE + 1 // 最大时间完成
+        const val HANDLER_ERROR = HANDLER_AUTO_COMPLETE + 1 // 错误
+        const val HANDLER_PAUSE = HANDLER_ERROR + 1 // 暂停
+        const val HANDLER_RESET = HANDLER_PAUSE + 1 // 重置
+        const val HANDLER_PERMISSION = HANDLER_RESET + 1 // 需要权限
+        const val HANDLER_MAX_TIME = HANDLER_PERMISSION + 1 // 设置了最大时间
         const val FRAME_COUNT = 160
         val DEFAULT_AUDIO_FORMAT = PCMFormat.PCM_16BIT
         const val TAG = "Recorder"

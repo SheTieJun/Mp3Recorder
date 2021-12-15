@@ -1,7 +1,6 @@
 package me.shetj.recorder.core
 
 import android.util.Log
-
 import java.nio.ByteOrder
 import kotlin.experimental.and
 import kotlin.experimental.or
@@ -41,8 +40,6 @@ object BytesTransUtil {
         return b
     }
 
-
-
     /**
      * 将byte[2]转换成short
      */
@@ -50,12 +47,11 @@ object BytesTransUtil {
         return (high.toInt() and 0xff shl 8 or (low.toInt() and 0xff)).toShort()
     }
 
-
     /**
      * 噪音消除算法
      */
     fun noiseClear(lin: ShortArray, off: Int, len: Int) {
-        var i  = 0
+        var i = 0
         var j: Int
         while (i < len) {
             j = lin[i + off].toInt()
@@ -155,7 +151,10 @@ object BytesTransUtil {
         for (r in 0 until row) {
             for (c in 0 until column) {
                 sMulRoadAudioes[r][c] =
-                    (bMulRoadAudioes[r][c * 2].toInt() and 0xff or (bMulRoadAudioes[r][c * 2 + 1].toInt() and 0xff shl 8)).toShort()
+                    (
+                        bMulRoadAudioes[r][c * 2].toInt() and 0xff or
+                            (bMulRoadAudioes[r][c * 2 + 1].toInt() and 0xff shl 8)
+                        ).toShort()
             }
         }
         val sMixAudio = ShortArray(column)
@@ -220,7 +219,10 @@ object BytesTransUtil {
         for (r in 0 until row) {
             for (c in 0 until column) {
                 sMulRoadAudioes[r][c] =
-                    (bMulRoadAudioes[r][c * 2].toInt() and 0xff or (bMulRoadAudioes[r][c * 2 + 1].toInt() and 0xff shl 8)).toShort()
+                    (
+                        bMulRoadAudioes[r][c * 2].toInt() and 0xff or
+                            (bMulRoadAudioes[r][c * 2 + 1].toInt() and 0xff shl 8)
+                        ).toShort()
             }
         }
         val sMixAudio = ShortArray(column)
@@ -250,11 +252,11 @@ object BytesTransUtil {
         return getBytes(s.toLong(), thisCPU())
     }
 
-    fun getShort(buf: ByteArray?):Short{
+    fun getShort(buf: ByteArray?): Short {
         return getShort(buf, thisCPU())
     }
 
-    ///////////////// private /////////////////////////////////////////////
+    // /////////////// private /////////////////////////////////////////////
 
     /**
      * 大端小端 问题
@@ -278,8 +280,6 @@ object BytesTransUtil {
             }
         return buf
     }
-
-
 
     private fun getShort(buf: ByteArray?, bBigEnding: Boolean = thisCPU()): Short {
         requireNotNull(buf) { "byte array is null!" }

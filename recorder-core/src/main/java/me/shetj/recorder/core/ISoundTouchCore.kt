@@ -1,3 +1,26 @@
+/*
+ * MIT License
+ *
+ * Copyright (c) 2019 SheTieJun
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
 package me.shetj.recorder.core
 
 import androidx.annotation.FloatRange
@@ -16,31 +39,29 @@ import androidx.annotation.FloatRange
 
 interface ISoundTouchCore {
 
-    //是否使用变音，中途可以切换变音
+    // 是否使用变音，中途可以切换变音
     fun changeUse(isUseST: Boolean)
 
-    //是否使用变音功能
-    fun isUse():Boolean
+    // 是否使用变音功能
+    fun isUse(): Boolean
 
-    //指定播放速率，源rate=1.0，小于1变慢；大于1
+    // 指定播放速率，源rate=1.0，小于1变慢；大于1
     fun setRate(rate: Float)
 
-    //一般用来设置倍速，我们变音，默认 1.0就好
+    // 一般用来设置倍速，我们变音，默认 1.0就好
     fun setTempo(tempo: Float)
 
-    //在原速1.0基础上，按百分比做增量，取值(-50 .. +100 %)
+    // 在原速1.0基础上，按百分比做增量，取值(-50 .. +100 %)
     fun setRateChange(@FloatRange(from = -50.0, to = 100.0) rateChange: Float)
 
-    //在原速1.0基础上 源tempo=1.0，小于1则变慢；大于1变快 tempo (-50 .. +100 %)
+    // 在原速1.0基础上 源tempo=1.0，小于1则变慢；大于1变快 tempo (-50 .. +100 %)
     fun setTempoChange(@FloatRange(from = -50.0, to = 100.0) tempoChange: Float)
 
-    //在源pitch的基础上，使用半音(Semitones)设置新的pitch [-12.0,12.0]
-    //男声:-10
-    //女声:+10
+    // 在源pitch的基础上，使用半音(Semitones)设置新的pitch [-12.0,12.0]
+    // 男声:-10
+    // 女声:+10
     fun setPitchSemiTones(@FloatRange(from = -12.0, to = 12.0) pitch: Float)
 
-    //只处理wav 文件
+    // 只处理wav 文件
     fun processFile(inputFile: String, outputFile: String): Boolean
-
-
 }

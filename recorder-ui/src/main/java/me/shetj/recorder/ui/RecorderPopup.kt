@@ -1,3 +1,26 @@
+/*
+ * MIT License
+ *
+ * Copyright (c) 2019 SheTieJun
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
 package me.shetj.recorder.ui
 
 import android.Manifest
@@ -10,9 +33,7 @@ import me.shetj.dialog.OrangeDialog
 import me.shetj.recorder.core.SimRecordListener
 import me.shetj.recorder.ui.databinding.RecordLayoutPopupBinding
 
-
 typealias Success = (file: String) -> Unit
-
 
 class RecorderPopup(
     private val context: AppCompatActivity,
@@ -23,7 +44,6 @@ class RecorderPopup(
 
     private var remindDialog: OrangeDialog? = null
     private var isComplete = false
-
 
     private val playerListener: SimPlayerListener = object : SimPlayerListener() {
         override fun onCompletion() {
@@ -76,7 +96,7 @@ class RecorderPopup(
             super.onSuccess(isAutoComplete, file, time)
             if (isAutoComplete) {
                 onShowSuccessView()
-            }else {
+            } else {
                 mViewBinding.tvRecordTime.text = formatSeconds(maxSecond(), maxSecond())
             }
             complete(time)
@@ -162,7 +182,6 @@ class RecorderPopup(
 
     private val player: AudioPlayer by lazy { AudioPlayer() }
 
-
     fun setOnSuccess(onSuccess: Success?) {
         this.onSuccess = onSuccess
     }
@@ -223,24 +242,26 @@ class RecorderPopup(
     }
 
     private fun showRemindTip() {
-        (remindDialog ?: OrangeDialog.Builder(mViewBinding.root.context)
-            .setTitle("是否保存录音")
-            .setNegativeText("取消")
-            .setOnNegativeCallBack { _, _ ->
-                recordUtils.cleanPath()
-                recordUtils.stopFullRecord()
-                realDismiss()
-            }
-            .setPositiveText("保存")
-            .setonPositiveCallBack { _, _ ->
-                if (!isComplete) {
-                    isComplete = true
+        (
+            remindDialog ?: OrangeDialog.Builder(mViewBinding.root.context)
+                .setTitle("是否保存录音")
+                .setNegativeText("取消")
+                .setOnNegativeCallBack { _, _ ->
+                    recordUtils.cleanPath()
                     recordUtils.stopFullRecord()
+                    realDismiss()
                 }
-                realDismiss()
-            }.build().also {
-                remindDialog = it
-            }).show()
+                .setPositiveText("保存")
+                .setonPositiveCallBack { _, _ ->
+                    if (!isComplete) {
+                        isComplete = true
+                        recordUtils.stopFullRecord()
+                    }
+                    realDismiss()
+                }.build().also {
+                    remindDialog = it
+                }
+            ).show()
     }
 
     override fun showPop() {
@@ -266,7 +287,6 @@ class RecorderPopup(
         mViewBinding.tvState.isVisible = true
     }
 
-
     private fun realDismiss() {
         dismiss()
     }
@@ -282,7 +302,6 @@ class RecorderPopup(
         recordUtils.destroy()
         player.stopPlay()
     }
-
 
     override fun initViewBinding(mContext: AppCompatActivity): RecordLayoutPopupBinding {
         return RecordLayoutPopupBinding.inflate(mContext.layoutInflater)

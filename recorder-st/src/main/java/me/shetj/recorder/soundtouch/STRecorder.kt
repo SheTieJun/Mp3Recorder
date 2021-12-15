@@ -1,3 +1,26 @@
+/*
+ * MIT License
+ *
+ * Copyright (c) 2019 SheTieJun
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
 package me.shetj.recorder.soundtouch
 
 import android.annotation.SuppressLint
@@ -9,11 +32,17 @@ import android.net.Uri
 import android.os.Message
 import android.os.Process
 import android.util.Log
-import me.shetj.player.PlayerListener
-import me.shetj.recorder.core.*
-import me.shetj.ndk.lame.LameUtils
 import java.io.IOException
-
+import me.shetj.ndk.lame.LameUtils
+import me.shetj.player.PlayerListener
+import me.shetj.recorder.core.BaseRecorder
+import me.shetj.recorder.core.Channel
+import me.shetj.recorder.core.ISoundTouchCore
+import me.shetj.recorder.core.PermissionListener
+import me.shetj.recorder.core.RecordListener
+import me.shetj.recorder.core.RecordState
+import me.shetj.recorder.core.Source
+import me.shetj.recorder.core.VolumeConfig
 
 /**
  * 录制MP3 边录边转
@@ -36,7 +65,7 @@ internal class STRecorder : BaseRecorder {
      */
     private var volumeConfig: VolumeConfig? = null
 
-    //缓冲数量
+    // 缓冲数量
     private var mBufferSize: Int = 0
 
     /**
@@ -169,7 +198,7 @@ internal class STRecorder : BaseRecorder {
         // 提早，防止init或startRecording被多次调用
         isActive = true
         mSendError = false
-        //初始化
+        // 初始化
         duration = 0
         try {
             initAudioRecorder()
@@ -182,12 +211,12 @@ internal class STRecorder : BaseRecorder {
         object : Thread() {
             var isError = false
 
-            //1秒PCM文件大小 = 采样率采样时间采样位深 / 8*通道数（Bytes）
+            // 1秒PCM文件大小 = 采样率采样时间采样位深 / 8*通道数（Bytes）
             var bytesPerSecond =
                 mAudioRecord!!.sampleRate * mapFormat(mAudioRecord!!.audioFormat) / 8 * mAudioRecord!!.channelCount
 
             override fun run() {
-                //设置线程权限
+                // 设置线程权限
                 Process.setThreadPriority(Process.THREAD_PRIORITY_URGENT_AUDIO)
                 onStart()
                 while (isActive) {
@@ -207,7 +236,7 @@ internal class STRecorder : BaseRecorder {
                             val readTime = 1000.0 * readSize.toDouble() * 2 / bytesPerSecond
                             mEncodeThread!!.addTask(mPCMBuffer!!, readSize)
                             calculateRealVolume(mPCMBuffer!!, readSize)
-                            //short 是2个字节 byte 是1个字节8位
+                            // short 是2个字节 byte 是1个字节8位
                             onRecording(readTime)
                         } else {
                             if (!mSendError) {
@@ -240,7 +269,6 @@ internal class STRecorder : BaseRecorder {
                     }
                 }
             }
-
         }.also {
             recordThread = it
         }.start()
@@ -284,7 +312,6 @@ internal class STRecorder : BaseRecorder {
             backgroundMusicIsPlay = false
         }
     }
-
 
     /**
      * 重新开始
@@ -339,7 +366,6 @@ internal class STRecorder : BaseRecorder {
         soundTouch.clean()
     }
 
-
     override fun destroy() {
         isActive = false
         isPause = false
@@ -350,7 +376,6 @@ internal class STRecorder : BaseRecorder {
         volumeConfig?.unregisterReceiver()
         soundTouch.destroy()
     }
-
 
     @Deprecated("不支持背景音乐", replaceWith = ReplaceWith("no use"))
     override fun startPlayMusic() {
@@ -405,10 +430,10 @@ internal class STRecorder : BaseRecorder {
             mBufferSize
         )
 
-        //缓冲区大小
+        // 缓冲区大小
         mPCMBuffer = ShortArray(mBufferSize)
 
-        //初始化变音
+        // 初始化变音
         soundTouch.init(defaultLameInChannel, defaultSamplingRate)
 
         initAEC(mAudioRecord!!.audioSessionId)
@@ -437,7 +462,6 @@ internal class STRecorder : BaseRecorder {
 
     /***************************private method  */
 
-
     private fun onStart() {
         if (state !== RecordState.RECORDING) {
             handler.sendEmptyMessage(HANDLER_START)
@@ -447,7 +471,6 @@ internal class STRecorder : BaseRecorder {
             isPause = false
         }
     }
-
 
     private fun onError(ex: Exception? = null) {
         isPause = false
@@ -459,7 +482,6 @@ internal class STRecorder : BaseRecorder {
         state = RecordState.STOPPED
         backgroundMusicIsPlay = false
     }
-
 
     /**
      * 计算时间
@@ -484,6 +506,4 @@ internal class STRecorder : BaseRecorder {
             backgroundMusicIsPlay = false
         }
     }
-
-
 }
