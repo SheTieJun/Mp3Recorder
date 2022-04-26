@@ -39,11 +39,11 @@ data class Mp3RecorderOption(
     @Channel var audioChannel: Int = 1,
     // debug，输出录音过程日志
     var isDebug: Boolean = false,
-    // 最大录制事件
-    var mMaxTime: Int = 1800 * 1000,
-    // 采样率，影响音质
+    // 最大录制时间毫秒
+    var mMaxTime: Long = 1800 * 1000,
+    // 采样频率越高， 声音越接近原始数据。
     var samplingRate: Int = 44100,
-    // MP3输出的比特率,影响输出大小和输出音质，同时会影响文件的大小，质量越好文件越大
+    // 比特率越高，传送的数据越大，音质越好 ,MP3输出的比特率,影响输出大小和输出音质，同时会影响文件的大小，质量越好文件越大
     var mp3BitRate: Int = 32, // 128 /96(高),32（低）
     // Lame   质量1-7，Lame的输出质量，1最快
     var mp3Quality: Int = 3,

@@ -1,3 +1,10 @@
+pluginManagement {
+    repositories {
+        gradlePluginPortal()
+        google()
+        mavenCentral()
+    }
+}
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
@@ -7,10 +14,10 @@ dependencyResolutionManagement {
         maven { url "https://jitpack.io" }
     }
 }
-include ':recorder-ui'
 rootProject.name='Mp3Recorder'
 include ':recorder-sim'
 include ':recorder-mix'
 include ':recorder-core'
-include ':app'
 include ':recorder-st'
+include ':recorder-ui'
+include ':app'

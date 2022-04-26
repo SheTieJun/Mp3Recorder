@@ -29,4 +29,4 @@ jobs:
     - name: Upload to Fir.im
       run: |
         fir login ${{ secrets.FIMTOKEN }}
-    - run: fir publish app/build/outputs/apk/release/app-release.apk
+    - run: fir publish app/build/intermediates/apk/release/app-release.apk

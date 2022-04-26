@@ -243,8 +243,7 @@ abstract class BaseRecorder {
         if (outputFile.exists()) {
             Log.w(
                 TAG,
-                "setOutputFile: outputFile is exists, " +
-                    "if not Continue may cover it(如果没有isContinue = true,会覆盖文件)",
+                "setOutputFile: outputFile is exists  and isContinue == $isContinue ",
             )
         }
         mRecordFile = outputFile
@@ -298,8 +297,20 @@ abstract class BaseRecorder {
     // 设置音频来源，每次录音前可以设置修改，开始录音后无法修改
     abstract fun setAudioSource(@Source audioSource: Int = MediaRecorder.AudioSource.MIC): Boolean
 
-    // 初始最大录制时间 和提醒时间 remind = maxTime - remindDiffTime
-    abstract fun setMaxTime(maxTime: Int, remindDiffTime: Int? = null): BaseRecorder
+    open fun setMaxTime(maxTime: Long, remindDiffTime: Long? = 0L): BaseRecorder {
+        if (maxTime < 0) {
+            return this
+        }
+        this.mMaxTime = maxTime
+        handler.sendEmptyMessage(HANDLER_MAX_TIME)
+        if (remindDiffTime != null && remindDiffTime < maxTime) {
+            this.mRemindTime = (maxTime - remindDiffTime)
+        } else {
+            this.mRemindTime = (maxTime - 10000)
+        }
+        return this
+    }
+
 
     // 设置增强系数(不建议修改，因为会产生噪音~)
     open fun setWax(wax: Float): BaseRecorder {

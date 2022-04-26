@@ -24,7 +24,6 @@
 package me.shetj.mp3recorder
 
 import android.content.Context
-import android.media.AudioFormat
 import android.media.MediaRecorder
 import me.shetj.recorder.core.*
 import me.shetj.recorder.mixRecorder.buildMix
@@ -37,7 +36,7 @@ fun mp3Recorder(
     simpleName: BaseRecorder.RecorderType = BaseRecorder.RecorderType.MIX,
     @Source audioSource: Int = MediaRecorder.AudioSource.VOICE_COMMUNICATION,
     isDebug: Boolean = BuildConfig.DEBUG,
-    mMaxTime: Int = 1800 * 1000,
+    mMaxTime: Long = 1800 * 1000,
     samplingRate: Int = 44100,
     mp3BitRate: Int = 64,//96(高),32（低）
     mp3Quality: Int = 1,
@@ -61,7 +60,7 @@ fun mp3Recorder(
         when (simpleName) {
             BaseRecorder.RecorderType.MIX -> it.buildMix(context)
             BaseRecorder.RecorderType.SIM -> it.buildSim(context)
-            BaseRecorder.RecorderType.ST -> it.buildST(context)
+            BaseRecorder.RecorderType.ST -> it.buildST()
         }
     }
 }

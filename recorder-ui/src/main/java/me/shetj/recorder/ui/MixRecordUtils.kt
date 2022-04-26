@@ -41,7 +41,7 @@ import me.shetj.recorder.mixRecorder.buildMix
  */
 class MixRecordUtils(
     private val context: Context,
-    private val maxTime: Int = 30 * 60 * 1000,
+    private val maxTime: Long = 30 * 60 * 1000L,
     private val callBack: SimRecordListener?
 ) : RecordListener, PermissionListener {
 

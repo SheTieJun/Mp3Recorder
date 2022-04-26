@@ -279,9 +279,6 @@ internal class PlayBackMusic(private var defaultChannel: Int = CHANNEL_OUT_MONO,
     }
 
     /**
-     * 虽然可以新建多个 AsyncTask的子类的实例，但是AsyncTask的内部Handler和ThreadPoolExecutor都是static的，
-     * 这么定义的变 量属于类的，是进程范围内共享的，所以AsyncTask控制着进程范围内所有的子类实例，
-     * 而且该类的所有实例都共用一个线程池和Handler
      * 这里新开一个线程
      * 自己解析出来 pcm data
      */

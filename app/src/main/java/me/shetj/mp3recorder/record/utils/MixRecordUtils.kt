@@ -24,7 +24,6 @@
 package me.shetj.mp3recorder.record.utils
 
 import android.content.Context
-import android.media.AudioFormat
 import android.media.MediaRecorder
 import android.net.Uri
 import android.text.TextUtils
@@ -51,7 +50,7 @@ class MixRecordUtils(
 
     private var recorderType: BaseRecorder.RecorderType = BaseRecorder.RecorderType.MIX
 
-    val TIME = 5 * 60 * 1000
+    val TIME = 5 * 60 * 1000L
 
     val isRecording: Boolean
         get() {
@@ -182,7 +181,7 @@ class MixRecordUtils(
             when (recorderType) {
                 BaseRecorder.RecorderType.MIX -> it.buildMix(Utils.app)
                 BaseRecorder.RecorderType.SIM -> it.buildSim(Utils.app)
-                BaseRecorder.RecorderType.ST -> it.buildST(Utils.app)
+                BaseRecorder.RecorderType.ST -> it.buildST()
             }
         }
         mRecorder?.setMaxTime(TIME, TIME - 20 * 1000)
@@ -230,7 +229,7 @@ class MixRecordUtils(
      * 设置最大录制时间
      */
     fun setMaxTime(maxTime: Int) {
-        mRecorder?.setMaxTime(maxTime)
+        mRecorder?.setMaxTime(maxTime.toLong())
     }
 
     /**

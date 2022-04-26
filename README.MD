@@ -184,6 +184,11 @@ abstract class BaseRecorder {
 ```
 ## 其他
 
+### 尝试支持 Compose
+```
+[Mp3Recorder-Compose](https://github.com/SheTieJun/Mp3Recorder-Compose)
+```
+
 ### 1. [Old version](https://github.com/SheTieJun/Mp3Recorder/tree/master_copy)
 
 ### 2. [Update_log](https://github.com/SheTieJun/Mp3Recorder/wiki/%E6%9B%B4%E6%96%B0%E6%97%A5%E5%BF%97)

@@ -207,20 +207,6 @@ internal class MixRecorder : BaseRecorder {
         return this
     }
 
-    override fun setMaxTime(maxTime: Int, remindDiffTime: Int?): MixRecorder {
-        if (maxTime < 0) {
-            return this
-        }
-        this.mMaxTime = maxTime.toLong()
-        handler.sendEmptyMessage(HANDLER_MAX_TIME)
-        if (remindDiffTime != null && remindDiffTime < maxTime) {
-            this.mRemindTime = (maxTime - remindDiffTime).toLong()
-        } else {
-            this.mRemindTime = (maxTime - 10000).toLong()
-        }
-        return this
-    }
-
     override fun setBackgroundMusicListener(listener: PlayerListener): MixRecorder {
         bgPlayer.setBackGroundPlayListener(listener)
         return this
@@ -269,6 +255,10 @@ internal class MixRecorder : BaseRecorder {
             initAudioRecorder()
             mAudioRecord!!.startRecording()
             logInfo("startRecording")
+        }catch (ex:IllegalStateException){
+            handler.sendEmptyMessage(HANDLER_PERMISSION)
+            ex.printStackTrace()
+            return
         } catch (ex: Exception) {
             onError(ex)
             ex.printStackTrace()
@@ -335,6 +325,7 @@ internal class MixRecorder : BaseRecorder {
                         mEncodeThread!!.sendStopMessage()
                     }
                 } catch (ex: Exception) {
+                    onError(ex)
                     ex.printStackTrace()
                 } finally {
                     if (!isError) {

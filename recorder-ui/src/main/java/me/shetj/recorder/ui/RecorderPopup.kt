@@ -178,7 +178,7 @@ class RecorderPopup(
         }
     }
 
-    private val recordUtils by lazy { MixRecordUtils(context, maxTime.toInt(), listener) }
+    private val recordUtils by lazy { MixRecordUtils(context, maxTime, listener) }
 
     private val player: AudioPlayer by lazy { AudioPlayer() }
 

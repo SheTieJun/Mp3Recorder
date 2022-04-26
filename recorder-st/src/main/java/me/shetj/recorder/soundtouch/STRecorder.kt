@@ -172,20 +172,6 @@ internal class STRecorder : BaseRecorder {
         return this
     }
 
-    override fun setMaxTime(maxTime: Int, remindDiffTime: Int?): STRecorder {
-        if (maxTime < 0) {
-            return this
-        }
-        this.mMaxTime = maxTime.toLong()
-        handler.sendEmptyMessage(HANDLER_MAX_TIME)
-        if (remindDiffTime != null && remindDiffTime < maxTime) {
-            this.mRemindTime = (maxTime - remindDiffTime).toLong()
-        } else {
-            this.mRemindTime = (maxTime - 10000).toLong()
-        }
-        return this
-    }
-
     // region Start recording. Create an encoding thread. Start record from this
     override fun start() {
         if (mRecordFile == null) {
@@ -203,6 +189,10 @@ internal class STRecorder : BaseRecorder {
         try {
             initAudioRecorder()
             mAudioRecord!!.startRecording()
+        }catch (ex:IllegalStateException){
+            handler.sendEmptyMessage(HANDLER_PERMISSION)
+            ex.printStackTrace()
+            return
         } catch (ex: Exception) {
             onError(ex)
             return
