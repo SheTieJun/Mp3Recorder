@@ -33,17 +33,11 @@
 ##### 方式二：
 
 ```kotlin
-        //simRecorderNoContext  不使用PlugConfig
-         //simRecorder 使用PlugConfig ,同时同步系统声音
-   mixRecorder = simRecorder(
-             Utils.app,  
-             mMaxTime = 3600 * 1000,
-             mp3Quality = 1,
-             isDebug = true,
-             channel = BaseRecorder.AudioChannel.STEREO,
-             recordListener = this,
-             permissionListener = this
-         )
+recorder {
+            recordListener = this@MixRecordUtils
+            permissionListener = this@MixRecordUtils
+            isDebug = false
+        }.buildMix(context)
 ```
 
 #### 2. 开始录音
@@ -131,8 +125,3 @@ https://www.jianshu.com/p/87095c155ea5
     * 比如正逐渐兴起的APE音频格式，能够提供真正发烧级的无损音质和相对于WAV格式更小的体积，其比特率通常为550kbps-----950kbps。
      */
 ```
-#### 当前使用的应用
-
-| [荔枝微课](https://sj.qq.com/myapp/detail.htm?apkName=com.lizhirecorder) |
-| ------------------------------------------------------------ |
-| ![](../doc/img/image_lizhi.png)                                     |

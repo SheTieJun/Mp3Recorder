@@ -25,7 +25,7 @@
 implementation "com.github.SheTieJun.Mp3Recorder:recorder-core:$sdk_version"//必选
 implementation "com.github.SheTieJun.Mp3Recorder:recorder-sim:$sdk_version"//可选
 implementation "com.github.SheTieJun.Mp3Recorder:recorder-mix:$sdk_version"//可选
-implementation "com.github.SheTieJun.Mp3Recorder:recorder-st:$sdk_version" //可选，未测试
+implementation "com.github.SheTieJun.Mp3Recorder:recorder-st:$sdk_version" //可选，已初步测试（感觉有噪音？还有编译参数需要调试）
 ```
 
 - 如果只是录音，对背景音乐没有要求，带耳机后没有背景音乐：[SimRecorder](recorder-sim)
@@ -185,9 +185,7 @@ abstract class BaseRecorder {
 ## 其他
 
 ### 尝试支持 Compose
-```
 [Mp3Recorder-Compose](https://github.com/SheTieJun/Mp3Recorder-Compose)
-```
 
 ### 1. [Old version](https://github.com/SheTieJun/Mp3Recorder/tree/master_copy)
 

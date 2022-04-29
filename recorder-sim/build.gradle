@@ -1,5 +1,8 @@
-apply plugin: 'com.android.library'
-apply plugin: 'kotlin-android'
+plugins {
+    id 'com.android.library'
+    id 'org.jetbrains.kotlin.android'
+}
+
 
 android {
     compileSdkVersion 30
@@ -22,14 +25,6 @@ android {
         main {
             jniLibs.srcDirs = ['libs']
         }
-    }
-    kotlinOptions {
-        jvmTarget = "11"
-    }
-
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_11
-        targetCompatibility JavaVersion.VERSION_11
     }
 }
 

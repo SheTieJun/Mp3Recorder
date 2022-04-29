@@ -47,9 +47,7 @@ internal class SoundTouchKit : ISoundTouchCore {
     private var handle: Long = 0
 
     internal fun init(channel: Int, samplingRate: Int) {
-        if (handle == 0L) {
-            handle = soundTouch.newInstance()
-        }
+        checkInit()
         soundTouch.init(handle, channel, samplingRate, tempo, pitch, rate)
     }
 
@@ -65,35 +63,47 @@ internal class SoundTouchKit : ISoundTouchCore {
      * rate (-50 .. +100 %)
      */
     override fun setRateChange(@FloatRange(from = -50.0, to = 100.0) rateChange: Float) {
+        checkInit()
         this.rate = 1f + 0.01f * rateChange
         soundTouch.setRateChange(handle, rateChange)
     }
 
     override fun setTempoChange(@FloatRange(from = -50.0, to = 100.0) tempoChange: Float) {
+        checkInit()
         this.tempo = 1f + 0.01f * tempoChange
         soundTouch.setTempoChange(handle, tempoChange)
     }
 
     //  指定节拍，设置新的节拍tempo，源tempo=1.0，小于1则变慢；大于1变快
     override fun setTempo(tempo: Float) {
+        checkInit()
         this.tempo = tempo
         soundTouch.setTempo(handle, tempo)
     }
 
     // 在源pitch的基础上，使用半音(Semitones)设置新的pitch [-12.0,12.0]
     override fun setPitchSemiTones(@FloatRange(from = -12.0, to = 12.0) pitch: Float) {
+        checkInit()
         this.pitch = pitch
         soundTouch.setPitchSemiTones(handle, pitch)
     }
 
     // 指定播放速率，源rate=1.0，小于1变慢；大于1
     override fun setRate(rate: Float) {
+        checkInit()
         this.rate = rate
         soundTouch.setRate(handle, rate)
     }
 
+    private fun checkInit() {
+        if (handle == 0L) {
+            handle = soundTouch.newInstance()
+        }
+    }
+
     // 只处理wav 文件
     override fun processFile(inputFile: String, outputFile: String): Boolean {
+        checkInit()
         return if (soundTouch.processFile(handle, inputFile, outputFile) == 0) {
             true
         } else {
@@ -103,11 +113,13 @@ internal class SoundTouchKit : ISoundTouchCore {
     }
 
     fun receiveSamples(outputBuf: ShortArray): Int {
+        checkInit()
         print("putSamples :$handle")
         return soundTouch.receiveSamples(handle, outputBuf)
     }
 
     fun putSamples(samples: ShortArray, len: Int) {
+        checkInit()
         print("putSamples :$handle")
         soundTouch.putSamples(handle, samples, len)
     }

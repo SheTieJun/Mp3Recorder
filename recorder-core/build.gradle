@@ -1,5 +1,8 @@
-apply plugin: 'com.android.library'
-apply plugin: 'kotlin-android'
+plugins {
+    id 'com.android.library'
+    id 'org.jetbrains.kotlin.android'
+}
+
 
 android {
     compileSdkVersion 30
@@ -23,19 +26,11 @@ android {
             jniLibs.srcDirs = ['libs']
         }
     }
-    kotlinOptions {
-        jvmTarget = "11"
-    }
-
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_11
-        targetCompatibility JavaVersion.VERSION_11
-    }
 }
 
 dependencies {
     api fileTree(dir: "libs", include: ["*.jar"])
-    implementation "androidx.annotation:annotation:1.2.0"
+    implementation "androidx.annotation:annotation:1.3.0"
 }
 
 apply from : "uploadLocal.gradle"

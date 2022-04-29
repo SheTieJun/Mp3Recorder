@@ -28,7 +28,9 @@ import android.media.MediaRecorder
 import android.net.Uri
 import android.text.TextUtils
 import android.view.View
+import android.widget.Toast
 import androidx.lifecycle.MutableLiveData
+import me.shetj.base.S
 import me.shetj.base.ktx.logi
 import me.shetj.base.tools.app.Utils
 import me.shetj.base.tools.file.EnvironmentStorage
@@ -183,6 +185,12 @@ class MixRecordUtils(
                 BaseRecorder.RecorderType.SIM -> it.buildSim(Utils.app)
                 BaseRecorder.RecorderType.ST -> it.buildST()
             }
+        }
+
+        if (recorderType == BaseRecorder.RecorderType.ST){
+            mRecorder!!.getSoundTouch().changeUse(true)
+            mRecorder!!.getSoundTouch().setPitchSemiTones(12f)
+            Toast.makeText(S.app,"变声，不可以使用背景应用",Toast.LENGTH_LONG).show()
         }
         mRecorder?.setMaxTime(TIME, TIME - 20 * 1000)
     }
