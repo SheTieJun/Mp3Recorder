@@ -37,6 +37,7 @@ import me.shetj.base.tools.file.EnvironmentStorage
 import me.shetj.dialog.OrangeDialog
 import me.shetj.dialog.SingleChoiceCallback
 import me.shetj.dialog.orangeSingeDialog
+import me.shetj.mp3recorder.record.RecordingNotification
 import me.shetj.player.PlayerListener
 import me.shetj.recorder.core.*
 import me.shetj.recorder.mixRecorder.buildMix
@@ -192,6 +193,7 @@ class MixRecordUtils(
         if (recorderType == BaseRecorder.RecorderType.ST) {
             mRecorder!!.getSoundTouch().changeUse(true)
             mRecorder!!.getSoundTouch().setPitchSemiTones(12f)
+            mRecorder!!.getSoundTouch().setRateChange(50f)
             Toast.makeText(S.app, "变声，不可以使用背景音乐", Toast.LENGTH_LONG).show()
         }
         mRecorder?.setMaxTime(TIME, TIME - 20 * 1000)
@@ -267,10 +269,12 @@ class MixRecordUtils(
     }
 
     override fun onStart() {
+        RecordingNotification.notify(Utils.app, RecordingNotification.RECORD_NOTIFICATION_RECORD_ING)
         callBack?.onStart()
     }
 
     override fun onResume() {
+        RecordingNotification.notify(Utils.app, RecordingNotification.RECORD_NOTIFICATION_RECORD_ING)
         callBack?.onStart()
     }
 
@@ -282,6 +286,7 @@ class MixRecordUtils(
     }
 
     override fun onPause() {
+        RecordingNotification.notify(Utils.app, RecordingNotification.RECORD_NOTIFICATION_RECORD_PAUSE)
         callBack?.onPause()
     }
 
@@ -290,6 +295,7 @@ class MixRecordUtils(
     }
 
     override fun onSuccess(isAutoComplete: Boolean, file: String, time: Long) {
+        RecordingNotification.notify(Utils.app, RecordingNotification.RECORD_NOTIFICATION_RECORD_COMPLETE)
         callBack?.onSuccess(isAutoComplete, file, (time / 1000))
     }
 

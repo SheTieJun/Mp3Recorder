@@ -36,7 +36,7 @@ fun AudioPlayer.playNoStart(
     onResume: () -> Unit = {},
     onStop: () -> Unit = {},
     onCompletion: () -> Unit = {},
-    onError: (throwable: Exception) -> Unit = {},
+    onError: (throwable: Exception?) -> Unit = {},
     onProgress: (current: Int, duration: Int) -> Unit = { _: Int, _: Int -> }
 ): AudioPlayer {
 
@@ -63,7 +63,7 @@ fun AudioPlayer.playNoStart(
                 onCompletion()
             }
 
-            override fun onError(throwable: Exception) {
+            override fun onError(throwable: Exception?) {
                 onError(throwable)
             }
 
@@ -86,7 +86,7 @@ fun AudioPlayer.playOrPause(
     onResume: () -> Unit = {},
     onStop: () -> Unit = {},
     onCompletion: () -> Unit = {},
-    onError: (throwable: Exception) -> Unit = {},
+    onError: (throwable: Exception?) -> Unit = {},
     onProgress: (current: Int, duration: Int) -> Unit = { _: Int, _: Int -> }
 ): AudioPlayer {
 
@@ -113,7 +113,7 @@ fun AudioPlayer.playOrPause(
                 onCompletion()
             }
 
-            override fun onError(throwable: Exception) {
+            override fun onError(throwable: Exception?) {
                 onError(throwable)
             }
 
@@ -153,7 +153,7 @@ fun AudioPlayer.updateListener(
     onResume: () -> Unit = {},
     onStop: () -> Unit = {},
     onCompletion: () -> Unit = {},
-    onError: (throwable: Exception) -> Unit = {},
+    onError: (throwable: Exception?) -> Unit = {},
     onProgress: (current: Int, duration: Int) -> Unit = { _: Int, _: Int -> }
 ): AudioPlayer {
     updateListener(object : PlayerListener {
@@ -177,7 +177,7 @@ fun AudioPlayer.updateListener(
             onCompletion()
         }
 
-        override fun onError(throwable: Exception) {
+        override fun onError(throwable: Exception?) {
             onError(throwable)
         }
 

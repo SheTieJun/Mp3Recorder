@@ -83,7 +83,7 @@ object RecordingNotification {
             .setContentIntent(intentGo)
             .setSound(null)
             .setColor(ContextCompat.getColor(context.applicationContext, R.color.colorPrimary))
-            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setPriority(NotificationCompat.PRIORITY_MAX)
         return builder.build()
     }
 

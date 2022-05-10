@@ -71,6 +71,7 @@ recorder {
 ```
 #### 5.中途替换输出文件
 ```
+    //filePath 新的文件
   mixRecorder.updateDataEncode(filePath)
 ```
 

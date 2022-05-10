@@ -61,11 +61,6 @@ internal class SimRecorder : BaseRecorder {
     private var mPCMBuffer: ShortArray? = null
     private var mSendError: Boolean = false
 
-    /**
-     * 音量变化监听
-     */
-    private var volumeConfig: VolumeConfig? = null
-
     // 缓冲数量
     private var mBufferSize: Int = 0
 
@@ -73,7 +68,7 @@ internal class SimRecorder : BaseRecorder {
      * pcm数据的速度，默认300
      * 数据越大，速度越慢
      */
-    private var waveSpeed = 300
+    private var waveSpeed = 500
         set(waveSpeed) {
             if (this.waveSpeed <= 0) {
                 return
@@ -129,7 +124,7 @@ internal class SimRecorder : BaseRecorder {
             else -> defaultAudioSource
         }
         this.is2Channel = defaultLameInChannel == 2
-        release()
+        releaseAEC()
     }
 
     override fun setAudioChannel(@Channel channel: Int): Boolean {
@@ -313,9 +308,6 @@ internal class SimRecorder : BaseRecorder {
         }
     }
 
-    /**
-     * 重新开始
-     */
     override fun resume() {
         if (state === RecordState.PAUSED) {
             isPause = false
@@ -327,9 +319,6 @@ internal class SimRecorder : BaseRecorder {
         }
     }
 
-    /**
-     * 设置背景音乐的大小
-     */
     override fun setBGMVolume(volume: Float): SimRecorder {
         if (volumeConfig == null) {
             val volume1 = when {
@@ -353,9 +342,6 @@ internal class SimRecorder : BaseRecorder {
         bgPlayer.stopPlay()
     }
 
-    /**
-     * 暂停
-     */
     override fun pause() {
         if (state === RecordState.RECORDING) {
             isPause = true
@@ -370,9 +356,6 @@ internal class SimRecorder : BaseRecorder {
         return bgPlayer.isPlayingMusic
     }
 
-    /**
-     * 重置
-     */
     override fun reset() {
         isActive = false
         isPause = false
@@ -389,7 +372,7 @@ internal class SimRecorder : BaseRecorder {
         isPause = false
         state = RecordState.STOPPED
         mRecordFile = null
-        release()
+        releaseAEC()
         bgPlayer.stopPlay()
         handler.removeCallbacksAndMessages(null)
         volumeConfig?.unregisterReceiver()
@@ -528,7 +511,7 @@ internal class SimRecorder : BaseRecorder {
 
     /**
      * 计算时间
-     * @param readTime
+     * @param readTime 录制的时间
      */
     private fun onRecording(readTime: Double) {
         duration += readTime.toLong()

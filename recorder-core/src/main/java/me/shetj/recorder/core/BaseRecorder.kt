@@ -35,6 +35,7 @@ import android.os.Looper
 import android.os.Message
 import android.text.TextUtils
 import android.util.Log
+import androidx.annotation.FloatRange
 import androidx.annotation.IntRange
 import java.io.File
 import kotlin.math.abs
@@ -47,34 +48,66 @@ abstract class BaseRecorder {
     //region 录音的方式 /来源 Record Type
     enum class RecorderType {
         SIM, // 只转码MP3
-        MIX, // 背景音乐（需要混音+转码，所以较慢）
-        ST // 变音(需要变音+转码，所以较慢)
+        MIX, // 背景音乐（需要混音+转码Mp3，所以较慢）
+        ST // 变音(需要变音+转码Mp3，所以较慢)
     }
 
     //endregion Record Type
     protected var defaultAudioSource = MediaRecorder.AudioSource.VOICE_COMMUNICATION
     protected var defaultChannelConfig = AudioFormat.CHANNEL_IN_MONO // defaultLameInChannel =1
     protected var defaultLameInChannel = 1 // 声道数量
-    protected var defaultLameMp3Quality = 3 // 音频质量，好像LAME已经不使用它了
 
-    /*
-    * 16Kbps= 电话音质
-    * 24Kbps= 增加电话音质、短波广播、长波广播、欧洲制式中波广播
-    * 40Kbps= 美国制式中波广播
-    * 56Kbps= 话音
-    * 64Kbps= 增加话音（手机铃声最佳比特率设定值、手机单声道MP3播放器最佳设定值）
-    * 112Kbps= FM调频立体声广播
-    * 128Kbps= 磁带（手机立体声MP3播放器最佳设定值、低档MP3播放器最佳设定值）
-    * 160Kbps= HIFI 高保真（中高档MP3播放器最佳设定值）
-    * 192Kbps= CD（高档MP3播放器最佳设定值）
-    * 256Kbps= Studio音乐工作室（音乐发烧友适用）
-    * 实际上随着技术的进步，比特率也越来越高，MP3的最高比特率为320Kbps，但一些格式可以达到更高的比特率和更高的音质。
-    * 比如正逐渐兴起的APE音频格式，能够提供真正发烧级的无损音质和相对于WAV格式更小的体积，其比特率通常为550kbps-----950kbps。
+    /**
+     * 设置LameMp3音频质量，但是好像LAME已经不使用它了
      */
-    protected var defaultLameMp3BitRate = 96 // 32 太低，(96,128) 比较合适
+    protected var defaultLameMp3Quality = 3
+
+    /**
+     * * 比特率越高，传送的数据越大，音质越好
+     * *
+     * *16Kbps = 电话音质
+     * * 24Kbps = 增加电话音质、短波广播、长波广播、欧洲制式中波广播
+     * * 40Kbps = 美国制式中波广播
+     * * 56Kbps = 话音
+     * * 64Kbps = 增加话音（手机铃声最佳比特率设定值、手机单声道MP3播放器最佳设定值）
+     * * 112Kbps = FM调频立体声广播
+     * * 128Kbps = 磁带（手机立体声MP3播放器最佳设定值、低档MP3播放器最佳设定值）
+     * * 160Kbps = HIFI 高保真（中高档MP3播放器最佳设定值）
+     * * 192Kbps = CD（高档MP3播放器最佳设定值）
+     * * 256Kbps = Studio音乐工作室（音乐发烧友适用）
+     * * 实际上随着技术的进步，比特率也越来越高，MP3的最高比特率为320Kbps，但一些格式可以达到更高的比特率和更高的音质。
+     * * 比如正逐渐兴起的APE音频格式，能够提供真正发烧级的无损音质和相对于WAV格式更小的体积，其比特率通常为550kbps-----950kbps。
+     * *
+     * * 32 太低，(96,128) 比较合适，在往上会导致文件很大
+     */
+    protected var defaultLameMp3BitRate = 96
+
+    /**
+     * * 采样频率越高， 声音越接近原始数据。
+     * *
+     * * 44,100 Hz - 音频 CD, 也常用于 MPEG-1 音频（VCD, SVCD, MP3）所用采样率
+     * * 47,250 Hz - Nippon Columbia (Denon)开发的世界上第一个商用 PCM 录音机所用采样率
+     * * 48,000 Hz - miniDV、数字电视、DVD、DAT、电影和专业音频所用的数字声音所用采样率
+     * * 50,400 Hz - 三菱 X-80 数字录音机所用所用采样率
+     * *
+     * * 48000 一般就够了，太大也会影响文件的大小
+     */
     protected var defaultSamplingRate = 48000
     protected var is2Channel = false // 默认是单声道
-    protected var mRecordFile: File? = null // 文件输出，中途可以替换
+
+
+    //region 背景音乐相关
+    /**
+     * 音量变化监听
+     */
+    protected var volumeConfig: VolumeConfig? = null
+    //endregion 背景音乐相关
+
+
+    /**
+     * 文件输出，中途可以替换[updateDataEncode]
+     */
+    protected var mRecordFile: File? = null //
     protected var mRecordListener: RecordListener? = null
     protected var mPermissionListener: PermissionListener? = null
 
@@ -84,38 +117,81 @@ abstract class BaseRecorder {
     private var mAutomaticGainControl: AutomaticGainControl? = null
     //endregion 系统自带的去噪音，增强以及回音问题
 
-    // 最大时间
+    /**
+     *最大时间
+     */
     protected var mMaxTime: Long = 3600000
 
     // 提醒时间
     protected var mRemindTime = (3600000 - 10000).toLong()
+
+    /**
+     * 是否是自动触发最大时间完成了录音
+     */
     protected var isAutoComplete = false
 
     //region 录音的状态，声音和时间
+    /**
+     * 录音的声音大小
+     */
     protected var mVolume: Int = 0
-    protected var backgroundMusicIsPlay: Boolean = false // 记录是否暂停
-    protected var bgmIsLoop: Boolean = false
-    protected var isRemind: Boolean = true
-    protected var isContinue = false // 是否继续录制
 
-    // 是否暂停
+    /**
+     * 记录是否暂停
+     */
+    protected var backgroundMusicIsPlay: Boolean = false
+
+    /**
+     * 背景音乐是否循环
+     */
+    protected var bgmIsLoop: Boolean = true
+
+    /**
+     * 是否需要提醒快到时间
+     */
+    protected var isRemind: Boolean = true
+
+    /**
+     * 是否继续输出在文件末尾录制
+     */
+    protected var isContinue = false
+
+    /**
+     * 录音线程
+     */
     protected var recordThread: Thread? = null
+
+    /**
+     *  录音是否暂停
+     */
     protected var isPause: Boolean = true
     private var isDebug = false
 
-    // 声音增强,不建议使用
+    /**
+    声音增强,不建议使用
+     */
     protected var wax = 1f
-    protected var bgLevel: Float = 03f
 
-    // 录音Recorder 是否在活动,暂停的时候 isActive 还是true,只有录音结束了才会为false
+    /**
+     * 背景音乐的声音大小(0~1.0)
+     */
+    protected var bgLevel: Float = 0.3f
+
+    /**
+     * 录音Recorder 是否在活动,暂停的时候 isActive 还是true,只有录音结束了才会为false
+     */
     var isActive = false
         protected set
 
-    // 当前状态
+    /**
+     *  当前录音状态
+     */
     var state = RecordState.STOPPED
         protected set
 
-    // 录制时间
+    /**
+     * 已录制时间
+     */
     var duration = 0L
         protected set
     //endregion 录音的状态和时间
@@ -132,7 +208,7 @@ abstract class BaseRecorder {
                     if (mRecordListener != null && state == RecordState.RECORDING) {
                         logInfo(
                             "Recording:  mDuration = $duration ,volume = " +
-                                "$realVolume and state is recording  = ${state == RecordState.RECORDING}"
+                                    "$realVolume and state is recording  = ${state == RecordState.RECORDING}"
                         )
                         // 录制回调
                         mRecordListener!!.onRecording(duration, realVolume)
@@ -208,13 +284,19 @@ abstract class BaseRecorder {
         }
     }
 
-    // 录音的方式
+    /**
+     录音的方式
+     */
     abstract val recorderType: RecorderType
 
-    // 设置是否使用耳机配置方式
+    /**
+     设置是否使用耳机配置方式
+     */
     abstract fun setContextToPlugConfig(context: Context): BaseRecorder
 
-    // 设置声音配置，设置后，修改设置声音大小会修改系统播放声音的大小
+    /**
+     设置声音配置，设置后，修改设置声音大小会修改系统播放声音的大小
+     */
     abstract fun setContextToVolumeConfig(context: Context): BaseRecorder
 
     /**
@@ -251,52 +333,79 @@ abstract class BaseRecorder {
         return this
     }
 
-    // 设置录音监听
+    /**
+    设置录音监听
+     */
     abstract fun setRecordListener(recordListener: RecordListener?): BaseRecorder
 
-    // 设置权限监听
+    /**
+     设置没有权限的回调，感觉不是很准
+     */
     abstract fun setPermissionListener(permissionListener: PermissionListener?): BaseRecorder
 
-    // 设计背景音乐的url,本地的
+    /**
+     设计背景音乐的url,最好是本地的，否则可能会网络导致卡顿
+     */
     abstract fun setBackgroundMusic(url: String): BaseRecorder
 
-    // 是否循环播放，默认true
+    /**
+    是否循环播放，默认true
+     */
     abstract fun setLoopMusic(isLoop: Boolean): BaseRecorder
 
-    // 背景音乐的url,兼容Android Q
+    /**
+     *   背景音乐的url,为了兼容Android Q，获取不到具体的路径
+      */
     abstract fun setBackgroundMusic(
         context: Context,
         uri: Uri,
         header: MutableMap<String, String>?
     ): BaseRecorder
 
-    // 设置背景音乐的监听
+    /**
+     设置背景音乐的监听
+     */
     abstract fun setBackgroundMusicListener(listener: PlayerListener): BaseRecorder
 
-    // 初始Lame录音输出质量
+    /**
+     初始Lame录音输出质量
+     */
     open fun setMp3Quality(@IntRange(from = 0, to = 9) mp3Quality: Int): BaseRecorder {
         this.defaultLameMp3Quality = mp3Quality
         return this
     }
 
-    // 设置比特率，关系声音的质量
+    /**
+     * * 设置比特率，关系声音的质量
+     * * 比特率越高，传送的数据越大，音质越好
+     */
     open fun setMp3BitRate(@IntRange(from = 16) mp3BitRate: Int): BaseRecorder {
         this.defaultLameMp3BitRate = mp3BitRate
         return this
     }
 
-    // 设置采样率 48000
+    /**
+     * * 设置采样率 48000
+     * * 采样频率越高， 声音越接近原始数据。
+     */
     open fun setSamplingRate(@IntRange(from = 8000) rate: Int): BaseRecorder {
         this.defaultSamplingRate = rate
         return this
     }
 
-    // 设置音频声道数量，每次录音前可以设置修改，开始录音后无法修改
+    /**
+    设置音频声道数量，每次录音前可以设置修改，开始录音后无法修改
+     */
     abstract fun setAudioChannel(@IntRange(from = 1, to = 2) channel: Int = 1): Boolean
 
-    // 设置音频来源，每次录音前可以设置修改，开始录音后无法修改
+    /**
+     设置音频来源，每次录音前可以设置修改，开始录音后无法修改
+     */
     abstract fun setAudioSource(@Source audioSource: Int = MediaRecorder.AudioSource.MIC): Boolean
 
+    /**
+     * 设置最大录制时间，和提醒时间，只能提醒一次
+     */
     open fun setMaxTime(maxTime: Long, remindDiffTime: Long? = 0L): BaseRecorder {
         if (maxTime < 0) {
             return this
@@ -312,74 +421,104 @@ abstract class BaseRecorder {
     }
 
 
-    // 设置增强系数(不建议修改，因为会产生噪音~)
+    /**
+    设置增强系数(不建议修改，因为会产生噪音~)
+     */
     open fun setWax(wax: Float): BaseRecorder {
         this.wax = wax
         return this
     }
 
-    // 设置背景声音大小
-    abstract fun setBGMVolume(volume: Float): BaseRecorder
+    /**
+    设置背景声音大小
+     */
+    abstract fun setBGMVolume(@FloatRange(from = 0.0, to = 1.0) volume: Float): BaseRecorder
 
-    // 移除背景音乐
+    /**
+    移除背景音乐
+     */
     abstract fun cleanBackgroundMusic()
 
-    // 开始录音
+    /**
+    开始录音
+     */
     abstract fun start()
 
-    // 完成录音
+    /**
+     * 主动完成录音
+     */
     abstract fun complete()
 
-    // 重新开始录音
+    /**
+     *   重新开始录音
+     */
     abstract fun resume()
 
-    // 替换输出文件
+    /**
+    替换后续录音的输出文件路径
+     */
     abstract fun updateDataEncode(outputFilePath: String)
 
-    // 暂停录音
+    /**
+    暂停录音
+     */
     abstract fun pause()
 
-    // 是否设置了并且开始播放了背景音乐
+    /**
+    是否设置了并且开始播放了背景音乐
+     */
     abstract fun isPlayMusic(): Boolean
 
-    // 开始播放音乐
+    /**
+    开始播放音乐
+     */
     abstract fun startPlayMusic()
 
-    // 是否在播放音乐
+    /**
+    是否正在播放音乐
+     */
     abstract fun isPauseMusic(): Boolean
 
-    // 暂停背景音乐
+    /**
+    暂停背景音乐
+     */
     abstract fun pauseMusic()
 
-    // 重新播放背景音乐
+    /**
+    重新播放背景音乐
+     */
     abstract fun resumeMusic()
 
-    // 重置
+    /**重置*/
     abstract fun reset()
 
-    // 结束释放
+    /**结束释放*/
     abstract fun destroy()
     //endregion public method
 
     //region  计算真正的时间，如果过程中有些数据太小，就直接置0，防止噪音
 
+    /**
+     * 是否输出日志
+     */
     open fun setDebug(isDebug: Boolean): BaseRecorder {
         this.isDebug = isDebug
         return this
     }
 
+    /**
+     * 获取变音控制
+     */
     open fun getSoundTouch(): ISoundTouchCore {
         throw NullPointerException(
-            "该录音工具不支持变音功能,使用 recorderType =  st ；" +
-                "\n The recorder recorderType does not support SoundTouch," +
-                "u should add 'com.github.SheTieJun.Mp3Recorder:recorder-st:版本号' ,STRecorder "
+            "该录音工具不支持变音功能,需要使用STRecorder " +
+                    "\n The recorder recorderType does not support SoundTouch," +
+                    "u should implementation 'com.github.SheTieJun.Mp3Recorder:recorder-st:1.7.2' 。 "
         )
     }
 
     /**
-     *
      * 求得平均值之后，如果是平方和则代入常数系数为10的公式中，
-     *
      * 如果是绝对值的则代入常数系数为20的公式中，算出分贝值。
      */
     protected fun calculateRealVolume(buffer: ShortArray, readSize: Int) {
@@ -416,9 +555,15 @@ abstract class BaseRecorder {
         Log.e(TAG, error)
     }
 
+    /**
+     * 1. 噪声抑制
+     * 2. 回音消除
+     * 3. 自动增益控制
+     */
     protected fun initAEC(mAudioSessionId: Int) {
         if (mAudioSessionId != 0) {
             if (NoiseSuppressor.isAvailable()) {
+                //噪声抑制
                 if (mNoiseSuppressor != null) {
                     mNoiseSuppressor!!.release()
                     mNoiseSuppressor = null
@@ -435,6 +580,7 @@ abstract class BaseRecorder {
             }
 
             if (AcousticEchoCanceler.isAvailable()) {
+                //回音消除
                 if (mAcousticEchoCanceler != null) {
                     mAcousticEchoCanceler!!.release()
                     mAcousticEchoCanceler = null
@@ -453,6 +599,7 @@ abstract class BaseRecorder {
             }
 
             if (AutomaticGainControl.isAvailable()) {
+                //自动增益控制
                 if (mAutomaticGainControl != null) {
                     mAutomaticGainControl!!.release()
                     mAutomaticGainControl = null
@@ -470,7 +617,7 @@ abstract class BaseRecorder {
         }
     }
 
-    protected fun release() {
+    protected fun releaseAEC() {
         if (null != mAcousticEchoCanceler) {
             mAcousticEchoCanceler!!.enabled = false
             mAcousticEchoCanceler!!.release()
@@ -488,7 +635,7 @@ abstract class BaseRecorder {
         }
     }
 
-    fun mapFormat(format: Int): Int {
+    protected fun mapFormat(format: Int): Int {
         return when (format) {
             AudioFormat.ENCODING_PCM_8BIT -> 8
             AudioFormat.ENCODING_PCM_16BIT -> 16

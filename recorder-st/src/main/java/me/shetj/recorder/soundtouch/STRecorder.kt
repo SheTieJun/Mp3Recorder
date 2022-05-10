@@ -42,7 +42,6 @@ import me.shetj.recorder.core.PermissionListener
 import me.shetj.recorder.core.RecordListener
 import me.shetj.recorder.core.RecordState
 import me.shetj.recorder.core.Source
-import me.shetj.recorder.core.VolumeConfig
 
 /**
  * 录制MP3 边录边转
@@ -59,11 +58,6 @@ internal class STRecorder : BaseRecorder {
      */
     private var mPCMBuffer: ShortArray? = null
     private var mSendError: Boolean = false
-
-    /**
-     * 音量变化监听
-     */
-    private var volumeConfig: VolumeConfig? = null
 
     // 缓冲数量
     private var mBufferSize: Int = 0
@@ -115,7 +109,7 @@ internal class STRecorder : BaseRecorder {
             else -> defaultAudioSource
         }
         is2Channel = defaultLameInChannel == 2
-        release()
+        releaseAEC()
     }
 
     override fun getSoundTouch(): ISoundTouchCore {
@@ -131,12 +125,12 @@ internal class STRecorder : BaseRecorder {
         defaultLameInChannel = when {
             channel <= 1 -> {
                 defaultChannelConfig = AudioFormat.CHANNEL_IN_MONO
-                release()
+                releaseAEC()
                 1
             }
             channel >= 2 -> {
                 defaultChannelConfig = AudioFormat.CHANNEL_IN_STEREO
-                release()
+                releaseAEC()
                 2
             }
             else -> defaultAudioSource
@@ -191,6 +185,7 @@ internal class STRecorder : BaseRecorder {
             mAudioRecord!!.startRecording()
         }catch (ex:IllegalStateException){
             handler.sendEmptyMessage(HANDLER_PERMISSION)
+            isActive = false
             ex.printStackTrace()
             return
         } catch (ex: Exception) {
@@ -215,8 +210,9 @@ internal class STRecorder : BaseRecorder {
                         if (!mSendError) {
                             mSendError = true
                             handler.sendEmptyMessage(HANDLER_PERMISSION)
-                            onError()
+                            onError(Exception("recording error , may be need permission :android.permission.RECORD_AUDIO"))
                             isError = true
+                            logError("recording error , may be need permission :android.permission.RECORD_AUDIO")
                         }
                     } else {
                         if (readSize > 0) {
@@ -232,7 +228,8 @@ internal class STRecorder : BaseRecorder {
                             if (!mSendError) {
                                 mSendError = true
                                 handler.sendEmptyMessage(HANDLER_PERMISSION)
-                                onError()
+                                logError("recording error , may be need permission :android.permission.RECORD_AUDIO")
+                                onError(Exception("recording error , may be need permission :android.permission.RECORD_AUDIO"))
                                 isError = true
                             }
                         }
@@ -361,7 +358,7 @@ internal class STRecorder : BaseRecorder {
         isPause = false
         state = RecordState.STOPPED
         mRecordFile = null
-        release()
+        releaseAEC()
         handler.removeCallbacksAndMessages(null)
         volumeConfig?.unregisterReceiver()
         soundTouch.destroy()

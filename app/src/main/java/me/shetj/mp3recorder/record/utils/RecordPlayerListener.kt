@@ -119,7 +119,6 @@ class RecordPlayerListener(
 
     private fun stateStop() {
         seekBar.progress = 0
-        helper.setGone(R.id.rl_record_view2, true)
         helper.setImageResource(R.id.iv_play, R.drawable.selector_record_play)
     }
 

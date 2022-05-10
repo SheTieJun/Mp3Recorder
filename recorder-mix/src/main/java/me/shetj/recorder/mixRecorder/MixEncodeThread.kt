@@ -187,8 +187,8 @@ constructor(file: File, bufferSize: Int, isContinue: Boolean, private val is2CHA
             mFileOutputStream?.close()
             mFileOutputStream = null
             mFileOutputStream = FileOutputStream(path, true)
-            while (setOldDateToFile() > 0)
-                needUpdate = false
+            while (setOldDateToFile() > 0);
+            needUpdate = false
         }
     }
 

@@ -46,7 +46,7 @@ open class SimPlayerListener : PlayerListener {
     override fun onCompletion() {
     }
 
-    override fun onError(throwable: Exception) {
+    override fun onError(throwable: Exception?) {
     }
 
     override fun onProgress(current: Int, duration: Int) {

@@ -56,11 +56,6 @@ internal class MixRecorder : BaseRecorder {
     private var mEncodeThread: MixEncodeThread? = null
     //endregion Lame Default Settings
 
-    //region 背景音乐相关
-    private var plugConfigs: PlugConfigs? = null
-    private var volumeConfig: VolumeConfig? = null
-    //endregion 背景音乐相关
-
     //region 其他
     private var mSendError: Boolean = false
 
@@ -68,6 +63,10 @@ internal class MixRecorder : BaseRecorder {
     private var mBufferSize: Int = 0
     private var bytesPerSecond: Int = 0 // PCM文件大小=采样率采样时间采样位深/8*通道数（Bytes）
     //endregion 其他
+    /**
+     * 耳机
+     */
+    private var plugConfigs: PlugConfigs? = null
 
     //endregion 参数
     //region 公开方法！
@@ -112,7 +111,7 @@ internal class MixRecorder : BaseRecorder {
             else -> defaultAudioSource
         }
         is2Channel = defaultLameInChannel == 2
-        release()
+        releaseAEC()
         bgPlayer.updateChannel(defaultLameInChannel)
     }
 
@@ -129,7 +128,7 @@ internal class MixRecorder : BaseRecorder {
                 }
                 else -> defaultAudioSource
             }
-            release()
+            releaseAEC()
             bgPlayer.updateChannel(defaultLameInChannel)
             return true
         }
@@ -257,6 +256,7 @@ internal class MixRecorder : BaseRecorder {
             logInfo("startRecording")
         }catch (ex:IllegalStateException){
             handler.sendEmptyMessage(HANDLER_PERMISSION)
+            isActive = false
             ex.printStackTrace()
             return
         } catch (ex: Exception) {
@@ -416,6 +416,7 @@ internal class MixRecorder : BaseRecorder {
     override fun reset() {
         isActive = false
         isPause = false
+        isRemind = true
         state = RecordState.STOPPED
         duration = 0L
         mRecordFile = null
@@ -428,8 +429,9 @@ internal class MixRecorder : BaseRecorder {
         isActive = false
         isPause = false
         mRecordFile = null
+        isRemind = true
         bgPlayer.release()
-        release()
+        releaseAEC()
         handler.removeCallbacksAndMessages(null)
         volumeConfig?.unregisterReceiver()
         plugConfigs?.unregisterReceiver()

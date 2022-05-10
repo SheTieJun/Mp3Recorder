@@ -103,10 +103,32 @@ internal class PlayBackMusic(private var defaultChannel: Int = CHANNEL_OUT_MONO,
         }
 
     private class PlayHandler(private val playBackMusic: PlayBackMusic) : Handler(Looper.getMainLooper()) {
+
+        private var playerListener: PlayerListener? = null
+
+        fun setPlayListener(playerListener: PlayerListener) {
+            this.playerListener = playerListener
+        }
+
         override fun handleMessage(msg: Message) {
             when (msg.what) {
-                PROCESS_STOP, PROCESS_ERROR -> playBackMusic.release()
-                PROCESS_REPLAY -> playBackMusic.restartMusic()
+                PROCESS_ERROR -> {
+                    playBackMusic.release()
+                    playerListener?.onError(msg.obj as? Exception)
+                }
+                PROCESS_REPLAY -> {
+                    playBackMusic.restartMusic()
+                }
+                PROCESS_PLAYING -> {
+                    playerListener?.onProgress(msg.arg1, msg.arg2)
+                }
+                PROCESS_STOP -> {
+                    playBackMusic.release()
+                    playerListener?.onStop()
+                }
+                PROCESS_COMPLETE -> {
+                    playerListener?.onCompletion()
+                }
             }
         }
     }
@@ -144,6 +166,7 @@ internal class PlayBackMusic(private var defaultChannel: Int = CHANNEL_OUT_MONO,
 
     fun setBackGroundPlayListener(playerListener: PlayerListener) {
         this.playerListener = playerListener
+        playHandler.setPlayListener(playerListener)
     }
 
     private fun initDecoder(path: String) {
@@ -218,7 +241,7 @@ internal class PlayBackMusic(private var defaultChannel: Int = CHANNEL_OUT_MONO,
 
     fun stop() {
         isPlayingMusic = false
-        playerListener?.onStop()
+        playHandler.sendEmptyMessage(PROCESS_STOP)
     }
 
     fun resume() {
@@ -311,10 +334,12 @@ internal class PlayBackMusic(private var defaultChannel: Int = CHANNEL_OUT_MONO,
                         }
                         audioTrack!!.write(temp, 0, temp.size)
                         if (mAudioDecoder != null && mAudioDecoder!!.mediaFormat != null) {
-                            playerListener?.onProgress(
-                                (pcm.time / 1000).toInt(),
-                                (mAudioDecoder!!.mediaFormat!!.getLong(MediaFormat.KEY_DURATION) / 1000).toInt()
-                            )
+                            playHandler.sendMessage(Message.obtain().apply {
+                                this.what = PROCESS_PLAYING
+                                this.arg1 = (pcm.time / 1000).toInt()
+                                this.arg2 =
+                                    (mAudioDecoder!!.mediaFormat!!.getLong(MediaFormat.KEY_DURATION) / 1000).toInt()
+                            })
                         }
                         listener?.onFrameArrive(temp)
                     } else {
@@ -327,18 +352,20 @@ internal class PlayBackMusic(private var defaultChannel: Int = CHANNEL_OUT_MONO,
                         }
                     }
                 }
-                playerListener?.onStop()
                 audioTrack!!.stop()
                 audioTrack!!.flush()
                 audioTrack!!.release()
                 audioTrack = null
             } catch (e: Exception) {
                 Log.e(BaseRecorder.TAG, "PlayBackMusic error:" + e.message)
-                playerListener?.onError(e)
+                playHandler.sendMessage(Message.obtain().apply {
+                    what = PROCESS_ERROR
+                    obj = e
+                })
             } finally {
                 isPlayingMusic = false
                 isIsPause = false
-                playerListener?.onCompletion()
+                playHandler.sendEmptyMessage(PROCESS_COMPLETE)
             }
         }
 
@@ -419,8 +446,10 @@ internal class PlayBackMusic(private var defaultChannel: Int = CHANNEL_OUT_MONO,
 
     companion object {
         private const val PROCESS_STOP = 3
-        private const val PROCESS_ERROR = 4
-        private const val PROCESS_REPLAY = 5
+        private const val PROCESS_ERROR = PROCESS_STOP + 1
+        private const val PROCESS_REPLAY = PROCESS_ERROR + 1
+        private const val PROCESS_PLAYING = PROCESS_REPLAY + 1
+        private const val PROCESS_COMPLETE = PROCESS_PLAYING + 1
         private const val mSampleRate = 44100
         private const val mAudioEncoding = AudioFormat.ENCODING_PCM_16BIT // 一个采样点16比特-2个字节
     }

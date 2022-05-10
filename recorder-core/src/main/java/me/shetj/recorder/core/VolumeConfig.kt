@@ -29,6 +29,7 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.media.AudioManager
 import java.lang.ref.WeakReference
+import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.atomic.AtomicBoolean
 
 typealias OnVolumeChange = Float.() -> Unit
@@ -41,7 +42,7 @@ class VolumeConfig(private val context: WeakReference<Context>, var currVolumeF:
     private val isRegister = AtomicBoolean(false)
     private var audioManager: AudioManager? = null
     private val max = audioManager?.getStreamMaxVolume(AudioManager.STREAM_MUSIC) ?: 10
-    private var onVolumeChanges: MutableList<OnVolumeChange> = ArrayList()
+    private var onVolumeChanges: CopyOnWriteArrayList<OnVolumeChange> = CopyOnWriteArrayList()
 
     private val mReceiver: BroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {

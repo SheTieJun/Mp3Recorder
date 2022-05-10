@@ -4,12 +4,10 @@
 
 - 边录边转码MP3,支持暂停，实时返回已录制时长和当前声音大小。
 - 可添加背景音乐,可以设置背景音乐声音的大小
-- 支持[**变音**](#变音录音推荐)（变音的录音工具，暂时不支持背景音乐），边录边变音边转码MP3
+- 支持[**变音**](#变音录音推荐)（变音的录音工具，暂时不支持背景音乐），可边录边变音边转码MP3
 - 录制过程中**暂停**,已录制的那段音频是**可以播放**的.
-- 可设置最大录制时间
-- 录音中途可以替换输出文件，比如每60秒替换一个输出文件，然后发送
-- 可以使用耳机配置方式：如果没有连接耳机会只用外放的背景音乐，如果连接上了耳机，会使用写入合成背景音乐的方式
-
+- 可以使用默认耳机配置方式：如果没有连接耳机会只用外放的背景音乐，如果连接上了耳机，会使用写入合成背景音乐的方式
+- 其他..
 
 
 ### Demo1 [APP下载](http://d.zqapps.com/ne21)
@@ -19,22 +17,22 @@
 
 ## 一、[接入配置文档](https://github.com/SheTieJun/Mp3Recorder/wiki/%E6%8E%A5%E5%85%A5%E6%96%87%E6%A1%A3)
 
-### 1. 如何选择介入
+### 1. 如何选择
 
 ```
 implementation "com.github.SheTieJun.Mp3Recorder:recorder-core:$sdk_version"//必选
 implementation "com.github.SheTieJun.Mp3Recorder:recorder-sim:$sdk_version"//可选
 implementation "com.github.SheTieJun.Mp3Recorder:recorder-mix:$sdk_version"//可选
-implementation "com.github.SheTieJun.Mp3Recorder:recorder-st:$sdk_version" //可选，已初步测试（感觉有噪音？还有编译参数需要调试）
+implementation "com.github.SheTieJun.Mp3Recorder:recorder-st:$sdk_version" //可选，已初步测试（变音参数需要自己调试）
 ```
 
+### 请选择合适的Recorder进行编写功能
 - 如果只是录音，对背景音乐没有要求，带耳机后没有背景音乐：[SimRecorder](recorder-sim)
 - 如果录音中，需要随时添加背景音乐，而且要求支持带耳机后也有背景音乐：[MixRecorder](recorder-mix)
 - 如果录音中，没有背景音乐，但是支持随时进行变音：[STRecorder](recorder-st)
 
-**请选择合适的Recorder进行编写功能**
 
-### 2. [背景音乐录制推荐](recorder-sim)：
+### 2. [《背景音乐》录音推荐](recorder-sim)：
 
 ```
 implementation 'com.github.SheTieJun.Mp3Recorder:recorder-mix:版本号'
@@ -49,11 +47,10 @@ implementation 'com.github.SheTieJun.Mp3Recorder:recorder-core:版本号'
 #### 2).  缺点
 
 - 录制声道数设置，因为合成，所有你**需要设置和背景音乐相同的参数**
-
 - 如果设置单声道，播放的背景是双声道，（MIX）会让音乐拉长；反之双声音合成，背景音乐是单声音，节奏会变快
 - tip: 背景音乐支持网络链接，但是网络差的时候可能导致卡顿,所有请尽量不要使用网络链接作为背景音乐应用
 
-### 3. [变音录音推荐](recorder-st)(初步完成，未完善):
+### 3. [《变音》录音推荐](recorder-st)(初步完成，未完善):
 
 ```
 implementation 'com.github.SheTieJun.Mp3Recorder:recorder-core:版本号'
@@ -63,8 +60,26 @@ implementation 'com.github.SheTieJun.Mp3Recorder:recorder-st:版本号'
 #### 1). 变音录制相关(SoundTouch)
 
 - 录制中可以随时中断、重新继续进行变音、变速等等功能
+```kotlin
+    //指定播放速率
+    fun setRate(speed: Float)
+    //一般用来设置倍速，我们变音，默认 1.0就好
+    fun setTempo(tempo: Float)
 
-## 二、[API使用说明文档](https://github.com/SheTieJun/Mp3Recorder/wiki/%E4%BD%BF%E7%94%A8%E6%96%87%E6%A1%A3)
+    //在原速1.0基础上，按百分比做增量，取值(-50 .. +100 %)
+    fun setRateChange(@FloatRange(from = -50.0, to = 100.0) rateChange: Float)
+
+    //在原速1.0基础上 源tempo=1.0，小于1则变慢；大于1变快 tempo (-50 .. +100 %)
+    fun setTempoChange(@FloatRange(from = -50.0, to = 100.0) tempoChange: Float)
+
+    //在源pitch的基础上，使用半音(Semitones)设置新的pitch [-12.0,12.0]
+    //男声:-
+    //女声:+
+    fun setPitchSemiTones(@FloatRange(from = -12.0, to = 12.0) pitch: Float)
+
+```
+
+## 二、[使用说明文档](https://github.com/SheTieJun/Mp3Recorder/wiki/%E4%BD%BF%E7%94%A8%E6%96%87%E6%A1%A3)
 
 ```
 abstract class BaseRecorder {
@@ -133,7 +148,7 @@ abstract class BaseRecorder {
     abstract fun setMaxTime(maxTime: Int, remindDiffTime: Int? = null): BaseRecorder
 
 
-    //设置增强系数(不建议修改，因为会产生噪音~)
+    //设置增强系数(不建议修改，因为会产生噪音~,细小的噪音放大就是噪音)
     abstract fun setWax(wax: Float): BaseRecorder
 
     //设置背景声音大小

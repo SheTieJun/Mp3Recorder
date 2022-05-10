@@ -50,7 +50,7 @@ interface PlayerListener {
     fun onResume()
 
     /**
-     * 停止释放
+     * 停止播放
      */
     fun onStop()
 
@@ -63,7 +63,7 @@ interface PlayerListener {
      * 错误
      * @param throwable 异常信息
      */
-    fun onError(throwable: Exception)
+    fun onError(throwable: Exception?)
 
     /**
      * 进度条

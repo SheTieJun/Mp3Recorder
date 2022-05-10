@@ -226,45 +226,33 @@ class BackgroundMixMusicView @JvmOverloads constructor(
         return recordUtils?.setVolume(mSeekBar.progress / max)
     }
 
-    override fun onStart( duration: Int) {
-        mIvPlay.post {
-            mIvPlay.setImageResource(R.drawable.icon_pause_bg_music)
-        }
+    override fun onStart(duration: Int) {
+        mIvPlay.setImageResource(R.drawable.icon_pause_bg_music)
     }
 
 
     override fun onPause() {
-        mIvPlay.post {
-            mIvPlay.setImageResource(R.drawable.icon_play_bg_music)
-        }
+        mIvPlay.setImageResource(R.drawable.icon_play_bg_music)
     }
 
     override fun onResume() {
-        mIvPlay.post {
-            mIvPlay.setImageResource(R.drawable.icon_pause_bg_music)
-        }
+        mIvPlay.setImageResource(R.drawable.icon_pause_bg_music)
     }
 
     override fun onStop() {
-        mIvPlay.post {
-            mIvPlay.setImageResource(R.drawable.icon_play_bg_music)
-        }
+        mIvPlay.setImageResource(R.drawable.icon_play_bg_music)
     }
 
     override fun onCompletion() {
-        mIvPlay.post {
-            mIvPlay.setImageResource(R.drawable.icon_play_bg_music)
-        }
+        mIvPlay.setImageResource(R.drawable.icon_play_bg_music)
     }
 
-    override fun onError(throwable: Exception) {
+    override fun onError(throwable: Exception?) {
 
     }
 
     override fun onProgress(current: Int, duration: Int) {
-        mIvPlay.post {
-            mTvProgress.text =
-                Util.formatSeconds3(current / 1000) + "/" + Util.formatSeconds3(duration / 1000)
-        }
+        mTvProgress.text =
+            Util.formatSeconds3(current / 1000) + "/" + Util.formatSeconds3(duration / 1000)
     }
 }
