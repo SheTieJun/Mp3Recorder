@@ -34,11 +34,6 @@ import android.view.inputmethod.EditorInfo
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatButton
-import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
-import io.reactivex.rxjava3.core.BackpressureStrategy
-import io.reactivex.rxjava3.core.Flowable
-import io.reactivex.rxjava3.schedulers.Schedulers
-import me.shetj.base.ktx.logi
 import me.shetj.base.tools.app.ArmsUtils
 import me.shetj.dialog.OrangeDialog
 import me.shetj.mp3recorder.R
@@ -51,6 +46,9 @@ import me.shetj.mp3recorder.record.view.MusicListBottomQSheetDialog
 import me.shetj.recorder.core.SimRecordListener
 import timber.log.Timber
 import java.io.File
+import me.shetj.base.ktx.doOnIO
+import me.shetj.base.ktx.launch
+import me.shetj.base.ktx.logI
 
 /**
  * 录制声音界面
@@ -159,17 +157,14 @@ open class RecordPage(
 
             override fun onRemind(duration: Long) {
                 super.onRemind(duration)
-                "这是onRemind ：${Util.formatSeconds3((duration/1000).toInt())}".logi()
+                "这是onRemind ：${Util.formatSeconds3((duration/1000).toInt())}".logI()
 
             }
 
             override fun onRecording(time: Long, volume: Int) {
                 super.onRecording(time, volume)
-//                Timber.i( "time = $time\nvolume$volume")
-                AndroidSchedulers.mainThread().scheduleDirect {
                     mProgressBarRecord!!.progress = time.toInt()
                     mTvRecordTime!!.text = Util.formatSeconds3(time.toInt())
-                }
             }
 
             override fun onPause() {
@@ -223,7 +218,6 @@ open class RecordPage(
 
             override fun onReset() {
                 super.onReset()
-                "onReset".logi()
             }
 
             override fun needPermission() {
@@ -250,14 +244,12 @@ open class RecordPage(
      * @param isFinish true 保持后切换界面，false 展示是否录制下一个界面
      */
     private fun saveOldRecord(file: String, isFinish: Boolean) {
-        Flowable.just(file)
-            .subscribeOn(Schedulers.io())
-            .flatMap { s -> getMediaTime(s) }
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe({ o ->
+        context.launch {
+            kotlin.runCatching {
+                val mediaTime = getMediaTime(file)
                 if (oldRecord != null && isHasChange) {
                     oldRecord!!.audioContent = mEditInfo!!.text.toString()
-                    oldRecord!!.audioLength = o
+                    oldRecord!!.audioLength = mediaTime
                     RecordDbUtils.getInstance().update(oldRecord!!)
                 }
                 if (isFinish) {
@@ -265,7 +257,10 @@ open class RecordPage(
                 } else {
                     showRecordNewDialog()
                 }
-            }, { callback.onEvent(1) })
+            }.onFailure {
+                callback.onEvent(1)
+            }
+        }
     }
 
     /**
@@ -287,11 +282,10 @@ open class RecordPage(
 
 
     //得到media的时间长度
-    private fun getMediaTime(s: String): Flowable<Int> {
-        return Flowable.create({ emitter ->
-            val audioLength = Util.getAudioLength(s)
-            emitter.onNext(audioLength)
-        }, BackpressureStrategy.BUFFER)
+    private suspend fun getMediaTime(file: String) :Int  {
+        return doOnIO {
+            Util.getAudioLength(file)
+        }
     }
 
 
@@ -299,12 +293,12 @@ open class RecordPage(
      * 保存录音，并且通知修改
      */
     private fun saveRecord(file: String) {
-        try {
-            val record = Record("1", file, System.currentTimeMillis().toString() + "",
-                Util.getAudioLength(file), mEditInfo!!.text.toString())
-            RecordDbUtils.getInstance().save(record)
-        } catch (e: Exception) {
-            Timber.i(e.message)
+        context.launch {
+            kotlin.runCatching {
+                val record = Record("1", file, System.currentTimeMillis().toString() + "",
+                    Util.getAudioLength(file), mEditInfo!!.text.toString())
+                RecordDbUtils.getInstance().save(record)
+            }
         }
 
     }
@@ -385,22 +379,24 @@ open class RecordPage(
     }
 
     fun onStop() {
-        if (recordUtils != null) {
-            //如果在正录音中，要提醒用户是否停止录音
-            if (recordUtils!!.isRecording) {
-                showTipDialog()
-            } else {
-                if (recordUtils!!.hasRecord()) {
-                    //如果录制了，默认是完成录制
-                    recordUtils!!.stopFullRecord()
+        context.launch {
+            if (recordUtils != null) {
+                //如果在正录音中，要提醒用户是否停止录音
+                if (recordUtils!!.isRecording) {
+                    showTipDialog()
                 } else {
-                    //如果没有，但是存在老的录音，保持一次文字
-                    val content = mEditInfo!!.text.toString()
-                    if (oldRecord != null) {
-                        oldRecord!!.audioContent = content
-                        RecordDbUtils.getInstance().update(oldRecord!!)
+                    if (recordUtils!!.hasRecord()) {
+                        //如果录制了，默认是完成录制
+                        recordUtils!!.stopFullRecord()
+                    } else {
+                        //如果没有，但是存在老的录音，保持一次文字
+                        val content = mEditInfo!!.text.toString()
+                        if (oldRecord != null) {
+                            oldRecord!!.audioContent = content
+                            RecordDbUtils.getInstance().update(oldRecord!!)
+                        }
+                        callback.onEvent(1)
                     }
-                    callback.onEvent(1)
                 }
             }
         }

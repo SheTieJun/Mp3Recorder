@@ -23,22 +23,21 @@
  */
 package me.shetj.mp3recorder.record.view
 
-import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
+import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.RecyclerView
 import com.chad.library.adapter.base.listener.OnItemClickListener
 import com.google.android.material.bottomsheet.BottomSheetDialog
-import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import me.shetj.base.ktx.launch
 import me.shetj.mp3recorder.R
 import me.shetj.mp3recorder.record.adapter.MusicQAdapter
 import me.shetj.mp3recorder.record.utils.LocalMusicQUtils
-import timber.log.Timber
 
 /**
  * 背景音乐
  */
-class MusicListBottomQSheetDialog (context: Context) : View.OnClickListener {
+class MusicListBottomQSheetDialog (val context: AppCompatActivity) : View.OnClickListener {
 
 
     private val easyBottomSheetDialog: BottomSheetDialog?
@@ -47,7 +46,7 @@ class MusicListBottomQSheetDialog (context: Context) : View.OnClickListener {
         this.easyBottomSheetDialog = buildBottomSheetDialog(context)
     }
 
-    private fun buildBottomSheetDialog(context: Context): BottomSheetDialog {
+    private fun buildBottomSheetDialog(context: AppCompatActivity): BottomSheetDialog {
         val bottomSheetDialog = BottomSheetDialog(context, R.style.transparent_music_style)
         val rootView = LayoutInflater.from(context).inflate(R.layout.dialog_bg_music_list, null)
         bottomSheetDialog.setContentView(rootView)
@@ -58,11 +57,11 @@ class MusicListBottomQSheetDialog (context: Context) : View.OnClickListener {
             recyclerView.adapter = this
             setEmptyView(R.layout.base_empty_date_view)
         }
-        LocalMusicQUtils.loadFileData(context)
-                ?.observeOn(AndroidSchedulers.mainThread())
-                ?.subscribe ({
-            musicAdapter.setNewInstance(it.toMutableList())
-        },{ Timber.e(it) })
+        context.launch {
+            LocalMusicQUtils.loadFileData(context).collect{
+                musicAdapter.setNewInstance(it.toMutableList())
+            }
+        }
         musicAdapter.setOnItemClickListener { adapter, view, position ->
             musicAdapter.setSelectPosition(position)
             onItemClickListener?.onItemClick(adapter, view, position)

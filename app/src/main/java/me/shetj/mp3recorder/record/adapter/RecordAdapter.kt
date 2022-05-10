@@ -34,7 +34,6 @@ import android.widget.TextView
 import androidx.core.animation.doOnEnd
 import com.chad.library.adapter.base.BaseQuickAdapter
 import com.chad.library.adapter.base.viewholder.BaseViewHolder
-import io.reactivex.rxjava3.disposables.CompositeDisposable
 import me.shetj.base.tools.app.ArmsUtils
 import me.shetj.mp3recorder.R
 import me.shetj.mp3recorder.record.bean.Record
@@ -61,7 +60,6 @@ class RecordAdapter(data: MutableList<Record>?) :
     var curPosition = -1
         private set
     private val mediaUtils: MediaPlayerUtils = MediaPlayerUtils()
-    private var mCompositeDisposable: CompositeDisposable? = null
 
     override fun convert(holder: BaseViewHolder, item: Record) {
         item.let {
@@ -192,13 +190,6 @@ class RecordAdapter(data: MutableList<Record>?) :
 
     fun onDestroy() {
         mediaUtils.stopPlay()
-        unDispose()
-    }
-
-    fun unDispose() {
-        if (mCompositeDisposable != null) {
-            mCompositeDisposable!!.clear()
-        }
     }
 
 }

@@ -26,7 +26,9 @@ package me.shetj.mp3recorder.record.view
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
+import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.bottomsheet.BottomSheetDialog
+import me.shetj.base.ktx.launch
 import me.shetj.mp3recorder.R
 import me.shetj.mp3recorder.record.bean.Record
 import me.shetj.mp3recorder.record.bean.RecordDbUtils
@@ -37,7 +39,7 @@ import me.shetj.mp3recorder.record.utils.EventCallback
  * 录音更多菜单
  */
 class RecordBottomSheetDialog(
-    context: Context,
+    val context: AppCompatActivity,
     position: Int,
     private val record: Record,
     private val callback: EventCallback
@@ -81,8 +83,10 @@ class RecordBottomSheetDialog(
                 dismissBottomSheet()
             }
             R.id.tv_del -> {
-                RecordDbUtils.getInstance().del(record)
-                dismissBottomSheet()
+                context.launch {
+                    RecordDbUtils.getInstance().del(record)
+                    dismissBottomSheet()
+                }
             }
             R.id.tv_cancel -> dismissBottomSheet()
             R.id.tv_edit_name -> dismissBottomSheet()

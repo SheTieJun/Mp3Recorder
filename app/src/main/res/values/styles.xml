@@ -23,7 +23,7 @@
     <style name="App.SplashScreen" parent="Theme.SplashScreen.IconBackground">
         <item name="windowSplashScreenAnimatedIcon">@drawable/unsplash_cat</item>
         <item name="windowSplashScreenBackground">@color/white</item>
-        <item name="windowSplashScreenIconBackgroundColor">@color/colorPrimary</item>
+        <item name="windowSplashScreenIconBackgroundColor">@color/white</item>
     </style>
 
     <style name="Base.Theme.SplashScreen" parent="AppTheme.NoActionBar"/>

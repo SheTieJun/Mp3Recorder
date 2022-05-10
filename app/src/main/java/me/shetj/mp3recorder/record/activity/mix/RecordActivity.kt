@@ -31,7 +31,6 @@ import android.transition.TransitionManager
 import android.widget.FrameLayout
 import androidx.appcompat.widget.AppCompatButton
 import androidx.core.view.isVisible
-import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import me.shetj.base.ktx.hasPermission
 import me.shetj.base.mvp.BaseActivity
 import me.shetj.base.mvp.EmptyPresenter
@@ -39,7 +38,8 @@ import me.shetj.base.tools.app.ArmsUtils.Companion.statuInScreen
 import me.shetj.mp3recorder.R
 import me.shetj.mp3recorder.record.RecordingNotification
 import me.shetj.mp3recorder.record.utils.EventCallback
-import java.util.concurrent.TimeUnit
+import kotlinx.coroutines.delay
+import me.shetj.base.ktx.launch
 
 
 /**
@@ -53,7 +53,7 @@ class RecordActivity : BaseActivity<EmptyPresenter>(), EventCallback {
     private var isRecord = false
     private var recordTransition: Transition? = null
     private var myRecordTransition: Transition? = null
-    private var btnRecorderType:AppCompatButton?=null
+    private var btnRecorderType: AppCompatButton? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -62,7 +62,7 @@ class RecordActivity : BaseActivity<EmptyPresenter>(), EventCallback {
 
 
     override fun initView() {
-        statuInScreen( true)
+        statuInScreen(true)
         canRecord()
         mFrameLayout = findViewById(R.id.frameLayout)
         btnRecorderType = findViewById(R.id.btn_recorderType)
@@ -102,9 +102,11 @@ class RecordActivity : BaseActivity<EmptyPresenter>(), EventCallback {
                 setTitle(R.string.my_record)
                 recordPage!!.setRecord(null)
                 recordPage?.clearMusic()
-                AndroidSchedulers.mainThread().scheduleDirect({
+                launch {
+                    delay(200)
                     TransitionManager.go(recordListPage!!.scene, myRecordTransition)
-                },200,TimeUnit.MICROSECONDS)
+                }
+
                 isRecord = false
                 btnRecorderType?.isVisible = false
             }
@@ -123,10 +125,11 @@ class RecordActivity : BaseActivity<EmptyPresenter>(), EventCallback {
     }
 
     private fun canRecord() {
-        hasPermission(Manifest.permission.READ_EXTERNAL_STORAGE,
-                        Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                        Manifest.permission.RECORD_AUDIO
-                ,isRequest = true)
+        hasPermission(
+            Manifest.permission.READ_EXTERNAL_STORAGE,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE,
+            Manifest.permission.RECORD_AUDIO, isRequest = true
+        )
     }
 
     override fun onBackPressed() {

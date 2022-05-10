@@ -23,17 +23,16 @@
  */
 package me.shetj.mp3recorder.record.utils
 
+import android.annotation.SuppressLint
 import android.content.ContentUris
 import android.content.Context
 import android.net.Uri
 import android.provider.MediaStore
-import io.reactivex.rxjava3.core.BackpressureStrategy
-import io.reactivex.rxjava3.core.Flowable
-import io.reactivex.rxjava3.core.FlowableOnSubscribe
-import io.reactivex.rxjava3.schedulers.Schedulers
 import me.shetj.mp3recorder.record.bean.MusicQ
 import java.util.*
 import java.util.concurrent.TimeUnit
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
 
 
 /**
@@ -44,9 +43,10 @@ object LocalMusicQUtils {
     /**
      * 查询本地的音乐文件
      */
+    @SuppressLint("Range")
     @JvmStatic
-    fun loadFileData(context: Context): Flowable<List<MusicQ>>? {
-        return Flowable.create(FlowableOnSubscribe<List<MusicQ>> { emitter ->
+    fun loadFileData(context: Context): Flow<List<MusicQ>> {
+        return flow{
             val resolver = context.contentResolver
             val projection = arrayOf(
                 MediaStore.Audio.Media._ID,
@@ -98,12 +98,8 @@ object LocalMusicQUtils {
                 } while (cursor.moveToNext())
             }
             cursor.close()
-            if (musicList.size > 0) {
-                emitter.onNext(musicList)
-            }
-            emitter.onComplete()
-        }, BackpressureStrategy.BUFFER)
-            .subscribeOn(Schedulers.io())
+            emit(musicList)
+        }
 
     }
 }

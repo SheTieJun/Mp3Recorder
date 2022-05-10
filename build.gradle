@@ -5,6 +5,7 @@ plugins {
     id 'org.jetbrains.kotlin.android' version '1.6.10' apply false
     id 'com.diffplug.spotless' version '6.0.0'
     id 'maven-publish'
+    id 'com.google.devtools.ksp' version '1.6.10-1.0.2'
 }
 ext.sdk_version = '1.7.1'
 ext.local_group_id = 'com.github.SheTieJun.Mp3Recorder'

@@ -31,7 +31,7 @@ import android.view.View
 import android.widget.Toast
 import androidx.lifecycle.MutableLiveData
 import me.shetj.base.S
-import me.shetj.base.ktx.logi
+import me.shetj.base.ktx.logI
 import me.shetj.base.tools.app.Utils
 import me.shetj.base.tools.file.EnvironmentStorage
 import me.shetj.dialog.OrangeDialog
@@ -94,7 +94,7 @@ class RecordUtils(
                 } else {
                     this.saveFile = file
                 }
-                saveFile.logi()
+                saveFile.logI()
                 mRecorder?.setOutputFile(saveFile, !TextUtils.isEmpty(file))
                 mRecorder?.start()
             }
@@ -162,7 +162,7 @@ class RecordUtils(
         if (hasRecord()) {
             mRecorder?.complete()
         }
-        "updateRecorderType:${getRecorderTypeName()}".logi()
+        "updateRecorderType:${getRecorderTypeName()}".logI()
         this.recorderType = recorderType
         recorderLiveDate.postValue(recorderType)
         initRecorder()
@@ -192,8 +192,8 @@ class RecordUtils(
 
         if (recorderType == BaseRecorder.RecorderType.ST) {
             mRecorder!!.getSoundTouch().changeUse(true)
-            mRecorder!!.getSoundTouch().setPitchSemiTones(12f)
-            mRecorder!!.getSoundTouch().setRateChange(50f)
+            mRecorder!!.getSoundTouch().setPitchSemiTones(10f) //往女声变
+//            mRecorder!!.getSoundTouch().setRateChange(50f) //加速，会导致录音时间比实际短
             Toast.makeText(S.app, "变声，不可以使用背景音乐", Toast.LENGTH_LONG).show()
         }
         mRecorder?.setMaxTime(TIME, TIME - 20 * 1000)
@@ -315,7 +315,7 @@ class RecordUtils(
     fun setBackGroundUrl(context: Context?, url: Uri) {
         if (context != null) {
             this.bgmUrl = url
-            AudioUtils.getAudioChannel(context, url).toString().logi()
+            AudioUtils.getAudioChannel(context, url).toString().logI()
             mRecorder!!.setAudioChannel(AudioUtils.getAudioChannel(context, url))
             mRecorder!!.setBackgroundMusic(context, url, null)
         }

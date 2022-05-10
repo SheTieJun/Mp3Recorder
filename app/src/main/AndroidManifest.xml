@@ -31,6 +31,7 @@
         <activity android:name=".record.activity.mix.RecordActivity"
             android:configChanges="orientation|screenSize|keyboardHidden"
             android:screenOrientation="portrait"
+            android:exported="false"
             android:theme="@style/AppTheme.NoActionBar"
             android:windowSoftInputMode="stateHidden|adjustPan"/>
     </application>

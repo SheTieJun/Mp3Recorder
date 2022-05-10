@@ -71,8 +71,9 @@ object RecordingNotification {
         val intents =
             context.packageManager.getLaunchIntentForPackage(context.packageName)
         val intentGo = PendingIntent.getActivity(
-            context, 0, intents,
-            PendingIntent.FLAG_UPDATE_CURRENT
+            context, 110,
+            intents,
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
         )
 
         val builder = NotificationCompat.Builder(context, createNotificationChannel(context))

@@ -28,8 +28,7 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy.REPLACE
 import androidx.room.Query
-import io.reactivex.rxjava3.core.Completable
-import io.reactivex.rxjava3.core.Flowable
+import kotlinx.coroutines.flow.Flow
 import me.shetj.mp3recorder.record.bean.Record
 
 
@@ -37,21 +36,21 @@ import me.shetj.mp3recorder.record.bean.Record
 interface RecordDao {
 
     @Insert(onConflict = REPLACE)
-    fun insertRecord(record: Record): Completable
+    fun insertRecord(record: Record)
 
 
     @Delete()
-    fun deleteRecord(record: Record):Completable
+    fun deleteRecord(record: Record)
 
 
     @Query("SELECT * FROM record order by id DESC")
-    fun getAllRecord() : Flowable<List<Record>>
+    fun getAllRecord() : Flow<List<Record>>
 
 
     @Query("select * from record order by id DESC limit 1 ")
-    fun getLastRecord():Flowable<Record>
+    suspend fun getLastRecord():Record
 
 
     @Query("DELETE FROM record")
-    fun deleteAll():Completable
+    suspend fun deleteAll()
 }

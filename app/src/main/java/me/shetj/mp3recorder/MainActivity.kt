@@ -25,27 +25,30 @@ package me.shetj.mp3recorder
 
 import android.Manifest
 import android.animation.ObjectAnimator
+import android.graphics.Color
 import android.os.Bundle
 import android.view.View
 import androidx.core.animation.doOnEnd
 import androidx.core.splashscreen.SplashScreen
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.core.view.ViewCompat
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import me.shetj.base.ktx.hasPermission
+import me.shetj.base.ktx.hideSystemUI
+import me.shetj.base.ktx.setAppearance
 import me.shetj.base.ktx.showToast
 import me.shetj.base.ktx.start
 import me.shetj.base.mvvm.BaseBindingActivity
 import me.shetj.base.mvvm.BaseViewModel
 import me.shetj.base.tools.app.ArmsUtils
 import me.shetj.base.tools.app.ArmsUtils.Companion.statuInScreen
-import me.shetj.base.tools.time.CodeUtil
 import me.shetj.mp3recorder.databinding.ActivityMainBinding
 import me.shetj.mp3recorder.record.activity.mix.RecordActivity
 import me.shetj.recorder.ui.RecorderPopup
 
-class MainActivity : BaseBindingActivity<BaseViewModel, ActivityMainBinding>() {
+class MainActivity : BaseBindingActivity<ActivityMainBinding,BaseViewModel>() {
     private var splashScreen:  SplashScreen? =null
     private var isKeep = true
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -59,6 +62,7 @@ class MainActivity : BaseBindingActivity<BaseViewModel, ActivityMainBinding>() {
             return@KeepOnScreenCondition isKeep
         })
         splashScreen!!.setOnExitAnimationListener { splashScreenViewProvider ->
+            setAppearance(true)
             val splashScreenView = splashScreenViewProvider.view
             val slideUp = ObjectAnimator.ofFloat(
                 splashScreenView,
@@ -69,6 +73,7 @@ class MainActivity : BaseBindingActivity<BaseViewModel, ActivityMainBinding>() {
             slideUp.duration = 800
             slideUp.doOnEnd {
                 splashScreenViewProvider.remove()
+                setAppearance(true,Color.WHITE)
             }
             slideUp.start()
         }
@@ -83,7 +88,6 @@ class MainActivity : BaseBindingActivity<BaseViewModel, ActivityMainBinding>() {
 
     override fun onActivityCreate() {
         super.onActivityCreate()
-        ArmsUtils.statuInScreen2(this,true)
         hasPermission(
             Manifest.permission.WRITE_EXTERNAL_STORAGE,
             Manifest.permission.READ_EXTERNAL_STORAGE,
@@ -104,6 +108,10 @@ class MainActivity : BaseBindingActivity<BaseViewModel, ActivityMainBinding>() {
         mViewBinding.btnDemo4.setOnClickListener {
             recorderPopup.showPop()
         }
+    }
+
+    override fun initView() {
+        super.initView()
     }
 
     override fun onBackPressed() {

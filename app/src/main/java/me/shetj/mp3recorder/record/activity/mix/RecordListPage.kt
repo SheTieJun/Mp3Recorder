@@ -32,9 +32,8 @@ import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.RelativeLayout
+import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.RecyclerView
-import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
-import io.reactivex.rxjava3.schedulers.Schedulers
 import me.shetj.base.tools.app.ArmsUtils
 import me.shetj.mp3recorder.R
 import me.shetj.mp3recorder.record.adapter.RecordAdapter
@@ -43,11 +42,12 @@ import me.shetj.mp3recorder.record.bean.RecordDbUtils
 import me.shetj.mp3recorder.record.utils.EventCallback
 import me.shetj.mp3recorder.record.view.RecordBottomSheetDialog
 import java.util.*
+import me.shetj.base.ktx.launch
 
 /**
  */
 class RecordListPage(
-    private val context: Activity,
+    private val context: AppCompatActivity,
     mRoot: ViewGroup,
     private var callback: EventCallback
 ) {
@@ -77,14 +77,12 @@ class RecordListPage(
     }
 
     private fun initData() {
-        RecordDbUtils.getInstance().allRecord
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .doOnNext {
+        context.launch {
+            RecordDbUtils.getInstance().allRecord.collect{
                 recordAdapter.setNewInstance(it.toMutableList())
                 checkShow(it)
             }
-            .subscribe()
+        }
     }
 
     /**
