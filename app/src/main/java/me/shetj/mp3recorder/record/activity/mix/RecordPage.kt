@@ -55,7 +55,7 @@ import java.io.File
 /**
  * 录制声音界面
  */
-open class MixRecordPage(
+open class RecordPage(
     private val context: AppCompatActivity,
     mRoot: ViewGroup,
     private val callback: EventCallback,
@@ -72,7 +72,7 @@ open class MixRecordPage(
     private var mTvStateMsg: TextView? = null
     private var oldRecord: Record? = null
     private var isHasChange = false
-    val scene: Scene
+    val scene: Scene = Scene(mRoot, root as View)
     private var mtvAllTime: TextView? = null
     private var mBunceSv: ScrollView? = null
     private var recordCallBack: SimRecordListener? = null
@@ -88,11 +88,10 @@ open class MixRecordPage(
         }
     }
 
-    var recordUtils:MixRecordUtils?=null
+    private var recordUtils:RecordUtils?=null
 
 
     init {
-        scene = Scene(mRoot, root as View)
         initView(root)
         initData()
         musicView?.setDialog(musicDialog)
@@ -232,7 +231,7 @@ open class MixRecordPage(
             }
         }
 
-        recordUtils = MixRecordUtils(recordCallBack)
+        recordUtils = RecordUtils(recordCallBack)
         musicView?.setRecordUtil(recordUtils)
         musicView!!.setAddMusicView(addMusic!!)//要先设置“添加控件”，因为后面又隐藏
         musicView!!.setDialog(musicDialog)

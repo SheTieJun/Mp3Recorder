@@ -37,7 +37,7 @@ import androidx.appcompat.widget.AppCompatImageView
 import me.shetj.base.tools.app.ArmsUtils
 import me.shetj.mp3recorder.R
 import me.shetj.mp3recorder.record.bean.MusicQ
-import me.shetj.mp3recorder.record.utils.MixRecordUtils
+import me.shetj.mp3recorder.record.utils.RecordUtils
 import me.shetj.mp3recorder.record.utils.Util
 import me.shetj.player.PlayerListener
 import me.shetj.recorder.core.OnVolumeChange
@@ -63,7 +63,7 @@ class BackgroundMixMusicView @JvmOverloads constructor(
     private var mTvName: TextView
     private var mTvVoice: TextView
     private var mTvProgress: TextView
-    private var recordUtils: MixRecordUtils? = null //录音
+    private var recordUtils: RecordUtils? = null //录音
     private var addMusicView: LinearLayout? = null//添加背景音乐的空间
     private var music: MusicQ? = null //背景文件相关
     private var musicDialog: MusicListBottomQSheetDialog? = null//选择背景音乐
@@ -116,7 +116,7 @@ class BackgroundMixMusicView @JvmOverloads constructor(
     /**
      * 初始第3步，设置录音控制
      */
-    fun setRecordUtil(recordUtils: MixRecordUtils?) {
+    fun setRecordUtil(recordUtils: RecordUtils?) {
         this.recordUtils = recordUtils
         recordUtils?.setBackgroundPlayerListener(this)
         mSeekBar.max = volumeConfig.getMaxVoice()
@@ -142,7 +142,7 @@ class BackgroundMixMusicView @JvmOverloads constructor(
 
     private fun showVolumeString(
         it: SeekBar,
-        recordUtils: MixRecordUtils?
+        recordUtils: RecordUtils?
     ) {
         val fl = it.progress / max
         recordUtils?.setVolume(fl)

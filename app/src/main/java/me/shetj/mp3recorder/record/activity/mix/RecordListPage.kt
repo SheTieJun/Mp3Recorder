@@ -46,7 +46,7 @@ import java.util.*
 
 /**
  */
-class MyMixRecordPage(
+class RecordListPage(
     private val context: Activity,
     mRoot: ViewGroup,
     private var callback: EventCallback

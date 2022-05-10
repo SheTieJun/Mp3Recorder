@@ -19,4 +19,15 @@
         <item name="android:windowFullscreen">false</item>
         <item name="android:windowBackground">@color/blackDivider</item>
     </style>
+
+    <style name="App.SplashScreen" parent="Theme.SplashScreen.IconBackground">
+        <item name="windowSplashScreenAnimatedIcon">@drawable/unsplash_cat</item>
+        <item name="windowSplashScreenBackground">@color/white</item>
+        <item name="windowSplashScreenIconBackgroundColor">@color/colorPrimary</item>
+    </style>
+
+    <style name="Base.Theme.SplashScreen" parent="AppTheme.NoActionBar"/>
+    <style name="Base.Theme.SplashScreen.DayNight" parent="AppTheme.NoActionBar"/>
+    <style name="Base.Theme.SplashScreen.Light" parent="AppTheme.NoActionBar"/>
+    <style name="Base.v21.Theme.SplashScreen" parent="AppTheme.NoActionBar"/>
 </resources>

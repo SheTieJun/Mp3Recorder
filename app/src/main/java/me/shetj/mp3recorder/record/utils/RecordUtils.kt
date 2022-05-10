@@ -47,7 +47,7 @@ import me.shetj.recorder.soundtouch.buildST
 /**
  * 录音工具类
  */
-class MixRecordUtils(
+class RecordUtils(
     private val callBack: SimRecordListener?
 ) : RecordListener, PermissionListener {
 
@@ -180,8 +180,8 @@ class MixRecordUtils(
             samplingRate = 44100
             audioSource = MediaRecorder.AudioSource.MIC
             audioChannel = 2
-            recordListener = this@MixRecordUtils
-            permissionListener = this@MixRecordUtils
+            recordListener = this@RecordUtils
+            permissionListener = this@RecordUtils
         }.let {
             when (recorderType) {
                 BaseRecorder.RecorderType.MIX -> it.buildMix(Utils.app)

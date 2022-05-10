@@ -81,7 +81,7 @@ implementation 'com.github.SheTieJun.Mp3Recorder:recorder-st:版本号'
 
 ## 二、[使用说明文档](https://github.com/SheTieJun/Mp3Recorder/wiki/%E4%BD%BF%E7%94%A8%E6%96%87%E6%A1%A3)
 
-```
+```kotlin
 abstract class BaseRecorder {
 
     // 录音Recorder 是否在活动，暂停的时候isActive 还是true,只有录音结束了才会为false
@@ -193,7 +193,7 @@ abstract class BaseRecorder {
     //结束释放
     abstract fun destroy()
 
-    //2021年11月10号，新增变音：STRecorder(SoundTouchRecorder)，其他抛出异常
+    //变音相关
     open fun getSoundTouch():ISoundTouchCore 
 }
 ```

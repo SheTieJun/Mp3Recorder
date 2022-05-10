@@ -24,16 +24,56 @@
 package me.shetj.mp3recorder
 
 import android.Manifest
+import android.animation.ObjectAnimator
+import android.os.Bundle
+import android.view.View
+import androidx.core.animation.doOnEnd
+import androidx.core.splashscreen.SplashScreen
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import me.shetj.base.ktx.hasPermission
 import me.shetj.base.ktx.showToast
 import me.shetj.base.ktx.start
 import me.shetj.base.mvvm.BaseBindingActivity
 import me.shetj.base.mvvm.BaseViewModel
+import me.shetj.base.tools.app.ArmsUtils
+import me.shetj.base.tools.app.ArmsUtils.Companion.statuInScreen
+import me.shetj.base.tools.time.CodeUtil
 import me.shetj.mp3recorder.databinding.ActivityMainBinding
-import me.shetj.mp3recorder.record.activity.mix.MyMixRecordActivity
+import me.shetj.mp3recorder.record.activity.mix.RecordActivity
 import me.shetj.recorder.ui.RecorderPopup
 
 class MainActivity : BaseBindingActivity<BaseViewModel, ActivityMainBinding>() {
+    private var splashScreen:  SplashScreen? =null
+    private var isKeep = true
+    override fun onCreate(savedInstanceState: Bundle?) {
+        splashScreen = installSplashScreen()
+        lifecycleScope.launch {
+            delay(1000)
+            isKeep = false
+        }
+        splashScreen!!.setKeepOnScreenCondition(SplashScreen.KeepOnScreenCondition {
+            //指定保持启动画面展示的条件
+            return@KeepOnScreenCondition isKeep
+        })
+        splashScreen!!.setOnExitAnimationListener { splashScreenViewProvider ->
+            val splashScreenView = splashScreenViewProvider.view
+            val slideUp = ObjectAnimator.ofFloat(
+                splashScreenView,
+                View.ALPHA,
+                1f,
+                0f,
+            )
+            slideUp.duration = 800
+            slideUp.doOnEnd {
+                splashScreenViewProvider.remove()
+            }
+            slideUp.start()
+        }
+        super.onCreate(savedInstanceState)
+    }
 
     private val recorderPopup: RecorderPopup by lazy {
         RecorderPopup(this, needPlay = false, maxTime = (10 * 1000).toLong()) {
@@ -43,6 +83,7 @@ class MainActivity : BaseBindingActivity<BaseViewModel, ActivityMainBinding>() {
 
     override fun onActivityCreate() {
         super.onActivityCreate()
+        ArmsUtils.statuInScreen2(this,true)
         hasPermission(
             Manifest.permission.WRITE_EXTERNAL_STORAGE,
             Manifest.permission.READ_EXTERNAL_STORAGE,
@@ -56,7 +97,7 @@ class MainActivity : BaseBindingActivity<BaseViewModel, ActivityMainBinding>() {
                     Manifest.permission.RECORD_AUDIO, isRequest = true
                 )
             ) {
-                start<MyMixRecordActivity>()
+                start<RecordActivity>()
             }
         }
 

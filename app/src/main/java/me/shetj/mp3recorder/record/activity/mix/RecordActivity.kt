@@ -45,11 +45,11 @@ import java.util.concurrent.TimeUnit
 /**
  * 我的录音界面
  */
-class MyMixRecordActivity : BaseActivity<EmptyPresenter>(), EventCallback {
+class RecordActivity : BaseActivity<EmptyPresenter>(), EventCallback {
 
     private lateinit var mFrameLayout: FrameLayout
-    private var myRecordAction: MyMixRecordPage? = null
-    private var recordAction: MixRecordPage? = null
+    private var recordListPage: RecordListPage? = null
+    private var recordPage: RecordPage? = null
     private var isRecord = false
     private var recordTransition: Transition? = null
     private var myRecordTransition: Transition? = null
@@ -66,12 +66,12 @@ class MyMixRecordActivity : BaseActivity<EmptyPresenter>(), EventCallback {
         canRecord()
         mFrameLayout = findViewById(R.id.frameLayout)
         btnRecorderType = findViewById(R.id.btn_recorderType)
-        myRecordAction = MyMixRecordPage(
+        recordListPage = RecordListPage(
             this,
             mFrameLayout,
             this
         )
-        recordAction = MixRecordPage(
+        recordPage = RecordPage(
             this,
             mFrameLayout,
             this,
@@ -81,7 +81,7 @@ class MyMixRecordActivity : BaseActivity<EmptyPresenter>(), EventCallback {
         recordTransition = TransitionInflater.from(this).inflateTransition(R.transition.record_page_slide)
         myRecordTransition = TransitionInflater.from(this).inflateTransition(R.transition.my_record_page_slide)
         isRecord = false
-        TransitionManager.go(myRecordAction!!.scene, myRecordTransition)
+        TransitionManager.go(recordListPage!!.scene, myRecordTransition)
     }
 
     override fun initData() {
@@ -93,26 +93,26 @@ class MyMixRecordActivity : BaseActivity<EmptyPresenter>(), EventCallback {
         when (message) {
             0 -> {
                 setTitle(R.string.record)
-                TransitionManager.go(recordAction!!.scene, recordTransition)
-                recordAction!!.setRecord(null)
+                TransitionManager.go(recordPage!!.scene, recordTransition)
+                recordPage!!.setRecord(null)
                 isRecord = true
                 btnRecorderType?.isVisible = true
             }
             1 -> {
                 setTitle(R.string.my_record)
-                recordAction!!.setRecord(null)
-                recordAction?.clearMusic()
+                recordPage!!.setRecord(null)
+                recordPage?.clearMusic()
                 AndroidSchedulers.mainThread().scheduleDirect({
-                    TransitionManager.go(myRecordAction!!.scene, myRecordTransition)
+                    TransitionManager.go(recordListPage!!.scene, myRecordTransition)
                 },200,TimeUnit.MICROSECONDS)
                 isRecord = false
                 btnRecorderType?.isVisible = false
             }
             2 -> {
                 setTitle(R.string.record)
-                val curRecord = myRecordAction!!.curRecord
-                recordAction!!.setRecord(curRecord)
-                TransitionManager.go(recordAction!!.scene, recordTransition)
+                val curRecord = recordListPage!!.curRecord
+                recordPage!!.setRecord(curRecord)
+                TransitionManager.go(recordPage!!.scene, recordTransition)
                 isRecord = true
                 btnRecorderType?.isVisible = true
             }
@@ -131,7 +131,7 @@ class MyMixRecordActivity : BaseActivity<EmptyPresenter>(), EventCallback {
 
     override fun onBackPressed() {
         if (isRecord) {
-            recordAction!!.onStop()
+            recordPage!!.onStop()
         } else {
             super.onBackPressed()
         }
@@ -142,11 +142,11 @@ class MyMixRecordActivity : BaseActivity<EmptyPresenter>(), EventCallback {
     }
 
     override fun onDestroy() {
-        if (recordAction != null) {
-            recordAction!!.onDestroy()
+        if (recordPage != null) {
+            recordPage!!.onDestroy()
         }
-        if (myRecordAction != null) {
-            myRecordAction!!.onDestroy()
+        if (recordListPage != null) {
+            recordListPage!!.onDestroy()
         }
         RecordingNotification.cancel(this)
         super.onDestroy()
