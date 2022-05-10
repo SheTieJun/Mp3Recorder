@@ -50,6 +50,8 @@ class MixRecordUtils(
     private val callBack: SimRecordListener?
 ) : RecordListener, PermissionListener {
 
+    private var bgmUrl: Uri? = null
+    private var listener: PlayerListener? = null
     private var recorderType: BaseRecorder.RecorderType = BaseRecorder.RecorderType.MIX
 
     val TIME = 5 * 60 * 1000L
@@ -75,7 +77,7 @@ class MixRecordUtils(
     private var startTime: Long = 0 //秒 s
     private var mRecorder: BaseRecorder? = null
     private var saveFile = ""
-    val recorderLiveDate:MutableLiveData<BaseRecorder.RecorderType> = MutableLiveData()
+    val recorderLiveDate: MutableLiveData<BaseRecorder.RecorderType> = MutableLiveData()
 
     @JvmOverloads
     fun startOrPause(file: String = "") {
@@ -187,12 +189,14 @@ class MixRecordUtils(
             }
         }
 
-        if (recorderType == BaseRecorder.RecorderType.ST){
+        if (recorderType == BaseRecorder.RecorderType.ST) {
             mRecorder!!.getSoundTouch().changeUse(true)
             mRecorder!!.getSoundTouch().setPitchSemiTones(12f)
-            Toast.makeText(S.app,"变声，不可以使用背景应用",Toast.LENGTH_LONG).show()
+            Toast.makeText(S.app, "变声，不可以使用背景音乐", Toast.LENGTH_LONG).show()
         }
         mRecorder?.setMaxTime(TIME, TIME - 20 * 1000)
+        listener?.let { setBackgroundPlayerListener(it) }
+        bgmUrl?.let { setBackGroundUrl(Utils.app, it) }
     }
 
     fun startOrPauseBGM() {
@@ -208,6 +212,7 @@ class MixRecordUtils(
     }
 
     fun setBackgroundPlayerListener(listener: PlayerListener) {
+        this.listener = listener
         mRecorder?.setBackgroundMusicListener(listener)
     }
 
@@ -303,6 +308,7 @@ class MixRecordUtils(
 
     fun setBackGroundUrl(context: Context?, url: Uri) {
         if (context != null) {
+            this.bgmUrl = url
             AudioUtils.getAudioChannel(context, url).toString().logi()
             mRecorder!!.setAudioChannel(AudioUtils.getAudioChannel(context, url))
             mRecorder!!.setBackgroundMusic(context, url, null)

@@ -33,8 +33,6 @@ import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.RelativeLayout
 import androidx.recyclerview.widget.RecyclerView
-import com.chad.library.adapter.base.BaseQuickAdapter
-import com.chad.library.adapter.base.viewholder.BaseViewHolder
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.schedulers.Schedulers
 import me.shetj.base.tools.app.ArmsUtils
@@ -120,15 +118,15 @@ class MyMixRecordPage(
         recordAdapter.setOnItemChildClickListener { adapter, view1, position ->
             when (view1.id) {
                 R.id.tv_more -> {
-                    val dialog = showBottomDialog(position, adapter)
-                    dialog?.showBottomSheet()
+                    val dialog = showBottomDialog(position)
+                    dialog.showBottomSheet()
                 }
             }
         }
         recordAdapter.addChildClickViewIds(R.id.tv_more)
         recordAdapter.setOnItemLongClickListener { adapter, _, position ->
-            val dialog = showBottomDialog(position, adapter)
-            dialog?.showBottomSheet()
+            val dialog = showBottomDialog(position)
+            dialog.showBottomSheet()
             true
         }
 
@@ -154,19 +152,12 @@ class MyMixRecordPage(
 
     }
 
-    private fun showBottomDialog(
-        position: Int,
-        adapter: BaseQuickAdapter<*, BaseViewHolder>
-    ): RecordBottomSheetDialog? {
+    private fun showBottomDialog(position: Int): RecordBottomSheetDialog {
         recordAdapter.onPause()
-        return recordAdapter.getItem(position).let {
-            (mRecyclerView!!.findViewHolderForAdapterPosition(position + adapter.headerLayoutCount) as BaseViewHolder).let { it1 ->
-                RecordBottomSheetDialog(
-                    context, position, it,
-                    callback
-                )
-            }
-        }
+        return RecordBottomSheetDialog(
+            context, position, recordAdapter.getItem(position),
+            callback
+        )
     }
 
 

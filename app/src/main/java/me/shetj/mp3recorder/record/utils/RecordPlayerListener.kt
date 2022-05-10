@@ -86,8 +86,8 @@ class RecordPlayerListener(
         stateStop()
     }
 
-    override fun onError(throwable: Exception) {
-        Timber.e("ClassroomPlayerListener ${throwable.message}")
+    override fun onError(throwable: Exception?) {
+        Timber.e("ClassroomPlayerListener ${throwable?.message}")
     }
 
 
