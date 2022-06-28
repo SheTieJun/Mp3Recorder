@@ -11,7 +11,7 @@
 
 
 ### Demo1 [APP下载](http://d.zqapps.com/ne21)
-<img src="https://github.com/SheTieJun/Mp3Recorder/blob/master/doc/img/recorder.gif" width="35%" height="35%" />
+![](doc/img/recorder.gif)
 
 ### Demo2 [多进程录音代码示例](https://github.com/SheTieJun/Beloved/blob/master/M-recorder/src/main/java/me/shetj/recorder/func/service/RecordService.kt)
 
@@ -80,6 +80,12 @@ implementation 'com.github.SheTieJun.Mp3Recorder:recorder-st:版本号'
 ```
 
 ## 二、[使用说明文档](https://github.com/SheTieJun/Mp3Recorder/wiki/%E4%BD%BF%E7%94%A8%E6%96%87%E6%A1%A3)
+
+```
+ 采样频率越高， 声音越接近原始数据。
+ 采样位数越高，声音越接近原始数据。
+ 比特率越高，传送的数据越大，音质越好
+```
 
 ```kotlin
 abstract class BaseRecorder {
