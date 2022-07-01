@@ -95,6 +95,11 @@ abstract class BaseRecorder {
     protected var defaultSamplingRate = 48000
     protected var is2Channel = false // 默认是单声道
 
+    //设置过滤器
+    protected var lowpassFreq :Int = -1 //高于这个频率的声音会被截除 hz
+    protected var highpassFreq :Int = -1//低于这个频率的声音会被截除 hz
+
+    protected var openVBR = false
 
     //region 背景音乐相关
     /**
@@ -420,6 +425,29 @@ abstract class BaseRecorder {
         return this
     }
 
+    /**
+     * 设置滤波器
+     *   lowpassFreq 高于这个频率的声音会被截除 hz， -1 表示不启用
+    *   highpassFreq  低于这个频率的声音会被截除 hz ， -1 表示不启用
+     */
+    open fun setFilter(lowpassFreq :Int = 3000, highpassFreq :Int = 200):BaseRecorder{
+       if (isActive){
+           logError("setFilter error ,need state isn't isActive|必须在开始录音前进行配置才有效果")
+           return this
+       }
+        this.lowpassFreq = lowpassFreq
+        this.highpassFreq = highpassFreq
+        return this
+    }
+
+    open fun isEnableVBR(isEnable:Boolean):BaseRecorder{
+        if (isActive){
+            logError("setFilter error ,need state isn't isActive|必须在开始录音前进行配置才有效果")
+            return this
+        }
+        openVBR = isEnable
+        return this
+    }
 
     /**
     设置增强系数(不建议修改，因为会产生噪音~)

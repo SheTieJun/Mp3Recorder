@@ -108,7 +108,7 @@ internal class MixRecorder : BaseRecorder {
             2 -> {
                 AudioFormat.CHANNEL_IN_STEREO
             }
-            else -> defaultAudioSource
+            else -> AudioFormat.CHANNEL_IN_STEREO
         }
         is2Channel = defaultLameInChannel == 2
         releaseAEC()
@@ -126,7 +126,7 @@ internal class MixRecorder : BaseRecorder {
                 2 -> {
                     AudioFormat.CHANNEL_IN_STEREO
                 }
-                else -> defaultAudioSource
+                else -> AudioFormat.CHANNEL_IN_STEREO
             }
             releaseAEC()
             bgPlayer.updateChannel(defaultLameInChannel)
@@ -474,9 +474,12 @@ internal class MixRecorder : BaseRecorder {
             defaultLameInChannel,
             defaultSamplingRate,
             defaultLameMp3BitRate,
-            defaultLameMp3Quality
+            defaultLameMp3Quality,
+            lowpassFreq,
+            highpassFreq,
+            openVBR
         )
-        mEncodeThread = MixEncodeThread(mRecordFile!!, mBufferSize, isContinue, is2Channel)
+        mEncodeThread = MixEncodeThread(mRecordFile!!, mBufferSize, isContinue, is2Channel,openVBR)
         mEncodeThread!!.start()
         mAudioRecord!!.setRecordPositionUpdateListener(mEncodeThread, mEncodeThread!!.handler)
         mAudioRecord!!.positionNotificationPeriod = FRAME_COUNT

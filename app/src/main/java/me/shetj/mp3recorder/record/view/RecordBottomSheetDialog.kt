@@ -33,6 +33,7 @@ import me.shetj.mp3recorder.R
 import me.shetj.mp3recorder.record.bean.Record
 import me.shetj.mp3recorder.record.bean.RecordDbUtils
 import me.shetj.mp3recorder.record.utils.EventCallback
+import me.shetj.recorder.core.FileUtils
 
 
 /**
@@ -84,6 +85,7 @@ class RecordBottomSheetDialog(
             }
             R.id.tv_del -> {
                 context.launch {
+                    record.audio_url?.let { FileUtils.deleteFile(it) }
                     RecordDbUtils.getInstance().del(record)
                     dismissBottomSheet()
                 }

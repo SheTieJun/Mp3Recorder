@@ -121,7 +121,7 @@ internal class SimRecorder : BaseRecorder {
             2 -> {
                 AudioFormat.CHANNEL_IN_STEREO
             }
-            else -> defaultAudioSource
+            else ->  AudioFormat.CHANNEL_IN_STEREO
         }
         this.is2Channel = defaultLameInChannel == 2
         releaseAEC()
@@ -141,7 +141,7 @@ internal class SimRecorder : BaseRecorder {
             2 -> {
                 AudioFormat.CHANNEL_IN_STEREO
             }
-            else -> defaultAudioSource
+            else ->  AudioFormat.CHANNEL_IN_STEREO
         }
         return true
     }
@@ -450,13 +450,16 @@ internal class SimRecorder : BaseRecorder {
             defaultLameInChannel,
             defaultSamplingRate,
             defaultLameMp3BitRate,
-            defaultLameMp3Quality
+            defaultLameMp3Quality,
+            lowpassFreq,
+            highpassFreq,
+            openVBR
         )
         mEncodeThread = DataEncodeThread(
             mRecordFile!!,
             mBufferSize,
             isContinue,
-            defaultChannelConfig == AudioFormat.CHANNEL_IN_STEREO
+            defaultChannelConfig == AudioFormat.CHANNEL_IN_STEREO,openVBR
         )
         mEncodeThread!!.start()
         mAudioRecord!!.setRecordPositionUpdateListener(mEncodeThread, mEncodeThread!!.handler)

@@ -42,7 +42,7 @@ import me.shetj.recorder.core.FileUtils
  * @throws FileNotFoundException file not found
  */
 internal class DataEncodeThread @Throws(FileNotFoundException::class)
-constructor(file: File, bufferSize: Int, isContinue: Boolean, private val is2CHANNEL: Boolean) :
+constructor(file: File, bufferSize: Int, isContinue: Boolean, private val is2CHANNEL: Boolean,private val isEnableVBR:Boolean) :
     HandlerThread("DataEncodeThread"),
     AudioRecord.OnRecordPositionUpdateListener {
     private var mHandler: StopHandler? = null
@@ -187,7 +187,10 @@ constructor(file: File, bufferSize: Int, isContinue: Boolean, private val is2CHA
             }
             mFileOutputStream?.close()
             mFileOutputStream = null
-            mFileOutputStream = FileOutputStream(path, true)
+            mFileOutputStream = FileOutputStream(path, false)
+            if(isEnableVBR){
+                LameUtils.writeVBRHeader(path)
+            }
             while (setOldDateToFile() > 0)
                 needUpdate = false
         }

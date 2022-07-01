@@ -185,6 +185,10 @@ class RecordUtils(
         }.let {
             when (recorderType) {
                 BaseRecorder.RecorderType.MIX -> it.buildMix(Utils.app)
+                    .also {
+                        it.isEnableVBR(true)
+//                        it.setFilter(3000, 200)
+                    }
                 BaseRecorder.RecorderType.SIM -> it.buildSim(Utils.app)
                 BaseRecorder.RecorderType.ST -> it.buildST()
             }

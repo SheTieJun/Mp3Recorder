@@ -46,7 +46,9 @@ import me.shetj.recorder.core.FileUtils
  */
 internal class MixEncodeThread
 @Throws(FileNotFoundException::class)
-constructor(file: File, bufferSize: Int, isContinue: Boolean, private val is2CHANNEL: Boolean) :
+constructor(file: File, bufferSize: Int, isContinue: Boolean,
+            private val is2CHANNEL: Boolean,
+            private val isEnableVBR:Boolean) :
     HandlerThread("MixEncodeThread"), AudioRecord.OnRecordPositionUpdateListener {
     private var mHandler: StopHandler? = null
     private val mMp3Buffer: ByteArray
@@ -173,6 +175,9 @@ constructor(file: File, bufferSize: Int, isContinue: Boolean, private val is2CHA
                     }
                 }
                 mOldTasks.clear()
+                if(isEnableVBR){
+                    LameUtils.writeVBRHeader(path)
+                }
                 LameUtils.close()
             }
         }
@@ -186,7 +191,7 @@ constructor(file: File, bufferSize: Int, isContinue: Boolean, private val is2CHA
             }
             mFileOutputStream?.close()
             mFileOutputStream = null
-            mFileOutputStream = FileOutputStream(path, true)
+            mFileOutputStream = FileOutputStream(path, false)
             while (setOldDateToFile() > 0);
             needUpdate = false
         }

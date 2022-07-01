@@ -106,7 +106,7 @@ internal class STRecorder : BaseRecorder {
             2 -> {
                 AudioFormat.CHANNEL_IN_STEREO
             }
-            else -> defaultAudioSource
+            else -> AudioFormat.CHANNEL_IN_STEREO
         }
         is2Channel = defaultLameInChannel == 2
         releaseAEC()
@@ -133,7 +133,7 @@ internal class STRecorder : BaseRecorder {
                 releaseAEC()
                 2
             }
-            else -> defaultAudioSource
+            else -> 2
         }
         return true
     }
@@ -183,7 +183,7 @@ internal class STRecorder : BaseRecorder {
         try {
             initAudioRecorder()
             mAudioRecord!!.startRecording()
-        }catch (ex:IllegalStateException){
+        } catch (ex: IllegalStateException) {
             handler.sendEmptyMessage(HANDLER_PERMISSION)
             isActive = false
             ex.printStackTrace()
@@ -430,14 +430,18 @@ internal class STRecorder : BaseRecorder {
             defaultLameInChannel,
             defaultSamplingRate,
             defaultLameMp3BitRate,
-            defaultLameMp3Quality
+            defaultLameMp3Quality,
+            lowpassFreq,
+            highpassFreq,
+            openVBR
         )
         mEncodeThread = DataSTEncodeThread(
             mRecordFile!!,
             mBufferSize,
             isContinue,
             defaultChannelConfig == AudioFormat.CHANNEL_IN_STEREO,
-            soundTouch
+            soundTouch,
+            openVBR
         )
         mEncodeThread!!.start()
         mAudioRecord!!.setRecordPositionUpdateListener(

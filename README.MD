@@ -1,6 +1,6 @@
-# 录音工具-Mp3Recorder 
+# 录音工具-Mp3Recorder
 
- [![](https://jitpack.io/v/SheTieJun/Mp3Recorder.svg)](https://jitpack.io/#SheTieJun/Mp3Recorder) ![buildWorkflow](https://github.com/SheTieJun/Mp3Recorder/actions/workflows/android.yml/badge.svg)
+[![](https://jitpack.io/v/SheTieJun/Mp3Recorder.svg)](https://jitpack.io/#SheTieJun/Mp3Recorder) ![buildWorkflow](https://github.com/SheTieJun/Mp3Recorder/actions/workflows/android.yml/badge.svg)
 
 - 边录边转码MP3,支持暂停，实时返回已录制时长和当前声音大小。
 - 可添加背景音乐,可以设置背景音乐声音的大小
@@ -9,8 +9,8 @@
 - 可以使用默认耳机配置方式：如果没有连接耳机会只用外放的背景音乐，如果连接上了耳机，会使用写入合成背景音乐的方式
 - 其他..
 
-
 ### Demo1 [APP下载](http://d.zqapps.com/ne21)
+
 ![](doc/img/recorder.gif)
 
 ### Demo2 [多进程录音代码示例](https://github.com/SheTieJun/Beloved/blob/master/M-recorder/src/main/java/me/shetj/recorder/func/service/RecordService.kt)
@@ -27,10 +27,10 @@ implementation "com.github.SheTieJun.Mp3Recorder:recorder-st:$sdk_version" //可
 ```
 
 ### 请选择合适的Recorder进行编写功能
+
 - 如果只是录音，对背景音乐没有要求，带耳机后没有背景音乐：[SimRecorder](recorder-sim)
 - 如果录音中，需要随时添加背景音乐，而且要求支持带耳机后也有背景音乐：[MixRecorder](recorder-mix)
 - 如果录音中，没有背景音乐，但是支持随时进行变音：[STRecorder](recorder-st)
-
 
 ### 2. [《背景音乐》录音推荐](recorder-sim)：
 
@@ -44,7 +44,7 @@ implementation 'com.github.SheTieJun.Mp3Recorder:recorder-core:版本号'
 - 录制中可以随时中断、播放、替换背景音乐
 - 如果背景音乐的参数我的库中不一样，需要自行设置参数，如果不一样会让背景音乐拉长或者变快
 
-#### 2).  缺点
+#### 2). 缺点
 
 - 录制声道数设置，因为合成，所有你**需要设置和背景音乐相同的参数**
 - 如果设置单声道，播放的背景是双声道，（MIX）会让音乐拉长；反之双声音合成，背景音乐是单声音，节奏会变快
@@ -60,22 +60,24 @@ implementation 'com.github.SheTieJun.Mp3Recorder:recorder-st:版本号'
 #### 1). 变音录制相关(SoundTouch)
 
 - 录制中可以随时中断、重新继续进行变音、变速等等功能
+
 ```kotlin
     //指定播放速率
-    fun setRate(speed: Float)
-    //一般用来设置倍速，我们变音，默认 1.0就好
-    fun setTempo(tempo: Float)
+fun setRate(speed: Float)
 
-    //在原速1.0基础上，按百分比做增量，取值(-50 .. +100 %)
-    fun setRateChange(@FloatRange(from = -50.0, to = 100.0) rateChange: Float)
+//一般用来设置倍速，我们变音，默认 1.0就好
+fun setTempo(tempo: Float)
 
-    //在原速1.0基础上 源tempo=1.0，小于1则变慢；大于1变快 tempo (-50 .. +100 %)
-    fun setTempoChange(@FloatRange(from = -50.0, to = 100.0) tempoChange: Float)
+//在原速1.0基础上，按百分比做增量，取值(-50 .. +100 %)
+fun setRateChange(@FloatRange(from = -50.0, to = 100.0) rateChange: Float)
 
-    //在源pitch的基础上，使用半音(Semitones)设置新的pitch [-12.0,12.0]
-    //男声:-
-    //女声:+
-    fun setPitchSemiTones(@FloatRange(from = -12.0, to = 12.0) pitch: Float)
+//在原速1.0基础上 源tempo=1.0，小于1则变慢；大于1变快 tempo (-50 .. +100 %)
+fun setTempoChange(@FloatRange(from = -50.0, to = 100.0) tempoChange: Float)
+
+//在源pitch的基础上，使用半音(Semitones)设置新的pitch [-12.0,12.0]
+//男声:-
+//女声:+
+fun setPitchSemiTones(@FloatRange(from = -12.0, to = 12.0) pitch: Float)
 
 ```
 
@@ -113,7 +115,7 @@ abstract class BaseRecorder {
      * @param outputFile 设置输出路径
      * @param isContinue 表示是否拼接在文件末尾，实现继续录制的一种方式
      */
-     abstract fun setOutputFile(outputFile: File, isContinue: Boolean = false): BaseRecorder
+    abstract fun setOutputFile(outputFile: File, isContinue: Boolean = false): BaseRecorder
 
     //设置录音监听
     abstract fun setRecordListener(recordListener: RecordListener?): BaseRecorder
@@ -128,14 +130,14 @@ abstract class BaseRecorder {
     abstract fun setLoopMusic(isLoop: Boolean): BaseRecorder
 
     //背景音乐的url,兼容Android Q
-    abstract fun setBackgroundMusic(context: Context,uri: Uri,header: MutableMap<String, String>?): BaseRecorder
+    abstract fun setBackgroundMusic(context: Context, uri: Uri, header: MutableMap<String, String>?): BaseRecorder
 
     //设置背景音乐的监听
     abstract fun setBackgroundMusicListener(listener: PlayerListener): BaseRecorder
 
 
     //初始Lame录音输出质量
-    abstract fun setMp3Quality(@IntRange(from = 0 ,to = 9)mp3Quality: Int): BaseRecorder
+    abstract fun setMp3Quality(@IntRange(from = 0, to = 9) mp3Quality: Int): BaseRecorder
 
     //设置比特率，关系声音的质量
     abstract fun setMp3BitRate(@IntRange(from = 16) mp3BitRate: Int): BaseRecorder
@@ -144,11 +146,13 @@ abstract class BaseRecorder {
     abstract fun setSamplingRate(@IntRange(from = 8000) rate: Int): BaseRecorder
 
     //设置音频声道数量，每次录音前可以设置修改，开始录音后无法修改
-    abstract fun setAudioChannel(@IntRange(from = 1,to = 2)channel: Int = 1):Boolean
+    abstract fun setAudioChannel(@IntRange(from = 1, to = 2) channel: Int = 1): Boolean
 
     //设置音频来源，每次录音前可以设置修改，开始录音后无法修改
-    abstract fun setAudioSource(@Source audioSource: Int = MediaRecorder.AudioSource.MIC):Boolean
+    abstract fun setAudioSource(@Source audioSource: Int = MediaRecorder.AudioSource.MIC): Boolean
 
+    //设置声波过滤器
+    open fun setFilter(lowpassFreq: Int = 3000, highpassFreq: Int = 200) {}
 
     //初始最大录制时间 和提醒时间 remind = maxTime - remindDiffTime
     abstract fun setMaxTime(maxTime: Int, remindDiffTime: Int? = null): BaseRecorder
@@ -200,12 +204,14 @@ abstract class BaseRecorder {
     abstract fun destroy()
 
     //变音相关
-    open fun getSoundTouch():ISoundTouchCore 
+    open fun getSoundTouch(): ISoundTouchCore
 }
 ```
+
 ## 其他
 
 ### 尝试支持 Compose
+
 [Mp3Recorder-Compose](https://github.com/SheTieJun/Mp3Recorder-Compose)
 
 ### 1. [Old version](https://github.com/SheTieJun/Mp3Recorder/tree/master_copy)

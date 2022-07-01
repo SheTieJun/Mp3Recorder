@@ -45,11 +45,12 @@ import me.shetj.recorder.core.FileUtils
  */
 internal class DataSTEncodeThread @Throws(FileNotFoundException::class)
 constructor(
-    file: File,
+    private val file: File,
     bufferSize: Int,
     isContinue: Boolean,
     private val is2CHANNEL: Boolean,
-    private val soundTouchKit: SoundTouchKit
+    private val soundTouchKit: SoundTouchKit,
+    private val isEnableVBR:Boolean
 ) :
     HandlerThread("DataSTEncodeThread"),
     AudioRecord.OnRecordPositionUpdateListener {
@@ -85,6 +86,9 @@ constructor(
     init {
         this.mFileOutputStream = FileOutputStream(file, isContinue)
         path = file.absolutePath
+        if(isEnableVBR){
+            LameUtils.writeVBRHeader(path)
+        }
         mMp3Buffer = ByteArray((7200 + bufferSize.toDouble() * 2.0 * 1.25).toInt())
     }
 
@@ -200,6 +204,9 @@ constructor(
             mFileOutputStream?.close()
             mFileOutputStream = null
             mFileOutputStream = FileOutputStream(path, true)
+            if(isEnableVBR){
+                LameUtils.writeVBRHeader(path)
+            }
             needUpdate = false
         }
     }
