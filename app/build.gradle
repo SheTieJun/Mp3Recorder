@@ -5,11 +5,11 @@ plugins {
 }
 
 android {
-    compileSdkVersion 31
+    compileSdkVersion 32
     defaultConfig {
         applicationId "me.shetj.mp3recorder"
-        minSdkVersion 21
-        targetSdkVersion 31
+        minSdkVersion 24
+        targetSdkVersion 32
         versionCode 1
         versionName "1.0"
         ndk {
@@ -58,10 +58,6 @@ android {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-//    implementation "com.github.SheTieJun.Mp3Recorder:recorder-ui:$sdk_version"
-//    implementation "com.github.SheTieJun.Mp3Recorder:recorder-sim:$sdk_version"
-//    implementation "com.github.SheTieJun.Mp3Recorder:recorder-mix:$sdk_version"
-//    implementation "com.github.SheTieJun.Mp3Recorder:recorder-core:$sdk_version"
 
     implementation project(path: ':recorder-mix')
     implementation project(path: ':recorder-sim')

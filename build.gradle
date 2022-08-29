@@ -7,6 +7,8 @@ plugins {
     id 'maven-publish'
     id 'com.google.devtools.ksp' version '1.6.10-1.0.2'
 }
-ext.sdk_version = '1.7.1'
-ext.local_group_id = 'com.github.SheTieJun.Mp3Recorder'
+ext.sdk_version = '1.7.3'
+ext.local_group_id = 'com.github.shetiejun'
 
+//github package maven
+apply from : "https://gist.githubusercontent.com/SheTieJun/f4cb1bd33997c2b46d9e3df40b95a02e/raw/c7b65d18aabfeccc09c37e3b2e7964cdd1f8e856/subprojects.gradle"
