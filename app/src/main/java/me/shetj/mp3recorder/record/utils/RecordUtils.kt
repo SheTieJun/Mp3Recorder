@@ -104,6 +104,7 @@ class RecordUtils(
             RecordState.RECORDING -> {
                 mRecorder?.pause()
             }
+            else -> {}
         }
     }
 
@@ -241,7 +242,7 @@ class RecordUtils(
     fun setTime(startTime: Long) {
         this.startTime = startTime
         setMaxTime((TIME - startTime).toInt())
-        callBack?.onRecording((startTime / 1000), 0)
+        callBack?.onRecording((startTime / 1000), -1)
     }
 
     /**

@@ -50,11 +50,11 @@ internal class MixRecorder : BaseRecorder {
     override val recorderType: RecorderType = RecorderType.MIX
     //region 参数
 
-    //region  Lame Default Setting （Lame的设置）
+    //region
     private var mAudioRecord: AudioRecord? = null
     private var mPlayBackMusic: PlayBackMusic? = null
     private var mEncodeThread: MixEncodeThread? = null
-    //endregion Lame Default Settings
+    //endregion
 
     //region 其他
     private var mSendError: Boolean = false

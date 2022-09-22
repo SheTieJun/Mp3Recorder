@@ -33,6 +33,7 @@ import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.RelativeLayout
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import me.shetj.base.tools.app.ArmsUtils
 import me.shetj.mp3recorder.R
@@ -42,6 +43,7 @@ import me.shetj.mp3recorder.record.bean.RecordDbUtils
 import me.shetj.mp3recorder.record.utils.EventCallback
 import me.shetj.mp3recorder.record.view.RecordBottomSheetDialog
 import java.util.*
+import kotlinx.coroutines.launch
 import me.shetj.base.ktx.launch
 
 /**
@@ -76,8 +78,8 @@ class RecordListPage(
         initData()
     }
 
-    private fun initData() {
-        context.launch {
+    fun initData() {
+        context.lifecycleScope.launch {
             RecordDbUtils.getInstance().allRecord.collect{
                 recordAdapter.setNewInstance(it.toMutableList())
                 checkShow(it)

@@ -102,11 +102,7 @@ class RecordActivity : BaseActivity<EmptyPresenter>(), EventCallback {
                 setTitle(R.string.my_record)
                 recordPage!!.setRecord(null)
                 recordPage?.clearMusic()
-                launch {
-                    delay(200)
-                    TransitionManager.go(recordListPage!!.scene, myRecordTransition)
-                }
-
+                TransitionManager.go(recordListPage!!.scene, myRecordTransition)
                 isRecord = false
                 btnRecorderType?.isVisible = false
             }

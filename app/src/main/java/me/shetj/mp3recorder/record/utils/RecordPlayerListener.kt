@@ -28,6 +28,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.SeekBar
 import com.chad.library.adapter.base.viewholder.BaseViewHolder
+import me.shetj.base.ktx.logI
 import me.shetj.mp3recorder.R
 import me.shetj.player.PlayerListener
 import timber.log.Timber
@@ -63,6 +64,7 @@ class RecordPlayerListener(
 
 
     override fun onStart(duration: Int) {
+        ("duration = $duration").logI()
         if (canChange) {
             statePlaying(true)
         }
@@ -80,6 +82,7 @@ class RecordPlayerListener(
             stateStop()
         }
     }
+
 
     override fun onCompletion() {
         seekBar.progress = 0

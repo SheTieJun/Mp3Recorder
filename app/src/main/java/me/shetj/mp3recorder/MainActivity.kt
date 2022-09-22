@@ -31,24 +31,20 @@ import android.view.View
 import androidx.core.animation.doOnEnd
 import androidx.core.splashscreen.SplashScreen
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import androidx.core.view.ViewCompat
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import me.shetj.base.ktx.hasPermission
-import me.shetj.base.ktx.hideSystemUI
 import me.shetj.base.ktx.setAppearance
 import me.shetj.base.ktx.showToast
 import me.shetj.base.ktx.start
 import me.shetj.base.mvvm.BaseBindingActivity
 import me.shetj.base.mvvm.BaseViewModel
-import me.shetj.base.tools.app.ArmsUtils
-import me.shetj.base.tools.app.ArmsUtils.Companion.statuInScreen
-import me.shetj.mp3recorder.databinding.ActivityMainBinding
+import me.shetj.mp3recorder.databinding.ActivityMainTestBinding
 import me.shetj.mp3recorder.record.activity.mix.RecordActivity
 import me.shetj.recorder.ui.RecorderPopup
 
-class MainActivity : BaseBindingActivity<ActivityMainBinding,BaseViewModel>() {
+class MainActivity : BaseBindingActivity<ActivityMainTestBinding,BaseViewModel>() {
     private var splashScreen:  SplashScreen? =null
     private var isKeep = true
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -84,6 +80,10 @@ class MainActivity : BaseBindingActivity<ActivityMainBinding,BaseViewModel>() {
         RecorderPopup(this, needPlay = false, maxTime = (10 * 1000).toLong()) {
             it.showToast()
         }
+    }
+
+    override fun initViewBinding(): ActivityMainTestBinding {
+        return ActivityMainTestBinding.inflate(layoutInflater)
     }
 
     override fun onActivityCreate() {

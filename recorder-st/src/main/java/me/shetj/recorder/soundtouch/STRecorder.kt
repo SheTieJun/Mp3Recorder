@@ -210,8 +210,8 @@ internal class STRecorder : BaseRecorder {
                         if (!mSendError) {
                             mSendError = true
                             handler.sendEmptyMessage(HANDLER_PERMISSION)
-                            onError(Exception("recording error , may be need permission :android.permission.RECORD_AUDIO"))
                             isError = true
+                            onError(Exception("recording error , may be need permission :android.permission.RECORD_AUDIO"))
                             logError("recording error , may be need permission :android.permission.RECORD_AUDIO")
                         }
                     } else {
@@ -229,8 +229,8 @@ internal class STRecorder : BaseRecorder {
                                 mSendError = true
                                 handler.sendEmptyMessage(HANDLER_PERMISSION)
                                 logError("recording error , may be need permission :android.permission.RECORD_AUDIO")
-                                onError(Exception("recording error , may be need permission :android.permission.RECORD_AUDIO"))
                                 isError = true
+                                onError(Exception("recording error , may be need permission :android.permission.RECORD_AUDIO"))
                             }
                         }
                     }

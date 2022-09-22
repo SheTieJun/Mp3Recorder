@@ -64,14 +64,15 @@ dependencies {
     implementation project(path: ':recorder-core')
     implementation project(path: ':recorder-ui')
     implementation project(path: ':recorder-st')
+    implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
 
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test:runner:1.4.0'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
-    implementation 'com.github.SheTieJun:BaseKit:dbc6e7b75e'
-    ksp "androidx.room:room-compiler:2.4.2" //
+    implementation 'com.github.SheTieJun:BaseKit:ea04d62cf1'
+    ksp "androidx.room:room-compiler:2.4.3" //
     implementation "com.github.SheTieJun:OrangeDialog:0.0.2"
     implementation "androidx.core:core-splashscreen:1.0.0-beta02"
-    implementation 'androidx.work:work-runtime:2.7.0'
+    implementation 'androidx.work:work-runtime:2.7.1'
 }
 //apply from: "../spotless.gradle"

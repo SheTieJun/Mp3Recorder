@@ -28,6 +28,8 @@ import me.shetj.base.tools.file.FileUtils
 import me.shetj.mp3recorder.record.bean.db.AppDatabase
 import me.shetj.mp3recorder.record.bean.db.RecordDao
 import java.io.File
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import me.shetj.base.ktx.doOnIO
 
 class RecordDbUtils private constructor() {
@@ -42,7 +44,7 @@ class RecordDbUtils private constructor() {
 
 
     suspend fun save(recordNew: Record) {
-        doOnIO {
+        withContext(Dispatchers.IO) {
             dbManager.insertRecord(recordNew)
         }
 
@@ -52,7 +54,7 @@ class RecordDbUtils private constructor() {
      * 更新录音
      */
     suspend fun update(message: Record) {
-        doOnIO {
+        withContext(Dispatchers.IO) {
             dbManager.insertRecord(message)
         }
     }
@@ -61,14 +63,14 @@ class RecordDbUtils private constructor() {
      * 删除
      */
     suspend fun del(record: Record) {
-        doOnIO {
+        withContext(Dispatchers.IO) {
             dbManager.deleteRecord(record)
             FileUtils.deleteFile(File(record.audio_url!!))
         }
     }
 
     suspend fun clear() {
-        doOnIO {
+        withContext(Dispatchers.IO) {
             dbManager.deleteAll()
         }
     }

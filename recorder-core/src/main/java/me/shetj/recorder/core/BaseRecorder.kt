@@ -40,6 +40,7 @@ import androidx.annotation.IntRange
 import java.io.File
 import kotlin.math.abs
 import kotlin.math.log10
+import kotlin.math.max
 import kotlin.math.sqrt
 import me.shetj.player.PlayerListener
 
@@ -203,7 +204,7 @@ abstract class BaseRecorder {
 
     //region public method 公开的方法
     val realVolume: Int
-        get() = mVolume
+        get() = max(mVolume,0)
 
     protected val handler = object : Handler(Looper.getMainLooper()) {
         override fun handleMessage(msg: Message) {

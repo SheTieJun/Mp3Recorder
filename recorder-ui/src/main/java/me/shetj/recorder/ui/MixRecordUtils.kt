@@ -97,6 +97,7 @@ class MixRecordUtils(
             RecordState.RECORDING -> {
                 mRecorder?.pause()
             }
+            else -> {}
         }
     }
 
@@ -125,6 +126,7 @@ class MixRecordUtils(
             }
             RecordState.PAUSED -> {
             }
+            else -> {}
         }
     }
 
