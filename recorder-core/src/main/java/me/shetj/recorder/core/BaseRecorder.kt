@@ -38,10 +38,8 @@ import android.util.Log
 import androidx.annotation.FloatRange
 import androidx.annotation.IntRange
 import java.io.File
-import kotlin.math.abs
-import kotlin.math.log10
 import kotlin.math.max
-import kotlin.math.sqrt
+import me.shetj.ndk.lame.LameUtils
 import me.shetj.player.PlayerListener
 
 abstract class BaseRecorder {
@@ -551,20 +549,14 @@ abstract class BaseRecorder {
      * 如果是绝对值的则代入常数系数为20的公式中，算出分贝值。
      */
     protected fun calculateRealVolume(buffer: ShortArray, readSize: Int) {
-        var sum = 0.0
-        for (i in 0 until readSize) {
-            // 这里没有做运算的优化，为了更加清晰的展示代码
-            sum += abs((buffer[i] * buffer[i]).toDouble())
-        }
-        if (readSize > 0) {
-            mVolume = (log10(sqrt(sum / readSize)) * 20).toInt()
-            if (mVolume < 5) {
-                for (i in 0 until readSize) {
-                    buffer[i] = 0
-                }
-            } else if (mVolume > 100) {
-                mVolume = 100
+        mVolume = LameUtils.getPCMDB(buffer, readSize)
+        if (mVolume < 5) {
+            for (i in 0 until readSize) {
+                buffer[i] = 0
             }
+        }
+        if (mVolume > 100){
+            mVolume = 100
         }
     }
 

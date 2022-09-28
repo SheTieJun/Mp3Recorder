@@ -80,4 +80,13 @@ object LameUtils {
 
     external fun flush(mp3buf: ByteArray): Int
     external fun close()
+
+    /**
+     * Get pcm db
+     * 获取pcm的db
+     * @param pcm
+     * @param samples
+     * @return
+     */
+    external fun getPCMDB(pcm: ShortArray, samples: Int):Int
 }

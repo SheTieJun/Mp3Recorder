@@ -198,7 +198,7 @@ class RecordUtils(
         if (recorderType == BaseRecorder.RecorderType.ST) {
             mRecorder!!.getSoundTouch().changeUse(true)
             mRecorder!!.getSoundTouch().setPitchSemiTones(10f) //往女声变
-//            mRecorder!!.getSoundTouch().setRateChange(50f) //加速，会导致录音时间比实际短
+//            mRecorder!!.getSoundTouch().setRateChange(50f) //加速，会导致录音计时> 实际时间
             Toast.makeText(S.app, "变声，不可以使用背景音乐", Toast.LENGTH_LONG).show()
         }
         mRecorder?.setMaxTime(TIME, TIME - 20 * 1000)
