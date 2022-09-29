@@ -122,29 +122,23 @@ open class RecordPage(
         addMusic = view.findViewById(R.id.ll_add_music)
         addMusic!!.setOnClickListener(this)
         context.launch {
-            val def = 1
-            recordingVoice.collect{
-                if (it >= 0) {
-                    val currentLevel = when {
-                        it < 20 -> 1
-                        it in 20..30 -> 2
-                        it in 20..30 -> 3
-                        it in 40..45 -> 4
-                        it in 45..50 -> 5
-                        it in 50..55 -> 5
-                        it in 55..60 -> 6
-                        it in 60..63 -> 7
-                        it in 63..66 -> 8
-                        it in 66..70 -> 9
-                        it in 70..73 -> 10
-                        it in 73..76 -> 11
-                        it in 76..79 -> 12
-                        it in 79..82 -> 13
-                        it > 85 -> 14
-                        else -> 15
-                    }
-                    binding.recordVoiceView.addFrame(currentLevel)
+            recordingVoice.collect {
+                val currentLevel = when {
+                    it < 0 -> 0.8f
+                    it < 20 -> (0.5f) + (it - 20) / 10f
+                    it in 20..30 -> (0.8f) + (it - 20) / 10f
+                    it in 40..55 -> (1.0f) + (it - 40) / 15f
+                    it in 55..58 -> (1.2f) + (it - 55) / 3f
+                    it in 58..60 -> (3.2f) + (it - 58) / 2f
+                    it in 60..62 -> (4f) + (it - 60) / 2f
+                    it in 62..65 -> (5f) + (it - 62) / 3f
+                    it in 65..68 -> (6f) + (it - 65) / 3f
+                    it in 68..70 -> (7.2f) + (it - 68) / 3f
+                    it in 70..75 -> (8.5f) + (it - 70) / 5f
+                    it in 75..80 -> (11f) + (it - 75) / 5f
+                    else -> 13.5f
                 }
+                binding.recordVoiceView.addFrame(currentLevel)
             }
         }
     }
@@ -160,11 +154,13 @@ open class RecordPage(
 
             override fun onStart() {
                 super.onStart()
+
                 TransitionManager.beginDelayedTransition(root)
                 isHasChange = true
                 mIvRecordState!!.setImageResource(R.mipmap.icon_record_pause_2)
                 showSaveAndRe(View.INVISIBLE)
                 mTvStateMsg!!.text = "录音中"
+                recordingVoice.resetReplayCache()
                 binding.recordVoiceView.setCanScroll(false)
             }
 
@@ -178,7 +174,7 @@ open class RecordPage(
                 super.onRecording(time, volume)
                 mProgressBarRecord!!.progress = time.toInt()
                 mTvRecordTime!!.text = Util.formatSeconds3(time.toInt())
-                if (volume>0){
+                if (volume > 0) {
                     recordingVoice.tryEmit(volume)
                 }
             }
@@ -267,6 +263,7 @@ open class RecordPage(
                 val mediaTime = getMediaTime(file)
                 if (oldRecord != null && isHasChange) {
                     oldRecord!!.audioLength = mediaTime
+                    binding.recordVoiceView.clearFrame()
                     RecordDbUtils.getInstance().update(oldRecord!!)
                 }
                 if (isFinish) {
@@ -310,6 +307,7 @@ open class RecordPage(
      * 保存录音，并且通知修改
      */
     private fun saveRecord(file: String) {
+        binding.recordVoiceView.clearFrame()
         context.lifecycleScope.launch {
             kotlin.runCatching {
                 val record = Record(

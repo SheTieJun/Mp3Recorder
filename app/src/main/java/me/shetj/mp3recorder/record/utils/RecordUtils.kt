@@ -187,8 +187,8 @@ class RecordUtils(
             when (recorderType) {
                 BaseRecorder.RecorderType.MIX -> it.buildMix(Utils.app)
                     .also {
-                        it.isEnableVBR(true)
-//                        it.setFilter(3000, 200)
+                        it.isEnableVBR(false) // 请不要使用，虽然可以正常播放，但是会时间错误获取会错误，暂时没有解决方法
+                        it.setFilter(3000, 200)
                     }
                 BaseRecorder.RecorderType.SIM -> it.buildSim(Utils.app)
                 BaseRecorder.RecorderType.ST -> it.buildST()

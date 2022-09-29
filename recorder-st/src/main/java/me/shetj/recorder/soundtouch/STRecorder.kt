@@ -97,9 +97,9 @@ internal class STRecorder : BaseRecorder {
         @Source audioSource: Int = MediaRecorder.AudioSource.MIC,
         @Channel channel: Int = 1
     ) {
-        this.defaultAudioSource = audioSource
-        defaultLameInChannel = channel
-        defaultChannelConfig = when (channel) {
+        this.mAudioSource = audioSource
+        mLameInChannel = channel
+        mChannelConfig = when (channel) {
             1 -> {
                 AudioFormat.CHANNEL_IN_MONO
             }
@@ -108,7 +108,7 @@ internal class STRecorder : BaseRecorder {
             }
             else -> AudioFormat.CHANNEL_IN_STEREO
         }
-        is2Channel = defaultLameInChannel == 2
+        is2Channel = mLameInChannel == 2
         releaseAEC()
     }
 
@@ -122,14 +122,14 @@ internal class STRecorder : BaseRecorder {
             return false
         }
         is2Channel = channel == 2
-        defaultLameInChannel = when {
+        mLameInChannel = when {
             channel <= 1 -> {
-                defaultChannelConfig = AudioFormat.CHANNEL_IN_MONO
+                mChannelConfig = AudioFormat.CHANNEL_IN_MONO
                 releaseAEC()
                 1
             }
             channel >= 2 -> {
-                defaultChannelConfig = AudioFormat.CHANNEL_IN_STEREO
+                mChannelConfig = AudioFormat.CHANNEL_IN_STEREO
                 releaseAEC()
                 2
             }
@@ -140,7 +140,7 @@ internal class STRecorder : BaseRecorder {
 
     override fun setAudioSource(audioSource: Int): Boolean {
         if (!isActive) {
-            defaultAudioSource = audioSource
+            mAudioSource = audioSource
             return true
         }
         Log.e(TAG, "setAudioSource error ,need state isn't isActive|录音没有完成，无法进行修改 ")
@@ -393,7 +393,7 @@ internal class STRecorder : BaseRecorder {
     private fun initAudioRecorder() {
         mBufferSize = AudioRecord.getMinBufferSize(
             defaultSamplingRate,
-            defaultChannelConfig, DEFAULT_AUDIO_FORMAT.audioFormat
+            mChannelConfig, DEFAULT_AUDIO_FORMAT.audioFormat
         )
         val bytesPerFrame = DEFAULT_AUDIO_FORMAT.bytesPerFrame
         /* Get number of samples. Calculate the buffer size
@@ -412,8 +412,8 @@ internal class STRecorder : BaseRecorder {
         * 缓冲区大小：音频数据写入缓冲区的总数：mBufferSize
         * */
         mAudioRecord = AudioRecord(
-            defaultAudioSource,
-            defaultSamplingRate, defaultChannelConfig, DEFAULT_AUDIO_FORMAT.audioFormat,
+            mAudioSource,
+            defaultSamplingRate, mChannelConfig, DEFAULT_AUDIO_FORMAT.audioFormat,
             mBufferSize
         )
 
@@ -421,25 +421,26 @@ internal class STRecorder : BaseRecorder {
         mPCMBuffer = ShortArray(mBufferSize)
 
         // 初始化变音
-        soundTouch.init(defaultLameInChannel, defaultSamplingRate)
+        soundTouch.init(mLameInChannel, defaultSamplingRate)
 
         initAEC(mAudioRecord!!.audioSessionId)
 
         LameUtils.init(
             defaultSamplingRate,
-            defaultLameInChannel,
+            mLameInChannel,
             defaultSamplingRate,
             defaultLameMp3BitRate,
-            defaultLameMp3Quality,
+            mMp3Quality,
             lowpassFreq,
             highpassFreq,
-            openVBR
+            openVBR,
+            isDebug
         )
         mEncodeThread = DataSTEncodeThread(
             mRecordFile!!,
             mBufferSize,
             isContinue,
-            defaultChannelConfig == AudioFormat.CHANNEL_IN_STEREO,
+            mChannelConfig == AudioFormat.CHANNEL_IN_STEREO,
             soundTouch,
             openVBR
         )

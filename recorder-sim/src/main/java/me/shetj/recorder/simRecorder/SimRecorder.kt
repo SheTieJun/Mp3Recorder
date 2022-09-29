@@ -112,9 +112,9 @@ internal class SimRecorder : BaseRecorder {
      * @param audioSource MediaRecorder.AudioSource.MIC
      */
     constructor(@Source audioSource: Int = MediaRecorder.AudioSource.MIC, @Channel channel: Int = 1) {
-        this.defaultAudioSource = audioSource
-        this.defaultLameInChannel = channel
-        this.defaultChannelConfig = when (channel) {
+        this.mAudioSource = audioSource
+        this.mLameInChannel = channel
+        this.mChannelConfig = when (channel) {
             1 -> {
                 AudioFormat.CHANNEL_IN_MONO
             }
@@ -123,7 +123,7 @@ internal class SimRecorder : BaseRecorder {
             }
             else ->  AudioFormat.CHANNEL_IN_STEREO
         }
-        this.is2Channel = defaultLameInChannel == 2
+        this.is2Channel = mLameInChannel == 2
         releaseAEC()
     }
 
@@ -133,8 +133,8 @@ internal class SimRecorder : BaseRecorder {
             return false
         }
         this.is2Channel = channel == 2
-        this.defaultLameInChannel = channel
-        this.defaultChannelConfig = when (channel) {
+        this.mLameInChannel = channel
+        this.mChannelConfig = when (channel) {
             1 -> {
                 AudioFormat.CHANNEL_IN_MONO
             }
@@ -148,7 +148,7 @@ internal class SimRecorder : BaseRecorder {
 
     override fun setAudioSource(audioSource: Int): Boolean {
         if (!isActive) {
-            defaultAudioSource = audioSource
+            mAudioSource = audioSource
             return true
         }
         Log.e(TAG, "setAudioChannel error ,need state isn't isActive|录音没有完成，无法进行修改 ")
@@ -419,7 +419,7 @@ internal class SimRecorder : BaseRecorder {
     private fun initAudioRecorder() {
         mBufferSize = AudioRecord.getMinBufferSize(
             defaultSamplingRate,
-            defaultChannelConfig, DEFAULT_AUDIO_FORMAT.audioFormat
+            mChannelConfig, DEFAULT_AUDIO_FORMAT.audioFormat
         )
         val bytesPerFrame = DEFAULT_AUDIO_FORMAT.bytesPerFrame
         /* Get number of samples. Calculate the buffer size
@@ -438,8 +438,8 @@ internal class SimRecorder : BaseRecorder {
               * 缓冲区大小：音频数据写入缓冲区的总数：mBufferSize
               * */
         mAudioRecord = AudioRecord(
-            defaultAudioSource,
-            defaultSamplingRate, defaultChannelConfig, DEFAULT_AUDIO_FORMAT.audioFormat,
+            mAudioSource,
+            defaultSamplingRate, mChannelConfig, DEFAULT_AUDIO_FORMAT.audioFormat,
             mBufferSize
         )
         mPCMBuffer = ShortArray(mBufferSize)
@@ -447,19 +447,20 @@ internal class SimRecorder : BaseRecorder {
         initAEC(mAudioRecord!!.audioSessionId)
         LameUtils.init(
             defaultSamplingRate,
-            defaultLameInChannel,
+            mLameInChannel,
             defaultSamplingRate,
             defaultLameMp3BitRate,
-            defaultLameMp3Quality,
+            mMp3Quality,
             lowpassFreq,
             highpassFreq,
-            openVBR
+            openVBR,
+            isDebug
         )
         mEncodeThread = DataEncodeThread(
             mRecordFile!!,
             mBufferSize,
             isContinue,
-            defaultChannelConfig == AudioFormat.CHANNEL_IN_STEREO,openVBR
+            mChannelConfig == AudioFormat.CHANNEL_IN_STEREO,openVBR
         )
         mEncodeThread!!.start()
         mAudioRecord!!.setRecordPositionUpdateListener(mEncodeThread, mEncodeThread!!.handler)

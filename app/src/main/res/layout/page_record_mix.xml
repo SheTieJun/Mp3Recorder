@@ -110,8 +110,7 @@
         android:id="@+id/recordVoiceView"
         android:layout_width="match_parent"
         android:layout_height="130dp"
-        android:layout_centerInParent="true"
-        />
+        android:layout_centerInParent="true" />
 
     <me.shetj.mp3recorder.record.view.BackgroundMixMusicView
         android:id="@+id/bg_music_view"

@@ -52,14 +52,14 @@ abstract class BaseRecorder {
     }
 
     //endregion Record Type
-    protected var defaultAudioSource = MediaRecorder.AudioSource.VOICE_COMMUNICATION
-    protected var defaultChannelConfig = AudioFormat.CHANNEL_IN_MONO // defaultLameInChannel =1
-    protected var defaultLameInChannel = 1 // 声道数量
+    protected var mAudioSource = MediaRecorder.AudioSource.VOICE_COMMUNICATION
+    protected var mChannelConfig = AudioFormat.CHANNEL_IN_MONO // defaultLameInChannel =1
+    protected var mLameInChannel = 1 // 声道数量
 
     /**
-     * 设置LameMp3音频质量，但是好像LAME已经不使用它了
+     * 设置LameMp3音频质量，但是好像LAME已经不使用它了,3.90 开始就弃用了，当前版本是3.100
      */
-    protected var defaultLameMp3Quality = 3
+    protected var mMp3Quality = 3
 
     /**
      * * 比特率越高，传送的数据越大，音质越好
@@ -95,8 +95,8 @@ abstract class BaseRecorder {
     protected var is2Channel = false // 默认是单声道
 
     //设置过滤器
-    protected var lowpassFreq :Int = -1 //高于这个频率的声音会被截除 hz
-    protected var highpassFreq :Int = -1//低于这个频率的声音会被截除 hz
+    protected var lowpassFreq: Int = -1 //高于这个频率的声音会被截除 hz
+    protected var highpassFreq: Int = -1//低于这个频率的声音会被截除 hz
 
     protected var openVBR = false
 
@@ -169,7 +169,7 @@ abstract class BaseRecorder {
      *  录音是否暂停
      */
     protected var isPause: Boolean = true
-    private var isDebug = false
+    protected var isDebug = false
 
     /**
     声音增强,不建议使用
@@ -202,7 +202,7 @@ abstract class BaseRecorder {
 
     //region public method 公开的方法
     val realVolume: Int
-        get() = max(mVolume,0)
+        get() = max(mVolume, 0)
 
     protected val handler = object : Handler(Looper.getMainLooper()) {
         override fun handleMessage(msg: Message) {
@@ -289,17 +289,17 @@ abstract class BaseRecorder {
     }
 
     /**
-     录音的方式
+    录音的方式
      */
     abstract val recorderType: RecorderType
 
     /**
-     设置是否使用耳机配置方式
+    设置是否使用耳机配置方式
      */
     abstract fun setContextToPlugConfig(context: Context): BaseRecorder
 
     /**
-     设置声音配置，设置后，修改设置声音大小会修改系统播放声音的大小
+    设置声音配置，设置后，修改设置声音大小会修改系统播放声音的大小
      */
     abstract fun setContextToVolumeConfig(context: Context): BaseRecorder
 
@@ -343,12 +343,12 @@ abstract class BaseRecorder {
     abstract fun setRecordListener(recordListener: RecordListener?): BaseRecorder
 
     /**
-     设置没有权限的回调，感觉不是很准
+    设置没有权限的回调，感觉不是很准
      */
     abstract fun setPermissionListener(permissionListener: PermissionListener?): BaseRecorder
 
     /**
-     设计背景音乐的url,最好是本地的，否则可能会网络导致卡顿
+    设计背景音乐的url,最好是本地的，否则可能会网络导致卡顿
      */
     abstract fun setBackgroundMusic(url: String): BaseRecorder
 
@@ -359,7 +359,7 @@ abstract class BaseRecorder {
 
     /**
      *   背景音乐的url,为了兼容Android Q，获取不到具体的路径
-      */
+     */
     abstract fun setBackgroundMusic(
         context: Context,
         uri: Uri,
@@ -367,15 +367,15 @@ abstract class BaseRecorder {
     ): BaseRecorder
 
     /**
-     设置背景音乐的监听
+    设置背景音乐的监听
      */
     abstract fun setBackgroundMusicListener(listener: PlayerListener): BaseRecorder
 
     /**
-     初始Lame录音输出质量
+    初始Lame录音输出质量
      */
     open fun setMp3Quality(@IntRange(from = 0, to = 9) mp3Quality: Int): BaseRecorder {
-        this.defaultLameMp3Quality = mp3Quality
+        this.mMp3Quality = mp3Quality
         return this
     }
 
@@ -403,7 +403,7 @@ abstract class BaseRecorder {
     abstract fun setAudioChannel(@IntRange(from = 1, to = 2) channel: Int = 1): Boolean
 
     /**
-     设置音频来源，每次录音前可以设置修改，开始录音后无法修改
+    设置音频来源，每次录音前可以设置修改，开始录音后无法修改
      */
     abstract fun setAudioSource(@Source audioSource: Int = MediaRecorder.AudioSource.MIC): Boolean
 
@@ -427,20 +427,25 @@ abstract class BaseRecorder {
     /**
      * 设置滤波器
      *   lowpassFreq 高于这个频率的声音会被截除 hz， -1 表示不启用
-    *   highpassFreq  低于这个频率的声音会被截除 hz ， -1 表示不启用
+     *   highpassFreq  低于这个频率的声音会被截除 hz ， -1 表示不启用
      */
-    open fun setFilter(lowpassFreq :Int = 3000, highpassFreq :Int = 200):BaseRecorder{
-       if (isActive){
-           logError("setFilter error ,need state isn't isActive|必须在开始录音前进行配置才有效果")
-           return this
-       }
+    open fun setFilter(lowpassFreq: Int = 3000, highpassFreq: Int = 200): BaseRecorder {
+        if (isActive) {
+            logError("setFilter error ,need state isn't isActive|必须在开始录音前进行配置才有效果")
+            return this
+        }
         this.lowpassFreq = lowpassFreq
         this.highpassFreq = highpassFreq
         return this
     }
 
-    open fun isEnableVBR(isEnable:Boolean):BaseRecorder{
-        if (isActive){
+    /**
+     * 暂时请不要使用，目前存在问题
+     * @param isEnable
+     * @return
+     */
+    open fun isEnableVBR(isEnable: Boolean): BaseRecorder {
+        if (isActive) {
             logError("setFilter error ,need state isn't isActive|必须在开始录音前进行配置才有效果")
             return this
         }
@@ -550,12 +555,10 @@ abstract class BaseRecorder {
      */
     protected fun calculateRealVolume(buffer: ShortArray, readSize: Int) {
         mVolume = LameUtils.getPCMDB(buffer, readSize)
-        if (mVolume < 5) {
-            for (i in 0 until readSize) {
-                buffer[i] = 0
-            }
+        if (mVolume < 0) {
+            mVolume = 0
         }
-        if (mVolume > 100){
+        if (mVolume > 100) {
             mVolume = 100
         }
     }
@@ -593,11 +596,12 @@ abstract class BaseRecorder {
                 mNoiseSuppressor = NoiseSuppressor.create(mAudioSessionId)
                 if (mNoiseSuppressor != null) {
                     mNoiseSuppressor!!.enabled = true
+                    Log.i(TAG, "NoiseSuppressor enabled：[噪声抑制器开始]")
                 } else {
                     Log.i(TAG, "Failed to create NoiseSuppressor.")
                 }
             } else {
-                Log.i(TAG, "Doesn't support NoiseSuppressor")
+                Log.i(TAG, "Doesn't support NoiseSuppressor：[噪声抑制器开始失败]")
             }
 
             if (AcousticEchoCanceler.isAvailable()) {
@@ -606,17 +610,17 @@ abstract class BaseRecorder {
                     mAcousticEchoCanceler!!.release()
                     mAcousticEchoCanceler = null
                 }
-
                 mAcousticEchoCanceler = AcousticEchoCanceler.create(mAudioSessionId)
                 if (mAcousticEchoCanceler != null) {
                     mAcousticEchoCanceler!!.enabled = true
+                    Log.i(TAG, "AcousticEchoCanceler enabled：[声学回声消除器开启]")
                     // mAcousticEchoCanceler.setControlStatusListener(listener)setEnableStatusListener(listener)
                 } else {
                     Log.i(TAG, "Failed to initAEC.")
                     mAcousticEchoCanceler = null
                 }
             } else {
-                Log.i(TAG, "Doesn't support AcousticEchoCanceler")
+                Log.i(TAG, "Doesn't support AcousticEchoCanceler：[声学回声消除器开启失败]")
             }
 
             if (AutomaticGainControl.isAvailable()) {
@@ -629,11 +633,12 @@ abstract class BaseRecorder {
                 mAutomaticGainControl = AutomaticGainControl.create(mAudioSessionId)
                 if (mAutomaticGainControl != null) {
                     mAutomaticGainControl!!.enabled = true
+                    Log.i(TAG, "AutomaticGainControl enabled：[自动增益控制开启]")
                 } else {
                     Log.i(TAG, "Failed to create AutomaticGainControl.")
                 }
             } else {
-                Log.i(TAG, "Doesn't support AutomaticGainControl")
+                Log.i(TAG, "Doesn't support AutomaticGainControl：[自动增益控制开启失败]")
             }
         }
     }

@@ -21,9 +21,10 @@ object LameUtils {
         outSampleRate: Int,
         outBitrate: Int,
         quality: Int,
-        lowpassFreq:Int,
-        highpassFreq:Int,
-        vbr:Boolean
+        lowpassFreq: Int,
+        highpassFreq: Int,
+        vbr: Boolean,
+        enableLog:Boolean //是否输出日志
     )
 
     /**

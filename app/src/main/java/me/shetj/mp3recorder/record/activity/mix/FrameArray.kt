@@ -6,20 +6,20 @@ package me.shetj.mp3recorder.record.activity.mix
  */
 class FrameArray( ) {
 
-    private var rawFrameArray: ArrayList<Int> = ArrayList()
+    private var rawFrameArray: ArrayList<Float> = ArrayList()
 
-    fun add(frames: IntArray) {
+    fun add(frames: FloatArray) {
         frames.map {
             rawFrameArray.add(it)
         }
     }
 
-    fun add(frame: Int) {
+    fun add(frame: Float) {
         rawFrameArray.add(frame)
     }
 
-    fun get(): IntArray {
-        return rawFrameArray.toIntArray()
+    fun get(): FloatArray {
+        return rawFrameArray.toFloatArray()
     }
 
     fun getSize(): Int {

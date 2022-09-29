@@ -99,9 +99,9 @@ internal class MixRecorder : BaseRecorder {
      * @param channel 声道数量 ([AudioFormat.CHANNEL_IN_MONO] 或者 [AudioFormat.CHANNEL_IN_STEREO])
      */
     constructor(audioSource: Int = MediaRecorder.AudioSource.MIC, @Channel channel: Int = 1) {
-        defaultAudioSource = audioSource
-        defaultLameInChannel = channel
-        defaultChannelConfig = when (channel) {
+        mAudioSource = audioSource
+        mLameInChannel = channel
+        mChannelConfig = when (channel) {
             1 -> {
                 AudioFormat.CHANNEL_IN_MONO
             }
@@ -110,16 +110,16 @@ internal class MixRecorder : BaseRecorder {
             }
             else -> AudioFormat.CHANNEL_IN_STEREO
         }
-        is2Channel = defaultLameInChannel == 2
+        is2Channel = mLameInChannel == 2
         releaseAEC()
-        bgPlayer.updateChannel(defaultLameInChannel)
+        bgPlayer.updateChannel(mLameInChannel)
     }
 
     override fun setAudioChannel(@Channel channel: Int): Boolean {
         if (!isActive) {
             is2Channel = channel == 2
-            defaultLameInChannel = channel
-            defaultChannelConfig = when (channel) {
+            mLameInChannel = channel
+            mChannelConfig = when (channel) {
                 1 -> {
                     AudioFormat.CHANNEL_IN_MONO
                 }
@@ -129,7 +129,7 @@ internal class MixRecorder : BaseRecorder {
                 else -> AudioFormat.CHANNEL_IN_STEREO
             }
             releaseAEC()
-            bgPlayer.updateChannel(defaultLameInChannel)
+            bgPlayer.updateChannel(mLameInChannel)
             return true
         }
         Log.w(TAG, "setAudioChannel error ,need state isn't isActive|录音没有完成，无法进行修改 ")
@@ -138,7 +138,7 @@ internal class MixRecorder : BaseRecorder {
 
     override fun setAudioSource(audioSource: Int): Boolean {
         if (!isActive) {
-            defaultAudioSource = audioSource
+            mAudioSource = audioSource
             return true
         }
         Log.w(TAG, "setAudioSource error ,need state isn't isActive |录音没有完成，无法进行修改 ")
@@ -443,7 +443,7 @@ internal class MixRecorder : BaseRecorder {
     private fun initAudioRecorder() {
         mBufferSize = AudioRecord.getMinBufferSize(
             defaultSamplingRate,
-            defaultChannelConfig, DEFAULT_AUDIO_FORMAT.audioFormat
+            mChannelConfig, DEFAULT_AUDIO_FORMAT.audioFormat
         )
         val bytesPerFrame = DEFAULT_AUDIO_FORMAT.bytesPerFrame
         var frameSize = mBufferSize / bytesPerFrame
@@ -458,8 +458,8 @@ internal class MixRecorder : BaseRecorder {
       * 缓冲区大小：音频数据写入缓冲区的总数：mBufferSize
       * */
         mAudioRecord = AudioRecord(
-            defaultAudioSource,
-            defaultSamplingRate, defaultChannelConfig, DEFAULT_AUDIO_FORMAT.audioFormat,
+            mAudioSource,
+            defaultSamplingRate, mChannelConfig, DEFAULT_AUDIO_FORMAT.audioFormat,
             mBufferSize
         )
 
@@ -471,13 +471,14 @@ internal class MixRecorder : BaseRecorder {
 
         LameUtils.init(
             defaultSamplingRate,
-            defaultLameInChannel,
+            mLameInChannel,
             defaultSamplingRate,
             defaultLameMp3BitRate,
-            defaultLameMp3Quality,
+            mMp3Quality,
             lowpassFreq,
             highpassFreq,
-            openVBR
+            openVBR,
+            isDebug
         )
         mEncodeThread = MixEncodeThread(mRecordFile!!, mBufferSize, isContinue, is2Channel,openVBR)
         mEncodeThread!!.start()
@@ -485,7 +486,7 @@ internal class MixRecorder : BaseRecorder {
         mAudioRecord!!.positionNotificationPeriod = FRAME_COUNT
 
         // 强制加上背景音乐
-        plugConfigs?.setForce(defaultAudioSource == MediaRecorder.AudioSource.VOICE_COMMUNICATION)
+        plugConfigs?.setForce(mAudioSource == MediaRecorder.AudioSource.VOICE_COMMUNICATION)
     }
     //endregion
 
