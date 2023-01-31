@@ -25,12 +25,12 @@ package me.shetj.recorder.soundtouch
 
 import android.media.AudioFormat
 import me.shetj.recorder.core.BaseRecorder
-import me.shetj.recorder.core.Mp3RecorderOption
+import me.shetj.recorder.core.Mp3Option
 
 /**
  * SoundTouchRecorder
  */
-fun Mp3RecorderOption.buildST(): BaseRecorder {
+fun Mp3Option.buildST(): BaseRecorder {
 
     return with(this) {
         // 初始化变音参数，默认没有变化

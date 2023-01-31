@@ -46,7 +46,7 @@ import me.shetj.recorder.core.FileUtils
  */
 internal class MixEncodeThread
 @Throws(FileNotFoundException::class)
-constructor(file: File, bufferSize: Int, isContinue: Boolean,
+constructor(file: File, bufferSize: Int,var isContinue: Boolean,
             private val is2CHANNEL: Boolean,
             private val isEnableVBR:Boolean) :
     HandlerThread("MixEncodeThread"), AudioRecord.OnRecordPositionUpdateListener {
@@ -191,7 +191,7 @@ constructor(file: File, bufferSize: Int, isContinue: Boolean,
             }
             mFileOutputStream?.close()
             mFileOutputStream = null
-            mFileOutputStream = FileOutputStream(path, false)
+            mFileOutputStream = FileOutputStream(path, isContinue)
             while (setOldDateToFile() > 0);
             needUpdate = false
         }

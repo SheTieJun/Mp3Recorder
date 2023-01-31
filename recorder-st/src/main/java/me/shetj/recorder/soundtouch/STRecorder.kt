@@ -147,8 +147,9 @@ internal class STRecorder : BaseRecorder {
         return false
     }
 
-    override fun updateDataEncode(outputFilePath: String) {
-        setOutputFile(outputFilePath, false)
+    override fun updateDataEncode(outputFilePath: String,isContinue: Boolean ) {
+        setOutputFile(outputFilePath, isContinue)
+        mEncodeThread?.isContinue = isContinue
         mEncodeThread?.update(outputFilePath)
     }
 
@@ -392,7 +393,7 @@ internal class STRecorder : BaseRecorder {
     @Throws(IOException::class)
     private fun initAudioRecorder() {
         mBufferSize = AudioRecord.getMinBufferSize(
-            defaultSamplingRate,
+            mSamplingRate,
             mChannelConfig, DEFAULT_AUDIO_FORMAT.audioFormat
         )
         val bytesPerFrame = DEFAULT_AUDIO_FORMAT.bytesPerFrame
@@ -413,7 +414,7 @@ internal class STRecorder : BaseRecorder {
         * */
         mAudioRecord = AudioRecord(
             mAudioSource,
-            defaultSamplingRate, mChannelConfig, DEFAULT_AUDIO_FORMAT.audioFormat,
+            mSamplingRate, mChannelConfig, DEFAULT_AUDIO_FORMAT.audioFormat,
             mBufferSize
         )
 
@@ -421,15 +422,15 @@ internal class STRecorder : BaseRecorder {
         mPCMBuffer = ShortArray(mBufferSize)
 
         // 初始化变音
-        soundTouch.init(mLameInChannel, defaultSamplingRate)
+        soundTouch.init(mLameInChannel, mSamplingRate)
 
         initAEC(mAudioRecord!!.audioSessionId)
 
         LameUtils.init(
-            defaultSamplingRate,
+            mSamplingRate,
             mLameInChannel,
-            defaultSamplingRate,
-            defaultLameMp3BitRate,
+            mSamplingRate,
+            mLameMp3BitRate,
             mMp3Quality,
             lowpassFreq,
             highpassFreq,

@@ -106,7 +106,25 @@
     </RelativeLayout>
 
 
-    <me.shetj.mp3recorder.record.activity.mix.RecordVoiceView
+    <TextView
+        android:id="@+id/time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_above="@id/recordVoiceView"
+        android:layout_marginBottom="15dp"
+        android:textSize="20sp"/>
+
+    <TextView
+        android:id="@+id/time2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@id/recordVoiceView"
+        android:layout_marginTop="15dp"
+        android:textSize="20sp"/>
+
+    <me.shetj.mp3recorder.record.activity.mix.RecordVoiceViewV2
         android:id="@+id/recordVoiceView"
         android:layout_width="match_parent"
         android:layout_height="130dp"

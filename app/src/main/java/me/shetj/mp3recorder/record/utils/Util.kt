@@ -59,6 +59,12 @@ object Util {
         }
     }
 
+    fun formatSeconds4(millis: Long): String {
+        val secondsx = millis % 1000
+        val seconds = millis / 1000
+        return (asTwoDigit(seconds.toInt() / 60) + ":"
+                + asTwoDigit(seconds.toInt() % 60)) + "." + asTwoDigit(secondsx.toInt() / 10)
+    }
 
     fun getAudioLength(filename: String?): Int {
       return  filename?.let { getAudioLength(it).toInt()/1000 }?:0
@@ -77,4 +83,55 @@ object Util {
         }
         return duration
     }
+}
+
+
+
+
+fun Long.covertToTime(): String {
+    this.let { second ->
+        val formatTime: String
+        val h: Long = second / 3600
+        val m: Long = second % 3600 / 60
+        val s: Long = second % 3600 % 60
+        formatTime = if (h == 0L) {
+            asTwoDigit(m) + ":" + asTwoDigit(s)
+        } else {
+            asTwoDigit(h) + ":" + asTwoDigit(m) + ":" + asTwoDigit(s)
+        }
+        return formatTime
+    }
+}
+
+fun asTwoDigit(digit: Long): String {
+    var value = ""
+    if (digit < 10) {
+        value = "0"
+    }
+    value += digit.toString()
+    return value
+}
+
+fun Int.covertToTime(): String {
+    this.let { second ->
+        val formatTime: String
+        val h: Int = second / 3600
+        val m: Int = second % 3600 / 60
+        val s: Int = second % 3600 % 60
+        formatTime = if (h == 0) {
+            asTwoDigit(m) + ":" + asTwoDigit(s)
+        } else {
+            asTwoDigit(h) + ":" + asTwoDigit(m) + ":" + asTwoDigit(s)
+        }
+        return formatTime
+    }
+}
+
+fun asTwoDigit(digit: Int): String {
+    var value = ""
+    if (digit < 10) {
+        value = "0"
+    }
+    value += digit.toString()
+    return value
 }

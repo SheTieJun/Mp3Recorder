@@ -32,7 +32,7 @@ import androidx.annotation.IntDef
  * [android.media.AudioFormat] :声道设置
  * [MediaRecorder.AudioSource] :声音来源
  */
-data class Mp3RecorderOption(
+data class Mp3Option(
     // 声音来源：默认麦克风；如果使用VOICE_COMMUNICATION，系统会自动优化录音，但是声音会变小
     @Source var audioSource: Int = AudioSource.MIC,
     // 声道设置：单双声道，1单声道，2双声道
@@ -40,14 +40,14 @@ data class Mp3RecorderOption(
     // debug，输出录音过程日志
     var isDebug: Boolean = false,
     // 最大录制时间毫秒
-    var mMaxTime: Long = 1800 * 1000,
+    var mMaxTime: Long = 1800 * 1_000,
     // 采样频率越高， 声音越接近原始数据。
     var samplingRate: Int = 48000,
     // 比特率越高，传送的数据越大，音质越好 ,MP3输出的比特率,影响输出大小和输出音质，同时会影响文件的大小，质量越好文件越大
     var mp3BitRate: Int = 64, // 128 /96(高),32（低）
     // Lame   质量1-7，Lame的输出质量，1最快
     var mp3Quality: Int = 3,
-    // 无法录音回调（一般是需要权限：录音和存储）
+    // 无法录音回调（一般是需要权限：录音和存储）,会有点不准确
     var permissionListener: PermissionListener? = null,
     // 回调
     var recordListener: RecordListener? = null,
@@ -55,11 +55,12 @@ data class Mp3RecorderOption(
     var wax: Float = 1f
 )
 
-fun recorder(block: Mp3RecorderOption.() -> Unit): Mp3RecorderOption {
-    return Mp3RecorderOption().apply(block)
+fun recorder(block: Mp3Option.() -> Unit): Mp3Option {
+    return Mp3Option().apply(block)
 }
 
-/** * CAMCORDER	录音来源于同方向的相机麦克风相同，若相机无内置相机或无法识别，则使用预设的麦克风
+/** *
+ *  * CAMCORDER	录音来源于同方向的相机麦克风相同，若相机无内置相机或无法识别，则使用预设的麦克风
  *  * DEFAULT	默认音频源
  *  * MIC	录音来源为主麦克风
  *  * REMOTE_SUBMIX	用于远程呈现的音频流的子混音的音频源，需要Manifest.permission.CAPTURE_AUDIO_OUTPUT权限，第三方应用无法申请

@@ -187,8 +187,9 @@ internal class MixRecorder : BaseRecorder {
         }
     }
 
-    override fun updateDataEncode(outputFilePath: String) {
-        setOutputFile(outputFilePath, false)
+    override fun updateDataEncode(outputFilePath: String,isContinue: Boolean ) {
+        setOutputFile(outputFilePath, isContinue)
+        mEncodeThread?.isContinue = isContinue
         mEncodeThread?.update(outputFilePath)
     }
 
@@ -442,7 +443,7 @@ internal class MixRecorder : BaseRecorder {
     @Throws(IOException::class)
     private fun initAudioRecorder() {
         mBufferSize = AudioRecord.getMinBufferSize(
-            defaultSamplingRate,
+            mSamplingRate,
             mChannelConfig, DEFAULT_AUDIO_FORMAT.audioFormat
         )
         val bytesPerFrame = DEFAULT_AUDIO_FORMAT.bytesPerFrame
@@ -452,14 +453,16 @@ internal class MixRecorder : BaseRecorder {
             mBufferSize = frameSize * bytesPerFrame
         }
         /* Setup audio recorder
-      * 音频源：可以使用麦克风作为采集音频的数据源。defaultAudioSource
+      * 音频源：可以使用麦克风作为采集音频的数据源。mAudioSource
       * 采样率：一秒钟对声音数据的采样次数，采样率越高，音质越好。defaultSamplingRate
       * 音频通道：单声道，双声道等，defaultChannelConfig
       * 缓冲区大小：音频数据写入缓冲区的总数：mBufferSize
       * */
         mAudioRecord = AudioRecord(
             mAudioSource,
-            defaultSamplingRate, mChannelConfig, DEFAULT_AUDIO_FORMAT.audioFormat,
+            mSamplingRate,
+            mChannelConfig,
+            DEFAULT_AUDIO_FORMAT.audioFormat,
             mBufferSize
         )
 
@@ -470,10 +473,10 @@ internal class MixRecorder : BaseRecorder {
         initAEC(mAudioRecord!!.audioSessionId)
 
         LameUtils.init(
-            defaultSamplingRate,
+            mSamplingRate,
             mLameInChannel,
-            defaultSamplingRate,
-            defaultLameMp3BitRate,
+            mSamplingRate,
+            mLameMp3BitRate,
             mMp3Quality,
             lowpassFreq,
             highpassFreq,

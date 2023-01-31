@@ -79,7 +79,7 @@ abstract class BaseRecorder {
      * *
      * * 32 太低，(96,128) 比较合适，在往上会导致文件很大
      */
-    protected var defaultLameMp3BitRate = 96
+    protected var mLameMp3BitRate = 96
 
     /**
      * * 采样频率越高， 声音越接近原始数据。
@@ -91,7 +91,7 @@ abstract class BaseRecorder {
      * *
      * * 48000 一般就够了，太大也会影响文件的大小
      */
-    protected var defaultSamplingRate = 48000
+    protected var mSamplingRate = 48000
     protected var is2Channel = false // 默认是单声道
 
     //设置过滤器
@@ -375,6 +375,10 @@ abstract class BaseRecorder {
     初始Lame录音输出质量
      */
     open fun setMp3Quality(@IntRange(from = 0, to = 9) mp3Quality: Int): BaseRecorder {
+        if (isActive) {
+            logError("setMp3Quality error ,need state isn't isActive|必须在开始录音前进行配置才有效果")
+            return this
+        }
         this.mMp3Quality = mp3Quality
         return this
     }
@@ -384,7 +388,11 @@ abstract class BaseRecorder {
      * * 比特率越高，传送的数据越大，音质越好
      */
     open fun setMp3BitRate(@IntRange(from = 16) mp3BitRate: Int): BaseRecorder {
-        this.defaultLameMp3BitRate = mp3BitRate
+        if (isActive) {
+            logError("setMp3BitRate error ,need state isn't isActive|必须在开始录音前进行配置才有效果")
+            return this
+        }
+        this.mLameMp3BitRate = mp3BitRate
         return this
     }
 
@@ -393,7 +401,11 @@ abstract class BaseRecorder {
      * * 采样频率越高， 声音越接近原始数据。
      */
     open fun setSamplingRate(@IntRange(from = 8000) rate: Int): BaseRecorder {
-        this.defaultSamplingRate = rate
+        if (isActive) {
+            logError("setSamplingRate error ,need state isn't isActive|必须在开始录音前进行配置才有效果")
+            return this
+        }
+        this.mSamplingRate = rate
         return this
     }
 
@@ -489,8 +501,7 @@ abstract class BaseRecorder {
     /**
     替换后续录音的输出文件路径
      */
-    abstract fun updateDataEncode(outputFilePath: String)
-
+    abstract fun updateDataEncode(outputFilePath: String,isContinue: Boolean)
     /**
     暂停录音
      */
@@ -528,7 +539,6 @@ abstract class BaseRecorder {
     abstract fun destroy()
     //endregion public method
 
-    //region  计算真正的时间，如果过程中有些数据太小，就直接置0，防止噪音
 
     /**
      * 是否输出日志
@@ -548,7 +558,7 @@ abstract class BaseRecorder {
                     "u should implementation 'com.github.SheTieJun.Mp3Recorder:recorder-st:1.7.2' 。 "
         )
     }
-
+    //region  计算真正的时间，如果过程中有些数据太小，就直接置0，防止噪音
     /**
      * 求得平均值之后，如果是平方和则代入常数系数为10的公式中，
      * 如果是绝对值的则代入常数系数为20的公式中，算出分贝值。
@@ -568,6 +578,8 @@ abstract class BaseRecorder {
         val readSize = shorts.size
         calculateRealVolume(shorts, readSize)
     }
+
+    //endregion  计算真正的时间，如果过程中有些数据太小，就直接置0，防止噪音
 
     protected fun logInfo(info: String) {
         if (isDebug) {
@@ -685,5 +697,5 @@ abstract class BaseRecorder {
         const val TAG = "Recorder"
     }
 
-    //endregion  计算真正的时间，如果过程中有些数据太小，就直接置0，防止噪音
+
 }

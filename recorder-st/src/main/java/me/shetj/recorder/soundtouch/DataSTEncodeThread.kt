@@ -40,14 +40,14 @@ import me.shetj.recorder.core.FileUtils
 /**
  * @param file       file
  * @param bufferSize bufferSize
- * @param isContinue 是否写在文件末尾
+ * @param isContinue 是否写在文件末尾,只支持lame格式的
  * @throws FileNotFoundException file not found
  */
 internal class DataSTEncodeThread @Throws(FileNotFoundException::class)
 constructor(
     private val file: File,
     bufferSize: Int,
-    isContinue: Boolean,
+    var isContinue: Boolean,
     private val is2CHANNEL: Boolean,
     private val soundTouchKit: SoundTouchKit,
     private val isEnableVBR:Boolean
@@ -203,7 +203,7 @@ constructor(
             }
             mFileOutputStream?.close()
             mFileOutputStream = null
-            mFileOutputStream = FileOutputStream(path, true)
+            mFileOutputStream = FileOutputStream(path, isContinue)
             if(isEnableVBR){
                 LameUtils.writeVBRHeader(path)
             }

@@ -155,8 +155,9 @@ internal class SimRecorder : BaseRecorder {
         return false
     }
 
-    override fun updateDataEncode(outputFilePath: String) {
-        setOutputFile(outputFilePath, false)
+    override fun updateDataEncode(outputFilePath: String,isContinue: Boolean ) {
+        setOutputFile(outputFilePath, isContinue)
+        mEncodeThread?.isContinue = isContinue
         mEncodeThread?.update(outputFilePath)
     }
 
@@ -418,7 +419,7 @@ internal class SimRecorder : BaseRecorder {
     @Throws(IOException::class)
     private fun initAudioRecorder() {
         mBufferSize = AudioRecord.getMinBufferSize(
-            defaultSamplingRate,
+            mSamplingRate,
             mChannelConfig, DEFAULT_AUDIO_FORMAT.audioFormat
         )
         val bytesPerFrame = DEFAULT_AUDIO_FORMAT.bytesPerFrame
@@ -439,17 +440,17 @@ internal class SimRecorder : BaseRecorder {
               * */
         mAudioRecord = AudioRecord(
             mAudioSource,
-            defaultSamplingRate, mChannelConfig, DEFAULT_AUDIO_FORMAT.audioFormat,
+            mSamplingRate, mChannelConfig, DEFAULT_AUDIO_FORMAT.audioFormat,
             mBufferSize
         )
         mPCMBuffer = ShortArray(mBufferSize)
 
         initAEC(mAudioRecord!!.audioSessionId)
         LameUtils.init(
-            defaultSamplingRate,
+            mSamplingRate,
             mLameInChannel,
-            defaultSamplingRate,
-            defaultLameMp3BitRate,
+            mSamplingRate,
+            mLameMp3BitRate,
             mMp3Quality,
             lowpassFreq,
             highpassFreq,

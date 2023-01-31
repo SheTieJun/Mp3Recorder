@@ -178,9 +178,11 @@ class RecordUtils(
             mMaxTime = 5 * 60 * 1000
             isDebug = true
             wax = 1f
-            samplingRate = 44100
+            samplingRate = 48000
             audioSource = MediaRecorder.AudioSource.MIC
-            audioChannel = 2
+            audioChannel = 1
+            mp3BitRate = 128
+            mp3Quality = 5
             recordListener = this@RecordUtils
             permissionListener = this@RecordUtils
         }.let {
@@ -242,7 +244,7 @@ class RecordUtils(
     fun setTime(startTime: Long) {
         this.startTime = startTime
         setMaxTime((TIME - startTime).toInt())
-        callBack?.onRecording((startTime / 1000), -1)
+        callBack?.onRecording(startTime , -1)
     }
 
     /**
@@ -287,7 +289,7 @@ class RecordUtils(
     }
 
     override fun onRecording(time: Long, volume: Int) {
-        callBack?.onRecording(((startTime + time) / 1000), volume)
+        callBack?.onRecording((startTime + time) , volume)
     }
 
     override fun onPause() {

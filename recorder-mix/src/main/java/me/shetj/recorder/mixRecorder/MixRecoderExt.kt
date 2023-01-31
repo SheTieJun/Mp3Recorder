@@ -25,12 +25,12 @@ package me.shetj.recorder.mixRecorder
 
 import android.content.Context
 import me.shetj.recorder.core.BaseRecorder
-import me.shetj.recorder.core.Mp3RecorderOption
+import me.shetj.recorder.core.Mp3Option
 
 /**
  * @param context 用来时设置监听系统声音和耳机变化的
  */
-fun Mp3RecorderOption.buildMix(context: Context? = null): BaseRecorder {
+fun Mp3Option.buildMix(context: Context? = null): BaseRecorder {
     return with(this) {
         MixRecorder(audioSource, audioChannel)
             .setMaxTime(mMaxTime)
@@ -52,4 +52,4 @@ fun Mp3RecorderOption.buildMix(context: Context? = null): BaseRecorder {
 /**
  * 默认build 是mix
  */
-fun Mp3RecorderOption.build(context: Context? = null) = buildMix(context)
+fun Mp3Option.build(context: Context? = null) = buildMix(context)
