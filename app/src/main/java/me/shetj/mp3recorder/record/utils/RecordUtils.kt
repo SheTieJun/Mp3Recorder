@@ -242,8 +242,7 @@ class RecordUtils(
      * @param startTime 已经录制的时间
      */
     fun setTime(startTime: Long) {
-        this.startTime = startTime
-        setMaxTime((TIME - startTime).toInt())
+        mRecorder?.setCurDuration(startTime)
         callBack?.onRecording(startTime , -1)
     }
 

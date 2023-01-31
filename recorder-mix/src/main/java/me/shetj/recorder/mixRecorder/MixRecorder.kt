@@ -193,6 +193,8 @@ internal class MixRecorder : BaseRecorder {
         mEncodeThread?.update(outputFilePath)
     }
 
+
+
     /**
      * 设置回调
      * @param recordListener
@@ -249,8 +251,6 @@ internal class MixRecorder : BaseRecorder {
         // 提早，防止init或startRecording被多次调用
         isActive = true
         mSendError = false
-        // 初始化
-        duration = 0
         try {
             initAudioRecorder()
             mAudioRecord!!.startRecording()
@@ -500,7 +500,6 @@ internal class MixRecorder : BaseRecorder {
             state = RecordState.RECORDING
             isRemind = true
             isPause = false
-            duration = 0L
             if (mPlayBackMusic != null) {
                 mPlayBackMusic!!.setNeedRecodeDataEnable(true)
             }

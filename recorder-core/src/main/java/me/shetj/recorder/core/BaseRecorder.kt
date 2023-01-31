@@ -239,12 +239,14 @@ abstract class BaseRecorder {
                     logInfo("complete: mDuration = $duration")
                     if (mRecordListener != null && mRecordFile != null) {
                         mRecordListener!!.onSuccess(false, mRecordFile!!.absolutePath, duration)
+                        duration = 0
                     }
                 }
                 HANDLER_AUTO_COMPLETE -> {
                     logInfo("auto complete: mDuration = $duration")
                     if (mRecordListener != null && mRecordFile != null) {
                         mRecordListener!!.onSuccess(true, mRecordFile!!.absolutePath, duration)
+                        duration = 0
                     }
                 }
                 HANDLER_ERROR -> {
@@ -433,6 +435,16 @@ abstract class BaseRecorder {
         } else {
             this.mRemindTime = (maxTime - 10000)
         }
+        return this
+    }
+
+    /**
+     * 用于继续录制,替换录制，进行时间计算同步
+     * @param duration
+     * @return
+     */
+    open fun setCurDuration(duration:Long): BaseRecorder {
+        this.duration = duration
         return this
     }
 
