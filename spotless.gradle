@@ -6,7 +6,7 @@ spotless {
         targetExclude('bin/**/*.kt')
         ktlint().userData(['android': 'true', 'color': 'true',
                            'max_line_length': '120', 'reporter': 'checkstyle'])
-        licenseHeaderFile rootProject.file('spotless/copyright.kt')
+//        licenseHeaderFile rootProject.file('spotless/copyright.kt')
     }
     kotlinGradle {
         target '*.gradle.kts' // default target for kotlinGradle

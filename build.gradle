@@ -9,4 +9,6 @@ plugins {
 }
 ext.sdk_version = '1.8.0'
 ext.local_group_id = 'com.github.shetiejun'
+ext.min_Sdk = 21
+ext.compile_Sdk = 31
 //apply from :"https://gist.githubusercontent.com/SheTieJun/f4cb1bd33997c2b46d9e3df40b95a02e/raw/f2aede11c36b56e92d33f96589daa9f357f31443/subprojects-maven-publishing.gradle"
