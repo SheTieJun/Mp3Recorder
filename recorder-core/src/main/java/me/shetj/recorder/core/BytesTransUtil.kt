@@ -4,6 +4,7 @@ import android.util.Log
 import java.nio.ByteOrder
 import kotlin.experimental.and
 import kotlin.experimental.or
+import me.shetj.ndk.lame.LameUtils
 
 object BytesTransUtil {
 
@@ -66,6 +67,8 @@ object BytesTransUtil {
         return shorts2Bytes(data)
     }
 
+    var SHRT_MAX = 0x7F00.toShort()
+    var SHRT_MIN = ((-0x8000).toShort())
     /**
      * 改变音量
      */
@@ -75,8 +78,8 @@ object BytesTransUtil {
             while (i < buffer.size) {
                 var value = byte2Short(buffer[i + 1], buffer[i])
                 value = (volumeValue * value).toInt().toShort()
-                value = if (value > 0x7fff) 0x7fff else value
-                value = if (value < -0x8000) -0x8000 else value
+                value = if (value > SHRT_MAX) SHRT_MAX else value
+                value = if (value < SHRT_MIN) SHRT_MIN else value
                 val newValue = value
                 val array = short2Byte(newValue)
                 buffer[i + 1] = array[0]
