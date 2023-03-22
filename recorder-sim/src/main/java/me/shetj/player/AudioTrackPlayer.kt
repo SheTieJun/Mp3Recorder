@@ -1,13 +1,11 @@
 
 package me.shetj.player
 
-import android.annotation.TargetApi
 import android.content.Context
 import android.media.AudioAttributes
 import android.media.AudioFormat
 import android.media.AudioManager
 import android.media.AudioTrack
-import android.os.Build
 import android.text.TextUtils
 import android.util.Log
 import java.io.FileInputStream
@@ -18,7 +16,6 @@ import java.io.IOException
  * PCM音频播放manager
  * 必须先设置setContext
  */
-@TargetApi(Build.VERSION_CODES.LOLLIPOP)
 object AudioTrackPlayer {
     private var PATH: String? = null
     private var mAudioTrack: AudioTrack? = null

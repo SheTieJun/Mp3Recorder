@@ -24,20 +24,14 @@
 
 #### 1. 初始化
 
-##### 方式一：
-
-```kotlin
-   mRecorder = mixRecorderBuilder(permissionListener = this, recordListener = this)
-```
-
-##### 方式二：
 
 ```kotlin
 recorder {
-            recordListener = this@MixRecordUtils
-            permissionListener = this@MixRecordUtils
-            isDebug = false
-        }.buildMix(context)
+    recordListener = this@MixRecordUtils
+    permissionListener = this@MixRecordUtils
+    isDebug = false
+    pcmListener = this@RecordUtils
+}.buildMix(context)
 ```
 
 #### 2. 开始录音
@@ -49,45 +43,41 @@ recorder {
 #### 3. 暂停、重新开始录音
 
 ```kotlin
- mixRecorder?.onPause() //暂停
- mixRecorder?.onResume() //重新开始
- mixRecorder?.state //当前录音的状态 3个专题，停止，录音中，暂停
+mRecorder?.onPause() //暂停
+mRecorder?.onResume() //重新开始
+mRecorder?.state //当前录音的状态 3个专题，停止，录音中，暂停
 ```
 
 #### 4. 背景音乐相关
 
 ```kotlin
- mixRecorder?.bgPlayer  //获取背景音乐播放器
- 
- mixRecorder?.setBackgroundMusic(musicUrl)//设置背景音乐
- 
- mixRecorder?.setVolume(volume)//设置背景音乐大小0-1,即使没有把手机的声音关闭，也会按照该比例记录到录制的声音中	
- 
- mixRecorder?.startPlayMusic() //开始播放背景音乐
- 
- mixRecorder?.pauseMusic() //暂停背景音乐
- mixRecorder?.isPauseMusic()// 背景音乐是否暂停
- mixRecorder?.resumeMusic() //重新开始播放
+mRecorder?.setBackgroundMusic(musicUrl)//设置背景音乐
+mRecorder?.setVolume(volume)//设置背景音乐大小0-1,即使没有把手机的声音关闭，也会按照该比例记录到录制的声音中	
+mRecorder?.startPlayMusic() //开始播放背景音乐
+mRecorder?.isPlayMusic() //是否播放了背景应用
+mRecorder?.pauseMusic() //暂停背景音乐
+mRecorder?.isPauseMusic()// 背景音乐是否暂停
+mRecorder?.resumeMusic() //重新开始播放
 ```
 #### 5.中途替换输出文件
 ```
-    //filePath 新的文件
-  mixRecorder.updateDataEncode(filePath)
+//filePath 新的文件
+mRecorder.updateDataEncode(filePath)
 ```
 
 #### 6.中途暂停、重置
 ```
-  mixRecorder.onReset() //会回调 Listener: onReset()
+mRecorder.onReset() //会回调 Listener: onReset()
 ```
 或者
 ```
-  mixRecorder.onDestroy() //没有任何回调
+mRecorder.onDestroy() //没有任何回调
 ```
 
 #### 6. 停止录音
 
 ```kotlin
- mixRecorder?.stop()  //完成录音
+mRecorder?.stop()  //完成录音
 ```
 
 
@@ -107,8 +97,7 @@ Lame 在使用lame_encode_buffer 在转码双声道时 会出现噪音
       }
 ```
 
-
-https://www.jianshu.com/p/87095c155ea5
+[音频基础知识](https://blog.csdn.net/StjunF/article/details/121296111)
 
 ```
     /*

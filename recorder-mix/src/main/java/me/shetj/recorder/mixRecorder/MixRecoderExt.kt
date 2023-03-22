@@ -17,8 +17,9 @@ fun Mp3Option.buildMix(context: Context? = null): BaseRecorder {
             .setMp3BitRate(mp3BitRate)
             .setPermissionListener(permissionListener)
             .setRecordListener(recordListener)
+            .setPCMListener(pcmListener)
             .setDebug(isDebug)
-            .setWax(wax).apply {
+            .apply {
                 context?.let {
                     setContextToVolumeConfig(context)
                     setContextToPlugConfig(context)

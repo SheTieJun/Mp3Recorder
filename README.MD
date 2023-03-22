@@ -2,7 +2,7 @@
 
 [![](https://jitpack.io/v/SheTieJun/Mp3Recorder.svg)](https://jitpack.io/#SheTieJun/Mp3Recorder) ![buildWorkflow](https://github.com/SheTieJun/Mp3Recorder/actions/workflows/android.yml/badge.svg)
 
-- 边录边转码MP3,支持暂停，实时返回已录制时长和当前声音大小。
+- 边录边转码MP3,默认启动手机自带的AEC,支持暂停，实时返回已录制时长和当前声音大小。
 - 可添加背景音乐,可以设置背景音乐声音的大小
 - 支持[**变音**](#变音录音推荐)（变音的录音工具，暂时不支持背景音乐），可边录边变音边转码MP3
 - 录制过程中**暂停**,已录制的那段音频是**可以播放**的.
@@ -13,9 +13,10 @@
 
 ![](doc/img/recorder.gif)
 
-### Demo2 [多进程录音代码示例](https://github.com/SheTieJun/Beloved/blob/master/M-recorder/src/main/java/me/shetj/recorder/func/service/RecordService.kt)
 
-## 一、[接入配置文档](https://github.com/SheTieJun/Mp3Recorder/wiki/%E6%8E%A5%E5%85%A5%E6%96%87%E6%A1%A3)
+
+## 一、接入配置
+**[接入配置文档](https://github.com/SheTieJun/Mp3Recorder/wiki/%E6%8E%A5%E5%85%A5%E6%96%87%E6%A1%A3)**
 
 ### 1. 如何选择
 
@@ -81,8 +82,10 @@ fun setPitchSemiTones(@FloatRange(from = -12.0, to = 12.0) pitch: Float)
 
 ```
 
-## 二、[使用说明文档](https://github.com/SheTieJun/Mp3Recorder/wiki/%E4%BD%BF%E7%94%A8%E6%96%87%E6%A1%A3)
+## 二、使用说明
 
+- **[使用说明文档](https://github.com/SheTieJun/Mp3Recorder/wiki/%E4%BD%BF%E7%94%A8%E6%96%87%E6%A1%A3)**
+- [音频基础知识](https://blog.csdn.net/StjunF/article/details/121296111)
 ```
  采样频率越高， 声音越接近原始数据。
  采样位数越高，声音越接近原始数据。
@@ -115,13 +118,15 @@ abstract class BaseRecorder {
      * @param outputFile 设置输出路径
      * @param isContinue 表示是否拼接在文件末尾，实现继续录制的一种方式
      */
-    abstract fun setOutputFile(outputFile: File, isContinue: Boolean = false): BaseRecorder
+    open fun setOutputFile(outputFile: File, isContinue: Boolean = false): BaseRecorder{/*...*/}
 
     //设置录音监听
-    abstract fun setRecordListener(recordListener: RecordListener?): BaseRecorder
+    open fun setRecordListener(recordListener: RecordListener?): BaseRecorder{/*...*/}
 
     //设置权限监听
-    abstract fun setPermissionListener(permissionListener: PermissionListener?): BaseRecorder
+    open fun setPermissionListener(permissionListener: PermissionListener?): BaseRecorder{/*...*/}
+
+    open fun setPCMListener(pcmListener: PCMListener?):BaseRecorder{/*...*/}
 
     //设计背景音乐的url,本地的(网络的可能造成卡死)
     abstract fun setBackgroundMusic(url: String): BaseRecorder
@@ -152,14 +157,10 @@ abstract class BaseRecorder {
     abstract fun setAudioSource(@Source audioSource: Int = MediaRecorder.AudioSource.MIC): Boolean
 
     //设置声波过滤器
-    open fun setFilter(lowpassFreq: Int = 3000, highpassFreq: Int = 200) {}
+    open fun setFilter(lowpassFreq: Int = 3000, highpassFreq: Int = 200) {/*...*/}
 
     //初始最大录制时间 和提醒时间 remind = maxTime - remindDiffTime
     abstract fun setMaxTime(maxTime: Int, remindDiffTime: Int? = null): BaseRecorder
-
-
-    //设置增强系数(不建议修改，因为会产生噪音~,细小的噪音放大就是噪音)
-    abstract fun setWax(wax: Float): BaseRecorder
 
     //设置背景声音大小
     abstract fun setBGMVolume(volume: Float): BaseRecorder

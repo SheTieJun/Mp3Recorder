@@ -21,7 +21,6 @@ fun mp3Recorder(
     @Channel channel: Int = 2,
     permissionListener: PermissionListener? = null,
     recordListener: RecordListener? = null,
-    wax: Float = 1f
 ): BaseRecorder {
     return recorder {
         this.audioSource = audioSource
@@ -33,7 +32,6 @@ fun mp3Recorder(
         this.mp3BitRate = mp3BitRate
         this.permissionListener = permissionListener
         this.recordListener = recordListener
-        this.wax = wax
     }.let {
         when (simpleName) {
             BaseRecorder.RecorderType.MIX -> it.buildMix(context)

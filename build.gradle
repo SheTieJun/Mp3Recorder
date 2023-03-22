@@ -7,7 +7,7 @@ plugins {
     id 'maven-publish'
     id 'com.google.devtools.ksp' version '1.7.10-1.0.6'
 }
-ext.sdk_version = '1.8.0'
+ext.sdk_version = '1.9.0'
 ext.local_group_id = 'com.github.SheTieJun'
 ext.min_Sdk = 21
 ext.compile_Sdk = 31

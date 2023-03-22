@@ -5,10 +5,13 @@ import android.content.Context
 import android.media.MediaRecorder
 import android.net.Uri
 import android.text.TextUtils
+import android.util.Log
 import android.view.View
 import android.widget.Toast
 import androidx.lifecycle.MutableLiveData
+import java.time.LocalDate
 import me.shetj.base.S
+import me.shetj.base.ktx.logD
 import me.shetj.base.ktx.logI
 import me.shetj.base.tools.app.Utils
 import me.shetj.base.tools.file.EnvironmentStorage
@@ -16,6 +19,7 @@ import me.shetj.dialog.OrangeDialog
 import me.shetj.dialog.SingleChoiceCallback
 import me.shetj.dialog.orangeSingeDialog
 import me.shetj.mp3recorder.record.RecordingNotification
+import me.shetj.ndk.lame.LameUtils
 import me.shetj.player.PlayerListener
 import me.shetj.recorder.core.*
 import me.shetj.recorder.mixRecorder.buildMix
@@ -27,7 +31,7 @@ import me.shetj.recorder.soundtouch.buildST
  */
 class RecordUtils(
     private val callBack: SimRecordListener?
-) : RecordListener, PermissionListener {
+) : RecordListener, PermissionListener,PCMListener {
 
     private var bgmUrl: Uri? = null
     private var listener: PlayerListener? = null
@@ -155,7 +159,6 @@ class RecordUtils(
         mRecorder = recorder {
             mMaxTime = 5 * 60 * 1000
             isDebug = true
-            wax = 1f
             samplingRate = 48000
             audioSource = MediaRecorder.AudioSource.MIC
             audioChannel = 1
@@ -163,6 +166,7 @@ class RecordUtils(
             mp3Quality = 5
             recordListener = this@RecordUtils
             permissionListener = this@RecordUtils
+            pcmListener = this@RecordUtils
         }.let {
             when (recorderType) {
                 BaseRecorder.RecorderType.MIX -> it.buildMix(Utils.app)
@@ -303,6 +307,15 @@ class RecordUtils(
             mRecorder!!.setAudioChannel(AudioUtils.getAudioChannel(context, url))
             mRecorder!!.setBackgroundMusic(context, url, null)
         }
+    }
+
+    override fun onBeforePCMToMp3(pcm: ShortArray): ShortArray {
+        val pcmdb = LameUtils.getPCMDB(pcm, pcm.size)
+        Log.d("LameUtils","修改PCM前DB:$pcmdb" )
+        val adjustVoice = BytesTransUtil.adjustVoice(pcm, 3)
+        val afterdb = LameUtils.getPCMDB(adjustVoice, adjustVoice.size)
+        Log.d("LameUtils","修改PCM后DB:$afterdb" )
+        return adjustVoice
     }
 
 }

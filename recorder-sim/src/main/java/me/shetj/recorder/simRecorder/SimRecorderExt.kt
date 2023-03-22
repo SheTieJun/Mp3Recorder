@@ -17,7 +17,8 @@ fun Mp3Option.buildSim(context: Context? = null): BaseRecorder {
             .setMp3BitRate(mp3BitRate)
             .setPermissionListener(permissionListener)
             .setRecordListener(recordListener)
-            .setWax(wax).apply {
+            .setPCMListener(pcmListener)
+            .apply {
                 setAudioChannel(audioChannel)
                 setDebug(isDebug)
             }.apply {

@@ -28,9 +28,6 @@ internal class STRecorder : BaseRecorder {
 
     override val recorderType: RecorderType = RecorderType.SIM
 
-    private var mAudioRecord: AudioRecord? = null
-    private var mEncodeThread: DataSTEncodeThread? = null
-
     /**
      * 输出的文件
      */
@@ -129,20 +126,6 @@ internal class STRecorder : BaseRecorder {
         setOutputFile(outputFilePath, isContinue)
         mEncodeThread?.isContinue = isContinue
         mEncodeThread?.update(outputFilePath)
-    }
-
-    /**
-     * 设置回调
-     * @param recordListener
-     */
-    override fun setRecordListener(recordListener: RecordListener?): STRecorder {
-        this.mRecordListener = recordListener
-        return this
-    }
-
-    override fun setPermissionListener(permissionListener: PermissionListener?): STRecorder {
-        this.mPermissionListener = permissionListener
-        return this
     }
 
     // region Start recording. Create an encoding thread. Start record from this
@@ -424,6 +407,7 @@ internal class STRecorder : BaseRecorder {
             openVBR
         )
         mEncodeThread!!.start()
+        mEncodeThread!!.setPCMListener(mPCMListener)
         mAudioRecord!!.setRecordPositionUpdateListener(
             mEncodeThread,
             mEncodeThread!!.getEncodeHandler()
