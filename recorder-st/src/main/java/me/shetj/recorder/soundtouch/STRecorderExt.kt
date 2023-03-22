@@ -19,7 +19,8 @@ fun Mp3Option.buildST(): BaseRecorder {
             .setMp3BitRate(mp3BitRate)
             .setPermissionListener(permissionListener)
             .setRecordListener(recordListener)
-            .setWax(wax).apply {
+            .setPCMListener(pcmListener)
+           .apply {
                 setAudioChannel(if (AudioFormat.CHANNEL_IN_STEREO == audioChannel) 2 else 1)
                 setDebug(isDebug)
             }.apply {

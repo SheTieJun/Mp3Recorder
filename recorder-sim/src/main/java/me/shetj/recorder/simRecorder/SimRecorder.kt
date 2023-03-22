@@ -28,8 +28,6 @@ internal class SimRecorder : BaseRecorder {
 
     override val recorderType: RecorderType = RecorderType.SIM
 
-    private var mAudioRecord: AudioRecord? = null
-    private var mEncodeThread: DataEncodeThread? = null
     private var backgroundPlayer: AudioPlayer? = null
     private var context: Context? = null
 
@@ -139,19 +137,6 @@ internal class SimRecorder : BaseRecorder {
         mEncodeThread?.update(outputFilePath)
     }
 
-    /**
-     * 设置回调
-     * @param recordListener
-     */
-    override fun setRecordListener(recordListener: RecordListener?): SimRecorder {
-        this.mRecordListener = recordListener
-        return this
-    }
-
-    override fun setPermissionListener(permissionListener: PermissionListener?): SimRecorder {
-        this.mPermissionListener = permissionListener
-        return this
-    }
     // region Start recording. Create an encoding thread. Start record from this
     override fun start() {
         if (mRecordFile == null) {
@@ -442,7 +427,8 @@ internal class SimRecorder : BaseRecorder {
             mChannelConfig == AudioFormat.CHANNEL_IN_STEREO,openVBR
         )
         mEncodeThread!!.start()
-        mAudioRecord!!.setRecordPositionUpdateListener(mEncodeThread, mEncodeThread!!.handler)
+        mEncodeThread!!.setPCMListener(mPCMListener)
+        mAudioRecord!!.setRecordPositionUpdateListener(mEncodeThread, mEncodeThread!!.getEncodeHandler())
         mAudioRecord!!.positionNotificationPeriod = FRAME_COUNT
     }
 

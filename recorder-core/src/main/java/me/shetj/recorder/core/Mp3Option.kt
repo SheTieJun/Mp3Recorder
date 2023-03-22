@@ -29,8 +29,8 @@ data class Mp3Option(
     var permissionListener: PermissionListener? = null,
     // 回调
     var recordListener: RecordListener? = null,
-    // 声音增强系数,不建议配置，可能会有噪音
-    var wax: Float = 1f
+    // pcm 回调
+    var pcmListener: PCMListener?=null,
 )
 
 fun recorder(block: Mp3Option.() -> Unit): Mp3Option {

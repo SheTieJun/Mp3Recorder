@@ -7,7 +7,7 @@ package me.shetj.recorder.core
  * **@email：** 375105540@qq.com<br></br>
  * **@describe**  <br></br>
  */
-open class SimRecordListener : RecordListener, PermissionListener {
+open class SimRecordListener : RecordListener, PermissionListener,PCMListener {
     override fun needPermission() {
     }
 

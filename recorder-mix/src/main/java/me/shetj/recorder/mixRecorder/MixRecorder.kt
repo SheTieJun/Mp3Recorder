@@ -12,6 +12,7 @@ import android.util.Log
 import java.io.IOException
 import me.shetj.ndk.lame.LameUtils
 import me.shetj.player.PlayerListener
+import me.shetj.recorder.core.BaseEncodeThread
 import me.shetj.recorder.core.BaseRecorder
 import me.shetj.recorder.core.Channel
 import me.shetj.recorder.core.PermissionListener
@@ -29,9 +30,8 @@ internal class MixRecorder : BaseRecorder {
     //region 参数
 
     //region
-    private var mAudioRecord: AudioRecord? = null
     private var mPlayBackMusic: PlayBackMusic? = null
-    private var mEncodeThread: MixEncodeThread? = null
+
     //endregion
 
     //region 其他
@@ -171,22 +171,6 @@ internal class MixRecorder : BaseRecorder {
         mEncodeThread?.update(outputFilePath)
     }
 
-
-
-    /**
-     * 设置回调
-     * @param recordListener
-     */
-    override fun setRecordListener(recordListener: RecordListener?): MixRecorder {
-        this.mRecordListener = recordListener
-        return this
-    }
-
-    override fun setPermissionListener(permissionListener: PermissionListener?): MixRecorder {
-        this.mPermissionListener = permissionListener
-        return this
-    }
-
     override fun setBackgroundMusicListener(listener: PlayerListener): MixRecorder {
         bgPlayer.setBackGroundPlayListener(listener)
         return this
@@ -278,7 +262,7 @@ internal class MixRecorder : BaseRecorder {
                             if (onRecording(readTime)) {
                                 mEncodeThread!!.addTask(
                                     buffer,
-                                    wax,
+                                    1f,
                                     mPlayBackMusic!!.getBackGroundBytes(),
                                     volumeConfig?.currVolumeF ?: bgLevel
                                 )
@@ -463,7 +447,8 @@ internal class MixRecorder : BaseRecorder {
         )
         mEncodeThread = MixEncodeThread(mRecordFile!!, mBufferSize, isContinue, is2Channel,openVBR)
         mEncodeThread!!.start()
-        mAudioRecord!!.setRecordPositionUpdateListener(mEncodeThread, mEncodeThread!!.handler)
+        mEncodeThread!!.setPCMListener(mPCMListener)
+        mAudioRecord!!.setRecordPositionUpdateListener(mEncodeThread, mEncodeThread!!.getEncodeHandler())
         mAudioRecord!!.positionNotificationPeriod = FRAME_COUNT
 
         // 强制加上背景音乐

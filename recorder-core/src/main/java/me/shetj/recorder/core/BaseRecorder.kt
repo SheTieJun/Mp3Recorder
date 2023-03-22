@@ -3,6 +3,7 @@ package me.shetj.recorder.core
 
 import android.content.Context
 import android.media.AudioFormat
+import android.media.AudioRecord
 import android.media.MediaRecorder
 import android.media.audiofx.AcousticEchoCanceler
 import android.media.audiofx.AutomaticGainControl
@@ -92,7 +93,10 @@ abstract class BaseRecorder {
     protected var mRecordFile: File? = null //
     protected var mRecordListener: RecordListener? = null
     protected var mPermissionListener: PermissionListener? = null
+    protected var mPCMListener: PCMListener? = null
 
+    protected var mEncodeThread: BaseEncodeThread? = null
+    protected var mAudioRecord: AudioRecord? = null
     //region 系统自带的去噪音，增强以及回音问题
     private var mNoiseSuppressor: NoiseSuppressor? = null
     private var mAcousticEchoCanceler: AcousticEchoCanceler? = null
@@ -148,11 +152,6 @@ abstract class BaseRecorder {
      */
     protected var isPause: Boolean = true
     protected var isDebug = false
-
-    /**
-    声音增强,不建议使用
-     */
-    protected var wax = 1f
 
     /**
      * 背景音乐的声音大小(0~1.0)
@@ -317,15 +316,29 @@ abstract class BaseRecorder {
         return this
     }
 
-    /**
-    设置录音监听
-     */
-    abstract fun setRecordListener(recordListener: RecordListener?): BaseRecorder
 
     /**
-    设置没有权限的回调，感觉不是很准
+     * 设置回调
+     * @param recordListener
      */
-    abstract fun setPermissionListener(permissionListener: PermissionListener?): BaseRecorder
+    open fun setRecordListener(recordListener: RecordListener?): BaseRecorder {
+        this.mRecordListener = recordListener
+        return this
+    }
+
+    open fun setPermissionListener(permissionListener: PermissionListener?): BaseRecorder {
+        this.mPermissionListener = permissionListener
+        return this
+    }
+
+    /**
+     * 设置pcmListener
+     */
+    open fun setPCMListener(pcmListener: PCMListener?):BaseRecorder{
+        this.mPCMListener = pcmListener
+        mEncodeThread?.setPCMListener(mPCMListener)
+        return this
+    }
 
     /**
     设计背景音乐的url,最好是本地的，否则可能会网络导致卡顿
@@ -452,14 +465,6 @@ abstract class BaseRecorder {
             return this
         }
         openVBR = isEnable
-        return this
-    }
-
-    /**
-    设置增强系数(不建议修改，因为会产生噪音~)，只有MixRecorder
-     */
-    open fun setWax(wax: Float): BaseRecorder {
-        this.wax = wax
         return this
     }
 

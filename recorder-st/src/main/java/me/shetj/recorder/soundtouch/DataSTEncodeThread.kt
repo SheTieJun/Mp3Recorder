@@ -1,19 +1,13 @@
 
 package me.shetj.recorder.soundtouch
 
-import android.media.AudioRecord
-import android.os.Handler
-import android.os.HandlerThread
-import android.os.Looper
-import android.os.Message
 import java.io.File
 import java.io.FileNotFoundException
 import java.io.FileOutputStream
 import java.io.IOException
-import java.util.Collections
-import kotlin.collections.ArrayList
+import java.util.*
 import me.shetj.ndk.lame.LameUtils
-import me.shetj.recorder.core.FileUtils
+import me.shetj.recorder.core.BaseEncodeThread
 
 /**
  * @param file       file
@@ -25,81 +19,14 @@ internal class DataSTEncodeThread @Throws(FileNotFoundException::class)
 constructor(
     private val file: File,
     bufferSize: Int,
-    var isContinue: Boolean,
+    isContinue: Boolean,
     private val is2CHANNEL: Boolean,
     private val soundTouchKit: SoundTouchKit,
-    private val isEnableVBR:Boolean
+   isEnableVBR:Boolean
 ) :
-    HandlerThread("DataSTEncodeThread"),
-    AudioRecord.OnRecordPositionUpdateListener {
-    private var mHandler: StopHandler? = null
-    private val mMp3Buffer: ByteArray
-    private var mFileOutputStream: FileOutputStream?
-    private var path: String
-    private var needUpdate = false
+    BaseEncodeThread(file, bufferSize, isContinue, isEnableVBR,"DataSTEncodeThread") {
     private val mSTBuffer = ShortArray(7200 + (bufferSize.toDouble() * 2.0).toInt()) // 处理变音的后的数据
     private val mTasks = Collections.synchronizedList(ArrayList<ReadTask>())
-
-    private class StopHandler(looper: Looper, private val encodeThread: DataSTEncodeThread) :
-        Handler(looper) {
-
-        override fun handleMessage(msg: Message) {
-            if (msg.what == PROCESS_STOP) {
-                // 处理缓冲区中的数据
-                while (encodeThread.processData() > 0);
-                removeCallbacksAndMessages(null)
-                encodeThread.flushAndRelease()
-                looper.quit()
-            } else if (msg.what == PROCESS_ERROR) {
-                // 处理缓冲区中的数据
-                while (encodeThread.processData() > 0);
-                removeCallbacksAndMessages(null)
-                encodeThread.flushAndRelease()
-                looper.quit()
-                FileUtils.deleteFile(encodeThread.path)
-            }
-        }
-    }
-
-    init {
-        this.mFileOutputStream = FileOutputStream(file, isContinue)
-        path = file.absolutePath
-        if(isEnableVBR){
-            LameUtils.writeVBRHeader(path)
-        }
-        mMp3Buffer = ByteArray((7200 + bufferSize.toDouble() * 2.0 * 1.25).toInt())
-    }
-
-    @Synchronized
-    override fun start() {
-        super.start()
-        mHandler = StopHandler(looper, this)
-    }
-
-    fun getEncodeHandler(): Handler? {
-        return mHandler
-    }
-
-    fun sendStopMessage() {
-        mHandler?.sendEmptyMessage(PROCESS_STOP)
-    }
-
-    fun sendErrorMessage() {
-        mHandler?.sendEmptyMessage(PROCESS_ERROR)
-    }
-
-    fun update(outputFilePath: String) {
-        this.path = outputFilePath
-        needUpdate = true
-    }
-
-    override fun onMarkerReached(recorder: AudioRecord) {
-        // Do nothing
-    }
-
-    override fun onPeriodicNotification(recorder: AudioRecord) {
-        processData()
-    }
 
     /**
      * 从缓冲区中读取并处理数据，使用lame编码MP3
@@ -107,7 +34,7 @@ constructor(
      * @return 从缓冲区中读取的数据的长度
      * 缓冲区中没有数据时返回0
      */
-    private fun processData(): Int {
+    override fun processData(): Int {
         if (mTasks.size > 0) {
             val task = mTasks.removeAt(0)
             // 处理变音，如果需要变音，仅需要得到变音后的数据，以及长度
@@ -128,15 +55,16 @@ constructor(
         return 0
     }
 
-    private fun processBuffer(stTask: ShortArray, size: Int): Int {
+    private fun processBuffer(pcm: ShortArray, size: Int): Int {
+        val pcmData = beforePCMtoMP3(pcm)
         val encodedSize: Int
         val readSize: Int
         if (is2CHANNEL) {
             readSize = size / 2
-            encodedSize = LameUtils.encodeInterleaved(stTask, readSize, mMp3Buffer)
+            encodedSize = LameUtils.encodeInterleaved(pcmData, readSize, mMp3Buffer)
         } else {
             readSize = size
-            encodedSize = LameUtils.encode(stTask, stTask, readSize, mMp3Buffer)
+            encodedSize = LameUtils.encode(pcmData, pcmData, readSize, mMp3Buffer)
         }
         if (encodedSize > 0) {
             try {
@@ -152,7 +80,7 @@ constructor(
     /**
      * Flush all data left in lame buffer to file
      */
-    private fun flushAndRelease() {
+    override fun flushAndRelease() {
         soundTouchKit.flush(mSTBuffer)
         val flushResult = LameUtils.flush(mMp3Buffer)
         if (flushResult > 0) {
@@ -189,7 +117,11 @@ constructor(
         }
     }
 
-    fun addTask(rawData: ShortArray, readSize: Int) {
+    override fun addTask(rawData: ByteArray, wax: Float, bgData: ByteArray?, bgWax: Float) {
+
+    }
+
+    override fun addTask(rawData: ShortArray, readSize: Int) {
         mTasks.add(ReadTask(rawData, readSize))
     }
 
