@@ -19,14 +19,6 @@
         android:text="RecorderDemo"
         android:textAllCaps="false"/>
 
-    <Button
-        android:id="@+id/btn_demo4"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="UIdemo"
-        android:layout_toRightOf="@id/btn_demo3"
-        android:textAllCaps="false"/>
-
     <TextView
         android:id="@+id/msg"
         android:textSize="16sp"

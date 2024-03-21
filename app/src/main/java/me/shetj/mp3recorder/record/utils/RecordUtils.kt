@@ -1,4 +1,3 @@
-
 package me.shetj.mp3recorder.record.utils
 
 import android.content.Context
@@ -11,13 +10,12 @@ import android.view.View
 import android.widget.Toast
 import androidx.core.content.ContextCompat.getSystemService
 import androidx.lifecycle.MutableLiveData
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import me.shetj.base.BaseKit
+import me.shetj.base.ktx.logD
 import me.shetj.base.ktx.logI
 import me.shetj.base.tools.app.Utils
 import me.shetj.base.tools.file.EnvironmentStorage
-import me.shetj.dialog.OrangeDialog
-import me.shetj.dialog.SingleChoiceCallback
-import me.shetj.dialog.orangeSingeDialog
 import me.shetj.mp3recorder.record.RecordingNotification
 import me.shetj.ndk.lame.LameUtils
 import me.shetj.player.PlayerListener
@@ -34,7 +32,7 @@ import kotlin.math.sqrt
  */
 class RecordUtils(
     private val callBack: SimRecordListener?
-) : RecordListener, PermissionListener,PCMListener {
+) : RecordListener, PermissionListener, PCMListener {
 
     private var bgmUrl: Uri? = null
     private var listener: PlayerListener? = null
@@ -83,36 +81,27 @@ class RecordUtils(
                 mRecorder?.setOutputFile(saveFile, !TextUtils.isEmpty(file))
                 mRecorder?.start()
             }
+
             RecordState.PAUSED -> {
                 mRecorder?.resume()
             }
+
             RecordState.RECORDING -> {
                 mRecorder?.pause()
             }
+
             else -> {}
         }
     }
 
     fun showChangeDialog(context: Context) {
-        orangeSingeDialog(
-            context = context,
-            title = "切换录音工具",
-            content = "建议不要在录音中进行切换，切换时会自动默认完成",
-            items = arrayOf("MixRecorder", "SimRecorder", "STRecorder"),
-            selectIndex = getSelectPosition(recorderType),
-            singleChoiceCallBack = object : SingleChoiceCallback {
-                override fun invoke(
-                    dialog: OrangeDialog,
-                    itemView: View,
-                    which: Int,
-                    text: CharSequence?
-                ): Boolean {
-                    updateRecorderType(which)
-                    dialog.dismiss()
-                    return true
-                }
+        MaterialAlertDialogBuilder(context)
+            .setTitle("切换录音工具")
+            .setMessage("建议不要在录音中进行切换，切换时会自动默认完成")
+            .setSingleChoiceItems(arrayOf("MixRecorder", "SimRecorder", "STRecorder"), getSelectPosition(recorderType)) { dialog, which ->
+                updateRecorderType(which)
+                dialog.dismiss()
             }
-        )
     }
 
     fun getRecorderTypeName(): String {
@@ -173,6 +162,7 @@ class RecordUtils(
                         it.isEnableVBR(false) // 请不要使用，虽然可以正常播放，但是会时间错误获取会错误，暂时没有解决方法
                         it.setFilter(3000, 200)
                     }
+
                 BaseRecorder.RecorderType.SIM -> it.buildSim(Utils.app)
                 BaseRecorder.RecorderType.ST -> it.buildST()
             }
@@ -190,7 +180,7 @@ class RecordUtils(
     }
 
     fun startOrPauseBGM() {
-        mRecorder?.let { recorder->
+        mRecorder?.let { recorder ->
             if (recorder.isPlayMusic()) {
                 if (recorder.isPauseMusic()) {
                     recorder.resumeMusic()
@@ -226,7 +216,7 @@ class RecordUtils(
      */
     fun setTime(startTime: Long) {
         mRecorder?.setCurDuration(startTime)
-        callBack?.onRecording(startTime , -1)
+        callBack?.onRecording(startTime, -1)
     }
 
     /**
@@ -271,7 +261,7 @@ class RecordUtils(
     }
 
     override fun onRecording(time: Long, volume: Int) {
-        callBack?.onRecording((startTime + time) , volume)
+        callBack?.onRecording((startTime + time), volume)
     }
 
     override fun onPause() {
@@ -311,11 +301,11 @@ class RecordUtils(
     }
 
     override fun onBeforePCMToMp3(pcm: ShortArray): ShortArray {
-        val pcmdb =calculateRealVolume(pcm, pcm.size)
-        Log.d("onBeforePCMToMp3","修改PCM前DB:$pcmdb" )
+        val pcmdb = calculateRealVolume(pcm, pcm.size)
+        "修改PCM前DB:$pcmdb".logD("onBeforePCMToMp3")
         val adjustVoice = BytesTransUtil.adjustVoice(pcm, 3)
         val afterdb = calculateRealVolume(adjustVoice, adjustVoice.size)
-        Log.d("onBeforePCMToMp3","修改PCM后DB:$afterdb" )
+        "修改PCM后DB:$afterdb".logD("onBeforePCMToMp3")
         return adjustVoice
     }
 

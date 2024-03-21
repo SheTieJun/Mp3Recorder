@@ -10,6 +10,7 @@ plugins {
 
 androidApplication("me.shetj.mp3recorder"){
     defaultConfig {
+        minSdk = 24
         ndk {
             this.abiFilters.addAll(listOf("armeabi-v7a", "arm64-v8a", "x86_64", "x86"))
         }
@@ -37,9 +38,7 @@ dependencies {
     implementation(project(":recorder-mix"))
     implementation(project(":recorder-sim"))
     implementation(project(":recorder-core"))
-    implementation(project(":recorder-ui"))
     implementation(project(":recorder-st"))
     implementation("com.github.SheTieJun:BaseKit:85dc1cb78d")
     ksp(libs.androidx.room.compiler)
-    implementation("com.github.SheTieJun:OrangeDialog:0.0.2")
 }

@@ -15,6 +15,7 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatButton
 import androidx.lifecycle.lifecycleScope
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -22,7 +23,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import me.shetj.base.ktx.logI
 import me.shetj.base.tools.app.ArmsUtils
-import me.shetj.dialog.OrangeDialog
 import me.shetj.mp3recorder.R
 import me.shetj.mp3recorder.databinding.PageRecordMixBinding
 import me.shetj.mp3recorder.record.bean.MusicQ
@@ -195,10 +195,6 @@ open class RecordPage(
             }
 
 
-            override fun onReset() {
-                super.onReset()
-            }
-
             override fun needPermission() {
                 callback.onEvent(3)
             }
@@ -245,13 +241,13 @@ open class RecordPage(
      * 是否录制新内容
      */
     private fun showRecordNewDialog() {
-        OrangeDialog.Builder(context)
+        MaterialAlertDialogBuilder(context)
             .setTitle("录音已保存")
-            .setContent("录音已保存。是否继续录制下一条？")
-            .setNegativeText("查看本条")
-            .setOnNegativeCallBack { _, _ -> callback.onEvent(1) }
-            .setPositiveText("录下一条")
-            .setonPositiveCallBack { _, _ ->
+            .setMessage("录音已保存。是否继续录制下一条？")
+            .setNegativeButton("查看本条"){
+                _, _ -> callback.onEvent(1)
+            }
+            .setPositiveButton("录下一条"){ _, _ ->
                 setRecord(null)
                 ArmsUtils.makeText("上条录音已保存至“我的录音”")
             }
@@ -326,18 +322,17 @@ open class RecordPage(
      * 展示重新录制
      */
     private fun showRerecordDialog() {
-        OrangeDialog.Builder(context)
+        MaterialAlertDialogBuilder(context)
             .setTitle("重新录制")
-            .setContent("确定删除当前的录音，并重新录制吗？")
-            .setNegativeText("取消").setOnNegativeCallBack { _, _ -> recordUtils!!.stopFullRecord() }
-            .setPositiveText("重录").setonPositiveCallBack { _, _ ->
+            .setMessage("确定删除当前的录音，并重新录制吗？")
+            .setNegativeButton("取消") { _, _ -> recordUtils!!.stopFullRecord() }
+            .setPositiveButton("重录") { _, _ ->
                 //可自行判断是否删除老的文件
                 oldRecord?.audioLength = 0
                 oldRecord?.audio_url = ""
                 setRecord(oldRecord)
                 recordUtils!!.reset()
                 recordUtils!!.setTime(0)
-
             }
             .show()
     }
@@ -347,11 +342,11 @@ open class RecordPage(
      */
     private fun showTipDialog() {
         onPause()//先暂停
-        OrangeDialog.Builder(context)
+        MaterialAlertDialogBuilder(context)
             .setTitle("温馨提示")
-            .setContent("确定要停止录音吗？")
-            .setNegativeText("停止录音").setOnNegativeCallBack { _, _ -> recordUtils!!.stopFullRecord() }
-            .setPositiveText("继续录音").setonPositiveCallBack { _, _ -> recordUtils!!.startOrPause() }
+            .setMessage("确定要停止录音吗？")
+            .setNegativeButton("停止录音") { _, _ -> recordUtils!!.stopFullRecord() }
+            .setPositiveButton("继续录音") { _, _ -> recordUtils!!.startOrPause() }
             .show()
     }
 

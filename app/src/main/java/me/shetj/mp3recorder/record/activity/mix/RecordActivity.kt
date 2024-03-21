@@ -17,6 +17,7 @@ import me.shetj.mp3recorder.R
 import me.shetj.mp3recorder.record.RecordingNotification
 import me.shetj.mp3recorder.record.utils.EventCallback
 import kotlinx.coroutines.delay
+import me.shetj.base.fix.FixPermission
 import me.shetj.base.ktx.launch
 
 
@@ -96,11 +97,7 @@ class RecordActivity : BaseActivity<EmptyPresenter>(), EventCallback {
     }
 
     private fun canRecord() {
-        hasPermission(
-            Manifest.permission.READ_EXTERNAL_STORAGE,
-            Manifest.permission.WRITE_EXTERNAL_STORAGE,
-            Manifest.permission.RECORD_AUDIO, isRequest = true
-        )
+        FixPermission.checkReadMediaFile(this,true)
     }
 
     override fun onBackPressed() {

@@ -3,8 +3,13 @@
    >
 
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="32" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"
+        android:maxSdkVersion="32" />
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+    <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
+    <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" /> <!-- 修复权限 -->
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.BLUETOOTH" />
@@ -18,7 +23,7 @@
         android:requestLegacyExternalStorage="true"
         android:roundIcon="@mipmap/icon_record_app"
         android:supportsRtl="true"
-        android:theme="@style/BaseTheme.MD3">
+        android:theme="@style/AppTheme">
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -34,7 +39,7 @@
             android:configChanges="orientation|screenSize|keyboardHidden"
             android:exported="false"
             android:screenOrientation="portrait"
-            android:theme="@style/BaseTheme.MD3"
+            android:theme="@style/AppTheme"
             android:windowSoftInputMode="stateHidden|adjustPan" />
     </application>
 

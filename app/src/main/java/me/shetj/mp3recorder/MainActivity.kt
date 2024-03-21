@@ -1,7 +1,6 @@
 
 package me.shetj.mp3recorder
 
-import android.Manifest
 import android.animation.ObjectAnimator
 import android.content.Context
 import android.graphics.Color
@@ -14,19 +13,16 @@ import androidx.core.animation.doOnEnd
 import androidx.core.splashscreen.SplashScreen
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.lifecycleScope
-import kotlinx.coroutines.NonCancellable.start
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import me.shetj.base.BaseKit
-import me.shetj.base.ktx.hasPermission
+import me.shetj.base.fix.FixPermission
 import me.shetj.base.ktx.setAppearance
-import me.shetj.base.ktx.showToast
 import me.shetj.base.ktx.start
 import me.shetj.base.mvvm.viewbind.BaseBindingActivity
 import me.shetj.base.mvvm.viewbind.BaseViewModel
 import me.shetj.mp3recorder.databinding.ActivityMainTestBinding
 import me.shetj.mp3recorder.record.activity.mix.RecordActivity
-import me.shetj.recorder.ui.RecorderPopup
 
 class MainActivity : BaseBindingActivity<ActivityMainTestBinding, BaseViewModel>() {
     private var splashScreen:  SplashScreen? =null
@@ -60,34 +56,14 @@ class MainActivity : BaseBindingActivity<ActivityMainTestBinding, BaseViewModel>
         super.onCreate(savedInstanceState)
     }
 
-    private val recorderPopup: RecorderPopup by lazy {
-        RecorderPopup(this, needPlay = false, maxTime = (10 * 1000).toLong()) {
-            it.showToast()
-        }
-    }
-
 
     override fun initBaseView() {
-        hasPermission(
-            Manifest.permission.WRITE_EXTERNAL_STORAGE,
-            Manifest.permission.READ_EXTERNAL_STORAGE,
-            Manifest.permission.RECORD_AUDIO,
-            isRequest = true
-        )
         mBinding.btnDemo3.setOnClickListener {
-            if (hasPermission(
-                    Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                    Manifest.permission.READ_EXTERNAL_STORAGE,
-                    Manifest.permission.RECORD_AUDIO, isRequest = true
-                )
-            ) {
+            if (FixPermission.checkReadMediaFile(this, isRequest = true)) {
                 start<RecordActivity>()
             }
         }
 
-        mBinding.btnDemo4.setOnClickListener {
-            recorderPopup.showPop()
-        }
         mBinding.msg.apply {
             append("获取当前手机录音最佳参数：")
             append("最佳采样率：${getBestSampleRate()}\n")
@@ -129,10 +105,4 @@ class MainActivity : BaseBindingActivity<ActivityMainTestBinding, BaseViewModel>
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
     }
 
-
-    override fun onBackPressed() {
-        if (recorderPopup.onBackPress()) {
-            super.onBackPressed()
-        }
-    }
 }
