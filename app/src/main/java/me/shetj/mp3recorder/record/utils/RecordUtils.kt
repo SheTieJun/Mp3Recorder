@@ -97,11 +97,11 @@ class RecordUtils(
     fun showChangeDialog(context: Context) {
         MaterialAlertDialogBuilder(context)
             .setTitle("切换录音工具")
-            .setMessage("建议不要在录音中进行切换，切换时会自动默认完成")
-            .setSingleChoiceItems(arrayOf("MixRecorder", "SimRecorder", "STRecorder"), getSelectPosition(recorderType)) { dialog, which ->
+            .setSingleChoiceItems(arrayOf("MixRecorder", "SimRecorder", "STRecorder"), getSelectPosition(recorderType))
+            { dialog, which ->
                 updateRecorderType(which)
                 dialog.dismiss()
-            }
+            }.show()
     }
 
     fun getRecorderTypeName(): String {
