@@ -16,8 +16,6 @@ import me.shetj.player.PlayerListener
 import me.shetj.recorder.core.BaseRecorder
 import me.shetj.recorder.core.Channel
 import me.shetj.recorder.core.ISoundTouchCore
-import me.shetj.recorder.core.PermissionListener
-import me.shetj.recorder.core.RecordListener
 import me.shetj.recorder.core.RecordState
 import me.shetj.recorder.core.Source
 
@@ -385,7 +383,7 @@ internal class STRecorder : BaseRecorder {
         // 初始化变音
         soundTouch.init(mLameInChannel, mSamplingRate)
 
-        initAEC(mAudioRecord!!.audioSessionId)
+        initAudioEffect(mAudioRecord!!.audioSessionId)
 
         LameUtils.init(
             mSamplingRate,

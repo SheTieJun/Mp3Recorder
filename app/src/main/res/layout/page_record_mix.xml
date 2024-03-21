@@ -32,7 +32,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@id/progressBar_record"
-            android:text="00:00"
+            android:text="@string/start_ts"
             android:textColor="#FF999999"
             android:textSize="14sp" />
 
@@ -41,8 +41,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@id/progressBar_record"
-            android:layout_alignParentRight="true"
-            android:text="60:00"
+            android:layout_alignParentEnd="true"
+            android:text="@string/end_ts"
             android:textColor="#FF999999"
             android:textSize="14sp" />
 
@@ -51,31 +51,31 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@id/tv_record_time"
-            android:layout_marginLeft="20dp"
+            android:layout_marginStart="20dp"
             android:layout_marginTop="38dp"
-            android:drawableTop="@drawable/selector_rerecord"
             android:drawablePadding="10dp"
             android:gravity="center"
             android:text="@string/rerecording"
             android:textColor="#FF333333"
             android:textSize="14sp"
-            android:visibility="invisible" />
+            android:visibility="invisible"
+            app:drawableTopCompat="@drawable/selector_rerecord" />
 
         <TextView
             android:id="@+id/tv_save_record"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@id/tv_record_time"
-            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"
             android:layout_marginTop="38dp"
-            android:layout_marginRight="20dp"
-            android:drawableTop="@drawable/selector_record_save"
+            android:layout_marginEnd="20dp"
             android:drawablePadding="10dp"
             android:gravity="center"
             android:text="@string/save"
             android:textColor="#FF333333"
             android:textSize="14sp"
-            android:visibility="invisible" />
+            android:visibility="invisible"
+            app:drawableTopCompat="@drawable/selector_record_save" />
 
         <ImageView
             android:id="@+id/iv_record_state"
@@ -88,7 +88,8 @@
             android:background="@drawable/selector_recorder_record_cir_btn"
             android:clickable="true"
             android:focusable="true"
-            android:src="@drawable/icon_start_record" />
+            android:src="@drawable/icon_start_record"
+            android:contentDescription="@string/record" />
 
 
         <TextView
@@ -106,29 +107,6 @@
     </RelativeLayout>
 
 
-    <TextView
-        android:id="@+id/time"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_above="@id/recordVoiceView"
-        android:layout_marginBottom="15dp"
-        android:textSize="20sp"/>
-
-    <TextView
-        android:id="@+id/time2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_below="@id/recordVoiceView"
-        android:layout_marginTop="15dp"
-        android:textSize="20sp"/>
-
-    <me.shetj.mp3recorder.record.activity.mix.RecordVoiceViewV2
-        android:id="@+id/recordVoiceView"
-        android:layout_width="match_parent"
-        android:layout_height="130dp"
-        android:layout_centerInParent="true" />
 
     <me.shetj.mp3recorder.record.view.BackgroundMixMusicView
         android:id="@+id/bg_music_view"
@@ -156,12 +134,13 @@
             android:src="@drawable/icon_record_add_music"
             android:layout_marginStart="5dp"
             android:layout_marginBottom="3dp"
-            android:layout_marginEnd="5dp"/>
+            android:layout_marginEnd="5dp"
+            android:importantForAccessibility="no" />
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:text="添加背景音乐"
+            android:text="@string/add_bg"
             android:textColor="#FF666666"
             android:textSize="14sp"
             android:layout_marginBottom="3dp"

@@ -16,10 +16,14 @@ import android.text.TextUtils
 import android.util.Log
 import androidx.annotation.FloatRange
 import androidx.annotation.IntRange
-import java.io.File
-import kotlin.math.max
-import me.shetj.ndk.lame.LameUtils
 import me.shetj.player.PlayerListener
+import java.io.File
+import java.util.Arrays
+import kotlin.math.abs
+import kotlin.math.log10
+import kotlin.math.max
+import kotlin.math.sqrt
+
 
 abstract class BaseRecorder {
 
@@ -534,6 +538,10 @@ abstract class BaseRecorder {
     abstract fun destroy()
     //endregion public method
 
+    open fun enableForceWriteMixBg(enable: Boolean) {
+        Log.e("BaseRecorder", "enableForceWriteMixBg: 该方法，需要使用MixRecorder，否则无效，" +
+                "用于强制把背景音乐写入到录音，放在部分机型把播放的背景应用进行了移除")
+    }
 
     /**
      * 是否输出日志
@@ -550,21 +558,30 @@ abstract class BaseRecorder {
         throw NullPointerException(
             "该录音工具不支持变音功能,需要使用STRecorder " +
                     "\n The recorder recorderType does not support SoundTouch," +
-                    "u should implementation 'com.github.SheTieJun.Mp3Recorder:recorder-st:1.7.2' 。 "
+                    "u should implementation 'com.github.SheTieJun.Mp3Recorder:recorder-st:version' and version > 1.7.2。 "
         )
     }
     //region  计算真正的时间，如果过程中有些数据太小，就直接置0，防止噪音
     /**
      * 求得平均值之后，如果是平方和则代入常数系数为10的公式中，
      * 如果是绝对值的则代入常数系数为20的公式中，算出分贝值。
+     * protected 方便继承修改录音方法
      */
     protected fun calculateRealVolume(buffer: ShortArray, readSize: Int) {
-        mVolume = LameUtils.getPCMDB(buffer, readSize)
-        if (mVolume < 0) {
-            mVolume = 0
+        //Fix 2024-1-18 移除调用JNI去计算db,改为Java计算
+        var sum = 0.0
+        for (i in 0 until readSize) {
+            // 这里没有做运算的优化，为了更加清晰的展示代码
+            sum += abs((buffer[i] * buffer[i]).toDouble())
         }
-        if (mVolume > 100) {
-            mVolume = 100
+        if (readSize > 0) {
+            mVolume = (log10(sqrt(sum / readSize)) * 20).toInt()
+            if (mVolume < 20) {
+                Arrays.fill(buffer, 0.toShort())
+                mVolume = 0
+            } else if (mVolume > 100) {
+                mVolume = 100
+            }
         }
     }
 
@@ -591,7 +608,7 @@ abstract class BaseRecorder {
      * 2. 回音消除
      * 3. 自动增益控制
      */
-    protected fun initAEC(mAudioSessionId: Int) {
+    protected fun initAudioEffect(mAudioSessionId: Int) {
         if (mAudioSessionId != 0) {
             if (NoiseSuppressor.isAvailable()) {
                 //噪声抑制
@@ -603,12 +620,12 @@ abstract class BaseRecorder {
                 mNoiseSuppressor = NoiseSuppressor.create(mAudioSessionId)
                 if (mNoiseSuppressor != null) {
                     mNoiseSuppressor!!.enabled = true
-                    Log.i(TAG, "NoiseSuppressor enabled：[噪声抑制器开始]")
+                    Log.i(TAG, "NoiseSuppressor enabled：[ NC:噪声抑制器开始]")
                 } else {
                     Log.i(TAG, "Failed to create NoiseSuppressor.")
                 }
             } else {
-                Log.i(TAG, "Doesn't support NoiseSuppressor：[噪声抑制器开始失败]")
+                Log.i(TAG, "Doesn't support NoiseSuppressor：[NC：噪声抑制器开始失败]")
             }
 
             if (AcousticEchoCanceler.isAvailable()) {
@@ -620,14 +637,13 @@ abstract class BaseRecorder {
                 mAcousticEchoCanceler = AcousticEchoCanceler.create(mAudioSessionId)
                 if (mAcousticEchoCanceler != null) {
                     mAcousticEchoCanceler!!.enabled = true
-                    Log.i(TAG, "AcousticEchoCanceler enabled：[声学回声消除器开启]")
-                    // mAcousticEchoCanceler.setControlStatusListener(listener)setEnableStatusListener(listener)
+                    Log.i(TAG, "AcousticEchoCanceler enabled：[AEC:声学回声消除器开启]")
                 } else {
                     Log.i(TAG, "Failed to initAEC.")
                     mAcousticEchoCanceler = null
                 }
             } else {
-                Log.i(TAG, "Doesn't support AcousticEchoCanceler：[声学回声消除器开启失败]")
+                Log.i(TAG, "Doesn't support AcousticEchoCanceler：[AEC:声学回声消除器开启失败]")
             }
 
             if (AutomaticGainControl.isAvailable()) {
@@ -640,12 +656,12 @@ abstract class BaseRecorder {
                 mAutomaticGainControl = AutomaticGainControl.create(mAudioSessionId)
                 if (mAutomaticGainControl != null) {
                     mAutomaticGainControl!!.enabled = true
-                    Log.i(TAG, "AutomaticGainControl enabled：[自动增益控制开启]")
+                    Log.i(TAG, "AutomaticGainControl enabled：[AGC:自动增益控制开启]")
                 } else {
                     Log.i(TAG, "Failed to create AutomaticGainControl.")
                 }
             } else {
-                Log.i(TAG, "Doesn't support AutomaticGainControl：[自动增益控制开启失败]")
+                Log.i(TAG, "Doesn't support AutomaticGainControl：[AGC:自动增益控制开启失败]")
             }
         }
     }

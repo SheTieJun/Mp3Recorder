@@ -2,16 +2,16 @@
 package me.shetj.mp3recorder.record.utils
 
 import android.content.Context
+import android.media.AudioManager
 import android.media.MediaRecorder
 import android.net.Uri
 import android.text.TextUtils
 import android.util.Log
 import android.view.View
 import android.widget.Toast
+import androidx.core.content.ContextCompat.getSystemService
 import androidx.lifecycle.MutableLiveData
-import java.time.LocalDate
-import me.shetj.base.S
-import me.shetj.base.ktx.logD
+import me.shetj.base.BaseKit
 import me.shetj.base.ktx.logI
 import me.shetj.base.tools.app.Utils
 import me.shetj.base.tools.file.EnvironmentStorage
@@ -25,6 +25,9 @@ import me.shetj.recorder.core.*
 import me.shetj.recorder.mixRecorder.buildMix
 import me.shetj.recorder.simRecorder.buildSim
 import me.shetj.recorder.soundtouch.buildST
+import kotlin.math.abs
+import kotlin.math.log10
+import kotlin.math.sqrt
 
 /**
  * 录音工具类
@@ -151,10 +154,6 @@ class RecordUtils(
         initRecorder()
     }
 
-    /**
-     * VOICE_COMMUNICATION 消除回声和噪声问题
-     * MIC 麦克风- 因为有噪音问题
-     */
     private fun initRecorder() {
         mRecorder = recorder {
             mMaxTime = 5 * 60 * 1000
@@ -183,7 +182,7 @@ class RecordUtils(
             mRecorder!!.getSoundTouch().changeUse(true)
             mRecorder!!.getSoundTouch().setPitchSemiTones(10f) //往女声变
 //            mRecorder!!.getSoundTouch().setRateChange(50f) //加速，会导致录音计时> 实际时间
-            Toast.makeText(S.app, "变声，不可以使用背景音乐", Toast.LENGTH_LONG).show()
+            Toast.makeText(BaseKit.app, "变声，不可以使用背景音乐", Toast.LENGTH_LONG).show()
         }
         mRecorder?.setMaxTime(TIME, TIME - 20 * 1000)
         listener?.let { setBackgroundPlayerListener(it) }
@@ -191,14 +190,16 @@ class RecordUtils(
     }
 
     fun startOrPauseBGM() {
-        if (mRecorder?.isPlayMusic() == true) {
-            if (mRecorder?.isPauseMusic() == true) {
-                mRecorder?.resumeMusic()
+        mRecorder?.let { recorder->
+            if (recorder.isPlayMusic()) {
+                if (recorder.isPauseMusic()) {
+                    recorder.resumeMusic()
+                } else {
+                    recorder.pauseMusic()
+                }
             } else {
-                mRecorder?.pauseMusic()
+                recorder.startPlayMusic()
             }
-        } else {
-            mRecorder?.startPlayMusic()
         }
     }
 
@@ -310,12 +311,30 @@ class RecordUtils(
     }
 
     override fun onBeforePCMToMp3(pcm: ShortArray): ShortArray {
-        val pcmdb = LameUtils.getPCMDB(pcm, pcm.size)
-        Log.d("LameUtils","修改PCM前DB:$pcmdb" )
+        val pcmdb =calculateRealVolume(pcm, pcm.size)
+        Log.d("onBeforePCMToMp3","修改PCM前DB:$pcmdb" )
         val adjustVoice = BytesTransUtil.adjustVoice(pcm, 3)
-        val afterdb = LameUtils.getPCMDB(adjustVoice, adjustVoice.size)
-        Log.d("LameUtils","修改PCM后DB:$afterdb" )
+        val afterdb = calculateRealVolume(adjustVoice, adjustVoice.size)
+        Log.d("onBeforePCMToMp3","修改PCM后DB:$afterdb" )
         return adjustVoice
     }
 
+
+    private fun calculateRealVolume(buffer: ShortArray, readSize: Int): Int {
+        var sum = 0.0
+        var mVolume = 0
+        for (i in 0 until readSize) {
+            // 这里没有做运算的优化，为了更加清晰的展示代码
+            sum += abs((buffer[i] * buffer[i]).toDouble())
+        }
+        if (readSize > 0) {
+            mVolume = (log10(sqrt(sum / readSize)) * 20).toInt()
+            if (mVolume < 0) {
+                mVolume = 0
+            } else if (mVolume > 100) {
+                mVolume = 100
+            }
+        }
+        return mVolume
+    }
 }

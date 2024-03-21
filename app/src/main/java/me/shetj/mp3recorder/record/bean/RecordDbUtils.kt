@@ -1,18 +1,17 @@
 
 package me.shetj.mp3recorder.record.bean
 
-import me.shetj.base.S
 import me.shetj.base.tools.file.FileUtils
 import me.shetj.mp3recorder.record.bean.db.AppDatabase
 import me.shetj.mp3recorder.record.bean.db.RecordDao
 import java.io.File
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import me.shetj.base.ktx.doOnIO
+import me.shetj.base.BaseKit
 
 class RecordDbUtils private constructor() {
     private val dbManager: RecordDao by lazy {
-        AppDatabase.getInstance(S.app).recordDao()
+        AppDatabase.getInstance(BaseKit.app).recordDao()
     }
 
     /**

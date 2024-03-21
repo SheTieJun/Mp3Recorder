@@ -1,4 +1,3 @@
-
 package me.shetj.recorder.ui
 
 import android.content.Context
@@ -11,8 +10,8 @@ import android.view.ViewGroup
 import android.widget.PopupWindow
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleObserver
-import androidx.lifecycle.OnLifecycleEvent
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.LifecycleOwner
 import androidx.viewbinding.ViewBinding
 
 /**
@@ -24,21 +23,22 @@ import androidx.viewbinding.ViewBinding
  * }
  */
 abstract class BasePopupWindow<VB : ViewBinding>(mContext: AppCompatActivity) :
-    PopupWindow(mContext), LifecycleObserver {
+    PopupWindow(mContext) {
 
     private val lazyViewBinding = lazy { initViewBinding(mContext) }
     protected val mViewBinding: VB by lazyViewBinding
 
     private var mAudioManager: AudioManager? = null
-    private var focusChangeListener: AudioManager.OnAudioFocusChangeListener = AudioManager.OnAudioFocusChangeListener {
-        focusChange ->
+    private var focusChangeListener: AudioManager.OnAudioFocusChangeListener = AudioManager.OnAudioFocusChangeListener { focusChange ->
         when (focusChange) {
             AudioManager.AUDIOFOCUS_LOSS ->
                 // 长时间丢失焦点,当其他应用申请的焦点为AUDIOFOCUS_GAIN时，
                 audioLoss()
+
             AudioManager.AUDIOFOCUS_LOSS_TRANSIENT ->
                 // 短暂性丢失焦点，当其他应用申请AUDIOFOCUS_GAIN_TRANSIENT或AUDIOFOCUS_GAIN_TRANSIENT_EXCLUSIVE时，
                 audioLoss()
+
             AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK,
             AudioManager.AUDIOFOCUS_GAIN -> {
             }
@@ -79,7 +79,16 @@ abstract class BasePopupWindow<VB : ViewBinding>(mContext: AppCompatActivity) :
         contentView = mViewBinding.root
         mViewBinding.initUI()
         setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-        mContext.lifecycle.addObserver(this)
+        mContext.lifecycle.addObserver(object : LifecycleEventObserver {
+            override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
+                if (event == Lifecycle.Event.ON_DESTROY ) {
+                    dismissOnDestroy()
+                }
+                if (event == Lifecycle.Event.ON_STOP) {
+                    dismissStop()
+                }
+            }
+        })
         setAudioManager(mContext)
     }
 
@@ -89,7 +98,6 @@ abstract class BasePopupWindow<VB : ViewBinding>(mContext: AppCompatActivity) :
 
     abstract fun showPop()
 
-    @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
     open fun dismissStop() {
         try {
             dismiss()
@@ -98,7 +106,6 @@ abstract class BasePopupWindow<VB : ViewBinding>(mContext: AppCompatActivity) :
         }
     }
 
-    @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
     open fun dismissOnDestroy() {
         try {
             dismiss()

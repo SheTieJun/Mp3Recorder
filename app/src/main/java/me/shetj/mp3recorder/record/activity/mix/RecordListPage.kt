@@ -1,7 +1,7 @@
 
 package me.shetj.mp3recorder.record.activity.mix
 
-import android.app.Activity
+import android.annotation.SuppressLint
 import android.transition.Scene
 import android.transition.TransitionManager
 import android.view.LayoutInflater
@@ -13,6 +13,7 @@ import android.widget.RelativeLayout
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
+import kotlinx.coroutines.launch
 import me.shetj.base.tools.app.ArmsUtils
 import me.shetj.mp3recorder.R
 import me.shetj.mp3recorder.record.adapter.RecordAdapter
@@ -20,9 +21,6 @@ import me.shetj.mp3recorder.record.bean.Record
 import me.shetj.mp3recorder.record.bean.RecordDbUtils
 import me.shetj.mp3recorder.record.utils.EventCallback
 import me.shetj.mp3recorder.record.view.RecordBottomSheetDialog
-import java.util.*
-import kotlinx.coroutines.launch
-import me.shetj.base.ktx.launch
 
 /**
  */
@@ -79,6 +77,7 @@ class RecordListPage(
         }
     }
 
+    @SuppressLint("InflateParams")
     private fun initView(view: View?) {
         //绑定view
         mRecyclerView = view!!.findViewById(R.id.recycler_view)
@@ -89,20 +88,9 @@ class RecordListPage(
         mRecyclerView?.adapter = recordAdapter
         //设置点击
         recordAdapter.setOnItemClickListener { _, _, position ->
-            recordAdapter.setPlayPosition(
-                position
-            )
+            recordAdapter.setPlayPosition(position)
         }
-        recordAdapter.setOnItemChildClickListener { adapter, view1, position ->
-            when (view1.id) {
-                R.id.tv_more -> {
-                    val dialog = showBottomDialog(position)
-                    dialog.showBottomSheet()
-                }
-            }
-        }
-        recordAdapter.addChildClickViewIds(R.id.tv_more)
-        recordAdapter.setOnItemLongClickListener { adapter, _, position ->
+        recordAdapter.setOnItemLongClickListener { _, _, position ->
             val dialog = showBottomDialog(position)
             dialog.showBottomSheet()
             true
@@ -115,8 +103,6 @@ class RecordListPage(
         emptyView.findViewById<View>(R.id.cd_start_record).setOnClickListener {
             callback.onEvent(0)
         }
-
-
         //添加一个head
         val headView = View(context)
         headView.layoutParams =
@@ -127,15 +113,11 @@ class RecordListPage(
             recordAdapter.setPlayPosition(-1)
             callback.onEvent(0)
         }
-
     }
 
     private fun showBottomDialog(position: Int): RecordBottomSheetDialog {
         recordAdapter.onPause()
-        return RecordBottomSheetDialog(
-            context, position, recordAdapter.getItem(position),
-            callback
-        )
+        return RecordBottomSheetDialog(context, recordAdapter.getItem(position), callback)
     }
 
 

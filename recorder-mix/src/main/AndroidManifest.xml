@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="me.shetj.recorder.mixRecorder">
+ >
 
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
 </manifest>

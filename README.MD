@@ -2,18 +2,15 @@
 
 [![](https://jitpack.io/v/SheTieJun/Mp3Recorder.svg)](https://jitpack.io/#SheTieJun/Mp3Recorder) ![buildWorkflow](https://github.com/SheTieJun/Mp3Recorder/actions/workflows/android.yml/badge.svg)
 
-- 边录边转码MP3,默认启动手机自带的AEC,支持暂停，实时返回已录制时长和当前声音大小。
-- 可添加背景音乐,可以设置背景音乐声音的大小
-- 支持[**变音**](#变音录音推荐)（变音的录音工具，暂时不支持背景音乐），可边录边变音边转码MP3
-- 录制过程中**暂停**,已录制的那段音频是**可以播放**的.
+- 边录边转码MP3,默认启动系统自带[如果手机支持]的AEC、NC、AGC。
+- 支持暂停，实时返回已**录制时长**和当前**声音大小**，已录制的那段音频是**可以播放**的.
+- 支持添加背景音乐,可以设置背景音乐声音的大小
 - 可以使用默认耳机配置方式：如果没有连接耳机会只用外放的背景音乐，如果连接上了耳机，会使用写入合成背景音乐的方式
 - 其他..
 
-### Demo1 [APP下载](http://d.zqapps.com/ne21)
+### Demo1 [APP下载](https://fir.xcxwo.com/ne21)
 
 ![](doc/img/recorder.gif)
-
-
 
 ## 一、接入配置
 **[接入配置文档](https://github.com/SheTieJun/Mp3Recorder/wiki/%E6%8E%A5%E5%85%A5%E6%96%87%E6%A1%A3)**
@@ -21,7 +18,7 @@
 ### 1. 如何选择
 
 ```
-implementation "com.github.SheTieJun.Mp3Recorder:recorder-core:$sdk_version"//必选
+implementation "com.github.SheTieJun.Mp3Recorder:recorder-core:$sdk_version"//必选+（下面3个至少选一个）
 implementation "com.github.SheTieJun.Mp3Recorder:recorder-sim:$sdk_version"//可选
 implementation "com.github.SheTieJun.Mp3Recorder:recorder-mix:$sdk_version"//可选
 implementation "com.github.SheTieJun.Mp3Recorder:recorder-st:$sdk_version" //可选，已初步测试（变音参数需要自己调试）
@@ -33,7 +30,7 @@ implementation "com.github.SheTieJun.Mp3Recorder:recorder-st:$sdk_version" //可
 - 如果录音中，需要随时添加背景音乐，而且要求支持带耳机后也有背景音乐：[MixRecorder](recorder-mix)
 - 如果录音中，没有背景音乐，但是支持随时进行变音：[STRecorder](recorder-st)
 
-### 2. [《背景音乐》录音推荐](recorder-sim)：
+## 2. [《背景音乐》录音推荐](recorder-sim)：
 
 ```
 implementation 'com.github.SheTieJun.Mp3Recorder:recorder-mix:版本号'
@@ -51,7 +48,7 @@ implementation 'com.github.SheTieJun.Mp3Recorder:recorder-core:版本号'
 - 如果设置单声道，播放的背景是双声道，（MIX）会让音乐拉长；反之双声音合成，背景音乐是单声音，节奏会变快
 - tip: 背景音乐支持网络链接，但是网络差的时候可能导致卡顿,所有请尽量不要使用网络链接作为背景音乐应用
 
-### 3. [《变音》录音推荐](recorder-st)(初步完成，未完善):
+## 3. [《变音》录音推荐](recorder-st)(初步完成，未完善):
 
 ```
 implementation 'com.github.SheTieJun.Mp3Recorder:recorder-core:版本号'
@@ -90,6 +87,15 @@ fun setPitchSemiTones(@FloatRange(from = -12.0, to = 12.0) pitch: Float)
  采样频率越高， 声音越接近原始数据。
  采样位数越高，声音越接近原始数据。
  比特率越高，传送的数据越大，音质越好
+```
+
+## 获取手机当前最佳采样率
+```kotlin
+val am = getSystemService(Context.AUDIO_SERVICE) as AudioManager
+val sampleRateStr: String? = am.getProperty(AudioManager.PROPERTY_OUTPUT_SAMPLE_RATE)
+var sampleRate: Int = sampleRateStr?.let { str ->
+    Integer.parseInt(str).takeUnless { it == 0 }
+} ?: 44100 
 ```
 
 ```kotlin
@@ -210,14 +216,7 @@ abstract class BaseRecorder {
 ```
 
 ## 其他
-
-### 尝试支持 Compose
-
-[Mp3Recorder-Compose](https://github.com/SheTieJun/Mp3Recorder-Compose)
-
 ### 1. [Old version](https://github.com/SheTieJun/Mp3Recorder/tree/master_copy)
-
 ### 2. [Update_log](https://github.com/SheTieJun/Mp3Recorder/wiki/%E6%9B%B4%E6%96%B0%E6%97%A5%E5%BF%97)
-
 ### 3. [License](https://github.com/SheTieJun/Mp3Recorder/blob/master/LICENSE)
 

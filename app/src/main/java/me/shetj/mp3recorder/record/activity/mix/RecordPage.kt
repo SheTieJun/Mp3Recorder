@@ -15,32 +15,27 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatButton
 import androidx.lifecycle.lifecycleScope
-import java.io.File
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.InternalCoroutinesApi
-import kotlinx.coroutines.flow.FlowCollector
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import me.shetj.base.ktx.launch
 import me.shetj.base.ktx.logI
-import me.shetj.base.ktx.throttleFirst
 import me.shetj.base.tools.app.ArmsUtils
 import me.shetj.dialog.OrangeDialog
 import me.shetj.mp3recorder.R
 import me.shetj.mp3recorder.databinding.PageRecordMixBinding
-import me.shetj.mp3recorder.record.activity.mix.RecordVoiceViewV2.CallBack
 import me.shetj.mp3recorder.record.bean.MusicQ
 import me.shetj.mp3recorder.record.bean.Record
 import me.shetj.mp3recorder.record.bean.RecordDbUtils
 import me.shetj.mp3recorder.record.utils.EventCallback
 import me.shetj.mp3recorder.record.utils.RecordUtils
 import me.shetj.mp3recorder.record.utils.Util
-import me.shetj.mp3recorder.record.utils.Util.formatSeconds4
 import me.shetj.mp3recorder.record.view.BackgroundMixMusicView
 import me.shetj.mp3recorder.record.view.MusicListBottomQSheetDialog
 import me.shetj.recorder.core.SimRecordListener
 import timber.log.Timber
+import java.io.File
 
 /**
  * 录制声音界面
@@ -113,34 +108,6 @@ open class RecordPage(
         musicView = view.findViewById(R.id.bg_music_view)
         addMusic = view.findViewById(R.id.ll_add_music)
         addMusic!!.setOnClickListener(this)
-        context.launch {
-            recordingVoice
-                .collect {
-                    val currentLevel = when {
-                        it < 0 -> 0.8f
-                        it < 20 -> (0.5f) + (it - 20) / 10f
-                        it in 20..30 -> (0.8f) + (it - 20) / 10f
-                        it in 40..55 -> (1.0f) + (it - 40) / 15f
-                        it in 55..58 -> (1.2f) + (it - 55) / 3f
-                        it in 58..60 -> (3.2f) + (it - 58) / 2f
-                        it in 60..62 -> (4f) + (it - 60) / 2f
-                        it in 62..65 -> (5f) + (it - 62) / 3f
-                        it in 65..68 -> (6f) + (it - 65) / 3f
-                        it in 68..70 -> (7.2f) + (it - 68) / 3f
-                        it in 70..75 -> (8.5f) + (it - 70) / 5f
-                        it in 75..80 -> (11f) + (it - 75) / 5f
-                        else -> 13.5f
-                    }
-                    binding.recordVoiceView.addFrame(currentLevel, currentDuration)
-
-                }
-        }
-
-        binding.recordVoiceView.setCallBack(object :CallBack{
-            override fun onCurrentPosition(position: Long) {
-                binding.time2.text = formatSeconds4(position)
-            }
-        })
     }
 
 
@@ -161,7 +128,6 @@ open class RecordPage(
                 showSaveAndRe(View.INVISIBLE)
                 mTvStateMsg!!.text = "录音中"
                 recordingVoice.resetReplayCache()
-                binding.recordVoiceView.setCanScroll(false)
             }
 
             override fun onRemind(duration: Long) {
@@ -178,7 +144,6 @@ open class RecordPage(
                 if (volume > 0) {
                     recordingVoice.tryEmit(volume)
                 }
-                binding.time.text = formatSeconds4(currentDuration)
             }
 
             override fun onPause() {
@@ -186,11 +151,9 @@ open class RecordPage(
                 mIvRecordState!!.setImageResource(R.mipmap.icon_start_record)
                 showSaveAndRe(View.VISIBLE)
                 mTvStateMsg!!.text = "已暂停，点击继续"
-                binding.recordVoiceView.setCanScroll(true)
             }
 
             override fun onSuccess(isAutoComplete: Boolean, file: String, time: Long) {
-                binding.recordVoiceView.setCanScroll(true)
                 Timber.i("onSuccess")
                 if (isAutoComplete) {
                     if (File(file).exists()) {
@@ -265,7 +228,6 @@ open class RecordPage(
                 val mediaTime = getMediaTime(file)
                 if (oldRecord != null && isHasChange) {
                     oldRecord!!.audioLength = mediaTime
-                    binding.recordVoiceView.clearFrame()
                     RecordDbUtils.getInstance().update(oldRecord!!)
                 }
                 if (isFinish) {
@@ -309,7 +271,6 @@ open class RecordPage(
      * 保存录音，并且通知修改
      */
     private fun saveRecord(file: String) {
-        binding.recordVoiceView.clearFrame()
         context.lifecycleScope.launch {
             kotlin.runCatching {
                 val record = Record(
@@ -336,7 +297,6 @@ open class RecordPage(
             mTvStateMsg!!.text = "点击录音"
         }
         showSaveAndRe(View.INVISIBLE)
-        binding.time2.text = formatSeconds4(0)
     }
 
     /**

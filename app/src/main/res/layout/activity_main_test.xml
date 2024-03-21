@@ -26,4 +26,13 @@
         android:text="UIdemo"
         android:layout_toRightOf="@id/btn_demo3"
         android:textAllCaps="false"/>
+
+    <TextView
+        android:id="@+id/msg"
+        android:textSize="16sp"
+        android:gravity="center"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/btn_demo3"/>
+
 </RelativeLayout>

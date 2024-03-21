@@ -3,26 +3,32 @@ package me.shetj.mp3recorder
 
 import android.Manifest
 import android.animation.ObjectAnimator
+import android.content.Context
 import android.graphics.Color
+import android.media.AudioFormat
+import android.media.AudioManager
+import android.media.AudioRecord
 import android.os.Bundle
 import android.view.View
 import androidx.core.animation.doOnEnd
 import androidx.core.splashscreen.SplashScreen
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.NonCancellable.start
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import me.shetj.base.BaseKit
 import me.shetj.base.ktx.hasPermission
 import me.shetj.base.ktx.setAppearance
 import me.shetj.base.ktx.showToast
 import me.shetj.base.ktx.start
-import me.shetj.base.mvvm.BaseBindingActivity
-import me.shetj.base.mvvm.BaseViewModel
+import me.shetj.base.mvvm.viewbind.BaseBindingActivity
+import me.shetj.base.mvvm.viewbind.BaseViewModel
 import me.shetj.mp3recorder.databinding.ActivityMainTestBinding
 import me.shetj.mp3recorder.record.activity.mix.RecordActivity
 import me.shetj.recorder.ui.RecorderPopup
 
-class MainActivity : BaseBindingActivity<ActivityMainTestBinding,BaseViewModel>() {
+class MainActivity : BaseBindingActivity<ActivityMainTestBinding, BaseViewModel>() {
     private var splashScreen:  SplashScreen? =null
     private var isKeep = true
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -60,19 +66,15 @@ class MainActivity : BaseBindingActivity<ActivityMainTestBinding,BaseViewModel>(
         }
     }
 
-    override fun initViewBinding(): ActivityMainTestBinding {
-        return ActivityMainTestBinding.inflate(layoutInflater)
-    }
 
-    override fun onActivityCreate() {
-        super.onActivityCreate()
+    override fun initBaseView() {
         hasPermission(
             Manifest.permission.WRITE_EXTERNAL_STORAGE,
             Manifest.permission.READ_EXTERNAL_STORAGE,
             Manifest.permission.RECORD_AUDIO,
             isRequest = true
         )
-        mViewBinding.btnDemo3.setOnClickListener {
+        mBinding.btnDemo3.setOnClickListener {
             if (hasPermission(
                     Manifest.permission.WRITE_EXTERNAL_STORAGE,
                     Manifest.permission.READ_EXTERNAL_STORAGE,
@@ -83,10 +85,41 @@ class MainActivity : BaseBindingActivity<ActivityMainTestBinding,BaseViewModel>(
             }
         }
 
-        mViewBinding.btnDemo4.setOnClickListener {
+        mBinding.btnDemo4.setOnClickListener {
             recorderPopup.showPop()
         }
+        mBinding.msg.apply {
+            append("获取当前手机录音最佳参数：")
+            append("最佳采样率：${getBestSampleRate()}\n")
+            append("\n录音最小缓存大小(${getBestSampleRate()},1,${AudioFormat.ENCODING_PCM_16BIT})：${AudioRecord.getMinBufferSize(
+                getBestSampleRate(),
+                1,  AudioFormat.ENCODING_PCM_16BIT
+            )}\n")
+            append("音频输出的缓冲：${getBestBufferSize()}\n")
+        }
+
     }
+
+    //获取最佳采样率
+    private fun getBestSampleRate(): Int {
+        val am = BaseKit.app.getSystemService(Context.AUDIO_SERVICE) as? AudioManager
+        val sampleRateStr: String? = am?.getProperty(AudioManager.PROPERTY_OUTPUT_SAMPLE_RATE)
+        val sampleRate: Int = sampleRateStr?.let { str ->
+            Integer.parseInt(str).takeUnless { it == 0 }
+        } ?: 44100 // Use a default value if property not found
+        return sampleRate
+    }
+
+    //
+    private fun getBestBufferSize(): Int {
+        val am = BaseKit.app.getSystemService(Context.AUDIO_SERVICE) as? AudioManager
+        val bufferSizeStr: String? = am?.getProperty(AudioManager.PROPERTY_OUTPUT_FRAMES_PER_BUFFER)
+        val bufferSize: Int = bufferSizeStr?.let { str ->
+            Integer.parseInt(str).takeUnless { it == 0 }
+        } ?: 256 // Use a default value if property not found
+        return bufferSize
+    }
+
 
     override fun onRequestPermissionsResult(
         requestCode: Int,
@@ -96,9 +129,6 @@ class MainActivity : BaseBindingActivity<ActivityMainTestBinding,BaseViewModel>(
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
     }
 
-    override fun initView() {
-        super.initView()
-    }
 
     override fun onBackPressed() {
         if (recorderPopup.onBackPress()) {

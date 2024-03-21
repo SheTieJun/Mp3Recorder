@@ -15,8 +15,6 @@ import me.shetj.player.AudioPlayer
 import me.shetj.player.PlayerListener
 import me.shetj.recorder.core.BaseRecorder
 import me.shetj.recorder.core.Channel
-import me.shetj.recorder.core.PermissionListener
-import me.shetj.recorder.core.RecordListener
 import me.shetj.recorder.core.RecordState
 import me.shetj.recorder.core.Source
 import me.shetj.recorder.core.VolumeConfig
@@ -408,7 +406,7 @@ internal class SimRecorder : BaseRecorder {
         )
         mPCMBuffer = ShortArray(mBufferSize)
 
-        initAEC(mAudioRecord!!.audioSessionId)
+        initAudioEffect(mAudioRecord!!.audioSessionId)
         LameUtils.init(
             mSamplingRate,
             mLameInChannel,

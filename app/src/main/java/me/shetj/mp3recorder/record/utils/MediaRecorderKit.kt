@@ -4,13 +4,6 @@ package me.shetj.mp3recorder.record.utils
 import android.media.MediaRecorder
 import me.shetj.base.tools.file.EnvironmentStorage
 
-/**
- *
- * <b>@author：</b> shetj<br>
- * <b>@createTime：</b> 2021/11/11<br>
- * <b>@email：</b> 375105540@qq.com<br>
- * <b>@describe</b> MediaRecorder demo <br>
- */
 object MediaRecorderKit {
 
     var mMediaRecorder: MediaRecorder? = null

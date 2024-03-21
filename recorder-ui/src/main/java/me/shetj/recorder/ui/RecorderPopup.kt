@@ -2,6 +2,7 @@
 package me.shetj.recorder.ui
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.transition.TransitionManager
 import android.view.Gravity
 import android.widget.Toast
@@ -62,6 +63,7 @@ class RecorderPopup(
 
     private val listener: SimRecordListener = object : SimRecordListener() {
 
+        @SuppressLint("SetTextI18n")
         override fun onStart() {
             TransitionManager.beginDelayedTransition(mViewBinding.root)
             mViewBinding.llTime.isVisible = true

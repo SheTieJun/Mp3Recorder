@@ -6,4 +6,7 @@
     <string name="click_to_record">点击录音</string>
     <string name="save">保存</string>
     <string name="rerecording">重录</string>
+    <string name="add_bg">添加背景音乐</string>
+    <string name="start_ts">00:00</string>
+    <string name="end_ts">60:00</string>
 </resources>

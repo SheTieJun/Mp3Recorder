@@ -2,6 +2,7 @@ package me.shetj.mp3recorder.record.activity.mix
 
 import android.animation.ObjectAnimator
 import android.animation.ValueAnimator
+import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Color
@@ -133,7 +134,7 @@ class RecordVoiceView @JvmOverloads constructor(
 
 
     private val ongestureListener = object : SimpleOnGestureListener() {
-        override fun onScroll(e1: MotionEvent?, e2: MotionEvent?, distanceX: Float, distanceY: Float): Boolean {
+        override fun onScroll(e1: MotionEvent?, e2: MotionEvent, distanceX: Float, distanceY: Float): Boolean {
             if (!canScroll) return false
             offsetX -= distanceX
             currentOffset.postValue(offsetX)
@@ -142,7 +143,7 @@ class RecordVoiceView @JvmOverloads constructor(
             return true
         }
 
-        override fun onFling(e1: MotionEvent?, e2: MotionEvent?, velocityX: Float, velocityY: Float): Boolean {
+        override fun onFling(e1: MotionEvent?, e2: MotionEvent, velocityX: Float, velocityY: Float): Boolean {
             if (!canScroll) return false
             mGravityScroller.fling(
                 0,
@@ -159,7 +160,7 @@ class RecordVoiceView @JvmOverloads constructor(
         }
 
 
-        override fun onDown(e: MotionEvent?): Boolean {
+        override fun onDown(e: MotionEvent): Boolean {
             if (!canScroll) return false
             anima?.cancel()
             return true
@@ -302,11 +303,12 @@ class RecordVoiceView @JvmOverloads constructor(
     }
 
 
+    @SuppressLint("ClickableViewAccessibility")
     override fun onTouchEvent(event: MotionEvent): Boolean {
         return gestureDetector.onTouchEvent(event)
     }
 
-    override fun draw(canvas: Canvas?) {
+    override fun draw(canvas: Canvas) {
         super.draw(canvas)
         val halfWidth = (width / 2).toFloat()
         canvas?.apply {

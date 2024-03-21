@@ -39,7 +39,7 @@ class RecordActivity : BaseActivity<EmptyPresenter>(), EventCallback {
     }
 
 
-    override fun initView() {
+    override fun onActivityCreate() {
         statuInScreen(true)
         canRecord()
         mFrameLayout = findViewById(R.id.frameLayout)
@@ -62,9 +62,6 @@ class RecordActivity : BaseActivity<EmptyPresenter>(), EventCallback {
         TransitionManager.go(recordListPage!!.scene, myRecordTransition)
     }
 
-    override fun initData() {
-
-    }
 
 
     override fun onEvent(message: Int) {

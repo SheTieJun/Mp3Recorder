@@ -39,7 +39,7 @@ object RecordingNotification {
         notify(context, notification)
     }
 
-    fun getNotification(type: Int, context: Context): Notification {
+    private fun getNotification(type: Int, context: Context): Notification {
         val content = when (type) {
             RECORD_NOTIFICATION_RECORD_ING -> "正在录音..."
             RECORD_NOTIFICATION_RECORD_PAUSE -> "录音已暂停"

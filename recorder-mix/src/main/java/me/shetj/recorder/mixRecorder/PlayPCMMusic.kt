@@ -1,4 +1,3 @@
-
 @file:Suppress("DEPRECATION")
 
 package me.shetj.recorder.mixRecorder
@@ -430,13 +429,7 @@ internal class PlayPCMMusic(private val defaultChannel: Int = CHANNEL_OUT_STEREO
 
     fun setVolume(volume: Float) {
         this.volume = volume
-        if (audioTrack != null) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                audioTrack!!.setVolume(volume)
-            } else {
-                audioTrack!!.setStereoVolume(volume, volume)
-            }
-        }
+        this.audioTrack?.setVolume(volume)
     }
 
     internal interface BackGroundFrameListener {
@@ -444,10 +437,10 @@ internal class PlayPCMMusic(private val defaultChannel: Int = CHANNEL_OUT_STEREO
     }
 
     companion object {
-        private val PROCESS_STOP = 3
-        private val PROCESS_ERROR = 4
-        private val PROCESS_REPLAY = 5
-        private val mSampleRate = 44100
-        private val mAudioEncoding = AudioFormat.ENCODING_PCM_16BIT // 一个采样点16比特-2个字节
+        private const val PROCESS_STOP = 3
+        private const val PROCESS_ERROR = 4
+        private const val PROCESS_REPLAY = 5
+        private const val mSampleRate = 44100
+        private const val mAudioEncoding = AudioFormat.ENCODING_PCM_16BIT // 一个采样点16比特-2个字节
     }
 }

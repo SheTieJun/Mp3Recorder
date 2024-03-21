@@ -1,6 +1,7 @@
 
 package me.shetj.mp3recorder.record.view
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.transition.TransitionManager
 import android.util.AttributeSet
@@ -62,7 +63,7 @@ class BackgroundMixMusicView @JvmOverloads constructor(
         mIvChange.setOnClickListener(this)
     }
 
-    private val onVolumeChange: OnVolumeChange = object : (Float) -> Unit() {
+    private val onVolumeChange: OnVolumeChange = object : (Float) -> Unit {
         override fun invoke(p1: Float) {
             mSeekBar.progress = (p1 * max).toInt()
         }
@@ -77,10 +78,11 @@ class BackgroundMixMusicView @JvmOverloads constructor(
         music = null
     }
 
+    @SuppressLint("SetTextI18n")
     fun resetMusic() {
         music?.let {
             mTvProgress.text =
-                Util.formatSeconds3(0 / 1000) + "/" + Util.formatSeconds3(it.duration.toInt())
+               "${ Util.formatSeconds3(0 / 1000) }/${Util.formatSeconds3(it.duration.toInt())}"
         }
     }
 
@@ -118,6 +120,7 @@ class BackgroundMixMusicView @JvmOverloads constructor(
         })
     }
 
+    @SuppressLint("SetTextI18n")
     private fun showVolumeString(
         it: SeekBar,
         recordUtils: RecordUtils?

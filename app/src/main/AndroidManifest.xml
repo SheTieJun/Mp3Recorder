@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="me.shetj.mp3recorder">
+   >
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
@@ -19,9 +19,6 @@
         android:roundIcon="@mipmap/icon_record_app"
         android:supportsRtl="true"
         android:theme="@style/BaseTheme.MD3">
-        <activity
-            android:name=".WaveViewActivity"
-            android:exported="false" />
         <activity
             android:name=".MainActivity"
             android:exported="true"

@@ -60,7 +60,7 @@ internal class AudioDecoder {
             Log.w(
                 "mixRecorder",
                 "the url  may be HTTP ,APP could ANR by MediaExtractor," +
-                    "you should download it to use better than direct to use|| 如果使用HTTP的url, APP可能ANR," +
+                    "you should download it to use better than direct to use\n如果使用HTTP的url, APP可能ANR," +
                     "因为mediaExtractor实在主线程初始化的" +
                     "你应该下载它后再用，会比只直接用url好很多"
             )
@@ -263,9 +263,6 @@ internal class AudioDecoder {
 
     companion object {
 
-        /**
-         * 初始化解码器
-         */
         private val lockPCM = Any()
         const val BUFFER_SIZE = 2048
     }

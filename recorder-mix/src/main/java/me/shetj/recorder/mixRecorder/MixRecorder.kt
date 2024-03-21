@@ -1,6 +1,6 @@
-
 package me.shetj.recorder.mixRecorder
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.media.AudioFormat
 import android.media.AudioRecord
@@ -9,17 +9,14 @@ import android.net.Uri
 import android.os.Message
 import android.os.Process
 import android.util.Log
-import java.io.IOException
 import me.shetj.ndk.lame.LameUtils
 import me.shetj.player.PlayerListener
-import me.shetj.recorder.core.BaseEncodeThread
 import me.shetj.recorder.core.BaseRecorder
 import me.shetj.recorder.core.Channel
-import me.shetj.recorder.core.PermissionListener
 import me.shetj.recorder.core.PlugConfigs
-import me.shetj.recorder.core.RecordListener
 import me.shetj.recorder.core.RecordState
 import me.shetj.recorder.core.VolumeConfig
+import java.io.IOException
 
 /**
  * 混合录音
@@ -36,6 +33,7 @@ internal class MixRecorder : BaseRecorder {
 
     //region 其他
     private var mSendError: Boolean = false
+    private var enableForceMix: Boolean = false // 不强制写入混音背景
 
     // 缓冲数量
     private var mBufferSize: Int = 0
@@ -74,21 +72,19 @@ internal class MixRecorder : BaseRecorder {
 
     /**
      * @param audioSource 最好是  [MediaRecorder.AudioSource.VOICE_COMMUNICATION] 或者 [MediaRecorder.AudioSource.MIC]
-     * @param channel 声道数量 ([AudioFormat.CHANNEL_IN_MONO] 或者 [AudioFormat.CHANNEL_IN_STEREO])
+     * @param channel 声道数量 1([AudioFormat.CHANNEL_IN_MONO] 或者 2 [AudioFormat.CHANNEL_IN_STEREO])
      */
-    constructor(audioSource: Int = MediaRecorder.AudioSource.MIC, @Channel channel: Int = 1) {
+    constructor(audioSource: Int = MediaRecorder.AudioSource.MIC, channel: Int = 1) {
         mAudioSource = audioSource
         mLameInChannel = channel
-        mChannelConfig = when (channel) {
-            1 -> {
+        is2Channel = mLameInChannel == 2
+        mChannelConfig = when (is2Channel) {
+            false -> {
                 AudioFormat.CHANNEL_IN_MONO
             }
-            2 -> {
-                AudioFormat.CHANNEL_IN_STEREO
-            }
+
             else -> AudioFormat.CHANNEL_IN_STEREO
         }
-        is2Channel = mLameInChannel == 2
         releaseAEC()
         bgPlayer.updateChannel(mLameInChannel)
     }
@@ -97,13 +93,11 @@ internal class MixRecorder : BaseRecorder {
         if (!isActive) {
             is2Channel = channel == 2
             mLameInChannel = channel
-            mChannelConfig = when (channel) {
-                1 -> {
+            mChannelConfig = when (is2Channel) {
+                false -> {
                     AudioFormat.CHANNEL_IN_MONO
                 }
-                2 -> {
-                    AudioFormat.CHANNEL_IN_STEREO
-                }
+
                 else -> AudioFormat.CHANNEL_IN_STEREO
             }
             releaseAEC()
@@ -137,9 +131,7 @@ internal class MixRecorder : BaseRecorder {
     }
 
     override fun setBackgroundMusic(
-        context: Context,
-        uri: Uri,
-        header: MutableMap<String, String>?
+        context: Context, uri: Uri, header: MutableMap<String, String>?
     ): MixRecorder {
         initPlayer()
         mPlayBackMusic!!.setBackGroundUrl(context, uri, header)
@@ -159,13 +151,12 @@ internal class MixRecorder : BaseRecorder {
                 when (is2Channel) {
                     true -> AudioFormat.CHANNEL_OUT_STEREO
                     else -> AudioFormat.CHANNEL_OUT_MONO
-                },
-                plugConfigs
+                }, plugConfigs
             )
         }
     }
 
-    override fun updateDataEncode(outputFilePath: String,isContinue: Boolean ) {
+    override fun updateDataEncode(outputFilePath: String, isContinue: Boolean) {
         setOutputFile(outputFilePath, isContinue)
         mEncodeThread?.isContinue = isContinue
         mEncodeThread?.update(outputFilePath)
@@ -217,7 +208,7 @@ internal class MixRecorder : BaseRecorder {
             initAudioRecorder()
             mAudioRecord!!.startRecording()
             logInfo("startRecording")
-        }catch (ex:IllegalStateException){
+        } catch (ex: IllegalStateException) {
             handler.sendEmptyMessage(HANDLER_PERMISSION)
             isActive = false
             ex.printStackTrace()
@@ -236,13 +227,11 @@ internal class MixRecorder : BaseRecorder {
                 // 设置线程权限
                 Process.setThreadPriority(Process.THREAD_PRIORITY_URGENT_AUDIO)
                 onStart()
-                while (isActive) {
-                    /*
+                while (isActive) {/*
                       这里需要与 背景音乐读取出来的数据长度 一样,
                       如果没有背景音乐才使用获取 mBufferSize
                      */
-                    val samplesPerFrame =
-                        if (bgPlayer.isPlayingMusic) bgPlayer.bufferSize else mBufferSize
+                    val samplesPerFrame = if (bgPlayer.isPlayingMusic) bgPlayer.bufferSize else mBufferSize
                     val buffer = ByteArray(samplesPerFrame)
                     val readCode = mAudioRecord!!.read(buffer, 0, samplesPerFrame)
                     if (readCode == AudioRecord.ERROR_INVALID_OPERATION || readCode == AudioRecord.ERROR_BAD_VALUE) {
@@ -261,10 +250,7 @@ internal class MixRecorder : BaseRecorder {
                             // 计算时间长度,同时判断是否达到最大录制时间
                             if (onRecording(readTime)) {
                                 mEncodeThread!!.addTask(
-                                    buffer,
-                                    1f,
-                                    mPlayBackMusic!!.getBackGroundBytes(),
-                                    volumeConfig?.currVolumeF ?: bgLevel
+                                    buffer, 1f, mPlayBackMusic!!.getBackGroundBytes(), volumeConfig?.currVolumeF ?: bgLevel
                                 )
                                 calculateRealVolume(buffer)
                             }
@@ -402,59 +388,67 @@ internal class MixRecorder : BaseRecorder {
     //endregion 公开方法！
 
     //region 初始化 Initialize audio recorder
+    @SuppressLint("MissingPermission")
     @Throws(IOException::class)
     private fun initAudioRecorder() {
         mBufferSize = AudioRecord.getMinBufferSize(
-            mSamplingRate,
-            mChannelConfig, DEFAULT_AUDIO_FORMAT.audioFormat
+            mSamplingRate, mChannelConfig, DEFAULT_AUDIO_FORMAT.audioFormat
         )
         val bytesPerFrame = DEFAULT_AUDIO_FORMAT.bytesPerFrame
         var frameSize = mBufferSize / bytesPerFrame
         if (frameSize % FRAME_COUNT != 0) {
             frameSize += FRAME_COUNT - frameSize % FRAME_COUNT
             mBufferSize = frameSize * bytesPerFrame
-        }
-        /* Setup audio recorder
+        }/* Setup audio recorder
       * 音频源：可以使用麦克风作为采集音频的数据源。mAudioSource
       * 采样率：一秒钟对声音数据的采样次数，采样率越高，音质越好。defaultSamplingRate
       * 音频通道：单声道，双声道等，defaultChannelConfig
       * 缓冲区大小：音频数据写入缓冲区的总数：mBufferSize
       * */
         mAudioRecord = AudioRecord(
-            mAudioSource,
-            mSamplingRate,
-            mChannelConfig,
-            DEFAULT_AUDIO_FORMAT.audioFormat,
-            mBufferSize
+            /* audioSource = */ mAudioSource,
+            /* sampleRateInHz = */ mSamplingRate,
+            /* channelConfig = */ mChannelConfig,
+            /* audioFormat = */ DEFAULT_AUDIO_FORMAT.audioFormat,
+            /* bufferSizeInBytes = */ mBufferSize
         )
 
         // 1秒时间需要多少字节，用来计算已经录制了多久
-        bytesPerSecond =
-            mAudioRecord!!.sampleRate * mapFormat(mAudioRecord!!.audioFormat) / 8 * mAudioRecord!!.channelCount
+        bytesPerSecond = mAudioRecord!!.sampleRate * mapFormat(mAudioRecord!!.audioFormat) / 8 * mAudioRecord!!.channelCount
 
-        initAEC(mAudioRecord!!.audioSessionId)
+        initAudioEffect(mAudioRecord!!.audioSessionId)
 
         LameUtils.init(
-            mSamplingRate,
-            mLameInChannel,
-            mSamplingRate,
-            mLameMp3BitRate,
-            mMp3Quality,
-            lowpassFreq,
-            highpassFreq,
-            openVBR,
-            isDebug
+            inSampleRate = mSamplingRate,
+            inChannel = mLameInChannel,
+            outSampleRate = mSamplingRate,
+            outBitrate = mLameMp3BitRate,
+            quality = mMp3Quality,
+            lowpassFreq = lowpassFreq,
+            highpassFreq = highpassFreq,
+            enableVBR = openVBR,
+            enableLog = isDebug
         )
-        mEncodeThread = MixEncodeThread(mRecordFile!!, mBufferSize, isContinue, is2Channel,openVBR)
+        mEncodeThread = MixEncodeThread(mRecordFile!!, mBufferSize, isContinue, is2Channel, openVBR)
         mEncodeThread!!.start()
         mEncodeThread!!.setPCMListener(mPCMListener)
         mAudioRecord!!.setRecordPositionUpdateListener(mEncodeThread, mEncodeThread!!.getEncodeHandler())
         mAudioRecord!!.positionNotificationPeriod = FRAME_COUNT
 
         // 强制加上背景音乐
-        plugConfigs?.setForce(mAudioSource == MediaRecorder.AudioSource.VOICE_COMMUNICATION)
+        plugConfigs?.setForce(enableForceMix || (mAudioSource == MediaRecorder.AudioSource.VOICE_COMMUNICATION))
     }
     //endregion
+
+    /**
+     * Set force write mix bg
+     * 是否强制写入混音背景
+     * @param enable true 强制写入混音背景
+     */
+    override fun enableForceWriteMixBg(enable: Boolean) {
+        this.enableForceMix = enable
+        plugConfigs?.setForce(enable)
+    }
 
     //region private method  私有方法
     private fun onStart() {

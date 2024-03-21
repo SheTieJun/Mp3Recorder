@@ -142,9 +142,4 @@ constructor(
     override fun addTask(rawData: ShortArray, readSize: Int) {
         mTasks.add(ReadTask(rawData, readSize))
     }
-
-    companion object {
-        private const val PROCESS_STOP = 1
-        private const val PROCESS_ERROR = 2
-    }
 }

@@ -154,7 +154,7 @@ class SpreadView : AppCompatImageView {
         )
     }
 
-    override fun onDraw(canvas: Canvas?) {
+    override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
 
         spreadRadiusList.iterator().run {
@@ -165,7 +165,7 @@ class SpreadView : AppCompatImageView {
                 spreadRadiusList[index] = spreadRadius
                 var alpha = alphaList[index]
                 spreadPaint.alpha = alpha
-                canvas?.drawCircle(centerX, centerY, spreadRadius, spreadPaint)
+                canvas.drawCircle(centerX, centerY, spreadRadius, spreadPaint)
 
                 if (spreadRadius > maxRadius) {
                     remove()
@@ -193,7 +193,7 @@ class SpreadView : AppCompatImageView {
         }
 
         // 中间的圆
-        canvas?.apply {
+        canvas.apply {
             drawCircle(centerX, centerY, radius, centerPaint)
             bg?.bounds = bgRect
             bg?.draw(this)

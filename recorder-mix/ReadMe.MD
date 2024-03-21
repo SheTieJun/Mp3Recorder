@@ -80,6 +80,7 @@ mRecorder.onDestroy() //没有任何回调
 mRecorder?.stop()  //完成录音
 ```
 
+#### 7. 强制启动写入的混音
 
 
 #### 单双声道

@@ -1,13 +1,20 @@
 apply plugin: 'maven-publish'
 task sourceJar(type: Jar) {
-    from android.sourceSets.main.java.srcDirs
-    archiveClassifier = "sources"
+    if (project.plugins.findPlugin("com.android.library")) {
+        from android.sourceSets.main.java.srcDirs
+        from android.sourceSets.main.kotlin.srcDirs
+    } else {
+        // For pure Kotlin libraries, in case you have them
+        from sourceSets.main.java.srcDirs
+        from sourceSets.main.kotlin.srcDirs
+    }
 }
 afterEvaluate {
     publishing {
         publications {
+            def sdk_version = '1.9.3'
             release(MavenPublication) {
-                groupId local_group_id
+                groupId "com.github.SheTieJun"
                 artifact sourceJar
                 from components.release
                 artifactId = 'recorder-core'

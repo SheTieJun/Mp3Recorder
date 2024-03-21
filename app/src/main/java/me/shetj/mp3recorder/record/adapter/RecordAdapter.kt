@@ -2,24 +2,16 @@
 package me.shetj.mp3recorder.record.adapter
 
 
-import android.animation.ValueAnimator
-import android.view.View
-import android.view.animation.AccelerateDecelerateInterpolator
 import android.widget.ImageView
-import android.widget.ProgressBar
 import android.widget.SeekBar
-import android.widget.TextView
-import androidx.core.animation.doOnEnd
 import com.chad.library.adapter.base.BaseQuickAdapter
 import com.chad.library.adapter.base.viewholder.BaseViewHolder
-import me.shetj.base.tools.app.ArmsUtils
 import me.shetj.mp3recorder.R
 import me.shetj.mp3recorder.record.bean.Record
 import me.shetj.mp3recorder.record.utils.MediaPlayerUtils
 import me.shetj.mp3recorder.record.utils.RecordPlayerListener
 import me.shetj.mp3recorder.record.utils.Util
 import me.shetj.player.PlayerListener
-import java.io.File
 
 
 /**
@@ -59,7 +51,6 @@ class RecordAdapter(data: MutableList<Record>?) :
                 .setText(R.id.tv_time_all, Util.formatSeconds3(item.audioLength))
                 .setText(R.id.tv_read_time, Util.formatSeconds3(0))
                 .setText(R.id.tv_time, Util.formatSeconds2(item.audioLength))
-            holder.getView<View>(R.id.tv_upload).setOnClickListener { startUpload(holder, item) }
         }
     }
 
@@ -70,66 +61,7 @@ class RecordAdapter(data: MutableList<Record>?) :
             .setGone(R.id.rl_record_view2, curPosition != itemPosition)
     }
 
-    /**
-     * 把界面收起来，停止播放音乐，开始上传
-     */
-    private fun startUpload(helper: BaseViewHolder, item: Record) {
-        helper.setGone(R.id.rl_record_view2, false)
-            .setVisible(R.id.tv_time, true)
-        curPosition = -1
-        if (!mediaUtils.isPause) {
-            mediaUtils.pause()
-        }
-        uploadMusic(
-            item.audio_url,
-            helper.getView(R.id.progressbar_upload),
-            helper.getView(R.id.tv_progress)
-        )
-    }
 
-    /**
-     * 上传
-     */
-    private fun uploadMusic(audioUrl: String?, progressBar: ProgressBar, tvProgress: TextView) {
-        if (!File(audioUrl!!).exists()) {
-            ArmsUtils.makeText("当前选中文件已经丢失~，请删除该记录后重新录制！")
-            return
-        }
-        recyclerView.alpha = 0.7f
-        val valueAnimator = showAnimator(progressBar, tvProgress, 0, 100, 2500).apply {
-            doOnEnd {
-                progressBar.progress = 0
-                progressBar.alpha = 0f
-                tvProgress.text = ""
-            }
-        }
-        progressBar.alpha = 1f
-        //开始执行进度动画
-        valueAnimator.start()
-    }
-
-    /**
-     * 展示进度动画
-     */
-    private fun showAnimator(
-        progressBar: ProgressBar,
-        tvProgress: TextView,
-        start: Int,
-        end: Int,
-        time: Int
-    ): ValueAnimator {
-        val valueAnimator = ValueAnimator.ofInt(start, end)
-        valueAnimator.duration = time.toLong()
-        valueAnimator.interpolator = AccelerateDecelerateInterpolator()
-        valueAnimator.addUpdateListener { animation ->
-            val animatedValue = animation.animatedValue as Int
-            progressBar.progress = animatedValue
-            progressBar.visibility = View.VISIBLE
-            tvProgress.visibility = View.VISIBLE
-            tvProgress.text = String.format("%s%%", animatedValue.toString())
-        }
-        return valueAnimator
-    }
 
 
     /**

@@ -1,6 +1,7 @@
 
 package me.shetj.mp3recorder.record.view
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
@@ -18,19 +19,17 @@ import me.shetj.recorder.core.FileUtils
  * 录音更多菜单
  */
 class RecordBottomSheetDialog(
-    val context: AppCompatActivity,
-    position: Int,
+    private val context: AppCompatActivity,
     private val record: Record,
     private val callback: EventCallback
 ) : View.OnClickListener {
     private val easyBottomSheetDialog: BottomSheetDialog?
-    private var position = -1
 
     init {
-        this.position = position
         this.easyBottomSheetDialog = buildBottomSheetDialog(context)
     }
 
+    @SuppressLint("InflateParams")
     private fun buildBottomSheetDialog(context: Context): BottomSheetDialog {
         val bottomSheetDialog = BottomSheetDialog(context)
         val rootView = LayoutInflater.from(context).inflate(R.layout.dailog_record_case, null)

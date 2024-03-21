@@ -1,6 +1,7 @@
 
 package me.shetj.mp3recorder.record.view
 
+import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
@@ -24,6 +25,7 @@ class MusicListBottomQSheetDialog (val context: AppCompatActivity) : View.OnClic
         this.easyBottomSheetDialog = buildBottomSheetDialog(context)
     }
 
+    @SuppressLint("InflateParams")
     private fun buildBottomSheetDialog(context: AppCompatActivity): BottomSheetDialog {
         val bottomSheetDialog = BottomSheetDialog(context, R.style.transparent_music_style)
         val rootView = LayoutInflater.from(context).inflate(R.layout.dialog_bg_music_list, null)
@@ -33,7 +35,6 @@ class MusicListBottomQSheetDialog (val context: AppCompatActivity) : View.OnClic
 
         val musicAdapter = MusicQAdapter(ArrayList()).apply {
             recyclerView.adapter = this
-            setEmptyView(R.layout.base_empty_date_view)
         }
         context.launch {
             LocalMusicQUtils.loadFileData(context).collect{
