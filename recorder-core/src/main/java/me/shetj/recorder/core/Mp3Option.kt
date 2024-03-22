@@ -1,4 +1,3 @@
-
 package me.shetj.recorder.core
 
 import android.media.MediaRecorder
@@ -30,7 +29,7 @@ data class Mp3Option(
     // 回调
     var recordListener: RecordListener? = null,
     // pcm 回调
-    var pcmListener: PCMListener?=null,
+    var pcmListener: PCMListener? = null,
 )
 
 fun recorder(block: Mp3Option.() -> Unit): Mp3Option {
