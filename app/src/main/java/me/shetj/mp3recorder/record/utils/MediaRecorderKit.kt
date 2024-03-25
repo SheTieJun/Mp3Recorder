@@ -60,15 +60,11 @@ object MediaRecorderKit {
     }
 
     fun pause(){
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            mMediaRecorder?.pause()
-        }
+        mMediaRecorder?.pause()
     }
 
     fun resume(){
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            mMediaRecorder?.resume()
-        }
+        mMediaRecorder?.resume()
     }
 
 

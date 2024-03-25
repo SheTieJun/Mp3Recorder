@@ -40,7 +40,7 @@ class RecordActivity : BaseActivity<EmptyPresenter>(), EventCallback {
     }
 
 
-    override fun onActivityCreate() {
+    override fun initBaseView() {
         statuInScreen(true)
         canRecord()
         mFrameLayout = findViewById(R.id.frameLayout)
