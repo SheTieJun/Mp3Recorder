@@ -219,5 +219,5 @@ abstract class BaseRecorder {
 ### 1. [Old version](https://github.com/SheTieJun/Mp3Recorder/tree/master_copy)
 ### 2. [Update_log](https://github.com/SheTieJun/Mp3Recorder/wiki/%E6%9B%B4%E6%96%B0%E6%97%A5%E5%BF%97)
 ### 3. [License](https://github.com/SheTieJun/Mp3Recorder/blob/master/LICENSE)
-### 4. [MediaRecorder介绍](MediaRecorder.MD):部分场景下使用MediaRecorder更加方便。
+### 4. [MediaRecorder介绍](doc/MediaRecorder.MD):部分场景下使用MediaRecorder更加方便。
 

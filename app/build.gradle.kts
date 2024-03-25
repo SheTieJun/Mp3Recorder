@@ -39,6 +39,6 @@ dependencies {
     implementation(project(":recorder-sim"))
     implementation(project(":recorder-core"))
     implementation(project(":recorder-st"))
-    implementation("com.github.SheTieJun:BaseKit:85dc1cb78d")
+    implementation("com.github.SheTieJun:BaseKit:fcc505b8b7")
     ksp(libs.androidx.room.compiler)
 }
