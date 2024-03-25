@@ -23,6 +23,13 @@ androidApplication("me.shetj.mp3recorder"){
             storePassword = "123456"
         }
     }
+    buildTypes {
+        release {
+            isMinifyEnabled = false
+            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+            signingConfig = signingConfigs.getByName("release")
+        }
+    }
     sourceSets {
         getByName("main"){
             jniLibs.setSrcDirs(listOf("libs"))
