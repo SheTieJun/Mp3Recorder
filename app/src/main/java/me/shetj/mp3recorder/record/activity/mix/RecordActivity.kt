@@ -1,7 +1,6 @@
 
 package me.shetj.mp3recorder.record.activity.mix
 
-import android.Manifest
 import android.os.Bundle
 import android.transition.Transition
 import android.transition.TransitionInflater
@@ -9,16 +8,13 @@ import android.transition.TransitionManager
 import android.widget.FrameLayout
 import androidx.appcompat.widget.AppCompatButton
 import androidx.core.view.isVisible
-import me.shetj.base.ktx.hasPermission
+import me.shetj.base.fix.FixPermission
 import me.shetj.base.mvp.BaseActivity
 import me.shetj.base.mvp.EmptyPresenter
 import me.shetj.base.tools.app.ArmsUtils.Companion.statuInScreen
 import me.shetj.mp3recorder.R
 import me.shetj.mp3recorder.record.RecordingNotification
 import me.shetj.mp3recorder.record.utils.EventCallback
-import kotlinx.coroutines.delay
-import me.shetj.base.fix.FixPermission
-import me.shetj.base.ktx.launch
 
 
 /**
@@ -36,12 +32,14 @@ class RecordActivity : BaseActivity<EmptyPresenter>(), EventCallback {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_my_record)
+        enabledOnBack = true
     }
 
 
     override fun initBaseView() {
+        setContentView(R.layout.activity_my_record)
         statuInScreen(true)
+        setOrientation(false)
         canRecord()
         mFrameLayout = findViewById(R.id.frameLayout)
         btnRecorderType = findViewById(R.id.btn_recorderType)
@@ -100,11 +98,11 @@ class RecordActivity : BaseActivity<EmptyPresenter>(), EventCallback {
         FixPermission.checkReadMediaFile(this,true)
     }
 
-    override fun onBackPressed() {
+    override fun onBack() {
         if (isRecord) {
             recordPage!!.onStop()
-        } else {
-            super.onBackPressed()
+        }else{
+            super.onBack()
         }
     }
 

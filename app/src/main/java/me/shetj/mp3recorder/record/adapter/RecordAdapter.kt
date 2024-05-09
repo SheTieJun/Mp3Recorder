@@ -14,16 +14,6 @@ import me.shetj.mp3recorder.record.utils.Util
 import me.shetj.player.PlayerListener
 
 
-/**
- * 录音列表
- * 上传动画描述：
- * 1.首先是获取token 时，使用一闪一闪动画 showAlphaAnimator
- * 2.获取到token的时候，上传先执行一个1.5秒的进度动画（0~40）
- * 3.如果在1.5秒执行成功，就在执行一个平滑动画（progress-100）
- * 4.如果1.5后还么有上传成功，就回调变化进度
- * 5.上传成功后重置
- * @author shetj
- */
 class RecordAdapter(data: MutableList<Record>?) :
     BaseQuickAdapter<Record, BaseViewHolder>(R.layout.item_record_view, data) {
 

@@ -1,6 +1,12 @@
-# 录音工具-Mp3Recorder
+<h1 align="center">
+  录音工具-Mp3Recorder
+</h1>
 
 [![](https://jitpack.io/v/SheTieJun/Mp3Recorder.svg)](https://jitpack.io/#SheTieJun/Mp3Recorder) ![buildWorkflow](https://github.com/SheTieJun/Mp3Recorder/actions/workflows/android.yml/badge.svg)
+ 
+<p align="center">
+ <a href="README.en.md">English</a> | <a href="README.md">简体中文</a> 
+</p>
 
 - 边录边转码MP3,默认启动系统自带[如果手机支持]的AEC、NC、AGC。
 - 支持暂停，实时返回已**录制时长**和当前**声音大小**，已录制的那段音频是**可以播放**的.
@@ -13,6 +19,7 @@
 ![](doc/img/recorder.gif)
 
 ## 一、接入配置
+
 **[接入配置文档](https://github.com/SheTieJun/Mp3Recorder/wiki/%E6%8E%A5%E5%85%A5%E6%96%87%E6%A1%A3)**
 
 ### 1. 如何选择
@@ -83,6 +90,7 @@ fun setPitchSemiTones(@FloatRange(from = -12.0, to = 12.0) pitch: Float)
 
 - **[使用说明文档](https://github.com/SheTieJun/Mp3Recorder/wiki/%E4%BD%BF%E7%94%A8%E6%96%87%E6%A1%A3)**
 - [音频基础知识](https://blog.csdn.net/StjunF/article/details/121296111)
+
 ```
  采样频率越高， 声音越接近原始数据。
  采样位数越高，声音越接近原始数据。
@@ -90,6 +98,7 @@ fun setPitchSemiTones(@FloatRange(from = -12.0, to = 12.0) pitch: Float)
 ```
 
 ## 获取手机当前最佳采样率
+
 ```kotlin
 val am = getSystemService(Context.AUDIO_SERVICE) as AudioManager
 val sampleRateStr: String? = am.getProperty(AudioManager.PROPERTY_OUTPUT_SAMPLE_RATE)
@@ -124,15 +133,19 @@ abstract class BaseRecorder {
      * @param outputFile 设置输出路径
      * @param isContinue 表示是否拼接在文件末尾，实现继续录制的一种方式
      */
-    open fun setOutputFile(outputFile: File, isContinue: Boolean = false): BaseRecorder{/*...*/}
+    open fun setOutputFile(outputFile: File, isContinue: Boolean = false): BaseRecorder {/*...*/
+    }
 
     //设置录音监听
-    open fun setRecordListener(recordListener: RecordListener?): BaseRecorder{/*...*/}
+    open fun setRecordListener(recordListener: RecordListener?): BaseRecorder {/*...*/
+    }
 
     //设置权限监听
-    open fun setPermissionListener(permissionListener: PermissionListener?): BaseRecorder{/*...*/}
+    open fun setPermissionListener(permissionListener: PermissionListener?): BaseRecorder {/*...*/
+    }
 
-    open fun setPCMListener(pcmListener: PCMListener?):BaseRecorder{/*...*/}
+    open fun setPCMListener(pcmListener: PCMListener?): BaseRecorder {/*...*/
+    }
 
     //设计背景音乐的url,本地的(网络的可能造成卡死)
     abstract fun setBackgroundMusic(url: String): BaseRecorder
@@ -163,7 +176,8 @@ abstract class BaseRecorder {
     abstract fun setAudioSource(@Source audioSource: Int = MediaRecorder.AudioSource.MIC): Boolean
 
     //设置声波过滤器
-    open fun setFilter(lowpassFreq: Int = 3000, highpassFreq: Int = 200) {/*...*/}
+    open fun setFilter(lowpassFreq: Int = 3000, highpassFreq: Int = 200) {/*...*/
+    }
 
     //初始最大录制时间 和提醒时间 remind = maxTime - remindDiffTime
     abstract fun setMaxTime(maxTime: Int, remindDiffTime: Int? = null): BaseRecorder
@@ -216,8 +230,12 @@ abstract class BaseRecorder {
 ```
 
 ## 其他
+
 ### 1. [Old version](https://github.com/SheTieJun/Mp3Recorder/tree/master_copy)
+
 ### 2. [Update_log](https://github.com/SheTieJun/Mp3Recorder/wiki/%E6%9B%B4%E6%96%B0%E6%97%A5%E5%BF%97)
+
 ### 3. [License](https://github.com/SheTieJun/Mp3Recorder/blob/master/LICENSE)
+
 ### 4. [MediaRecorder介绍](doc/MediaRecorder.MD):部分场景下使用MediaRecorder更加方便。
 

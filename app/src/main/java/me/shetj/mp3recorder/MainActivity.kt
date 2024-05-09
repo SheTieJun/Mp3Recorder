@@ -3,6 +3,7 @@ package me.shetj.mp3recorder
 
 import android.animation.ObjectAnimator
 import android.content.Context
+import android.content.Intent
 import android.graphics.Color
 import android.media.AudioFormat
 import android.media.AudioManager
@@ -60,13 +61,13 @@ class MainActivity : BaseBindingActivity<ActivityMainTestBinding, BaseViewModel>
     override fun initBaseView() {
         mBinding.btnDemo3.setOnClickListener {
             if (FixPermission.checkReadMediaFile(this, isRequest = true)) {
-                start<RecordActivity>()
+                startActivity(Intent(this,RecordActivity::class.java))
             }
         }
 
         mBinding.msg.apply {
             append("获取当前手机录音最佳参数：")
-            append("最佳采样率：${getBestSampleRate()}\n")
+            append("\n最佳采样率：${getBestSampleRate()}\n")
             append("\n录音最小缓存大小(${getBestSampleRate()},1,${AudioFormat.ENCODING_PCM_16BIT})：${AudioRecord.getMinBufferSize(
                 getBestSampleRate(),
                 1,  AudioFormat.ENCODING_PCM_16BIT

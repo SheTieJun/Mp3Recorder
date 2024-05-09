@@ -107,11 +107,11 @@ private fun <T : BaseExtension> Project.androidBase(
             warningsAsErrors = true
         }
         compileOptions {
-            sourceCompatibility = JavaVersion.VERSION_17
-            targetCompatibility = JavaVersion.VERSION_17
+            sourceCompatibility = JavaVersion.VERSION_1_8
+            targetCompatibility = JavaVersion.VERSION_1_8
         }
         tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
-            kotlinOptions.jvmTarget = JvmTarget.JVM_17.target
+            kotlinOptions.jvmTarget = JvmTarget.JVM_1_8.target
         }
         action()
     }

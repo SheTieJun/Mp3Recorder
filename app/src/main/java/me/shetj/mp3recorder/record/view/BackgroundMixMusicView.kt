@@ -140,6 +140,7 @@ class BackgroundMixMusicView @JvmOverloads constructor(
     /**
      * isSave 是否保存，默认是保存
      */
+    @SuppressLint("SetTextI18n")
     fun setMusic(music: MusicQ, isSave: Boolean = true) {
         if (music.url == null) {
             //如果是错误数据，直接忽略
@@ -232,6 +233,7 @@ class BackgroundMixMusicView @JvmOverloads constructor(
 
     }
 
+    @SuppressLint("SetTextI18n")
     override fun onProgress(current: Int, duration: Int) {
         mTvProgress.text =
             Util.formatSeconds3(current / 1000) + "/" + Util.formatSeconds3(duration / 1000)

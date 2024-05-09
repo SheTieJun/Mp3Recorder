@@ -1,13 +1,16 @@
 
 package me.shetj.mp3recorder.record
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
+import android.content.pm.PackageManager
 import android.os.Build
+import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
@@ -68,6 +71,9 @@ object RecordingNotification {
 
 
     private fun notify(context: Context, notification: Notification) {
+        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+            return
+        }
         NotificationManagerCompat.from(context).notify(RECORD_NOTIFICATION_ID, notification)
     }
 
