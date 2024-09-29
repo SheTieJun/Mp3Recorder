@@ -152,6 +152,7 @@ class RecordUtils(
             audioChannel = 1
             mp3BitRate = 128
             mp3Quality = 5
+            enableAudioEffect = false
             recordListener = this@RecordUtils
             permissionListener = this@RecordUtils
             pcmListener = this@RecordUtils

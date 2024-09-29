@@ -30,6 +30,8 @@ data class Mp3Option(
     var recordListener: RecordListener? = null,
     // pcm 回调
     var pcmListener: PCMListener? = null,
+    // 是否添加AudioEffect，普通录音，不要添加audioeffect,
+    var enableAudioEffect:Boolean = false
 )
 
 fun recorder(block: Mp3Option.() -> Unit): Mp3Option {

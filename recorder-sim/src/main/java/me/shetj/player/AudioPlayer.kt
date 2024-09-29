@@ -15,6 +15,7 @@ import android.os.Message
 import android.text.TextUtils
 import java.util.concurrent.atomic.AtomicBoolean
 
+
 /**
  * **@author：** shetj<br></br>
  * **@createTime：** 2018/10/23 0023<br></br>
@@ -47,6 +48,7 @@ class AudioPlayer :
     private var mediaPlayer: MediaPlayer? = null
     private var mAudioManager: AudioManager? = null
     private var context: Context? = null
+    private var speed = 1.0f
 
     private var focusChangeListener =
         OnAudioFocusChangeListener { focusChange ->
@@ -114,7 +116,7 @@ class AudioPlayer :
                     !hasMessages(HANDLER_PLAYING)
                 ) {
                     listener!!.onProgress(mediaPlayer!!.currentPosition, mediaPlayer!!.duration)
-                    this.sendEmptyMessageDelayed(HANDLER_PLAYING, 300)
+                    this.sendEmptyMessageDelayed(HANDLER_PLAYING, 500)
                 }
                 HANDLER_START -> {
                     if (listener != null && mediaPlayer != null) {
@@ -366,6 +368,10 @@ class AudioPlayer :
         }
     }
 
+    fun getCurSpeed(): Float {
+        return speed
+    }
+
     /**
      * 恢复，并且开始计时
      */
@@ -421,6 +427,18 @@ class AudioPlayer :
         }
     }
 
+    private fun setPlaySpeed(speed: Float): Boolean {
+        this.speed = speed
+        if (mediaPlayer == null) return false
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            val params = mediaPlayer!!.playbackParams
+            params.setSpeed(speed)
+            mediaPlayer!!.playbackParams = params
+            return true
+        }
+        return false
+    }
+
     /**
      * 开始计时
      * 使用场景：拖动结束
@@ -451,6 +469,7 @@ class AudioPlayer :
             mediaPlayer!!.setOnCompletionListener(this)
             mediaPlayer!!.setOnSeekCompleteListener(this)
             mediaPlayer!!.isLooping = isLoop
+            setPlaySpeed(speed)
         } catch (e: Exception) {
             e.printStackTrace()
         }

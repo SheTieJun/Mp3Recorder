@@ -105,6 +105,11 @@ abstract class BaseRecorder {
     private var mNoiseSuppressor: NoiseSuppressor? = null
     private var mAcousticEchoCanceler: AcousticEchoCanceler? = null
     private var mAutomaticGainControl: AutomaticGainControl? = null
+
+    /**
+     *  是否支持系统自带的去噪音，增强以及回音问题，需要自行判断
+     */
+    private var mEnableAudioEffect:Boolean = false
     //endregion 系统自带的去噪音，增强以及回音问题
 
     /**
@@ -320,6 +325,15 @@ abstract class BaseRecorder {
         return this
     }
 
+    /**
+     * 是否添加AudioEffect，普通录音，不要添加audioeffect,
+     *
+     * @param enable
+     */
+    open fun enableAudioEffect(enable: Boolean){
+        this.mEnableAudioEffect = enable
+        return
+    }
 
     /**
      * 设置回调
@@ -609,6 +623,10 @@ abstract class BaseRecorder {
      * 3. 自动增益控制
      */
     protected fun initAudioEffect(mAudioSessionId: Int) {
+        if (!mEnableAudioEffect){
+            releaseAEC()
+            return
+        }
         if (mAudioSessionId != 0) {
             if (NoiseSuppressor.isAvailable()) {
                 //噪声抑制

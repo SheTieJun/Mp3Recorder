@@ -8,7 +8,7 @@ plugins {
     id("com.google.devtools.ksp")
 }
 
-androidApplication("me.shetj.mp3recorder"){
+androidApplication("me.shetj.mp3recorder") {
     defaultConfig {
         minSdk = 24
         ndk {
@@ -30,8 +30,13 @@ androidApplication("me.shetj.mp3recorder"){
             signingConfig = signingConfigs.getByName("release")
         }
     }
+    packaging {
+        jniLibs {
+            useLegacyPackaging = true
+        }
+    }
     sourceSets {
-        getByName("main"){
+        getByName("main") {
             jniLibs.setSrcDirs(listOf("libs"))
         }
     }
