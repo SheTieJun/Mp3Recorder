@@ -181,7 +181,7 @@ class RecordUtils(
             audioSource = MediaRecorder.AudioSource.MIC
             audioChannel = 2
             recordListener = this@RecordUtils
-            permissionListener = this@RecordUtils,
+            permissionListener = this@RecordUtils
             enableAudioEffect = false
         }.let {
             when (recorderType) {
