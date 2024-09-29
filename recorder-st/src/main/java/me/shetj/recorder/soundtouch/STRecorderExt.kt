@@ -20,6 +20,7 @@ fun Mp3Option.buildST(): BaseRecorder {
             .setPermissionListener(permissionListener)
             .setRecordListener(recordListener)
             .setPCMListener(pcmListener)
+            .enableAudioEffect(enableAudioEffect)
            .apply {
                 setAudioChannel(if (AudioFormat.CHANNEL_IN_STEREO == audioChannel) 2 else 1)
                 setDebug(isDebug)

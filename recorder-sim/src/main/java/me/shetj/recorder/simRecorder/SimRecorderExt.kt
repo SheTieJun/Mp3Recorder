@@ -18,6 +18,7 @@ fun Mp3Option.buildSim(context: Context? = null): BaseRecorder {
             .setPermissionListener(permissionListener)
             .setRecordListener(recordListener)
             .setPCMListener(pcmListener)
+            .enableAudioEffect(enableAudioEffect)
             .apply {
                 setAudioChannel(audioChannel)
                 setDebug(isDebug)

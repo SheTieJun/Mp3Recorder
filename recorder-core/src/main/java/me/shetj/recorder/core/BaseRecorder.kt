@@ -330,9 +330,9 @@ abstract class BaseRecorder {
      *
      * @param enable
      */
-    open fun enableAudioEffect(enable: Boolean){
+    open fun enableAudioEffect(enable: Boolean): BaseRecorder{
         this.mEnableAudioEffect = enable
-        return
+        return this
     }
 
     /**

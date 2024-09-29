@@ -19,6 +19,7 @@ fun Mp3Option.buildMix(context: Context? = null): BaseRecorder {
             .setRecordListener(recordListener)
             .setPCMListener(pcmListener)
             .setDebug(isDebug)
+            .enableAudioEffect(enableAudioEffect)
             .apply {
                 context?.let {
                     setContextToVolumeConfig(context)
