@@ -40,6 +40,7 @@ fun Mp3RecorderOption.buildMix(context: Context? = null): BaseRecorder {
             .setPermissionListener(permissionListener)
             .setRecordListener(recordListener)
             .setDebug(isDebug)
+            .enableAudioEffect(enableAudioEffect)
             .setWax(wax).apply {
                 context?.let {
                     setContextToVolumeConfig(context)

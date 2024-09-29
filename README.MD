@@ -126,7 +126,9 @@ abstract class BaseRecorder {
 
     //设置背景音乐的监听
     abstract fun setBackgroundMusicListener(listener: PlayerListener): BaseRecorder
-
+    
+    //是否添加AudioEffect，普通录音，不要添加audioeffect,
+    fun enableAudioEffect(enable: Boolean) : BaseRecorder{/*...*/}
 
     //初始Lame录音输出质量
     abstract fun setMp3Quality(@IntRange(from = 0 ,to = 9)mp3Quality: Int): BaseRecorder

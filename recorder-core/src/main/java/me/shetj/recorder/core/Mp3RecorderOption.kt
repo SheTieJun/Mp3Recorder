@@ -1,26 +1,3 @@
-/*
- * MIT License
- *
- * Copyright (c) 2019 SheTieJun
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
 package me.shetj.recorder.core
 
 import android.media.MediaRecorder
@@ -47,12 +24,14 @@ data class Mp3RecorderOption(
     var mp3BitRate: Int = 32, // 128 /96(高),32（低）
     // Lame   质量1-7，Lame的输出质量，1最快
     var mp3Quality: Int = 3,
-    // 无法录音回调（一般是需要权限：录音和存储）
+    // 无法录音回调（一般是需要权限：录音和存储）,会有点不准确
     var permissionListener: PermissionListener? = null,
     // 回调
     var recordListener: RecordListener? = null,
     // 声音增强系数,不建议配置，可能会有噪音
-    var wax: Float = 1f
+    var wax: Float = 1f,
+    // 是否添加AudioEffect，普通录音，不要添加audioeffect,
+    var enableAudioEffect:Boolean = false
 )
 
 fun recorder(block: Mp3RecorderOption.() -> Unit): Mp3RecorderOption {

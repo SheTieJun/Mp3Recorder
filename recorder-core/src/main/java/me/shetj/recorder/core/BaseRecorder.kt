@@ -1,26 +1,4 @@
-/*
- * MIT License
- *
- * Copyright (c) 2019 SheTieJun
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
+
 package me.shetj.recorder.core
 
 import android.content.Context
@@ -37,11 +15,11 @@ import android.text.TextUtils
 import android.util.Log
 import androidx.annotation.FloatRange
 import androidx.annotation.IntRange
+import me.shetj.player.PlayerListener
 import java.io.File
 import kotlin.math.abs
 import kotlin.math.log10
 import kotlin.math.sqrt
-import me.shetj.player.PlayerListener
 
 abstract class BaseRecorder {
 
@@ -115,6 +93,11 @@ abstract class BaseRecorder {
     private var mNoiseSuppressor: NoiseSuppressor? = null
     private var mAcousticEchoCanceler: AcousticEchoCanceler? = null
     private var mAutomaticGainControl: AutomaticGainControl? = null
+
+    /**
+     *  是否支持系统自带的去噪音，增强以及回音问题，需要自行判断
+     */
+    private var mEnableAudioEffect:Boolean = false
     //endregion 系统自带的去噪音，增强以及回音问题
 
     /**
@@ -334,7 +317,18 @@ abstract class BaseRecorder {
     }
 
     /**
-    设置录音监听
+     * 是否添加AudioEffect，普通录音，不要添加audioeffect,
+     *
+     * @param enable
+     */
+    open fun enableAudioEffect(enable: Boolean):BaseRecorder{
+        this.mEnableAudioEffect = enable
+        return this
+    }
+
+    /**
+     * 设置回调
+     * @param recordListener
      */
     abstract fun setRecordListener(recordListener: RecordListener?): BaseRecorder
 
@@ -344,7 +338,7 @@ abstract class BaseRecorder {
     abstract fun setPermissionListener(permissionListener: PermissionListener?): BaseRecorder
 
     /**
-     设计背景音乐的url,最好是本地的，否则可能会网络导致卡顿
+    设计背景音乐的url,最好是本地的，否则可能会网络导致卡顿
      */
     abstract fun setBackgroundMusic(url: String): BaseRecorder
 
@@ -355,7 +349,7 @@ abstract class BaseRecorder {
 
     /**
      *   背景音乐的url,为了兼容Android Q，获取不到具体的路径
-      */
+     */
     abstract fun setBackgroundMusic(
         context: Context,
         uri: Uri,
@@ -608,6 +602,7 @@ abstract class BaseRecorder {
                 mAutomaticGainControl = AutomaticGainControl.create(mAudioSessionId)
                 if (mAutomaticGainControl != null) {
                     mAutomaticGainControl!!.enabled = true
+                    Log.i(TAG, "AutomaticGainControl enabled：[AGC:自动增益控制开启]")
                 } else {
                     Log.i(TAG, "Failed to create AutomaticGainControl.")
                 }

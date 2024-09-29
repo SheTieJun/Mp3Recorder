@@ -41,6 +41,7 @@ fun Mp3RecorderOption.buildST(): BaseRecorder {
             .setMp3BitRate(mp3BitRate)
             .setPermissionListener(permissionListener)
             .setRecordListener(recordListener)
+            .enableAudioEffect(enableAudioEffect)
             .setWax(wax).apply {
                 setAudioChannel(if (AudioFormat.CHANNEL_IN_STEREO == audioChannel) 2 else 1)
                 setDebug(isDebug)
