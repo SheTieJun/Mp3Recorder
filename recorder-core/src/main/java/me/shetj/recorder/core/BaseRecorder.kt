@@ -555,6 +555,10 @@ abstract class BaseRecorder {
      * 3. 自动增益控制
      */
     protected fun initAEC(mAudioSessionId: Int) {
+        if (!mEnableAudioEffect){
+            releaseAEC()
+            return
+        }
         if (mAudioSessionId != 0) {
             if (NoiseSuppressor.isAvailable()) {
                 //噪声抑制
