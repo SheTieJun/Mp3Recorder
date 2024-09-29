@@ -159,7 +159,7 @@ abstract class BaseRecorder {
     //设置背景音乐的监听
     abstract fun setBackgroundMusicListener(listener: PlayerListener): BaseRecorder
     
-    //是否添加AudioEffect，普通录音，不要添加audioeffect,
+    //是否添加AudioEffect， （NoiseSuppressor,AcousticEchoCanceler,AutomaticGainControl），有人说是因为这个如果链接外设备，会没有声音，但是我没有复现，先加一个开关
     fun enableAudioEffect(enable: Boolean) : BaseRecorder{/*...*/}
 
     //初始Lame录音输出质量

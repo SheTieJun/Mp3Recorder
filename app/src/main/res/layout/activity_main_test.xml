@@ -3,8 +3,7 @@
     android:id="@+id/activity_main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white"
-   >
+    android:background="@color/white">
 
     <FrameLayout
         android:id="@+id/main_frameLayout"
@@ -17,14 +16,19 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="RecorderDemo"
-        android:textAllCaps="false"/>
+        android:textAllCaps="false" />
 
-    <TextView
-        android:id="@+id/msg"
-        android:textSize="16sp"
-        android:gravity="center"
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/btn_demo3"/>
+        android:layout_below="@id/btn_demo3">
+
+        <TextView
+            android:id="@+id/msg"
+            android:textSize="16sp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+    </androidx.core.widget.NestedScrollView>
 
 </RelativeLayout>

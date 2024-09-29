@@ -30,7 +30,7 @@ data class Mp3Option(
     var recordListener: RecordListener? = null,
     // pcm 回调
     var pcmListener: PCMListener? = null,
-    // 是否添加AudioEffect，普通录音，不要添加audioeffect,
+    // 是否添加AudioEffect， （NoiseSuppressor,AcousticEchoCanceler,AutomaticGainControl）
     var enableAudioEffect:Boolean = false
 )
 

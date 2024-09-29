@@ -24,6 +24,7 @@ import me.shetj.base.mvvm.viewbind.BaseBindingActivity
 import me.shetj.base.mvvm.viewbind.BaseViewModel
 import me.shetj.mp3recorder.databinding.ActivityMainTestBinding
 import me.shetj.mp3recorder.record.activity.mix.RecordActivity
+import me.shetj.mp3recorder.record.utils.AudioManagerX
 
 class MainActivity : BaseBindingActivity<ActivityMainTestBinding, BaseViewModel>() {
     private var splashScreen:  SplashScreen? =null
@@ -65,8 +66,10 @@ class MainActivity : BaseBindingActivity<ActivityMainTestBinding, BaseViewModel>
             }
         }
 
+        val audioManagerX = AudioManagerX(this)
         mBinding.msg.apply {
-            append("获取当前手机录音最佳参数：")
+            text = audioManagerX.checkDevice()
+            append("\n\n\n获取当前手机录音最佳参数：")
             append("\n最佳采样率：${getBestSampleRate()}\n")
             append("\n录音最小缓存大小(${getBestSampleRate()},1,${AudioFormat.ENCODING_PCM_16BIT})：${AudioRecord.getMinBufferSize(
                 getBestSampleRate(),
