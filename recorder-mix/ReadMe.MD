@@ -87,7 +87,7 @@ recorder {
 #### 6. 停止录音
 
 ```kotlin
- mixRecorder?.stop()  //完成录音
+ mixRecorder?.complete()  //完成录音
 ```
 
 

@@ -148,7 +148,7 @@ abstract class BaseRecorder {
      *  录音是否暂停
      */
     protected var isPause: Boolean = true
-    private var isDebug = false
+    protected var isDebug = false
 
     /**
     声音增强,不建议使用

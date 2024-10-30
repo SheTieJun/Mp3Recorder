@@ -179,7 +179,7 @@ class RecordUtils(
             wax = 1f
             samplingRate = 44100
             audioSource = MediaRecorder.AudioSource.MIC
-            audioChannel = 2
+            audioChannel = 1
             recordListener = this@RecordUtils
             permissionListener = this@RecordUtils
             enableAudioEffect = false

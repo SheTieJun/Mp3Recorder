@@ -343,13 +343,12 @@ internal class MixRecorder : BaseRecorder {
     }
 
     override fun complete() {
+        isActive = false
+        isPause = false
         if (state != RecordState.STOPPED) {
-
             state = RecordState.STOPPED
             isAutoComplete = false
             plugConfigs?.unregisterReceiver()
-            isActive = false
-            isPause = false
             if (mPlayBackMusic != null) {
                 mPlayBackMusic!!.setNeedRecodeDataEnable(false)
                 bgPlayer.release()
@@ -470,11 +469,15 @@ internal class MixRecorder : BaseRecorder {
         initAEC(mAudioRecord!!.audioSessionId)
 
         LameUtils.init(
-            defaultSamplingRate,
-            defaultLameInChannel,
-            defaultSamplingRate,
-            defaultLameMp3BitRate,
-            defaultLameMp3Quality
+            inSampleRate = defaultSamplingRate,
+            inChannel = defaultLameInChannel,
+            outSampleRate = defaultSamplingRate,
+            outBitrate = defaultLameMp3BitRate,
+            quality = defaultLameMp3Quality,
+            lowpassFreq = -1,
+            highpassFreq = -1,
+            vbr = false,
+            enableLog = isDebug
         )
         mEncodeThread = MixEncodeThread(mRecordFile!!, mBufferSize, isContinue, is2Channel)
         mEncodeThread!!.start()
@@ -533,12 +536,12 @@ internal class MixRecorder : BaseRecorder {
     }
 
     private fun autoStop() {
+        isActive = false
         if (state != RecordState.STOPPED) {
             state = RecordState.STOPPED
             isAutoComplete = true
             plugConfigs?.unregisterReceiver()
             isPause = false
-            isActive = false
             backgroundMusicIsPlay = false
             if (mPlayBackMusic != null) {
                 bgPlayer.setNeedRecodeDataEnable(false)

@@ -446,11 +446,15 @@ internal class SimRecorder : BaseRecorder {
 
         initAEC(mAudioRecord!!.audioSessionId)
         LameUtils.init(
-            defaultSamplingRate,
-            defaultLameInChannel,
-            defaultSamplingRate,
-            defaultLameMp3BitRate,
-            defaultLameMp3Quality
+            inSampleRate = defaultSamplingRate,
+            inChannel = defaultLameInChannel,
+            outSampleRate = defaultSamplingRate,
+            outBitrate = defaultLameMp3BitRate,
+            quality = defaultLameMp3Quality,
+            lowpassFreq = -1,
+            highpassFreq = -1,
+            vbr = false,
+            enableLog = isDebug
         )
         mEncodeThread = DataEncodeThread(
             mRecordFile!!,
