@@ -57,4 +57,8 @@ interface RecordListener {
      * 计算时间错误时
      */
     fun onError(e: Exception)
+
+    fun onMuteRecordChange(mute:Boolean){
+
+    }
 }

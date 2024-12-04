@@ -9,10 +9,15 @@ internal class ReadMixTask(
     private val rawData: ByteArray, // 录制的人声音
     private val wax: Float, // 人声音增强
     private val bgData: ByteArray?, // 录制的背景音乐 可能没有
-    private val bgWax: Float // 背景声音降低
+    private val bgWax: Float, // 背景声音降低,
+    private val mute:Boolean = false,
 ) {
 
     fun getData(): ShortArray {
+        if (mute){
+            rawData.fill(0)
+            return BytesTransUtil.bytes2Shorts(rawData)
+        }
         val mixBuffer = mixBuffer(rawData, bgData) ?: return BytesTransUtil.bytes2Shorts(
             BytesTransUtil.changeDataWithVolume(rawData, wax)
         )

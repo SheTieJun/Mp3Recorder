@@ -250,7 +250,7 @@ internal class MixRecorder : BaseRecorder {
                             // 计算时间长度,同时判断是否达到最大录制时间
                             if (onRecording(readTime)) {
                                 mEncodeThread!!.addTask(
-                                    buffer, 1f, mPlayBackMusic!!.getBackGroundBytes(), volumeConfig?.currVolumeF ?: bgLevel
+                                    buffer, 1f, mPlayBackMusic!!.getBackGroundBytes(), volumeConfig?.currVolumeF ?: bgLevel,mute
                                 )
                                 calculateRealVolume(buffer)
                             }

@@ -116,6 +116,16 @@
         android:visibility="gone">
     </me.shetj.mp3recorder.record.view.BackgroundMixMusicView>
 
+    <TextView
+        android:id="@+id/mute_audio"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:padding="15dp"
+        android:layout_above="@id/rl_record_view"
+        android:background="@drawable/bg_record_add_music"
+        android:text="开启静音"/>
+
     <LinearLayout
         android:id="@+id/ll_add_music"
         android:layout_width="wrap_content"
