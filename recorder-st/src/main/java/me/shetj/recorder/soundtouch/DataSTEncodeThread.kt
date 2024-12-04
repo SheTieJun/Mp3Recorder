@@ -125,13 +125,25 @@ constructor(
      * @return 从缓冲区中读取的数据的长度
      * 缓冲区中没有数据时返回0
      */
+    /**
+     * 从缓冲区中读取并处理数据，使用lame编码MP3
+     *
+     * @return 从缓冲区中读取的数据的长度
+     * 缓冲区中没有数据时返回0
+     */
+    /**
+     * 从缓冲区中读取并处理数据，使用lame编码MP3
+     *
+     * @return 从缓冲区中读取的数据的长度
+     * 缓冲区中没有数据时返回0
+     */
     private fun processData(): Int {
         if (mTasks.size > 0) {
             val task = mTasks.removeAt(0)
             // 处理变音，如果需要变音，仅需要得到变音后的数据，以及长度
             return if (soundTouchKit.isUse()) {
                 var processSamples: Int
-                soundTouchKit.putSamples(task.data, task.readSize)
+                soundTouchKit.putSamples(task.getData(), task.readSize)
                 do {
                     processSamples = soundTouchKit.receiveSamples(mSTBuffer)
                     if (processSamples != 0) {
@@ -140,7 +152,7 @@ constructor(
                 } while (processSamples != 0)
                 1
             } else {
-                processBuffer(task.data, task.readSize)
+                processBuffer(task.getData(), task.readSize)
             }
         }
         return 0
@@ -204,8 +216,8 @@ constructor(
         }
     }
 
-    fun addTask(rawData: ShortArray, readSize: Int) {
-        mTasks.add(ReadTask(rawData, readSize))
+    fun addTask(rawData: ShortArray, readSize: Int, mute: Boolean) {
+        mTasks.add(ReadTask(rawData, readSize, mute))
     }
 
     companion object {

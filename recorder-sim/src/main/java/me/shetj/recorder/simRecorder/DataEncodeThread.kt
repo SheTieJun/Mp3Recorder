@@ -35,6 +35,7 @@ import java.io.IOException
 import java.util.Collections
 import me.shetj.ndk.lame.LameUtils
 import me.shetj.recorder.core.FileUtils
+
 /**
  * @param file       file
  * @param bufferSize bufferSize
@@ -132,7 +133,7 @@ constructor(file: File, bufferSize: Int, isContinue: Boolean, private val is2CHA
         if (mTasks.size > 0) {
             val task = mTasks.removeAt(0)
             addOldData(task)
-            val buffer = task.data
+            val buffer = task.getData()
             val encodedSize: Int
             val readSize: Int
             if (is2CHANNEL) {
@@ -196,7 +197,7 @@ constructor(file: File, bufferSize: Int, isContinue: Boolean, private val is2CHA
     private fun setOldDateToFile(): Int {
         if (mOldTasks.size > 0 && mFileOutputStream != null) {
             val task = mOldTasks.removeAt(0)
-            val buffer = task.data
+            val buffer = task.getData()
             val encodedSize: Int
             val readSize: Int
             if (is2CHANNEL) {
@@ -226,8 +227,8 @@ constructor(file: File, bufferSize: Int, isContinue: Boolean, private val is2CHA
         mOldTasks.add(task)
     }
 
-    fun addTask(rawData: ShortArray, readSize: Int) {
-        mTasks.add(ReadTask(rawData, readSize))
+    fun addTask(rawData: ShortArray, readSize: Int, mute: Boolean) {
+        mTasks.add(ReadTask(rawData.clone(), readSize, mute))
     }
 
     companion object {

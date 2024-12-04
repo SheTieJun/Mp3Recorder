@@ -301,7 +301,7 @@ internal class MixRecorder : BaseRecorder {
                                     buffer,
                                     wax,
                                     mPlayBackMusic!!.getBackGroundBytes(),
-                                    volumeConfig?.currVolumeF ?: bgLevel
+                                    (volumeConfig?.currVolumeF ?: bgLevel),mute
                                 )
                                 calculateRealVolume(buffer)
                             }

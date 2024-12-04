@@ -229,13 +229,13 @@ constructor(file: File, bufferSize: Int, isContinue: Boolean, private val is2CHA
         mOldTasks.add(task)
     }
 
-    fun addTask(rawData: ByteArray, wax: Float, bgData: ByteArray?, bgWax: Float) {
-        mTasks.add(ReadMixTask(rawData, wax, bgData, bgWax))
-    }
-
     fun update(outputFilePath: String) {
         this.path = outputFilePath
         needUpdate = true
+    }
+
+    fun addTask(rawData: ByteArray, wax: Float, bgData: ByteArray?, bgWax: Float, mute: Boolean) {
+        mTasks.add(ReadMixTask(rawData.clone(), wax, bgData, bgWax, mute))
     }
 
     companion object {

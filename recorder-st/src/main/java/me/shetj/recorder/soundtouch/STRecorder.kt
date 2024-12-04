@@ -103,6 +103,7 @@ internal class STRecorder : BaseRecorder {
             1 -> {
                 AudioFormat.CHANNEL_IN_MONO
             }
+
             2 -> {
                 AudioFormat.CHANNEL_IN_STEREO
             }
@@ -128,6 +129,7 @@ internal class STRecorder : BaseRecorder {
                 releaseAEC()
                 1
             }
+
             channel >= 2 -> {
                 defaultChannelConfig = AudioFormat.CHANNEL_IN_STEREO
                 releaseAEC()
@@ -220,7 +222,7 @@ internal class STRecorder : BaseRecorder {
                                 continue
                             }
                             val readTime = 1000.0 * readSize.toDouble() * 2 / bytesPerSecond
-                            mEncodeThread!!.addTask(mPCMBuffer!!, readSize)
+                            mEncodeThread!!.addTask(mPCMBuffer!!, readSize, mute)
                             calculateRealVolume(mPCMBuffer!!, readSize)
                             // short 是2个字节 byte 是1个字节8位
                             onRecording(readTime)

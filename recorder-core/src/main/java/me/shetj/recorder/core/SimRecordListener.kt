@@ -59,4 +59,7 @@ open class SimRecordListener : RecordListener, PermissionListener {
 
     override fun onError(e: Exception) {
     }
+
+    override fun onMuteRecordChange(mute: Boolean) {
+    }
 }

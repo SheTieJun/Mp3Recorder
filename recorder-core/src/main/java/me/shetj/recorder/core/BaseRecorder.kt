@@ -1,3 +1,5 @@
+package me.shetj.recorder.core
+
 /*
  * MIT License
  *
@@ -21,7 +23,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package me.shetj.recorder.core
 
 import android.content.Context
 import android.media.AudioFormat
@@ -178,6 +179,12 @@ abstract class BaseRecorder {
     protected var bgLevel: Float = 0.3f
 
     /**
+     * Mute 录制，但是录制的声音是静音的，使用场景是用于和其他音视频进行拼接
+     */
+    var mute: Boolean = false
+        protected set
+
+    /**
      * 录音Recorder 是否在活动,暂停的时候 isActive 还是true,只有录音结束了才会为false
      */
     var isActive = false
@@ -219,30 +226,35 @@ abstract class BaseRecorder {
                         }
                     }
                 }
+
                 HANDLER_START -> {
                     logInfo("started:  mDuration = $duration , mRemindTime = $mRemindTime")
                     if (mRecordListener != null) {
                         mRecordListener!!.onStart()
                     }
                 }
+
                 HANDLER_RESUME -> {
                     logInfo("resume:  mDuration = $duration")
                     if (mRecordListener != null) {
                         mRecordListener!!.onResume()
                     }
                 }
+
                 HANDLER_COMPLETE -> {
                     logInfo("complete: mDuration = $duration")
                     if (mRecordListener != null && mRecordFile != null) {
                         mRecordListener!!.onSuccess(false, mRecordFile!!.absolutePath, duration)
                     }
                 }
+
                 HANDLER_AUTO_COMPLETE -> {
                     logInfo("auto complete: mDuration = $duration")
                     if (mRecordListener != null && mRecordFile != null) {
                         mRecordListener!!.onSuccess(true, mRecordFile!!.absolutePath, duration)
                     }
                 }
+
                 HANDLER_ERROR -> {
                     logInfo("error : mDuration = $duration")
                     if (mRecordListener != null) {
@@ -257,27 +269,36 @@ abstract class BaseRecorder {
                         }
                     }
                 }
+
                 HANDLER_PAUSE -> {
                     logInfo("pause:  mDuration = $duration")
                     if (mRecordListener != null) {
                         mRecordListener!!.onPause()
                     }
                 }
+
                 HANDLER_PERMISSION -> {
                     logInfo("permission：record fail ,maybe need permission")
                     if (mPermissionListener != null) {
                         mPermissionListener!!.needPermission()
                     }
                 }
+
                 HANDLER_RESET -> {
                     logInfo("reset:")
                     if (mRecordListener != null) {
                         mRecordListener!!.onReset()
                     }
                 }
+
                 HANDLER_MAX_TIME -> if (mRecordListener != null) {
                     mRecordListener!!.onMaxChange(mMaxTime)
                 }
+
+                HANDLER_MUTE_RECORD -> {
+                    mRecordListener?.onMuteRecordChange(mute)
+                }
+
                 else -> {
                 }
             }
@@ -430,6 +451,17 @@ abstract class BaseRecorder {
     }
 
     /**
+     * Mute record
+     * 静音录制：录制进行，但是录制的声音是静音的，使用场景是用于和其他音视频进行拼接
+     */
+    open fun muteRecord(mute: Boolean) {
+        if (this.mute != mute) {
+            this.mute = mute
+            handler.sendEmptyMessage(HANDLER_MUTE_RECORD)
+        }
+    }
+
+    /**
     设置背景声音大小
      */
     abstract fun setBGMVolume(@FloatRange(from = 0.0, to = 1.0) volume: Float): BaseRecorder
@@ -537,6 +569,20 @@ abstract class BaseRecorder {
                 mVolume = 100
             }
         }
+    }
+
+    /**
+     *  把声音全部置空
+     */
+    protected fun muteAudioBuffer(buffer: ByteArray){
+        buffer.fill(0)
+    }
+
+    /**
+     *  把声音全部置空
+     */
+    protected fun muteAudioBuffer(buffer: ShortArray){
+        buffer.fill(0)
     }
 
     protected fun calculateRealVolume(buffer: ByteArray) {
@@ -654,6 +700,7 @@ abstract class BaseRecorder {
         const val HANDLER_RESET = HANDLER_PAUSE + 1 // 重置
         const val HANDLER_PERMISSION = HANDLER_RESET + 1 // 需要权限
         const val HANDLER_MAX_TIME = HANDLER_PERMISSION + 1 // 设置了最大时间
+        const val HANDLER_MUTE_RECORD = HANDLER_MAX_TIME + 1 // 切换禁音录制
         const val FRAME_COUNT = 160
         val DEFAULT_AUDIO_FORMAT = PCMFormat.PCM_16BIT
         const val TAG = "Recorder"
