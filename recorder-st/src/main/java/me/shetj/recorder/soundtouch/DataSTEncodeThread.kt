@@ -1,4 +1,3 @@
-
 package me.shetj.recorder.soundtouch
 
 import java.io.File
@@ -22,9 +21,9 @@ constructor(
     isContinue: Boolean,
     private val is2CHANNEL: Boolean,
     private val soundTouchKit: SoundTouchKit,
-   isEnableVBR:Boolean
+    isEnableVBR: Boolean
 ) :
-    BaseEncodeThread(file, bufferSize, isContinue, isEnableVBR,"DataSTEncodeThread") {
+    BaseEncodeThread(file, bufferSize, isContinue, isEnableVBR, "DataSTEncodeThread") {
     private val mSTBuffer = ShortArray(7200 + (bufferSize.toDouble() * 2.0).toInt()) // 处理变音的后的数据
     private val mTasks = Collections.synchronizedList(ArrayList<ReadTask>())
 
@@ -40,7 +39,7 @@ constructor(
             // 处理变音，如果需要变音，仅需要得到变音后的数据，以及长度
             return if (soundTouchKit.isUse()) {
                 var processSamples: Int
-                soundTouchKit.putSamples(task.data, task.readSize)
+                soundTouchKit.putSamples(task.getData(), task.readSize)
                 do {
                     processSamples = soundTouchKit.receiveSamples(mSTBuffer)
                     if (processSamples != 0) {
@@ -49,7 +48,7 @@ constructor(
                 } while (processSamples != 0)
                 1
             } else {
-                processBuffer(task.data, task.readSize)
+                processBuffer(task.getData(), task.readSize)
             }
         }
         return 0
@@ -110,18 +109,18 @@ constructor(
             mFileOutputStream?.close()
             mFileOutputStream = null
             mFileOutputStream = FileOutputStream(path, isContinue)
-            if(isEnableVBR){
+            if (isEnableVBR) {
                 LameUtils.writeVBRHeader(path)
             }
             needUpdate = false
         }
     }
 
-    override fun addTask(rawData: ByteArray, wax: Float, bgData: ByteArray?, bgWax: Float) {
+    override fun addTask(rawData: ByteArray, wax: Float, bgData: ByteArray?, bgWax: Float, mute: Boolean) {
 
     }
 
-    override fun addTask(rawData: ShortArray, readSize: Int) {
-        mTasks.add(ReadTask(rawData, readSize))
+    override fun addTask(rawData: ShortArray, readSize: Int, mute: Boolean) {
+        mTasks.add(ReadTask(rawData.clone(), readSize, mute))
     }
 }

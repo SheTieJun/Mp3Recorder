@@ -108,6 +108,7 @@ open class RecordPage(
         musicView = view.findViewById(R.id.bg_music_view)
         addMusic = view.findViewById(R.id.ll_add_music)
         addMusic!!.setOnClickListener(this)
+        binding.muteAudio.setOnClickListener(this)
     }
 
 
@@ -182,6 +183,11 @@ open class RecordPage(
                         }
                     }
                 }
+            }
+
+            override fun onMuteRecordChange(mute: Boolean) {
+                super.onMuteRecordChange(mute)
+                binding.muteAudio.text = if (mute) "已静音" else "开启禁音"
             }
 
             override fun onMaxChange(time: Long) {
@@ -309,6 +315,7 @@ open class RecordPage(
             R.id.tv_save_record -> recordUtils!!.stopFullRecord()
             R.id.iv_record_state -> recordUtils!!.startOrPause(oldRecord?.audio_url ?: "")
             R.id.ll_add_music -> showMusicDialog()
+            R.id.mute_audio -> recordUtils?.muteChange()
             else -> {
             }
         }

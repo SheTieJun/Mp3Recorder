@@ -38,7 +38,7 @@ constructor(
         if (mTasks.size > 0) {
             val task = mTasks.removeAt(0)
             addOldData(task)
-            val buffer = beforePCMtoMP3(task.data)
+            val buffer = beforePCMtoMP3(task.getData())
             val encodedSize: Int
             val readSize: Int
             if (is2CHANNEL) {
@@ -105,7 +105,7 @@ constructor(
     private fun setOldDateToFile(): Int {
         if (mOldTasks.size > 0 && mFileOutputStream != null) {
             val task = mOldTasks.removeAt(0)
-            val buffer = beforePCMtoMP3(task.data)
+            val buffer = beforePCMtoMP3(task.getData())
             val encodedSize: Int
             val readSize: Int
             if (is2CHANNEL) {
@@ -135,11 +135,11 @@ constructor(
         mOldTasks.add(task)
     }
 
-    override fun addTask(rawData: ByteArray, wax: Float, bgData: ByteArray?, bgWax: Float) {
+    override fun addTask(rawData: ByteArray, wax: Float, bgData: ByteArray?, bgWax: Float,mute:Boolean) {
 
     }
 
-    override fun addTask(rawData: ShortArray, readSize: Int) {
-        mTasks.add(ReadTask(rawData, readSize))
+    override fun addTask(rawData: ShortArray, readSize: Int,mute:Boolean) {
+        mTasks.add(ReadTask(rawData.clone(), readSize,mute))
     }
 }

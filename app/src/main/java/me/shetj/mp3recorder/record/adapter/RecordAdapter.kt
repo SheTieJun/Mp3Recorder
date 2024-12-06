@@ -6,6 +6,8 @@ import android.widget.ImageView
 import android.widget.SeekBar
 import com.chad.library.adapter.base.BaseQuickAdapter
 import com.chad.library.adapter.base.viewholder.BaseViewHolder
+import me.shetj.base.ktx.convertToTime
+import me.shetj.base.tools.time.DateUtils.datePattern
 import me.shetj.mp3recorder.R
 import me.shetj.mp3recorder.record.bean.Record
 import me.shetj.mp3recorder.record.utils.MediaPlayerUtils
@@ -36,7 +38,7 @@ class RecordAdapter(data: MutableList<Record>?) :
                     mediaUtils.setSeekToPlay(seekBar.progress)
                 }
             }
-            holder.setText(R.id.tv_name, item.audioName)
+            holder.setText(R.id.tv_name, (item.audioName)?.toLong()?.convertToTime(datePattern))
                 .setGone(R.id.rl_record_view2, curPosition != itemPosition)
                 .setText(R.id.tv_time_all, Util.formatSeconds3(item.audioLength))
                 .setText(R.id.tv_read_time, Util.formatSeconds3(0))
@@ -47,7 +49,7 @@ class RecordAdapter(data: MutableList<Record>?) :
     override fun convert(holder: BaseViewHolder, item: Record, payloads: List<Any>) {
         val itemPosition = holder.layoutPosition - headerLayoutCount
         super.convert(holder, item, payloads)
-        holder.setText(R.id.tv_name, item.audioName)
+        holder.setText(R.id.tv_name, (item.audioName)?.toLong()?.convertToTime(datePattern))
             .setGone(R.id.rl_record_view2, curPosition != itemPosition)
     }
 

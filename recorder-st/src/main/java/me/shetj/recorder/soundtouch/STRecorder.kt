@@ -1,4 +1,3 @@
-
 package me.shetj.recorder.soundtouch
 
 import android.annotation.SuppressLint
@@ -76,9 +75,11 @@ internal class STRecorder : BaseRecorder {
             1 -> {
                 AudioFormat.CHANNEL_IN_MONO
             }
+
             2 -> {
                 AudioFormat.CHANNEL_IN_STEREO
             }
+
             else -> AudioFormat.CHANNEL_IN_STEREO
         }
         is2Channel = mLameInChannel == 2
@@ -101,11 +102,13 @@ internal class STRecorder : BaseRecorder {
                 releaseAEC()
                 1
             }
+
             channel >= 2 -> {
                 mChannelConfig = AudioFormat.CHANNEL_IN_STEREO
                 releaseAEC()
                 2
             }
+
             else -> 2
         }
         return true
@@ -120,7 +123,7 @@ internal class STRecorder : BaseRecorder {
         return false
     }
 
-    override fun updateDataEncode(outputFilePath: String,isContinue: Boolean ) {
+    override fun updateDataEncode(outputFilePath: String, isContinue: Boolean) {
         setOutputFile(outputFilePath, isContinue)
         mEncodeThread?.isContinue = isContinue
         mEncodeThread?.update(outputFilePath)
@@ -180,7 +183,7 @@ internal class STRecorder : BaseRecorder {
                                 continue
                             }
                             val readTime = 1000.0 * readSize.toDouble() * 2 / bytesPerSecond
-                            mEncodeThread!!.addTask(mPCMBuffer!!, readSize)
+                            mEncodeThread!!.addTask(mPCMBuffer!!, readSize, mute)
                             calculateRealVolume(mPCMBuffer!!, readSize)
                             // short 是2个字节 byte 是1个字节8位
                             onRecording(readTime)
@@ -304,23 +307,12 @@ internal class STRecorder : BaseRecorder {
      * 重置
      */
     override fun reset() {
-        isActive = false
-        isPause = false
-        state = RecordState.STOPPED
-        duration = 0L
-        mRecordFile = null
-        handler.sendEmptyMessage(HANDLER_RESET)
+        super.reset()
         soundTouch.clean()
     }
 
     override fun destroy() {
-        isActive = false
-        isPause = false
-        state = RecordState.STOPPED
-        mRecordFile = null
-        releaseAEC()
-        handler.removeCallbacksAndMessages(null)
-        volumeConfig?.unregisterReceiver()
+        super.destroy()
         soundTouch.destroy()
     }
 

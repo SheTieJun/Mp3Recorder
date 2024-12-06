@@ -1,4 +1,3 @@
-
 package me.shetj.recorder.core
 
 import android.content.Context
@@ -101,6 +100,7 @@ abstract class BaseRecorder {
 
     protected var mEncodeThread: BaseEncodeThread? = null
     protected var mAudioRecord: AudioRecord? = null
+
     //region 系统自带的去噪音，增强以及回音问题
     private var mNoiseSuppressor: NoiseSuppressor? = null
     private var mAcousticEchoCanceler: AcousticEchoCanceler? = null
@@ -109,7 +109,7 @@ abstract class BaseRecorder {
     /**
      *  是否支持系统自带的去噪音，增强以及回音问题，需要自行判断
      */
-    private var mEnableAudioEffect:Boolean = false
+    private var mEnableAudioEffect: Boolean = true
     //endregion 系统自带的去噪音，增强以及回音问题
 
     /**
@@ -168,6 +168,12 @@ abstract class BaseRecorder {
     protected var bgLevel: Float = 0.3f
 
     /**
+     * Mute 录制，但是录制的声音是静音的，使用场景是用于和其他音视频进行拼接
+     */
+    var mute: Boolean = false
+        protected set
+
+    /**
      * 录音Recorder 是否在活动,暂停的时候 isActive 还是true,只有录音结束了才会为false
      */
     var isActive = false
@@ -209,18 +215,21 @@ abstract class BaseRecorder {
                         }
                     }
                 }
+
                 HANDLER_START -> {
                     logInfo("started:  mDuration = $duration , mRemindTime = $mRemindTime")
                     if (mRecordListener != null) {
                         mRecordListener!!.onStart()
                     }
                 }
+
                 HANDLER_RESUME -> {
                     logInfo("resume:  mDuration = $duration")
                     if (mRecordListener != null) {
                         mRecordListener!!.onResume()
                     }
                 }
+
                 HANDLER_COMPLETE -> {
                     logInfo("complete: mDuration = $duration")
                     if (mRecordListener != null && mRecordFile != null) {
@@ -228,6 +237,7 @@ abstract class BaseRecorder {
                         duration = 0
                     }
                 }
+
                 HANDLER_AUTO_COMPLETE -> {
                     logInfo("auto complete: mDuration = $duration")
                     if (mRecordListener != null && mRecordFile != null) {
@@ -235,6 +245,7 @@ abstract class BaseRecorder {
                         duration = 0
                     }
                 }
+
                 HANDLER_ERROR -> {
                     logInfo("error : mDuration = $duration")
                     if (mRecordListener != null) {
@@ -249,27 +260,36 @@ abstract class BaseRecorder {
                         }
                     }
                 }
+
                 HANDLER_PAUSE -> {
                     logInfo("pause:  mDuration = $duration")
                     if (mRecordListener != null) {
                         mRecordListener!!.onPause()
                     }
                 }
+
                 HANDLER_PERMISSION -> {
                     logInfo("permission：record fail ,maybe need permission")
                     if (mPermissionListener != null) {
                         mPermissionListener!!.needPermission()
                     }
                 }
+
                 HANDLER_RESET -> {
                     logInfo("reset:")
                     if (mRecordListener != null) {
                         mRecordListener!!.onReset()
                     }
                 }
+
                 HANDLER_MAX_TIME -> if (mRecordListener != null) {
                     mRecordListener!!.onMaxChange(mMaxTime)
                 }
+
+                HANDLER_MUTE_RECORD -> {
+                    mRecordListener?.onMuteRecordChange(mute)
+                }
+
                 else -> {
                 }
             }
@@ -330,7 +350,7 @@ abstract class BaseRecorder {
      *
      * @param enable
      */
-    open fun enableAudioEffect(enable: Boolean): BaseRecorder{
+    open fun enableAudioEffect(enable: Boolean): BaseRecorder {
         this.mEnableAudioEffect = enable
         return this
     }
@@ -352,7 +372,7 @@ abstract class BaseRecorder {
     /**
      * 设置pcmListener
      */
-    open fun setPCMListener(pcmListener: PCMListener?):BaseRecorder{
+    open fun setPCMListener(pcmListener: PCMListener?): BaseRecorder {
         this.mPCMListener = pcmListener
         mEncodeThread?.setPCMListener(mPCMListener)
         return this
@@ -452,7 +472,7 @@ abstract class BaseRecorder {
      * @param duration
      * @return
      */
-    open fun setCurDuration(duration:Long): BaseRecorder {
+    open fun setCurDuration(duration: Long): BaseRecorder {
         this.duration = duration
         return this
     }
@@ -487,6 +507,17 @@ abstract class BaseRecorder {
     }
 
     /**
+     * Mute record
+     * 静音录制：录制进行，但是录制的声音是静音的，使用场景是用于和其他音视频进行拼接
+     */
+    open fun muteRecord(mute: Boolean) {
+        if (this.mute != mute) {
+            this.mute = mute
+            handler.sendEmptyMessage(HANDLER_MUTE_RECORD)
+        }
+    }
+
+    /**
     设置背景声音大小
      */
     abstract fun setBGMVolume(@FloatRange(from = 0.0, to = 1.0) volume: Float): BaseRecorder
@@ -514,7 +545,8 @@ abstract class BaseRecorder {
     /**
     替换后续录音的输出文件路径
      */
-    abstract fun updateDataEncode(outputFilePath: String,isContinue: Boolean)
+    abstract fun updateDataEncode(outputFilePath: String, isContinue: Boolean)
+
     /**
     暂停录音
      */
@@ -546,15 +578,34 @@ abstract class BaseRecorder {
     abstract fun resumeMusic()
 
     /**重置*/
-    abstract fun reset()
+    open fun reset(){
+        isActive = false
+        isPause = false
+        isRemind = true
+        state = RecordState.STOPPED
+        duration = 0L
+        mRecordFile = null
+        handler.sendEmptyMessage(HANDLER_RESET)
+    }
 
     /**结束释放*/
-    abstract fun destroy()
+    open fun destroy(){
+        isActive = false
+        isPause = false
+        mRecordFile = null
+        isRemind = true
+        state = RecordState.STOPPED
+        releaseAEC()
+        handler.removeCallbacksAndMessages(null)
+        volumeConfig?.unregisterReceiver()
+    }
     //endregion public method
 
     open fun enableForceWriteMixBg(enable: Boolean) {
-        Log.e("BaseRecorder", "enableForceWriteMixBg: 该方法，需要使用MixRecorder，否则无效，" +
-                "用于强制把背景音乐写入到录音，放在部分机型把播放的背景应用进行了移除")
+        Log.e(
+            "BaseRecorder", "enableForceWriteMixBg: 该方法，需要使用MixRecorder，否则无效，" +
+                    "用于强制把背景音乐写入到录音，放在部分机型把播放的背景应用进行了移除"
+        )
     }
 
     /**
@@ -599,6 +650,20 @@ abstract class BaseRecorder {
         }
     }
 
+    /**
+     *  把声音全部置空
+     */
+    protected fun muteAudioBuffer(buffer: ByteArray){
+        buffer.fill(0)
+    }
+
+    /**
+     *  把声音全部置空
+     */
+    protected fun muteAudioBuffer(buffer: ShortArray){
+        buffer.fill(0)
+    }
+
     protected fun calculateRealVolume(buffer: ByteArray) {
         val shorts = BytesTransUtil.bytes2Shorts(buffer)
         val readSize = shorts.size
@@ -623,7 +688,7 @@ abstract class BaseRecorder {
      * 3. 自动增益控制
      */
     protected fun initAudioEffect(mAudioSessionId: Int) {
-        if (!mEnableAudioEffect){
+        if (!mEnableAudioEffect) {
             releaseAEC()
             return
         }
@@ -721,6 +786,7 @@ abstract class BaseRecorder {
         const val HANDLER_RESET = HANDLER_PAUSE + 1 // 重置
         const val HANDLER_PERMISSION = HANDLER_RESET + 1 // 需要权限
         const val HANDLER_MAX_TIME = HANDLER_PERMISSION + 1 // 设置了最大时间
+        const val HANDLER_MUTE_RECORD = HANDLER_MAX_TIME + 1 // 切换禁音录制
         const val FRAME_COUNT = 160
         val DEFAULT_AUDIO_FORMAT = PCMFormat.PCM_16BIT
         const val TAG = "Recorder"

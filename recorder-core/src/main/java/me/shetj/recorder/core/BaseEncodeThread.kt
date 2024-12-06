@@ -15,17 +15,18 @@ import me.shetj.ndk.lame.LameUtils
  * <b>@createTime：</b> 2023/3/22<br>
  */
 abstract class BaseEncodeThread(
-    file: File, bufferSize: Int, var isContinue: Boolean, protected val isEnableVBR:Boolean, name: String
+    file: File, bufferSize: Int, var isContinue: Boolean, protected val isEnableVBR: Boolean, name: String
 ) : HandlerThread(name), AudioRecord.OnRecordPositionUpdateListener {
     protected var path: String
     protected var mFileOutputStream: FileOutputStream?
     protected val mMp3Buffer: ByteArray
     protected var needUpdate = false
     protected var mPCMListener: PCMListener? = null
+
     init {
         this.mFileOutputStream = FileOutputStream(file, isContinue)
         path = file.absolutePath
-        if(isEnableVBR){
+        if (isEnableVBR) {
             LameUtils.writeVBRHeader(path)
         }
         mMp3Buffer = ByteArray((7200 + bufferSize.toDouble() * 2.0 * 1.25).toInt())
@@ -81,16 +82,16 @@ abstract class BaseEncodeThread(
         processData()
     }
 
-    open fun beforePCMtoMP3(pcm:ShortArray): ShortArray {
+    open fun beforePCMtoMP3(pcm: ShortArray): ShortArray {
         if (mPCMListener == null) return pcm
-       return mPCMListener!!.onBeforePCMToMp3(pcm)
+        return mPCMListener!!.onBeforePCMToMp3(pcm)
     }
 
 
-    abstract fun addTask(rawData: ByteArray, wax: Float, bgData: ByteArray?, bgWax: Float)
+    abstract fun addTask(rawData: ByteArray, wax: Float, bgData: ByteArray?, bgWax: Float, mute: Boolean)
 
 
-    abstract fun addTask(rawData: ShortArray, readSize: Int)
+    abstract fun addTask(rawData: ShortArray, readSize: Int, mute: Boolean)
 
     open fun sendStopMessage() {
         mHandler?.sendEmptyMessage(PROCESS_STOP)

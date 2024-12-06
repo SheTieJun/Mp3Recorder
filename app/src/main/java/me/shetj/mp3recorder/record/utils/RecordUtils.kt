@@ -152,7 +152,7 @@ class RecordUtils(
             audioChannel = 1
             mp3BitRate = 128
             mp3Quality = 5
-            enableAudioEffect = false
+            enableAudioEffect = true
             recordListener = this@RecordUtils
             permissionListener = this@RecordUtils
             pcmListener = this@RecordUtils
@@ -161,7 +161,6 @@ class RecordUtils(
                 BaseRecorder.RecorderType.MIX -> it.buildMix(Utils.app)
                     .also {
                         it.isEnableVBR(false) // 请不要使用，虽然可以正常播放，但是会时间错误获取会错误，暂时没有解决方法
-                        it.setFilter(3000, 200)
                     }
 
                 BaseRecorder.RecorderType.SIM -> it.buildSim(Utils.app)
@@ -192,6 +191,10 @@ class RecordUtils(
                 recorder.startPlayMusic()
             }
         }
+    }
+
+    private fun mute(mute:Boolean){
+        mRecorder?.muteRecord(mute)
     }
 
     fun setBackgroundPlayerListener(listener: PlayerListener) {
@@ -288,6 +291,11 @@ class RecordUtils(
         callBack?.onError(e)
     }
 
+    override fun onMuteRecordChange(mute: Boolean) {
+        super.onMuteRecordChange(mute)
+        callBack?.onMuteRecordChange(mute)
+    }
+
     fun setVolume(volume: Float) {
         mRecorder?.setBGMVolume(volume)
     }
@@ -302,12 +310,13 @@ class RecordUtils(
     }
 
     override fun onBeforePCMToMp3(pcm: ShortArray): ShortArray {
-        val pcmdb = calculateRealVolume(pcm, pcm.size)
-        "修改PCM前DB:$pcmdb".logD("onBeforePCMToMp3")
-        val adjustVoice = BytesTransUtil.adjustVoice(pcm, 3)
-        val afterdb = calculateRealVolume(adjustVoice, adjustVoice.size)
-        "修改PCM后DB:$afterdb".logD("onBeforePCMToMp3")
-        return adjustVoice
+        // 处理完成后导致了噪音
+//        val pcmdb = calculateRealVolume(pcm, pcm.size)
+//        "修改PCM前DB:$pcmdb".logD("onBeforePCMToMp3")
+//        val adjustVoice = BytesTransUtil.adjustVoice(pcm, 3)
+//        val afterdb = calculateRealVolume(adjustVoice, adjustVoice.size)
+//        "修改PCM后DB:$afterdb".logD("onBeforePCMToMp3")
+        return pcm
     }
 
 
@@ -327,5 +336,13 @@ class RecordUtils(
             }
         }
         return mVolume
+    }
+
+    fun muteChange() {
+        if (mRecorder?.mute == true){
+            mute(false)
+        }else{
+            mute(true)
+        }
     }
 }

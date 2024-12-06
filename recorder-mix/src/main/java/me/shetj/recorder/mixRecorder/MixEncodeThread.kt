@@ -18,8 +18,8 @@ import me.shetj.recorder.core.BaseEncodeThread
  */
 internal class MixEncodeThread
 @Throws(FileNotFoundException::class)
-constructor(file: File, bufferSize: Int, isContinue: Boolean,private val is2CHANNEL: Boolean,isEnableVBR: Boolean) :
-    BaseEncodeThread(file, bufferSize, isContinue, isEnableVBR,"MixEncodeThread") {
+constructor(file: File, bufferSize: Int, isContinue: Boolean, private val is2CHANNEL: Boolean, isEnableVBR: Boolean) :
+    BaseEncodeThread(file, bufferSize, isContinue, isEnableVBR, "MixEncodeThread") {
 
     private val mTasks = Collections.synchronizedList(ArrayList<ReadMixTask>())
     private val mOldTasks = Collections.synchronizedList(ArrayList<ReadMixTask>())
@@ -136,10 +136,10 @@ constructor(file: File, bufferSize: Int, isContinue: Boolean,private val is2CHAN
         mOldTasks.add(task)
     }
 
-    override fun addTask(rawData: ByteArray, wax: Float, bgData: ByteArray?, bgWax: Float) {
-        mTasks.add(ReadMixTask(rawData.clone(), wax, bgData, bgWax))
+    override fun addTask(rawData: ByteArray, wax: Float, bgData: ByteArray?, bgWax: Float, mute: Boolean) {
+        mTasks.add(ReadMixTask(rawData.clone(), wax, bgData, bgWax, mute))
     }
 
-    override fun addTask(rawData: ShortArray, readSize: Int) {
+    override fun addTask(rawData: ShortArray, readSize: Int, mute: Boolean) {
     }
 }

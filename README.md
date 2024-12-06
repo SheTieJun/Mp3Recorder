@@ -8,7 +8,7 @@
  <a href="README.en.md">English</a> | <a href="README.md">简体中文</a> 
 </p>
 
-- 边录边转码MP3,默认启动系统自带[如果手机支持]的AEC、NC、AGC。
+- 边录边转码MP3,默认启动系统自带[如果手机支持]的AEC、NC、AGC,可以通过`enableAudioEffect`进行开启和关闭，除1.9.1是默认关闭的(因为部分手机外接麦克风时，如果是MIC，会没有声音)，其他版本都是默认开启。
 - 支持暂停，实时返回已**录制时长**和当前**声音大小**，已录制的那段音频是**可以播放**的.
 - 支持添加背景音乐,可以设置背景音乐声音的大小
 - 可以使用默认耳机配置方式：如果没有连接耳机会只用外放的背景音乐，如果连接上了耳机，会使用写入合成背景音乐的方式
@@ -146,6 +146,11 @@ abstract class BaseRecorder {
 
     open fun setPCMListener(pcmListener: PCMListener?): BaseRecorder {/*...*/
     }
+    /**
+     * Mute record
+     * 静音录制：录制进行，但是录制的声音是静音的，使用场景是用于和其他音视频进行拼接
+     */
+    open fun muteRecord(mute: Boolean) 
 
     //设计背景音乐的url,本地的(网络的可能造成卡死)
     abstract fun setBackgroundMusic(url: String): BaseRecorder
