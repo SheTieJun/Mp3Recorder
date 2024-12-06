@@ -578,10 +578,27 @@ abstract class BaseRecorder {
     abstract fun resumeMusic()
 
     /**重置*/
-    abstract fun reset()
+    open fun reset(){
+        isActive = false
+        isPause = false
+        isRemind = true
+        state = RecordState.STOPPED
+        duration = 0L
+        mRecordFile = null
+        handler.sendEmptyMessage(HANDLER_RESET)
+    }
 
     /**结束释放*/
-    abstract fun destroy()
+    open fun destroy(){
+        isActive = false
+        isPause = false
+        mRecordFile = null
+        isRemind = true
+        state = RecordState.STOPPED
+        releaseAEC()
+        handler.removeCallbacksAndMessages(null)
+        volumeConfig?.unregisterReceiver()
+    }
     //endregion public method
 
     open fun enableForceWriteMixBg(enable: Boolean) {

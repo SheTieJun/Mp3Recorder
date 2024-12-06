@@ -1,4 +1,3 @@
-
 package me.shetj.recorder.simRecorder
 
 import android.content.Context
@@ -92,10 +91,12 @@ internal class SimRecorder : BaseRecorder {
             1 -> {
                 AudioFormat.CHANNEL_IN_MONO
             }
+
             2 -> {
                 AudioFormat.CHANNEL_IN_STEREO
             }
-            else ->  AudioFormat.CHANNEL_IN_STEREO
+
+            else -> AudioFormat.CHANNEL_IN_STEREO
         }
         this.is2Channel = mLameInChannel == 2
         releaseAEC()
@@ -112,10 +113,12 @@ internal class SimRecorder : BaseRecorder {
             1 -> {
                 AudioFormat.CHANNEL_IN_MONO
             }
+
             2 -> {
                 AudioFormat.CHANNEL_IN_STEREO
             }
-            else ->  AudioFormat.CHANNEL_IN_STEREO
+
+            else -> AudioFormat.CHANNEL_IN_STEREO
         }
         return true
     }
@@ -129,7 +132,7 @@ internal class SimRecorder : BaseRecorder {
         return false
     }
 
-    override fun updateDataEncode(outputFilePath: String,isContinue: Boolean ) {
+    override fun updateDataEncode(outputFilePath: String, isContinue: Boolean) {
         setOutputFile(outputFilePath, isContinue)
         mEncodeThread?.isContinue = isContinue
         mEncodeThread?.update(outputFilePath)
@@ -152,7 +155,7 @@ internal class SimRecorder : BaseRecorder {
         try {
             initAudioRecorder()
             mAudioRecord!!.startRecording()
-        }catch (ex:IllegalStateException){
+        } catch (ex: IllegalStateException) {
             handler.sendEmptyMessage(HANDLER_PERMISSION)
             ex.printStackTrace()
             return
@@ -190,7 +193,7 @@ internal class SimRecorder : BaseRecorder {
                              * x2 转成字节做时间计算
                              */
                             val readTime = 1000.0 * readSize.toDouble() * 2 / bytesPerSecond
-                            mEncodeThread!!.addTask(mPCMBuffer!!, readSize,mute)
+                            mEncodeThread!!.addTask(mPCMBuffer!!, readSize, mute)
                             calculateRealVolume(mPCMBuffer!!, readSize)
                             // short 是2个字节 byte 是1个字节8位
                             onRecording(readTime)
@@ -319,26 +322,11 @@ internal class SimRecorder : BaseRecorder {
     }
 
     override fun reset() {
-        isActive = false
-        isPause = false
-        state = RecordState.STOPPED
-        duration = 0L
-        mRecordFile = null
+        super.reset()
         backgroundMusicIsPlay = bgPlayer.isPlaying
-        handler.sendEmptyMessage(HANDLER_RESET)
         bgPlayer.stopPlay()
     }
 
-    override fun destroy() {
-        isActive = false
-        isPause = false
-        state = RecordState.STOPPED
-        mRecordFile = null
-        releaseAEC()
-        bgPlayer.stopPlay()
-        handler.removeCallbacksAndMessages(null)
-        volumeConfig?.unregisterReceiver()
-    }
 
     override fun startPlayMusic() {
         if (!bgPlayer.isPlaying) {
@@ -422,7 +410,7 @@ internal class SimRecorder : BaseRecorder {
             mRecordFile!!,
             mBufferSize,
             isContinue,
-            mChannelConfig == AudioFormat.CHANNEL_IN_STEREO,openVBR
+            mChannelConfig == AudioFormat.CHANNEL_IN_STEREO, openVBR
         )
         mEncodeThread!!.start()
         mEncodeThread!!.setPCMListener(mPCMListener)

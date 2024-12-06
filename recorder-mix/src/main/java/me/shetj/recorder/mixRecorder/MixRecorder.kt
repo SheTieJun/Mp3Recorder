@@ -249,9 +249,7 @@ internal class MixRecorder : BaseRecorder {
                             val readTime = 1000.0 * readCode.toDouble() / bytesPerSecond
                             // 计算时间长度,同时判断是否达到最大录制时间
                             if (onRecording(readTime)) {
-                                mEncodeThread!!.addTask(
-                                    buffer, 1f, mPlayBackMusic!!.getBackGroundBytes(), volumeConfig?.currVolumeF ?: bgLevel,mute
-                                )
+                                mEncodeThread!!.addTask(buffer, 1f, mPlayBackMusic!!.getBackGroundBytes(), volumeConfig?.currVolumeF ?: bgLevel, mute)
                                 calculateRealVolume(buffer)
                             }
                         } else {
@@ -363,26 +361,13 @@ internal class MixRecorder : BaseRecorder {
      * 重置
      */
     override fun reset() {
-        isActive = false
-        isPause = false
-        isRemind = true
-        state = RecordState.STOPPED
-        duration = 0L
-        mRecordFile = null
-        handler.sendEmptyMessage(HANDLER_RESET)
+        super.reset()
         backgroundMusicIsPlay = !bgPlayer.isIsPause
         bgPlayer.release()
     }
 
     override fun destroy() {
-        isActive = false
-        isPause = false
-        mRecordFile = null
-        isRemind = true
-        bgPlayer.release()
-        releaseAEC()
-        handler.removeCallbacksAndMessages(null)
-        volumeConfig?.unregisterReceiver()
+        super.destroy()
         plugConfigs?.unregisterReceiver()
     }
     //endregion 公开方法！

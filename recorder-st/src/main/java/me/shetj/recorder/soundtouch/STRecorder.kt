@@ -307,23 +307,12 @@ internal class STRecorder : BaseRecorder {
      * 重置
      */
     override fun reset() {
-        isActive = false
-        isPause = false
-        state = RecordState.STOPPED
-        duration = 0L
-        mRecordFile = null
-        handler.sendEmptyMessage(HANDLER_RESET)
+        super.reset()
         soundTouch.clean()
     }
 
     override fun destroy() {
-        isActive = false
-        isPause = false
-        state = RecordState.STOPPED
-        mRecordFile = null
-        releaseAEC()
-        handler.removeCallbacksAndMessages(null)
-        volumeConfig?.unregisterReceiver()
+        super.destroy()
         soundTouch.destroy()
     }
 
