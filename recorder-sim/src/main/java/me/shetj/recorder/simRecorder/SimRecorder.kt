@@ -60,6 +60,7 @@ internal class SimRecorder : BaseRecorder {
      */
     private var mPCMBuffer: ShortArray? = null
     private var mSendError: Boolean = false
+    private var bytesPerSecond: Int = 0 // PCM文件大小=采样率采样时间采样位深/8*通道数（Bytes）
 
     // 缓冲数量
     private var mBufferSize: Int = 0
@@ -202,9 +203,6 @@ internal class SimRecorder : BaseRecorder {
         object : Thread() {
             var isError = false
 
-            // PCM文件大小 = 采样率采样时间采样位深 / 8*通道数（Bytes）
-            var bytesPerSecond =
-                mAudioRecord!!.sampleRate * mapFormat(mAudioRecord!!.audioFormat) / 8 * mAudioRecord!!.channelCount
 
             override fun run() {
                 // 设置线程权限
@@ -224,14 +222,10 @@ internal class SimRecorder : BaseRecorder {
                             if (isPause) {
                                 continue
                             }
-                            /**
-                             * x2 转成字节做时间计算
-                             */
-                            val readTime = 1000.0 * readSize.toDouble() * 2 / bytesPerSecond
                             mEncodeThread!!.addTask(mPCMBuffer!!, readSize,mute)
                             calculateRealVolume(mPCMBuffer!!, readSize)
                             // short 是2个字节 byte 是1个字节8位
-                            onRecording(readTime)
+                            onRecording(readSize* 2)
                         } else {
                             if (!mSendError) {
                                 mSendError = true
@@ -361,6 +355,7 @@ internal class SimRecorder : BaseRecorder {
         isPause = false
         state = RecordState.STOPPED
         duration = 0L
+        recordBufferSize = 0
         mRecordFile = null
         backgroundMusicIsPlay = bgPlayer.isPlaying
         handler.sendEmptyMessage(HANDLER_RESET)
@@ -371,7 +366,10 @@ internal class SimRecorder : BaseRecorder {
         isActive = false
         isPause = false
         state = RecordState.STOPPED
+        duration = 0L
+        recordBufferSize = 0
         mRecordFile = null
+        context = null
         releaseAEC()
         bgPlayer.stopPlay()
         handler.removeCallbacksAndMessages(null)
@@ -444,6 +442,10 @@ internal class SimRecorder : BaseRecorder {
         )
         mPCMBuffer = ShortArray(mBufferSize)
 
+        // 1秒时间需要多少字节，用来计算已经录制了多久
+        bytesPerSecond =
+            mAudioRecord!!.sampleRate * mapFormat(mAudioRecord!!.audioFormat) / 8 * mAudioRecord!!.channelCount
+
         initAEC(mAudioRecord!!.audioSessionId)
         LameUtils.init(
             defaultSamplingRate,
@@ -477,6 +479,7 @@ internal class SimRecorder : BaseRecorder {
             handler.sendEmptyMessage(HANDLER_START)
             state = RecordState.RECORDING
             duration = 0L
+            recordBufferSize = 0L
             isRemind = true
             isPause = false
             if (backgroundMusicIsPlay) {
@@ -511,10 +514,11 @@ internal class SimRecorder : BaseRecorder {
 
     /**
      * 计算时间
-     * @param readTime 录制的时间
+     * @param readSize 字节数
      */
-    private fun onRecording(readTime: Double) {
-        duration += readTime.toLong()
+    private fun onRecording(readSize: Int) {
+        recordBufferSize += readSize
+        duration = ((recordBufferSize*1000.0)/bytesPerSecond).toLong()
         if (state == RecordState.RECORDING) {
             handler.sendEmptyMessageDelayed(HANDLER_RECORDING, waveSpeed.toLong())
             if (mMaxTime in 1..duration) {

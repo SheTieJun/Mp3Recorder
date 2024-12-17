@@ -418,6 +418,7 @@ internal class MixRecorder : BaseRecorder {
         isRemind = true
         state = RecordState.STOPPED
         duration = 0L
+        recordBufferSize = 0
         mRecordFile = null
         handler.sendEmptyMessage(HANDLER_RESET)
         backgroundMusicIsPlay = !bgPlayer.isIsPause
@@ -429,6 +430,9 @@ internal class MixRecorder : BaseRecorder {
         isPause = false
         mRecordFile = null
         isRemind = true
+        duration = 0L
+        recordBufferSize = 0
+        mRecordFile = null
         bgPlayer.release()
         releaseAEC()
         handler.removeCallbacksAndMessages(null)
@@ -493,6 +497,7 @@ internal class MixRecorder : BaseRecorder {
             isRemind = true
             isPause = false
             duration = 0L
+            recordBufferSize = 0L
             if (mPlayBackMusic != null) {
                 mPlayBackMusic!!.setNeedRecodeDataEnable(true)
             }
@@ -520,8 +525,8 @@ internal class MixRecorder : BaseRecorder {
      * @return boolean false 表示触发了自动完成
      */
     private fun onRecording(records: Int): Boolean {
-        recordSize += records
-        duration = ((recordSize*1000.0)/bytesPerSecond).toLong()
+        recordBufferSize += records
+        duration = ((recordBufferSize*1000.0)/bytesPerSecond).toLong()
         if (state == RecordState.RECORDING) {
             handler.sendEmptyMessage(HANDLER_RECORDING)
             if (mMaxTime in 1..duration) {

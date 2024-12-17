@@ -269,12 +269,10 @@ class RecordUtils(
     }
 
     override fun onStart() {
-        RecordingNotification.notify(Utils.app, RecordingNotification.RECORD_NOTIFICATION_RECORD_ING)
         callBack?.onStart()
     }
 
     override fun onResume() {
-        RecordingNotification.notify(Utils.app, RecordingNotification.RECORD_NOTIFICATION_RECORD_ING)
         callBack?.onStart()
     }
 
@@ -286,7 +284,6 @@ class RecordUtils(
     }
 
     override fun onPause() {
-        RecordingNotification.notify(Utils.app, RecordingNotification.RECORD_NOTIFICATION_RECORD_PAUSE)
         callBack?.onPause()
     }
 
@@ -295,7 +292,6 @@ class RecordUtils(
     }
 
     override fun onSuccess(isAutoComplete: Boolean, file: String, time: Long) {
-        RecordingNotification.notify(Utils.app, RecordingNotification.RECORD_NOTIFICATION_RECORD_COMPLETE)
         callBack?.onSuccess(isAutoComplete, file, (time / 1000))
     }
 

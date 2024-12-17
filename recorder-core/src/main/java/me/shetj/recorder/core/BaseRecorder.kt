@@ -196,7 +196,7 @@ abstract class BaseRecorder {
     var state = RecordState.STOPPED
         protected set
 
-    protected var recordSize :Long = 0 //用于
+    protected var recordBufferSize :Long = 0 //用于
 
     /**
      * 已录制时间

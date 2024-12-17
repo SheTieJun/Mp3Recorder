@@ -58,7 +58,7 @@ internal class STRecorder : BaseRecorder {
      */
     private var mPCMBuffer: ShortArray? = null
     private var mSendError: Boolean = false
-
+    private var bytesPerSecond: Int = 0 // PCM文件大小=采样率采样时间采样位深/8*通道数（Bytes）
     // 缓冲数量
     private var mBufferSize: Int = 0
 
@@ -198,10 +198,6 @@ internal class STRecorder : BaseRecorder {
         object : Thread() {
             var isError = false
 
-            // 1秒PCM文件大小 = 采样率采样时间采样位深 / 8*通道数（Bytes）
-            var bytesPerSecond =
-                mAudioRecord!!.sampleRate * mapFormat(mAudioRecord!!.audioFormat) / 8 * mAudioRecord!!.channelCount
-
             override fun run() {
                 // 设置线程权限
                 Process.setThreadPriority(Process.THREAD_PRIORITY_URGENT_AUDIO)
@@ -221,11 +217,10 @@ internal class STRecorder : BaseRecorder {
                             if (isPause) {
                                 continue
                             }
-                            val readTime = 1000.0 * readSize.toDouble() * 2 / bytesPerSecond
                             mEncodeThread!!.addTask(mPCMBuffer!!, readSize, mute)
                             calculateRealVolume(mPCMBuffer!!, readSize)
                             // short 是2个字节 byte 是1个字节8位
-                            onRecording(readTime)
+                            onRecording(readSize * 2)
                         } else {
                             if (!mSendError) {
                                 mSendError = true
@@ -350,6 +345,7 @@ internal class STRecorder : BaseRecorder {
         isPause = false
         state = RecordState.STOPPED
         duration = 0L
+        recordBufferSize = 0
         mRecordFile = null
         handler.sendEmptyMessage(HANDLER_RESET)
         soundTouch.clean()
@@ -359,6 +355,8 @@ internal class STRecorder : BaseRecorder {
         isActive = false
         isPause = false
         state = RecordState.STOPPED
+        duration = 0L
+        recordBufferSize = 0
         mRecordFile = null
         releaseAEC()
         handler.removeCallbacksAndMessages(null)
@@ -421,7 +419,9 @@ internal class STRecorder : BaseRecorder {
 
         // 缓冲区大小
         mPCMBuffer = ShortArray(mBufferSize)
-
+        // 1秒时间需要多少字节，用来计算已经录制了多久
+        bytesPerSecond =
+            mAudioRecord!!.sampleRate * mapFormat(mAudioRecord!!.audioFormat) / 8 * mAudioRecord!!.channelCount
         // 初始化变音
         soundTouch.init(defaultLameInChannel, defaultSamplingRate)
 
@@ -456,6 +456,7 @@ internal class STRecorder : BaseRecorder {
             handler.sendEmptyMessage(HANDLER_START)
             state = RecordState.RECORDING
             duration = 0L
+            recordBufferSize = 0L
             isRemind = true
             isPause = false
         }
@@ -474,10 +475,11 @@ internal class STRecorder : BaseRecorder {
 
     /**
      * 计算时间
-     * @param readTime
+     * @param readSize 字节数
      */
-    private fun onRecording(readTime: Double) {
-        duration += readTime.toLong()
+    private fun onRecording(readSize: Int) {
+        recordBufferSize += readSize
+        duration = ((recordBufferSize*1000.0)/bytesPerSecond).toLong()
         if (state == RecordState.RECORDING) {
             handler.sendEmptyMessageDelayed(HANDLER_RECORDING, waveSpeed.toLong())
             if (mMaxTime in 1..duration) {
