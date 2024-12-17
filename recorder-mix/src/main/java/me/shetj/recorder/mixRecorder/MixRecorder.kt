@@ -37,7 +37,7 @@ internal class MixRecorder : BaseRecorder {
 
     // 缓冲数量
     private var mBufferSize: Int = 0
-    private var bytesPerSecond: Int = 0 // PCM文件大小=采样率采样时间采样位深/8*通道数（Bytes）
+
     //endregion 其他
     /**
      * 耳机
@@ -233,8 +233,8 @@ internal class MixRecorder : BaseRecorder {
                      */
                     val samplesPerFrame = if (bgPlayer.isPlayingMusic) bgPlayer.bufferSize else mBufferSize
                     val buffer = ByteArray(samplesPerFrame)
-                    val readCode = mAudioRecord!!.read(buffer, 0, samplesPerFrame)
-                    if (readCode == AudioRecord.ERROR_INVALID_OPERATION || readCode == AudioRecord.ERROR_BAD_VALUE) {
+                    val readSizeOrCode = mAudioRecord!!.read(buffer, 0, samplesPerFrame)
+                    if (readSizeOrCode == AudioRecord.ERROR_INVALID_OPERATION || readSizeOrCode == AudioRecord.ERROR_BAD_VALUE) {
                         if (!mSendError) {
                             mSendError = true
                             handler.sendEmptyMessage(HANDLER_PERMISSION)
@@ -242,13 +242,12 @@ internal class MixRecorder : BaseRecorder {
                             isError = true
                         }
                     } else {
-                        if (readCode > 0) {
+                        if (readSizeOrCode > 0) {
                             if (isPause) {
                                 continue
                             }
-                            val readTime = 1000.0 * readCode.toDouble() / bytesPerSecond
                             // 计算时间长度,同时判断是否达到最大录制时间
-                            if (onRecording(readTime)) {
+                            if (onRecording(readSizeOrCode)) {
                                 mEncodeThread!!.addTask(buffer, 1f, mPlayBackMusic!!.getBackGroundBytes(), volumeConfig?.currVolumeF ?: bgLevel, mute)
                                 calculateRealVolume(buffer)
                             }
@@ -440,6 +439,8 @@ internal class MixRecorder : BaseRecorder {
         if (state !== RecordState.RECORDING) {
             handler.sendEmptyMessage(HANDLER_START)
             state = RecordState.RECORDING
+            recordBufferSize = 0
+            duration = 0
             isRemind = true
             isPause = false
             if (mPlayBackMusic != null) {
@@ -463,13 +464,15 @@ internal class MixRecorder : BaseRecorder {
         }
     }
 
+
     /**
      * 计算时间
-     * @param readTime
+     * @param readSize
      * @return boolean false 表示触发了自动完成
      */
-    private fun onRecording(readTime: Double): Boolean {
-        duration += readTime.toLong()
+    private fun onRecording(readSize: Int): Boolean {
+        recordBufferSize += readSize
+        duration = (1000.0 * recordBufferSize.toDouble() / bytesPerSecond).toLong()
         if (state == RecordState.RECORDING) {
             handler.sendEmptyMessage(HANDLER_RECORDING)
             if (mMaxTime in 1..duration) {

@@ -73,7 +73,7 @@ abstract class BaseRecorder {
      * *
      * * 48000 一般就够了，太大也会影响文件的大小
      */
-    protected var mSamplingRate = 48000
+    protected var mSamplingRate = 44100
     protected var is2Channel = false // 默认是单声道
 
     //设置过滤器
@@ -185,6 +185,9 @@ abstract class BaseRecorder {
     var state = RecordState.STOPPED
         protected set
 
+    protected var bytesPerSecond: Int = 0 // PCM文件大小=采样率采样时间采样位深/8*通道数（Bytes），用于计算时间
+
+    protected var recordBufferSize = 0
     /**
      * 已录制时间
      */
@@ -584,6 +587,7 @@ abstract class BaseRecorder {
         isRemind = true
         state = RecordState.STOPPED
         duration = 0L
+        recordBufferSize = 0
         mRecordFile = null
         handler.sendEmptyMessage(HANDLER_RESET)
     }
@@ -595,6 +599,9 @@ abstract class BaseRecorder {
         mRecordFile = null
         isRemind = true
         state = RecordState.STOPPED
+        duration = 0L
+        recordBufferSize = 0
+        mRecordFile = null
         releaseAEC()
         handler.removeCallbacksAndMessages(null)
         volumeConfig?.unregisterReceiver()
