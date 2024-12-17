@@ -294,9 +294,8 @@ internal class MixRecorder : BaseRecorder {
                             if (isPause) {
                                 continue
                             }
-                            val readTime = 1000.0 * readCode.toDouble() / bytesPerSecond
                             // 计算时间长度,同时判断是否达到最大录制时间
-                            if (onRecording(readTime)) {
+                            if (onRecording(readCode)) {
                                 mEncodeThread!!.addTask(
                                     buffer,
                                     wax,
@@ -520,8 +519,9 @@ internal class MixRecorder : BaseRecorder {
      * @param readTime
      * @return boolean false 表示触发了自动完成
      */
-    private fun onRecording(readTime: Double): Boolean {
-        duration += readTime.toLong()
+    private fun onRecording(records: Int): Boolean {
+        recordSize += records
+        duration = ((recordSize*1000.0)/bytesPerSecond).toLong()
         if (state == RecordState.RECORDING) {
             handler.sendEmptyMessage(HANDLER_RECORDING)
             if (mMaxTime in 1..duration) {
