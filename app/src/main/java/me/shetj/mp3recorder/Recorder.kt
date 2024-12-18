@@ -18,7 +18,7 @@ fun mp3Recorder(
     samplingRate: Int = 44100,
     mp3BitRate: Int = 64,//96(高),32（低）
     mp3Quality: Int = 1,
-    @Channel channel: Int = 2,
+    channel: Int = 2,
     permissionListener: PermissionListener? = null,
     recordListener: RecordListener? = null,
 ): BaseRecorder {

@@ -150,7 +150,7 @@ abstract class BaseRecorder {
      * Mute record
      * 静音录制：录制进行，但是录制的声音是静音的，使用场景是用于和其他音视频进行拼接
      */
-    open fun muteRecord(mute: Boolean) 
+    open fun muteRecord(mute: Boolean) {/*...*/}
 
     //设计背景音乐的url,本地的(网络的可能造成卡死)
     abstract fun setBackgroundMusic(url: String): BaseRecorder

@@ -13,7 +13,7 @@ data class Mp3Option(
     // 声音来源：默认麦克风；如果使用VOICE_COMMUNICATION，系统会自动优化录音，但是声音会变小
     @Source var audioSource: Int = AudioSource.MIC,
     // 声道设置：单双声道，1单声道，2双声道
-    @Channel var audioChannel: Int = 1,
+    var audioChannel: Int = 1,
     // debug，输出录音过程日志
     var isDebug: Boolean = false,
     // 最大录制时间毫秒
@@ -37,6 +37,7 @@ data class Mp3Option(
 fun recorder(block: Mp3Option.() -> Unit): Mp3Option {
     return Mp3Option().apply(block)
 }
+
 
 /** *
  *  * CAMCORDER	录音来源于同方向的相机麦克风相同，若相机无内置相机或无法识别，则使用预设的麦克风
@@ -63,6 +64,3 @@ fun recorder(block: Mp3Option.() -> Unit): Mp3Option {
 @Retention(AnnotationRetention.SOURCE)
 annotation class Source
 
-@IntDef(value = [1, 2])
-@Retention(AnnotationRetention.SOURCE)
-annotation class Channel

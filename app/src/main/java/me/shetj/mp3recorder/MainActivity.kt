@@ -19,12 +19,12 @@ import kotlinx.coroutines.launch
 import me.shetj.base.BaseKit
 import me.shetj.base.fix.FixPermission
 import me.shetj.base.ktx.setAppearance
-import me.shetj.base.ktx.start
 import me.shetj.base.mvvm.viewbind.BaseBindingActivity
 import me.shetj.base.mvvm.viewbind.BaseViewModel
 import me.shetj.mp3recorder.databinding.ActivityMainTestBinding
 import me.shetj.mp3recorder.record.activity.mix.RecordActivity
 import me.shetj.mp3recorder.record.utils.AudioManagerX
+import me.shetj.recorder.core.AudioUtils
 
 class MainActivity : BaseBindingActivity<ActivityMainTestBinding, BaseViewModel>() {
     private var splashScreen:  SplashScreen? =null
@@ -67,12 +67,13 @@ class MainActivity : BaseBindingActivity<ActivityMainTestBinding, BaseViewModel>
         }
 
         val audioManagerX = AudioManagerX(this)
+        val bestSampleRate = AudioUtils.getBestSampleRate(this@MainActivity)
         mBinding.msg.apply {
             text = audioManagerX.checkDevice()
             append("\n\n\n获取当前手机录音最佳参数：")
-            append("\n最佳采样率：${getBestSampleRate()}\n")
-            append("\n录音最小缓存大小(${getBestSampleRate()},1,${AudioFormat.ENCODING_PCM_16BIT})：${AudioRecord.getMinBufferSize(
-                getBestSampleRate(),
+            append("\n最佳采样率：${bestSampleRate}\n")
+            append("\n录音最小缓存大小($bestSampleRate,1,${AudioFormat.ENCODING_PCM_16BIT})：${AudioRecord.getMinBufferSize(
+                bestSampleRate,
                 1,  AudioFormat.ENCODING_PCM_16BIT
             )}\n")
             append("音频输出的缓冲：${getBestBufferSize()}\n")
@@ -80,15 +81,7 @@ class MainActivity : BaseBindingActivity<ActivityMainTestBinding, BaseViewModel>
 
     }
 
-    //获取最佳采样率
-    private fun getBestSampleRate(): Int {
-        val am = BaseKit.app.getSystemService(Context.AUDIO_SERVICE) as? AudioManager
-        val sampleRateStr: String? = am?.getProperty(AudioManager.PROPERTY_OUTPUT_SAMPLE_RATE)
-        val sampleRate: Int = sampleRateStr?.let { str ->
-            Integer.parseInt(str).takeUnless { it == 0 }
-        } ?: 44100 // Use a default value if property not found
-        return sampleRate
-    }
+
 
     //
     private fun getBestBufferSize(): Int {

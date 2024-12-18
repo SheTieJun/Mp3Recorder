@@ -46,16 +46,19 @@ object MediaRecorderKit {
             mMediaRecorder!!.setMaxFileSize(10*1024*1024)
             savePath = EnvironmentStorage.getPath(packagePath = "record") + "/" + System.currentTimeMillis() + ".m4a"
             mMediaRecorder!!.setOutputFile(savePath)
-            val nextSavePath = File(EnvironmentStorage.getPath(packagePath = "record") + "/" + System.currentTimeMillis() + ".m4a")
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                mMediaRecorder!!.setNextOutputFile(nextSavePath)
-            }
             /* ③准备 */
             mMediaRecorder!!.prepare()
             /* ④开始 */
             mMediaRecorder!!.start()
         } catch (e: IllegalStateException) {
             e.printStackTrace()
+        }
+    }
+
+    fun setNextSavePath(){
+        val nextSavePath = File(EnvironmentStorage.getPath(packagePath = "record") + "/" + System.currentTimeMillis() + ".m4a")
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            mMediaRecorder!!.setNextOutputFile(nextSavePath)
         }
     }
 

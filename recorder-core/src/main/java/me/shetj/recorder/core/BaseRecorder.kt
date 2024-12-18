@@ -73,7 +73,7 @@ abstract class BaseRecorder {
      * *
      * * 48000 一般就够了，太大也会影响文件的大小
      */
-    protected var mSamplingRate = 44100
+    protected var mSamplingRate = 48000
     protected var is2Channel = false // 默认是单声道
 
     //设置过滤器

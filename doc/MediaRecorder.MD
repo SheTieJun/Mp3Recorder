@@ -1,10 +1,10 @@
 ## MediaRecorder介绍
 
-我自己做过录音功能，用的AudioRecord,因为以前MediaRecorder不支持暂停和恢复录制，现在MediaRecorder也支持暂停和恢复录制了，部分场景下使用MediaRecorder更加方便。
+7.0之后的版本MediaRecorder也支持暂停和恢复录制了，部分场景下使用MediaRecorder更加方便。
 
 当然AudioRecord也有自己的优势，录制过程可以处理PCM,可以做混音，降噪等等。
 
-现在Android版本分布在7.0以上占96%，8.0以上占93%，所以我们可以放心的使用MediaRecorder。~前提是你说法产品，哈哈
+现在Android版本分布在7.0以上占96%，8.0以上占93%，所以我们可以放心的使用MediaRecorder。~前提是你**说服**产品，哈哈
 
 ## 方法介绍
 
@@ -58,3 +58,5 @@
 ## 总结
 1. 7.0之后的版本，`pause()`和`resume()`方法可以用来暂停和恢复录制。
 2. 8.0之后的版本，`setNextOutputFile(File file)`方法可以在当前输出文件达到最大大小或最大持续时间时，录制将继续到下一个文件。应用场景：每60秒发送一个音频。
+
+当然我的这个lib,也都支持上面的功能

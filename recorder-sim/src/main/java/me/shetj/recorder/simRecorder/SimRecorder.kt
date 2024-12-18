@@ -1,5 +1,6 @@
 package me.shetj.recorder.simRecorder
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.media.AudioFormat
 import android.media.AudioRecord
@@ -13,7 +14,6 @@ import me.shetj.ndk.lame.LameUtils
 import me.shetj.player.AudioPlayer
 import me.shetj.player.PlayerListener
 import me.shetj.recorder.core.BaseRecorder
-import me.shetj.recorder.core.Channel
 import me.shetj.recorder.core.RecordState
 import me.shetj.recorder.core.Source
 import me.shetj.recorder.core.VolumeConfig
@@ -36,18 +36,6 @@ internal class SimRecorder : BaseRecorder {
 
     // 缓冲数量
     private var mBufferSize: Int = 0
-
-    /**
-     * pcm数据的速度，默认300
-     * 数据越大，速度越慢
-     */
-    private var waveSpeed = 500
-        set(waveSpeed) {
-            if (this.waveSpeed <= 0) {
-                return
-            }
-            field = waveSpeed
-        }
 
     // 背景音乐相关
     private var backgroundMusicUrl: String? = null
@@ -84,7 +72,7 @@ internal class SimRecorder : BaseRecorder {
      *
      * @param audioSource MediaRecorder.AudioSource.MIC
      */
-    constructor(@Source audioSource: Int = MediaRecorder.AudioSource.MIC, @Channel channel: Int = 1) {
+    constructor(@Source audioSource: Int = MediaRecorder.AudioSource.MIC, channel: Int = 1) {
         this.mAudioSource = audioSource
         this.mLameInChannel = channel
         this.mChannelConfig = when (channel) {
@@ -102,7 +90,7 @@ internal class SimRecorder : BaseRecorder {
         releaseAEC()
     }
 
-    override fun setAudioChannel(@Channel channel: Int): Boolean {
+    override fun setAudioChannel(channel: Int): Boolean {
         if (isActive) {
             Log.e(TAG, "setAudioChannel error ,need state isn't isActive|录音没有完成，无法进行修改 ")
             return false
@@ -360,6 +348,7 @@ internal class SimRecorder : BaseRecorder {
     /**
      * Initialize audio recorder
      */
+    @SuppressLint("MissingPermission")
     @Throws(IOException::class)
     private fun initAudioRecorder() {
         mBufferSize = AudioRecord.getMinBufferSize(

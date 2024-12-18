@@ -13,7 +13,6 @@ import java.io.IOException
 import me.shetj.ndk.lame.LameUtils
 import me.shetj.player.PlayerListener
 import me.shetj.recorder.core.BaseRecorder
-import me.shetj.recorder.core.Channel
 import me.shetj.recorder.core.ISoundTouchCore
 import me.shetj.recorder.core.RecordState
 import me.shetj.recorder.core.Source
@@ -67,7 +66,7 @@ internal class STRecorder : BaseRecorder {
      */
     constructor(
         @Source audioSource: Int = MediaRecorder.AudioSource.MIC,
-        @Channel channel: Int = 1
+        channel: Int = 1
     ) {
         this.mAudioSource = audioSource
         mLameInChannel = channel
@@ -90,7 +89,7 @@ internal class STRecorder : BaseRecorder {
         return soundTouch
     }
 
-    override fun setAudioChannel(@Channel channel: Int): Boolean {
+    override fun setAudioChannel(channel: Int): Boolean {
         if (isActive) {
             Log.e(TAG, "setAudioSource error ,need state isn't isActive|录音没有完成，无法进行修改 ")
             return false

@@ -12,7 +12,6 @@ import android.util.Log
 import me.shetj.ndk.lame.LameUtils
 import me.shetj.player.PlayerListener
 import me.shetj.recorder.core.BaseRecorder
-import me.shetj.recorder.core.Channel
 import me.shetj.recorder.core.PlugConfigs
 import me.shetj.recorder.core.RecordState
 import me.shetj.recorder.core.VolumeConfig
@@ -89,7 +88,7 @@ internal class MixRecorder : BaseRecorder {
         bgPlayer.updateChannel(mLameInChannel)
     }
 
-    override fun setAudioChannel(@Channel channel: Int): Boolean {
+    override fun setAudioChannel(channel: Int): Boolean {
         if (!isActive) {
             is2Channel = channel == 2
             mLameInChannel = channel
@@ -418,7 +417,7 @@ internal class MixRecorder : BaseRecorder {
         mEncodeThread!!.setPCMListener(mPCMListener)
         mAudioRecord!!.setRecordPositionUpdateListener(mEncodeThread, mEncodeThread!!.getEncodeHandler())
         mAudioRecord!!.positionNotificationPeriod = FRAME_COUNT
-
+        bgPlayer.mSampleRate = mSamplingRate
         // 强制加上背景音乐
         plugConfigs?.setForce(enableForceMix || (mAudioSource == MediaRecorder.AudioSource.VOICE_COMMUNICATION))
     }
@@ -431,7 +430,7 @@ internal class MixRecorder : BaseRecorder {
      */
     override fun enableForceWriteMixBg(enable: Boolean) {
         this.enableForceMix = enable
-        plugConfigs?.setForce(enable)
+        this.plugConfigs?.setForce(enable)
     }
 
     //region private method  私有方法

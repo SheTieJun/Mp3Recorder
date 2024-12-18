@@ -2,6 +2,7 @@
 package me.shetj.recorder.core
 
 import android.content.Context
+import android.media.AudioManager
 import android.media.MediaExtractor
 import android.media.MediaFormat
 import android.net.Uri
@@ -53,7 +54,18 @@ object AudioUtils {
         }
     }
 
+
     fun getAudioChannel(context: Context, url: Uri): Int {
         return getAudioFormat(context, url).getInteger(MediaFormat.KEY_CHANNEL_COUNT)
+    }
+
+    //获取最佳采样率
+    fun getBestSampleRate(context: Context): Int {
+        val am = context.getSystemService(Context.AUDIO_SERVICE) as? AudioManager
+        val sampleRateStr: String? = am?.getProperty(AudioManager.PROPERTY_OUTPUT_SAMPLE_RATE)
+        val sampleRate: Int = sampleRateStr?.let { str ->
+            Integer.parseInt(str).takeUnless { it == 0 }
+        } ?: 44100 // Use a default value if property not found
+        return sampleRate
     }
 }

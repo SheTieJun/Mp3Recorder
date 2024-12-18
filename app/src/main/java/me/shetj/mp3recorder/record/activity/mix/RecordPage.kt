@@ -187,7 +187,7 @@ open class RecordPage(
 
             override fun onMuteRecordChange(mute: Boolean) {
                 super.onMuteRecordChange(mute)
-                binding.muteAudio.text = if (mute) "已静音" else "开启禁音"
+                binding.muteAudio.text = if (mute) "已静音录制" else "开启静音录制"
             }
 
             override fun onMaxChange(time: Long) {
