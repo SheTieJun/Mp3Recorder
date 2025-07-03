@@ -1,8 +1,8 @@
 
 package me.shetj.mp3recorder
 
+import android.Manifest.permission
 import android.animation.ObjectAnimator
-import android.content.Context
 import android.content.Intent
 import android.graphics.Color
 import android.media.AudioFormat
@@ -18,6 +18,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import me.shetj.base.BaseKit
 import me.shetj.base.fix.FixPermission
+import me.shetj.base.ktx.hasPermission
 import me.shetj.base.ktx.setAppearance
 import me.shetj.base.mvvm.viewbind.BaseBindingActivity
 import me.shetj.base.mvvm.viewbind.BaseViewModel
@@ -61,7 +62,7 @@ class MainActivity : BaseBindingActivity<ActivityMainTestBinding, BaseViewModel>
 
     override fun initBaseView() {
         mBinding.btnDemo3.setOnClickListener {
-            if (FixPermission.checkReadMediaFile(this, isRequest = true)) {
+            if (FixPermission.checkReadMediaFile(this, isRequest = true) && hasPermission(permission.RECORD_AUDIO, isRequest = true)) {
                 startActivity(Intent(this,RecordActivity::class.java))
             }
         }
@@ -85,7 +86,7 @@ class MainActivity : BaseBindingActivity<ActivityMainTestBinding, BaseViewModel>
 
     //
     private fun getBestBufferSize(): Int {
-        val am = BaseKit.app.getSystemService(Context.AUDIO_SERVICE) as? AudioManager
+        val am = BaseKit.app.getSystemService(AUDIO_SERVICE) as? AudioManager
         val bufferSizeStr: String? = am?.getProperty(AudioManager.PROPERTY_OUTPUT_FRAMES_PER_BUFFER)
         val bufferSize: Int = bufferSizeStr?.let { str ->
             Integer.parseInt(str).takeUnless { it == 0 }
