@@ -1,26 +1,3 @@
-/*
- * MIT License
- *
- * Copyright (c) 2019 SheTieJun
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
 package me.shetj.recorder.core
 
 import android.media.MediaRecorder
@@ -32,34 +9,38 @@ import androidx.annotation.IntDef
  * [android.media.AudioFormat] :声道设置
  * [MediaRecorder.AudioSource] :声音来源
  */
-data class Mp3RecorderOption(
+data class Mp3Option(
     // 声音来源：默认麦克风；如果使用VOICE_COMMUNICATION，系统会自动优化录音，但是声音会变小
     @Source var audioSource: Int = AudioSource.MIC,
     // 声道设置：单双声道，1单声道，2双声道
-    @Channel var audioChannel: Int = 1,
+    var audioChannel: Int = 1,
     // debug，输出录音过程日志
     var isDebug: Boolean = false,
     // 最大录制时间毫秒
-    var mMaxTime: Long = 1800 * 1000,
+    var mMaxTime: Long = 1800 * 1_000,
     // 采样频率越高， 声音越接近原始数据。
-    var samplingRate: Int = 44100,
+    var samplingRate: Int = 48000,
     // 比特率越高，传送的数据越大，音质越好 ,MP3输出的比特率,影响输出大小和输出音质，同时会影响文件的大小，质量越好文件越大
-    var mp3BitRate: Int = 32, // 128 /96(高),32（低）
+    var mp3BitRate: Int = 64, // 128 /96(高),32（低）
     // Lame   质量1-7，Lame的输出质量，1最快
     var mp3Quality: Int = 3,
-    // 无法录音回调（一般是需要权限：录音和存储）
+    // 无法录音回调（一般是需要权限：录音和存储）,会有点不准确
     var permissionListener: PermissionListener? = null,
     // 回调
     var recordListener: RecordListener? = null,
-    // 声音增强系数,不建议配置，可能会有噪音
-    var wax: Float = 1f
+    // pcm 回调
+    var pcmListener: PCMListener? = null,
+    // 是否添加AudioEffect， （NoiseSuppressor,AcousticEchoCanceler,AutomaticGainControl）
+    var enableAudioEffect:Boolean = false
 )
 
-fun recorder(block: Mp3RecorderOption.() -> Unit): Mp3RecorderOption {
-    return Mp3RecorderOption().apply(block)
+fun recorder(block: Mp3Option.() -> Unit): Mp3Option {
+    return Mp3Option().apply(block)
 }
 
-/** * CAMCORDER	录音来源于同方向的相机麦克风相同，若相机无内置相机或无法识别，则使用预设的麦克风
+
+/** *
+ *  * CAMCORDER	录音来源于同方向的相机麦克风相同，若相机无内置相机或无法识别，则使用预设的麦克风
  *  * DEFAULT	默认音频源
  *  * MIC	录音来源为主麦克风
  *  * REMOTE_SUBMIX	用于远程呈现的音频流的子混音的音频源，需要Manifest.permission.CAPTURE_AUDIO_OUTPUT权限，第三方应用无法申请
@@ -83,6 +64,3 @@ fun recorder(block: Mp3RecorderOption.() -> Unit): Mp3RecorderOption {
 @Retention(AnnotationRetention.SOURCE)
 annotation class Source
 
-@IntDef(value = [1, 2])
-@Retention(AnnotationRetention.SOURCE)
-annotation class Channel

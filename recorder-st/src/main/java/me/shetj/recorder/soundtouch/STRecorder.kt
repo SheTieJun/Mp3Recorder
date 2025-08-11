@@ -1,26 +1,3 @@
-/*
- * MIT License
- *
- * Copyright (c) 2019 SheTieJun
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
 package me.shetj.recorder.soundtouch
 
 import android.annotation.SuppressLint
@@ -34,12 +11,9 @@ import android.os.Process
 import android.util.Log
 import java.io.IOException
 import me.shetj.ndk.lame.LameUtils
-import me.shetj.player.PlayerListener
 import me.shetj.recorder.core.BaseRecorder
-import me.shetj.recorder.core.Channel
 import me.shetj.recorder.core.ISoundTouchCore
-import me.shetj.recorder.core.PermissionListener
-import me.shetj.recorder.core.RecordListener
+import me.shetj.recorder.core.PlayerListener
 import me.shetj.recorder.core.RecordState
 import me.shetj.recorder.core.Source
 
@@ -50,15 +24,12 @@ internal class STRecorder : BaseRecorder {
 
     override val recorderType: RecorderType = RecorderType.SIM
 
-    private var mAudioRecord: AudioRecord? = null
-    private var mEncodeThread: DataSTEncodeThread? = null
-
     /**
      * 输出的文件
      */
     private var mPCMBuffer: ShortArray? = null
     private var mSendError: Boolean = false
-    private var bytesPerSecond: Int = 0 // PCM文件大小=采样率采样时间采样位深/8*通道数（Bytes）
+
     // 缓冲数量
     private var mBufferSize: Int = 0
 
@@ -95,11 +66,11 @@ internal class STRecorder : BaseRecorder {
      */
     constructor(
         @Source audioSource: Int = MediaRecorder.AudioSource.MIC,
-        @Channel channel: Int = 1
+        channel: Int = 1
     ) {
-        this.defaultAudioSource = audioSource
-        defaultLameInChannel = channel
-        defaultChannelConfig = when (channel) {
+        this.mAudioSource = audioSource
+        mLameInChannel = channel
+        mChannelConfig = when (channel) {
             1 -> {
                 AudioFormat.CHANNEL_IN_MONO
             }
@@ -107,9 +78,10 @@ internal class STRecorder : BaseRecorder {
             2 -> {
                 AudioFormat.CHANNEL_IN_STEREO
             }
-            else -> defaultAudioSource
+
+            else -> AudioFormat.CHANNEL_IN_STEREO
         }
-        is2Channel = defaultLameInChannel == 2
+        is2Channel = mLameInChannel == 2
         releaseAEC()
     }
 
@@ -117,55 +89,43 @@ internal class STRecorder : BaseRecorder {
         return soundTouch
     }
 
-    override fun setAudioChannel(@Channel channel: Int): Boolean {
+    override fun setAudioChannel(channel: Int): Boolean {
         if (isActive) {
             Log.e(TAG, "setAudioSource error ,need state isn't isActive|录音没有完成，无法进行修改 ")
             return false
         }
         is2Channel = channel == 2
-        defaultLameInChannel = when {
+        mLameInChannel = when {
             channel <= 1 -> {
-                defaultChannelConfig = AudioFormat.CHANNEL_IN_MONO
+                mChannelConfig = AudioFormat.CHANNEL_IN_MONO
                 releaseAEC()
                 1
             }
 
             channel >= 2 -> {
-                defaultChannelConfig = AudioFormat.CHANNEL_IN_STEREO
+                mChannelConfig = AudioFormat.CHANNEL_IN_STEREO
                 releaseAEC()
                 2
             }
-            else -> defaultAudioSource
+
+            else -> 2
         }
         return true
     }
 
     override fun setAudioSource(audioSource: Int): Boolean {
         if (!isActive) {
-            defaultAudioSource = audioSource
+            mAudioSource = audioSource
             return true
         }
         Log.e(TAG, "setAudioSource error ,need state isn't isActive|录音没有完成，无法进行修改 ")
         return false
     }
 
-    override fun updateDataEncode(outputFilePath: String) {
-        setOutputFile(outputFilePath, false)
+    override fun updateDataEncode(outputFilePath: String, isContinue: Boolean) {
+        setOutputFile(outputFilePath, isContinue)
+        mEncodeThread?.isContinue = isContinue
         mEncodeThread?.update(outputFilePath)
-    }
-
-    /**
-     * 设置回调
-     * @param recordListener
-     */
-    override fun setRecordListener(recordListener: RecordListener?): STRecorder {
-        this.mRecordListener = recordListener
-        return this
-    }
-
-    override fun setPermissionListener(permissionListener: PermissionListener?): STRecorder {
-        this.mPermissionListener = permissionListener
-        return this
     }
 
     // region Start recording. Create an encoding thread. Start record from this
@@ -185,7 +145,7 @@ internal class STRecorder : BaseRecorder {
         try {
             initAudioRecorder()
             mAudioRecord!!.startRecording()
-        }catch (ex:IllegalStateException){
+        } catch (ex: IllegalStateException) {
             handler.sendEmptyMessage(HANDLER_PERMISSION)
             isActive = false
             ex.printStackTrace()
@@ -208,8 +168,8 @@ internal class STRecorder : BaseRecorder {
                         if (!mSendError) {
                             mSendError = true
                             handler.sendEmptyMessage(HANDLER_PERMISSION)
-                            onError(Exception("recording error , may be need permission :android.permission.RECORD_AUDIO"))
                             isError = true
+                            onError(Exception("recording error , may be need permission :android.permission.RECORD_AUDIO"))
                             logError("recording error , may be need permission :android.permission.RECORD_AUDIO")
                         }
                     } else {
@@ -220,14 +180,14 @@ internal class STRecorder : BaseRecorder {
                             mEncodeThread!!.addTask(mPCMBuffer!!, readSize, mute)
                             calculateRealVolume(mPCMBuffer!!, readSize)
                             // short 是2个字节 byte 是1个字节8位
-                            onRecording(readSize * 2)
+                            onRecording(readSize *2)
                         } else {
                             if (!mSendError) {
                                 mSendError = true
                                 handler.sendEmptyMessage(HANDLER_PERMISSION)
                                 logError("recording error , may be need permission :android.permission.RECORD_AUDIO")
-                                onError(Exception("recording error , may be need permission :android.permission.RECORD_AUDIO"))
                                 isError = true
+                                onError(Exception("recording error , may be need permission :android.permission.RECORD_AUDIO"))
                             }
                         }
                     }
@@ -341,26 +301,12 @@ internal class STRecorder : BaseRecorder {
      * 重置
      */
     override fun reset() {
-        isActive = false
-        isPause = false
-        state = RecordState.STOPPED
-        duration = 0L
-        recordBufferSize = 0
-        mRecordFile = null
-        handler.sendEmptyMessage(HANDLER_RESET)
+        super.reset()
         soundTouch.clean()
     }
 
     override fun destroy() {
-        isActive = false
-        isPause = false
-        state = RecordState.STOPPED
-        duration = 0L
-        recordBufferSize = 0
-        mRecordFile = null
-        releaseAEC()
-        handler.removeCallbacksAndMessages(null)
-        volumeConfig?.unregisterReceiver()
+        super.destroy()
         soundTouch.destroy()
     }
 
@@ -392,8 +338,8 @@ internal class STRecorder : BaseRecorder {
     @Throws(IOException::class)
     private fun initAudioRecorder() {
         mBufferSize = AudioRecord.getMinBufferSize(
-            defaultSamplingRate,
-            defaultChannelConfig, DEFAULT_AUDIO_FORMAT.audioFormat
+            mSamplingRate,
+            mChannelConfig, DEFAULT_AUDIO_FORMAT.audioFormat
         )
         val bytesPerFrame = DEFAULT_AUDIO_FORMAT.bytesPerFrame
         /* Get number of samples. Calculate the buffer size
@@ -412,36 +358,44 @@ internal class STRecorder : BaseRecorder {
         * 缓冲区大小：音频数据写入缓冲区的总数：mBufferSize
         * */
         mAudioRecord = AudioRecord(
-            defaultAudioSource,
-            defaultSamplingRate, defaultChannelConfig, DEFAULT_AUDIO_FORMAT.audioFormat,
+            mAudioSource,
+            mSamplingRate, mChannelConfig, DEFAULT_AUDIO_FORMAT.audioFormat,
             mBufferSize
         )
 
         // 缓冲区大小
         mPCMBuffer = ShortArray(mBufferSize)
-        // 1秒时间需要多少字节，用来计算已经录制了多久
+
+        // PCM文件大小 = 采样率采样时间采样位深 / 8*通道数（Bytes）
         bytesPerSecond =
             mAudioRecord!!.sampleRate * mapFormat(mAudioRecord!!.audioFormat) / 8 * mAudioRecord!!.channelCount
-        // 初始化变音
-        soundTouch.init(defaultLameInChannel, defaultSamplingRate)
 
-        initAEC(mAudioRecord!!.audioSessionId)
+        // 初始化变音
+        soundTouch.init(mLameInChannel, mSamplingRate)
+
+        initAudioEffect(mAudioRecord!!.audioSessionId)
 
         LameUtils.init(
-            defaultSamplingRate,
-            defaultLameInChannel,
-            defaultSamplingRate,
-            defaultLameMp3BitRate,
-            defaultLameMp3Quality
+            mSamplingRate,
+            mLameInChannel,
+            mSamplingRate,
+            mLameMp3BitRate,
+            mMp3Quality,
+            lowpassFreq,
+            highpassFreq,
+            openVBR,
+            isDebug
         )
         mEncodeThread = DataSTEncodeThread(
             mRecordFile!!,
             mBufferSize,
             isContinue,
-            defaultChannelConfig == AudioFormat.CHANNEL_IN_STEREO,
-            soundTouch
+            mChannelConfig == AudioFormat.CHANNEL_IN_STEREO,
+            soundTouch,
+            openVBR
         )
         mEncodeThread!!.start()
+        mEncodeThread!!.setPCMListener(mPCMListener)
         mAudioRecord!!.setRecordPositionUpdateListener(
             mEncodeThread,
             mEncodeThread!!.getEncodeHandler()
@@ -455,8 +409,8 @@ internal class STRecorder : BaseRecorder {
         if (state !== RecordState.RECORDING) {
             handler.sendEmptyMessage(HANDLER_START)
             state = RecordState.RECORDING
-            duration = 0L
-            recordBufferSize = 0L
+            recordBufferSize = 0
+            duration = 0
             isRemind = true
             isPause = false
         }
@@ -475,17 +429,19 @@ internal class STRecorder : BaseRecorder {
 
     /**
      * 计算时间
-     * @param readSize 字节数
+     * @return boolean false 表示触发了自动完成
      */
-    private fun onRecording(readSize: Int) {
+    private fun onRecording(readSize: Int): Boolean {
         recordBufferSize += readSize
-        duration = ((recordBufferSize*1000.0)/bytesPerSecond).toLong()
+        duration = (1000.0 * recordBufferSize.toDouble() / bytesPerSecond).toLong()
         if (state == RecordState.RECORDING) {
-            handler.sendEmptyMessageDelayed(HANDLER_RECORDING, waveSpeed.toLong())
+            handler.sendEmptyMessage(HANDLER_RECORDING)
             if (mMaxTime in 1..duration) {
                 autoStop()
+                return false
             }
         }
+        return true
     }
 
     private fun autoStop() {

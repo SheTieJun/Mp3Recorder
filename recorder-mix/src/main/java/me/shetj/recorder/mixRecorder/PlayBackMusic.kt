@@ -1,26 +1,4 @@
-/*
- * MIT License
- *
- * Copyright (c) 2019 SheTieJun
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
+
 @file:Suppress("DEPRECATION")
 
 package me.shetj.recorder.mixRecorder
@@ -41,9 +19,8 @@ import android.os.Message
 import android.util.Log
 import java.util.concurrent.LinkedBlockingDeque
 import java.util.concurrent.atomic.AtomicBoolean
-import me.shetj.player.PlayerListener
 import me.shetj.recorder.core.BaseRecorder
-import me.shetj.recorder.core.Channel
+import me.shetj.recorder.core.PlayerListener
 import me.shetj.recorder.core.PlugConfigs
 
 /**
@@ -58,7 +35,7 @@ import me.shetj.recorder.core.PlugConfigs
  * TODO seekTo 缺失功能
  *
  */
-internal class PlayBackMusic(private var defaultChannel: Int = CHANNEL_OUT_MONO, var plugConfigs: PlugConfigs?) {
+internal class PlayBackMusic(private var defaultChannel: Int = CHANNEL_OUT_MONO,var plugConfigs: PlugConfigs?) {
 
     var isPlayingMusic = false
         private set
@@ -70,7 +47,7 @@ internal class PlayBackMusic(private var defaultChannel: Int = CHANNEL_OUT_MONO,
         } else {
             mAudioDecoder!!.bufferSize
         }
-
+    var mSampleRate :Int= 44100
     private var mAudioDecoder: AudioDecoder? = null
     private val backGroundBytes = LinkedBlockingDeque<ByteArray>() // new ArrayDeque<>();// ArrayDeque不是线程安全的
     private var mIsRecording = false // 路由中
@@ -427,7 +404,7 @@ internal class PlayBackMusic(private var defaultChannel: Int = CHANNEL_OUT_MONO,
     /**
      * 更新声道数量
      */
-    internal fun updateChannel(@Channel channel: Int) {
+    internal fun updateChannel(channel: Int) {
         defaultChannel = when (channel) {
             1 -> {
                 CHANNEL_OUT_MONO
@@ -450,7 +427,6 @@ internal class PlayBackMusic(private var defaultChannel: Int = CHANNEL_OUT_MONO,
         private const val PROCESS_REPLAY = PROCESS_ERROR + 1
         private const val PROCESS_PLAYING = PROCESS_REPLAY + 1
         private const val PROCESS_COMPLETE = PROCESS_PLAYING + 1
-        private const val mSampleRate = 44100
         private const val mAudioEncoding = AudioFormat.ENCODING_PCM_16BIT // 一个采样点16比特-2个字节
     }
 }

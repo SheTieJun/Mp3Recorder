@@ -1,26 +1,3 @@
-/*
- * MIT License
- *
- * Copyright (c) 2019 SheTieJun
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
 @file:Suppress("DEPRECATION")
 
 package me.shetj.recorder.mixRecorder
@@ -40,8 +17,8 @@ import android.os.Message
 import android.util.Log
 import java.nio.ByteBuffer
 import java.util.concurrent.LinkedBlockingDeque
-import me.shetj.player.PlayerListener
 import me.shetj.recorder.core.BaseRecorder
+import me.shetj.recorder.core.PlayerListener
 
 /**
  * 播放音乐，用来播放PCM
@@ -452,13 +429,7 @@ internal class PlayPCMMusic(private val defaultChannel: Int = CHANNEL_OUT_STEREO
 
     fun setVolume(volume: Float) {
         this.volume = volume
-        if (audioTrack != null) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                audioTrack!!.setVolume(volume)
-            } else {
-                audioTrack!!.setStereoVolume(volume, volume)
-            }
-        }
+        this.audioTrack?.setVolume(volume)
     }
 
     internal interface BackGroundFrameListener {
@@ -466,10 +437,10 @@ internal class PlayPCMMusic(private val defaultChannel: Int = CHANNEL_OUT_STEREO
     }
 
     companion object {
-        private val PROCESS_STOP = 3
-        private val PROCESS_ERROR = 4
-        private val PROCESS_REPLAY = 5
-        private val mSampleRate = 44100
-        private val mAudioEncoding = AudioFormat.ENCODING_PCM_16BIT // 一个采样点16比特-2个字节
+        private const val PROCESS_STOP = 3
+        private const val PROCESS_ERROR = 4
+        private const val PROCESS_REPLAY = 5
+        private const val mSampleRate = 44100
+        private const val mAudioEncoding = AudioFormat.ENCODING_PCM_16BIT // 一个采样点16比特-2个字节
     }
 }

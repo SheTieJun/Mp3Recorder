@@ -1,26 +1,4 @@
-/*
- * MIT License
- *
- * Copyright (c) 2019 SheTieJun
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
+
 package me.shetj.recorder.mixRecorder
 
 import android.content.Context
@@ -82,7 +60,7 @@ internal class AudioDecoder {
             Log.w(
                 "mixRecorder",
                 "the url  may be HTTP ,APP could ANR by MediaExtractor," +
-                    "you should download it to use better than direct to use|| 如果使用HTTP的url, APP可能ANR," +
+                    "you should download it to use better than direct to use\n如果使用HTTP的url, APP可能ANR," +
                     "因为mediaExtractor实在主线程初始化的" +
                     "你应该下载它后再用，会比只直接用url好很多"
             )
@@ -285,9 +263,6 @@ internal class AudioDecoder {
 
     companion object {
 
-        /**
-         * 初始化解码器
-         */
         private val lockPCM = Any()
         const val BUFFER_SIZE = 2048
     }
