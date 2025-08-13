@@ -37,7 +37,7 @@ implementation "com.github.SheTieJun.Mp3Recorder:recorder-st:$sdk_version" //可
 - 如果录音中，需要随时添加背景音乐，而且要求支持带耳机后也有背景音乐：[MixRecorder](recorder-mix)
 - 如果录音中，没有背景音乐，但是支持随时进行变音：[STRecorder](recorder-st)
 
-## 2. [《背景音乐》录音推荐](recorder-sim)：
+## 2. [《背景音乐》录音推荐](recorder-mix)：
 
 ```
 implementation 'com.github.SheTieJun.Mp3Recorder:recorder-mix:版本号'

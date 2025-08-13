@@ -35,7 +35,7 @@
 -   If you are recording, you need to add background music at any time, and it is required to support background music even with headphones:[MixRecorder](recorder-mix)
 -   If there is no background music during recording, but voice changing is supported at any time:[STReccorder](recorder-st)
 
-## 2.["Background Music" recording recommendation](recorder-sim)：
+## 2.["Background Music" recording recommendation](recorder-mix)：
 
     implementation 'com.github.SheTieJun.Mp3Recorder:recorder-mix:版本号'
     implementation 'com.github.SheTieJun.Mp3Recorder:recorder-core:版本号'
