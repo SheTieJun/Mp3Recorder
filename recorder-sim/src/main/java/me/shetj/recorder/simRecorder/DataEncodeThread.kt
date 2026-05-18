@@ -20,9 +20,10 @@ constructor(
     bufferSize: Int,
     isContinue: Boolean,
     private val is2CHANNEL: Boolean,
-    isEnableVBR: Boolean
+    isEnableVBR: Boolean,
+    lameUtils: LameUtils
 ) :
-    BaseEncodeThread(file, bufferSize, isContinue, isEnableVBR, "DataEncodeThread") {
+    BaseEncodeThread(file, bufferSize, isContinue, isEnableVBR, "DataEncodeThread",lameUtils) {
 
     private val mTasks = Collections.synchronizedList(ArrayList<ReadTask>())
     private val mOldTasks = Collections.synchronizedList(ArrayList<ReadTask>())
@@ -35,7 +36,7 @@ constructor(
      * 缓冲区中没有数据时返回0
      */
     override fun processData(): Int {
-        if (mTasks.size > 0) {
+        if (mTasks.isNotEmpty()) {
             val task = mTasks.removeAt(0)
             addOldData(task)
             val buffer = beforePCMtoMP3(task.getData())
@@ -43,10 +44,10 @@ constructor(
             val readSize: Int
             if (is2CHANNEL) {
                 readSize = buffer.size / 2
-                encodedSize = LameUtils.encodeInterleaved(buffer, readSize, mMp3Buffer)
+                encodedSize = lameUtils.encodeInterleaved(buffer, readSize, mMp3Buffer)
             } else {
                 readSize = buffer.size
-                encodedSize = LameUtils.encode(buffer, buffer, readSize, mMp3Buffer)
+                encodedSize = lameUtils.encode(buffer, buffer, readSize, mMp3Buffer)
             }
             if (encodedSize > 0) {
                 try {
@@ -61,33 +62,14 @@ constructor(
         return 0
     }
 
-    /**
-     * Flush all data left in lame buffer to file
-     */
     override fun flushAndRelease() {
-        // 将MP3结尾信息写入buffer中
-        val flushResult = LameUtils.flush(mMp3Buffer)
-        if (flushResult > 0) {
-            try {
-                mFileOutputStream!!.write(mMp3Buffer, 0, flushResult)
-            } catch (e: IOException) {
-                e.printStackTrace()
-            } finally {
-                if (mFileOutputStream != null) {
-                    try {
-                        mFileOutputStream!!.close()
-                    } catch (e: IOException) {
-                        e.printStackTrace()
-                    }
-                }
-                LameUtils.close()
-            }
-        }
+        super.flushAndRelease()
+        mOldTasks.clear()
     }
 
     private fun checkCut() {
         if (needUpdate) {
-            val flushResult = LameUtils.flush(mMp3Buffer)
+            val flushResult = lameUtils.flush(mMp3Buffer)
             if (flushResult > 0) {
                 mFileOutputStream!!.write(mMp3Buffer, 0, flushResult)
             }
@@ -95,7 +77,7 @@ constructor(
             mFileOutputStream = null
             mFileOutputStream = FileOutputStream(path, isContinue)
             if (isEnableVBR) {
-                LameUtils.writeVBRHeader(path)
+                lameUtils.writeVBRHeader(path)
             }
             while (setOldDateToFile() > 0)
                 needUpdate = false
@@ -103,17 +85,17 @@ constructor(
     }
 
     private fun setOldDateToFile(): Int {
-        if (mOldTasks.size > 0 && mFileOutputStream != null) {
+        if (mOldTasks.isNotEmpty() && mFileOutputStream != null) {
             val task = mOldTasks.removeAt(0)
             val buffer = beforePCMtoMP3(task.getData())
             val encodedSize: Int
             val readSize: Int
             if (is2CHANNEL) {
                 readSize = buffer.size / 2
-                encodedSize = LameUtils.encodeInterleaved(buffer, readSize, mMp3Buffer)
+                encodedSize = lameUtils.encodeInterleaved(buffer, readSize, mMp3Buffer)
             } else {
                 readSize = buffer.size
-                encodedSize = LameUtils.encode(buffer, buffer, readSize, mMp3Buffer)
+                encodedSize = lameUtils.encode(buffer, buffer, readSize, mMp3Buffer)
             }
             if (encodedSize > 0) {
                 try {

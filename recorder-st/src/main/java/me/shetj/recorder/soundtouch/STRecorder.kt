@@ -12,6 +12,7 @@ import android.util.Log
 import java.io.IOException
 import me.shetj.ndk.lame.LameUtils
 import me.shetj.player.PlayerListener
+import me.shetj.recorder.core.BaseEncodeThread
 import me.shetj.recorder.core.BaseRecorder
 import me.shetj.recorder.core.ISoundTouchCore
 import me.shetj.recorder.core.RecordState
@@ -29,9 +30,6 @@ internal class STRecorder : BaseRecorder {
      */
     private var mPCMBuffer: ShortArray? = null
     private var mSendError: Boolean = false
-
-    // 缓冲数量
-    private var mBufferSize: Int = 0
 
     /**
      * pcm数据的速度，默认300
@@ -219,13 +217,13 @@ internal class STRecorder : BaseRecorder {
     }
     // endregion Start recording. Create an encoding thread. Start record from this
 
-    @Deprecated("不支持背景音乐", replaceWith = ReplaceWith("no use"))
+    @Deprecated("不支持背景音乐")
     override fun setBackgroundMusic(url: String): STRecorder {
         logError("不支持背景音乐")
         return this
     }
 
-    @Deprecated("不支持背景音乐", replaceWith = ReplaceWith("no use"))
+    @Deprecated("不支持背景音乐" )
     override fun setBackgroundMusic(
         context: Context,
         uri: Uri,
@@ -235,14 +233,14 @@ internal class STRecorder : BaseRecorder {
         return this
     }
 
-    @Deprecated("不支持背景音乐", replaceWith = ReplaceWith("no use"))
+    @Deprecated("不支持背景音乐")
     override fun setLoopMusic(isLoop: Boolean): BaseRecorder {
         this.bgmIsLoop = isLoop
         logError("不支持背景音乐")
         return this
     }
 
-    @Deprecated("不支持背景音乐", replaceWith = ReplaceWith("no use"))
+    @Deprecated("不支持背景音乐")
     override fun setBackgroundMusicListener(listener: PlayerListener): STRecorder {
         logError("不支持背景音乐")
         return this
@@ -271,7 +269,7 @@ internal class STRecorder : BaseRecorder {
     /**
      * 设置背景音乐的大小
      */
-    @Deprecated("不支持背景音乐", replaceWith = ReplaceWith("no use"))
+    @Deprecated("不支持背景音乐" )
     override fun setBGMVolume(volume: Float): STRecorder {
         logError("不支持背景音乐")
         return this
@@ -291,7 +289,7 @@ internal class STRecorder : BaseRecorder {
         }
     }
 
-    @Deprecated("不支持背景音乐", replaceWith = ReplaceWith("no use"))
+    @Deprecated("不支持背景音乐")
     override fun isPlayMusic(): Boolean {
         logError("不支持背景音乐")
         return false
@@ -310,23 +308,23 @@ internal class STRecorder : BaseRecorder {
         soundTouch.destroy()
     }
 
-    @Deprecated("不支持背景音乐", replaceWith = ReplaceWith("no use"))
+    @Deprecated("不支持背景音乐")
     override fun startPlayMusic() {
         logError("不支持背景音乐")
     }
 
-    @Deprecated("不支持背景音乐", replaceWith = ReplaceWith("no use"))
+    @Deprecated("不支持背景音乐")
     override fun isPauseMusic(): Boolean {
         logError("不支持背景音乐")
         return true
     }
 
-    @Deprecated("不支持背景音乐", replaceWith = ReplaceWith("no use"))
+    @Deprecated("不支持背景音乐")
     override fun pauseMusic() {
         logError("不支持背景音乐")
     }
 
-    @Deprecated("不支持背景音乐", replaceWith = ReplaceWith("no use"))
+    @Deprecated("不支持背景音乐")
     override fun resumeMusic() {
         logError("不支持背景音乐")
     }
@@ -336,71 +334,22 @@ internal class STRecorder : BaseRecorder {
      */
     @SuppressLint("MissingPermission")
     @Throws(IOException::class)
-    private fun initAudioRecorder() {
-        mBufferSize = AudioRecord.getMinBufferSize(
-            mSamplingRate,
-            mChannelConfig, DEFAULT_AUDIO_FORMAT.audioFormat
-        )
-        val bytesPerFrame = DEFAULT_AUDIO_FORMAT.bytesPerFrame
-        /* Get number of samples. Calculate the buffer size
-         * (round up to the factor of given frame size)
-         * 使能被整除，方便下面的周期性通知
-         * */
-        var frameSize = mBufferSize / bytesPerFrame
-        if (frameSize % FRAME_COUNT != 0) {
-            frameSize += FRAME_COUNT - frameSize % FRAME_COUNT
-            mBufferSize = frameSize * bytesPerFrame
-        }
-        /* Setup audio recorder
-        * 音频源：可以使用麦克风作为采集音频的数据源。defaultAudioSource
-        * 采样率：一秒钟对声音数据的采样次数，采样率越高，音质越好。defaultSamplingRate
-        * 音频通道：单声道，双声道等，defaultChannelConfig
-        * 缓冲区大小：音频数据写入缓冲区的总数：mBufferSize
-        * */
-        mAudioRecord = AudioRecord(
-            mAudioSource,
-            mSamplingRate, mChannelConfig, DEFAULT_AUDIO_FORMAT.audioFormat,
-            mBufferSize
-        )
-
-        // 缓冲区大小
-        mPCMBuffer = ShortArray(mBufferSize)
-
-        // PCM文件大小 = 采样率采样时间采样位深 / 8*通道数（Bytes）
-        bytesPerSecond =
-            mAudioRecord!!.sampleRate * mapFormat(mAudioRecord!!.audioFormat) / 8 * mAudioRecord!!.channelCount
-
-        // 初始化变音
+    override fun initAudioRecorder() {
         soundTouch.init(mLameInChannel, mSamplingRate)
+        super.initAudioRecorder()
+        mPCMBuffer = ShortArray(mBufferSize)
+    }
 
-        initAudioEffect(mAudioRecord!!.audioSessionId)
-
-        LameUtils.init(
-            mSamplingRate,
-            mLameInChannel,
-            mSamplingRate,
-            mLameMp3BitRate,
-            mMp3Quality,
-            lowpassFreq,
-            highpassFreq,
-            openVBR,
-            isDebug
+    override fun createEncodeThread(): BaseEncodeThread {
+        return DataSTEncodeThread(
+            file = mRecordFile!!,
+            bufferSize = mBufferSize,
+            isContinue = isContinue,
+            is2CHANNEL = mChannelConfig == AudioFormat.CHANNEL_IN_STEREO,
+            soundTouchKit = soundTouch,
+            isEnableVBR = openVBR,
+            lameUtils = lameUtils!!
         )
-        mEncodeThread = DataSTEncodeThread(
-            mRecordFile!!,
-            mBufferSize,
-            isContinue,
-            mChannelConfig == AudioFormat.CHANNEL_IN_STEREO,
-            soundTouch,
-            openVBR
-        )
-        mEncodeThread!!.start()
-        mEncodeThread!!.setPCMListener(mPCMListener)
-        mAudioRecord!!.setRecordPositionUpdateListener(
-            mEncodeThread,
-            mEncodeThread!!.getEncodeHandler()
-        )
-        mAudioRecord!!.positionNotificationPeriod = FRAME_COUNT
     }
 
     /***************************private method  */

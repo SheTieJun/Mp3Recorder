@@ -1,5 +1,6 @@
 package me.shetj.recorder.core
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.media.AudioFormat
 import android.media.AudioRecord
@@ -15,8 +16,10 @@ import android.text.TextUtils
 import android.util.Log
 import androidx.annotation.FloatRange
 import androidx.annotation.IntRange
+import me.shetj.ndk.lame.LameUtils
 import me.shetj.player.PlayerListener
 import java.io.File
+import java.io.IOException
 import java.util.Arrays
 import kotlin.math.abs
 import kotlin.math.log10
@@ -100,7 +103,8 @@ abstract class BaseRecorder {
 
     protected var mEncodeThread: BaseEncodeThread? = null
     protected var mAudioRecord: AudioRecord? = null
-
+    // 缓冲数量
+    protected var mBufferSize: Int = 0
     //region 系统自带的去噪音，增强以及回音问题
     private var mNoiseSuppressor: NoiseSuppressor? = null
     private var mAcousticEchoCanceler: AcousticEchoCanceler? = null
@@ -166,6 +170,11 @@ abstract class BaseRecorder {
      * 背景音乐的声音大小(0~1.0)
      */
     protected var bgLevel: Float = 0.3f
+
+    /**
+     * lame 工具类
+     */
+    protected var lameUtils : LameUtils ?=null
 
     /**
      * Mute 录制，但是录制的声音是静音的，使用场景是用于和其他音视频进行拼接
@@ -299,6 +308,23 @@ abstract class BaseRecorder {
         }
     }
 
+    open fun initLameOption(){
+        if (lameUtils == null){
+            lameUtils = LameUtils()
+        }
+        lameUtils?.init(
+            inSampleRate = mSamplingRate,
+            inChannel = mLameInChannel,
+            outSampleRate = mSamplingRate,
+            outBitrate = mLameMp3BitRate,
+            quality = mMp3Quality,
+            lowpassFreq = lowpassFreq,
+            highpassFreq = highpassFreq,
+            vbr = openVBR,
+            enableLog = isDebug
+        )
+    }
+
     /**
     录音的方式
      */
@@ -404,6 +430,47 @@ abstract class BaseRecorder {
     设置背景音乐的监听
      */
     abstract fun setBackgroundMusicListener(listener: PlayerListener): BaseRecorder
+
+
+    @SuppressLint("MissingPermission")
+    @Throws(IOException::class)
+    open fun initAudioRecorder() {
+        mBufferSize = AudioRecord.getMinBufferSize(
+            mSamplingRate, mChannelConfig, DEFAULT_AUDIO_FORMAT.audioFormat
+        )
+        val bytesPerFrame = DEFAULT_AUDIO_FORMAT.bytesPerFrame
+        var frameSize = mBufferSize / bytesPerFrame
+        if (frameSize % FRAME_COUNT != 0) {
+            frameSize += FRAME_COUNT - frameSize % FRAME_COUNT
+            mBufferSize = frameSize * bytesPerFrame
+        }/* Setup audio recorder
+      * 音频源：可以使用麦克风作为采集音频的数据源。mAudioSource
+      * 采样率：一秒钟对声音数据的采样次数，采样率越高，音质越好。defaultSamplingRate
+      * 音频通道：单声道，双声道等，defaultChannelConfig
+      * 缓冲区大小：音频数据写入缓冲区的总数：mBufferSize
+      * */
+        mAudioRecord = AudioRecord(
+            /* audioSource = */ mAudioSource,
+            /* sampleRateInHz = */ mSamplingRate,
+            /* channelConfig = */ mChannelConfig,
+            /* audioFormat = */ DEFAULT_AUDIO_FORMAT.audioFormat,
+            /* bufferSizeInBytes = */ mBufferSize
+        )
+
+        // 1秒时间需要多少字节，用来计算已经录制了多久
+        bytesPerSecond = mAudioRecord!!.sampleRate * mapFormat(mAudioRecord!!.audioFormat) / 8 * mAudioRecord!!.channelCount
+
+        initAudioEffect(mAudioRecord!!.audioSessionId)
+        initLameOption() // 更新或者初始化
+
+        mEncodeThread = createEncodeThread()
+        mEncodeThread!!.start()
+        mEncodeThread!!.setPCMListener(mPCMListener)
+        mAudioRecord!!.setRecordPositionUpdateListener(mEncodeThread, mEncodeThread!!.getEncodeHandler())
+        mAudioRecord!!.positionNotificationPeriod = FRAME_COUNT
+    }
+
+    protected abstract fun createEncodeThread(): BaseEncodeThread
 
     /**
     初始Lame录音输出质量
@@ -605,6 +672,7 @@ abstract class BaseRecorder {
         releaseAEC()
         handler.removeCallbacksAndMessages(null)
         volumeConfig?.unregisterReceiver()
+        lameUtils = null
     }
     //endregion public method
 

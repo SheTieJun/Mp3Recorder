@@ -25,6 +25,7 @@ import me.shetj.base.mvvm.viewbind.BaseViewModel
 import me.shetj.mp3recorder.databinding.ActivityMainTestBinding
 import me.shetj.mp3recorder.record.activity.mix.RecordActivity
 import me.shetj.mp3recorder.record.utils.AudioManagerX
+import me.shetj.mp3recorder.stress.LameStressTestActivity
 import me.shetj.recorder.core.AudioUtils
 
 class MainActivity : BaseBindingActivity<ActivityMainTestBinding, BaseViewModel>() {
@@ -65,6 +66,9 @@ class MainActivity : BaseBindingActivity<ActivityMainTestBinding, BaseViewModel>
             if (FixPermission.checkReadMediaFile(this, isRequest = true) && hasPermission(permission.RECORD_AUDIO, isRequest = true)) {
                 startActivity(Intent(this,RecordActivity::class.java))
             }
+        }
+        mBinding.btnStress.setOnClickListener {
+            startActivity(Intent(this, LameStressTestActivity::class.java))
         }
 
         val audioManagerX = AudioManagerX(this)

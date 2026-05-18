@@ -8,6 +8,9 @@ import android.os.Message
 import java.io.File
 import java.io.FileOutputStream
 import me.shetj.ndk.lame.LameUtils
+import java.io.IOException
+import java.util.ArrayList
+import java.util.Collections
 
 /**
  *
@@ -15,7 +18,12 @@ import me.shetj.ndk.lame.LameUtils
  * <b>@createTime：</b> 2023/3/22<br>
  */
 abstract class BaseEncodeThread(
-    file: File, bufferSize: Int, var isContinue: Boolean, protected val isEnableVBR: Boolean, name: String
+    file: File,
+    bufferSize: Int,
+    var isContinue: Boolean,
+    protected val isEnableVBR: Boolean,
+    name: String,
+    val lameUtils: LameUtils,
 ) : HandlerThread(name), AudioRecord.OnRecordPositionUpdateListener {
     protected var path: String
     protected var mFileOutputStream: FileOutputStream?
@@ -23,12 +31,10 @@ abstract class BaseEncodeThread(
     protected var needUpdate = false
     protected var mPCMListener: PCMListener? = null
 
+
     init {
         this.mFileOutputStream = FileOutputStream(file, isContinue)
         path = file.absolutePath
-        if (isEnableVBR) {
-            LameUtils.writeVBRHeader(path)
-        }
         mMp3Buffer = ByteArray((7200 + bufferSize.toDouble() * 2.0 * 1.25).toInt())
     }
 
@@ -101,7 +107,29 @@ abstract class BaseEncodeThread(
         mHandler?.sendEmptyMessage(PROCESS_ERROR)
     }
 
-    protected abstract fun flushAndRelease()
+    open fun flushAndRelease() {
+        // 将MP3结尾信息写入buffer中
+        val flushResult = lameUtils.flush(mMp3Buffer)
+        if (flushResult > 0) {
+            try {
+                mFileOutputStream!!.write(mMp3Buffer, 0, flushResult)
+            } catch (e: IOException) {
+                e.printStackTrace()
+            } finally {
+                if (mFileOutputStream != null) {
+                    try {
+                        mFileOutputStream?.close()
+                    } catch (e: IOException) {
+                        e.printStackTrace()
+                    }
+                }
+                if (isEnableVBR) {
+                    lameUtils.writeVBRHeader(path)
+                }
+                lameUtils.close()
+            }
+        }
+    }
 
     protected abstract fun processData(): Int
 

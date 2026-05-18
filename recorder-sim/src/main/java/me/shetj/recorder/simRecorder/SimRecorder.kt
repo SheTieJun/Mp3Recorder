@@ -1,6 +1,5 @@
 package me.shetj.recorder.simRecorder
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.media.AudioFormat
 import android.media.AudioRecord
@@ -9,10 +8,9 @@ import android.net.Uri
 import android.os.Message
 import android.os.Process
 import android.util.Log
-import java.io.IOException
-import me.shetj.ndk.lame.LameUtils
 import me.shetj.player.AudioPlayer
 import me.shetj.player.PlayerListener
+import me.shetj.recorder.core.BaseEncodeThread
 import me.shetj.recorder.core.BaseRecorder
 import me.shetj.recorder.core.RecordState
 import me.shetj.recorder.core.Source
@@ -33,9 +31,6 @@ internal class SimRecorder : BaseRecorder {
      */
     private var mPCMBuffer: ShortArray? = null
     private var mSendError: Boolean = false
-
-    // 缓冲数量
-    private var mBufferSize: Int = 0
 
     // 背景音乐相关
     private var backgroundMusicUrl: String? = null
@@ -109,6 +104,12 @@ internal class SimRecorder : BaseRecorder {
             else -> AudioFormat.CHANNEL_IN_STEREO
         }
         return true
+    }
+
+
+    override fun initAudioRecorder() {
+        super.initAudioRecorder()
+        mPCMBuffer = ShortArray(mBufferSize)
     }
 
     override fun setAudioSource(audioSource: Int): Boolean {
@@ -247,7 +248,7 @@ internal class SimRecorder : BaseRecorder {
     }
 
     override fun complete() {
-        if (state !== RecordState.STOPPED) {
+        if (state != RecordState.STOPPED) {
             isPause = false
             isActive = false
             state = RecordState.STOPPED
@@ -257,7 +258,7 @@ internal class SimRecorder : BaseRecorder {
     }
 
     override fun resume() {
-        if (state === RecordState.PAUSED) {
+        if (state == RecordState.PAUSED) {
             isPause = false
             state = RecordState.RECORDING
             handler.sendEmptyMessage(HANDLER_RESUME)
@@ -291,7 +292,7 @@ internal class SimRecorder : BaseRecorder {
     }
 
     override fun pause() {
-        if (state === RecordState.RECORDING) {
+        if (state == RecordState.RECORDING) {
             isPause = true
             state = RecordState.PAUSED
             handler.sendEmptyMessage(HANDLER_PAUSE)
@@ -345,66 +346,13 @@ internal class SimRecorder : BaseRecorder {
         }
     }
 
-    /**
-     * Initialize audio recorder
-     */
-    @SuppressLint("MissingPermission")
-    @Throws(IOException::class)
-    private fun initAudioRecorder() {
-        mBufferSize = AudioRecord.getMinBufferSize(
-            mSamplingRate,
-            mChannelConfig, DEFAULT_AUDIO_FORMAT.audioFormat
-        )
-        val bytesPerFrame = DEFAULT_AUDIO_FORMAT.bytesPerFrame
-        /* Get number of samples. Calculate the buffer size
-         * (round up to the factor of given frame size)
-         * 使能被整除，方便下面的周期性通知
-         * */
-        var frameSize = mBufferSize / bytesPerFrame
-        if (frameSize % FRAME_COUNT != 0) {
-            frameSize += FRAME_COUNT - frameSize % FRAME_COUNT
-            mBufferSize = frameSize * bytesPerFrame
-        }
-        /* Setup audio recorder
-              * 音频源：可以使用麦克风作为采集音频的数据源。defaultAudioSource
-              * 采样率：一秒钟对声音数据的采样次数，采样率越高，音质越好。defaultSamplingRate
-              * 音频通道：单声道，双声道等，defaultChannelConfig
-              * 缓冲区大小：音频数据写入缓冲区的总数：mBufferSize
-              * */
-        mAudioRecord = AudioRecord(
-            mAudioSource,
-            mSamplingRate, mChannelConfig, DEFAULT_AUDIO_FORMAT.audioFormat,
-            mBufferSize
-        )
-        mPCMBuffer = ShortArray(mBufferSize)
-
-
-        // PCM文件大小 = 采样率采样时间采样位深 / 8*通道数（Bytes）
-        bytesPerSecond =
-            mAudioRecord!!.sampleRate * mapFormat(mAudioRecord!!.audioFormat) / 8 * mAudioRecord!!.channelCount
-
-        initAudioEffect(mAudioRecord!!.audioSessionId)
-        LameUtils.init(
-            mSamplingRate,
-            mLameInChannel,
-            mSamplingRate,
-            mLameMp3BitRate,
-            mMp3Quality,
-            lowpassFreq,
-            highpassFreq,
-            openVBR,
-            isDebug
-        )
-        mEncodeThread = DataEncodeThread(
+    override fun createEncodeThread(): BaseEncodeThread {
+        return  DataEncodeThread(
             mRecordFile!!,
             mBufferSize,
             isContinue,
-            mChannelConfig == AudioFormat.CHANNEL_IN_STEREO, openVBR
+            mChannelConfig == AudioFormat.CHANNEL_IN_STEREO, openVBR,lameUtils!!
         )
-        mEncodeThread!!.start()
-        mEncodeThread!!.setPCMListener(mPCMListener)
-        mAudioRecord!!.setRecordPositionUpdateListener(mEncodeThread, mEncodeThread!!.getEncodeHandler())
-        mAudioRecord!!.positionNotificationPeriod = FRAME_COUNT
     }
 
     /***************************private method  */

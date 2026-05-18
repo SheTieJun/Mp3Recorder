@@ -11,6 +11,7 @@ import android.os.Process
 import android.util.Log
 import me.shetj.ndk.lame.LameUtils
 import me.shetj.player.PlayerListener
+import me.shetj.recorder.core.BaseEncodeThread
 import me.shetj.recorder.core.BaseRecorder
 import me.shetj.recorder.core.PlugConfigs
 import me.shetj.recorder.core.RecordState
@@ -33,9 +34,6 @@ internal class MixRecorder : BaseRecorder {
     //region 其他
     private var mSendError: Boolean = false
     private var enableForceMix: Boolean = false // 不强制写入混音背景
-
-    // 缓冲数量
-    private var mBufferSize: Int = 0
 
     //endregion 其他
     /**
@@ -373,54 +371,17 @@ internal class MixRecorder : BaseRecorder {
     //region 初始化 Initialize audio recorder
     @SuppressLint("MissingPermission")
     @Throws(IOException::class)
-    private fun initAudioRecorder() {
-        mBufferSize = AudioRecord.getMinBufferSize(
-            mSamplingRate, mChannelConfig, DEFAULT_AUDIO_FORMAT.audioFormat
-        )
-        val bytesPerFrame = DEFAULT_AUDIO_FORMAT.bytesPerFrame
-        var frameSize = mBufferSize / bytesPerFrame
-        if (frameSize % FRAME_COUNT != 0) {
-            frameSize += FRAME_COUNT - frameSize % FRAME_COUNT
-            mBufferSize = frameSize * bytesPerFrame
-        }/* Setup audio recorder
-      * 音频源：可以使用麦克风作为采集音频的数据源。mAudioSource
-      * 采样率：一秒钟对声音数据的采样次数，采样率越高，音质越好。defaultSamplingRate
-      * 音频通道：单声道，双声道等，defaultChannelConfig
-      * 缓冲区大小：音频数据写入缓冲区的总数：mBufferSize
-      * */
-        mAudioRecord = AudioRecord(
-            /* audioSource = */ mAudioSource,
-            /* sampleRateInHz = */ mSamplingRate,
-            /* channelConfig = */ mChannelConfig,
-            /* audioFormat = */ DEFAULT_AUDIO_FORMAT.audioFormat,
-            /* bufferSizeInBytes = */ mBufferSize
-        )
-
-        // 1秒时间需要多少字节，用来计算已经录制了多久
-        bytesPerSecond = mAudioRecord!!.sampleRate * mapFormat(mAudioRecord!!.audioFormat) / 8 * mAudioRecord!!.channelCount
-
-        initAudioEffect(mAudioRecord!!.audioSessionId)
-
-        LameUtils.init(
-            inSampleRate = mSamplingRate,
-            inChannel = mLameInChannel,
-            outSampleRate = mSamplingRate,
-            outBitrate = mLameMp3BitRate,
-            quality = mMp3Quality,
-            lowpassFreq = lowpassFreq,
-            highpassFreq = highpassFreq,
-            enableVBR = openVBR,
-            enableLog = isDebug
-        )
-        mEncodeThread = MixEncodeThread(mRecordFile!!, mBufferSize, isContinue, is2Channel, openVBR)
-        mEncodeThread!!.start()
-        mEncodeThread!!.setPCMListener(mPCMListener)
-        mAudioRecord!!.setRecordPositionUpdateListener(mEncodeThread, mEncodeThread!!.getEncodeHandler())
-        mAudioRecord!!.positionNotificationPeriod = FRAME_COUNT
+    override fun initAudioRecorder() {
+       super.initAudioRecorder()
         bgPlayer.mSampleRate = mSamplingRate
         // 强制加上背景音乐
         plugConfigs?.setForce(enableForceMix || (mAudioSource == MediaRecorder.AudioSource.VOICE_COMMUNICATION))
     }
+
+    override fun createEncodeThread(): BaseEncodeThread {
+        return MixEncodeThread(mRecordFile!!, mBufferSize, isContinue, is2Channel, openVBR,lameUtils!!)
+    }
+
     //endregion
 
     /**
