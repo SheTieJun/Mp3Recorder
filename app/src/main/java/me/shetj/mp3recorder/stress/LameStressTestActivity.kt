@@ -19,6 +19,7 @@ import me.shetj.base.tools.file.EnvironmentStorage
 import me.shetj.mp3recorder.databinding.ActivityLameStressTestBinding
 import me.shetj.ndk.lame.LameUtils
 import me.shetj.recorder.core.BaseRecorder
+import me.shetj.recorder.core.FileUtils
 import me.shetj.recorder.core.PermissionListener
 import me.shetj.recorder.core.RecordListener
 import me.shetj.recorder.core.recorder
@@ -32,10 +33,11 @@ class LameStressTestActivity :
     BaseBindingActivity<ActivityLameStressTestBinding, BaseViewModel>() {
 
     private var runningJob: Job? = null
+    private var stressDir: File? = null // 测试输出目录，退出时清理
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        title = "压力测试"
+        title = "多个录音同时录音测试"
     }
 
     override fun initBaseView() {
@@ -92,6 +94,7 @@ class LameStressTestActivity :
     private suspend fun runMicStress(count: Int, seconds: Int) {
         val outputDir = File(EnvironmentStorage.getPath(packagePath = "stress"))
         outputDir.mkdirs()
+        stressDir = outputDir
 
         val recorders = ArrayList<BaseRecorder>(count)
         val startErrors = ArrayList<Pair<Int, String>>(count)
@@ -203,6 +206,7 @@ class LameStressTestActivity :
     private suspend fun runLameStress(count: Int, seconds: Int) {
         val outputDir = File(EnvironmentStorage.getPath(packagePath = "stress"))
         outputDir.mkdirs()
+        stressDir = outputDir
         val startAt = SystemClock.elapsedRealtime()
 
         val results = coroutineScope {
@@ -296,6 +300,7 @@ class LameStressTestActivity :
 
     override fun onDestroy() {
         runningJob?.cancel()
+        stressDir?.let { FileUtils.deleteFile(it.absolutePath) }
         super.onDestroy()
     }
 }

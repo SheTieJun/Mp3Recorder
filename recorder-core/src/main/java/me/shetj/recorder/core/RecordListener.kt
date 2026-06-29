@@ -58,7 +58,5 @@ interface RecordListener {
      */
     fun onError(e: Exception)
 
-    fun onMuteRecordChange(mute:Boolean){
-
-    }
+    fun onMuteRecordChange(isMute:Boolean){}
 }

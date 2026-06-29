@@ -230,16 +230,12 @@ abstract class BaseRecorder {
 
                 HANDLER_START -> {
                     logInfo("started:  mDuration = $duration , mRemindTime = $mRemindTime")
-                    if (mRecordListener != null) {
-                        mRecordListener!!.onStart()
-                    }
+                    mRecordListener?.onStart()
                 }
 
                 HANDLER_RESUME -> {
                     logInfo("resume:  mDuration = $duration")
-                    if (mRecordListener != null) {
-                        mRecordListener!!.onResume()
-                    }
+                    mRecordListener?.onResume()
                 }
 
                 HANDLER_COMPLETE -> {
@@ -260,38 +256,30 @@ abstract class BaseRecorder {
 
                 HANDLER_ERROR -> {
                     logInfo("error : mDuration = $duration")
-                    if (mRecordListener != null) {
-                        if (msg.obj != null) {
-                            mRecordListener!!.onError(msg.obj as Exception)
-                        } else {
-                            mRecordListener!!.onError(
-                                Exception(
-                                    "record error：AudioRecord read MIC error maybe not permission!"
-                                )
+                    if (msg.obj != null) {
+                        mRecordListener?.onError(msg.obj as Exception)
+                    } else {
+                        mRecordListener?.onError(
+                            Exception(
+                                "record error：AudioRecord read MIC error maybe not permission!"
                             )
-                        }
+                        )
                     }
                 }
 
                 HANDLER_PAUSE -> {
                     logInfo("pause:  mDuration = $duration")
-                    if (mRecordListener != null) {
-                        mRecordListener!!.onPause()
-                    }
+                    mRecordListener?.onPause()
                 }
 
                 HANDLER_PERMISSION -> {
                     logInfo("permission：record fail ,maybe need permission")
-                    if (mPermissionListener != null) {
-                        mPermissionListener!!.needPermission()
-                    }
+                    mPermissionListener?.needPermission()
                 }
 
                 HANDLER_RESET -> {
                     logInfo("reset:")
-                    if (mRecordListener != null) {
-                        mRecordListener!!.onReset()
-                    }
+                    mRecordListener?.onReset()
                 }
 
                 HANDLER_MAX_TIME -> if (mRecordListener != null) {
@@ -302,8 +290,7 @@ abstract class BaseRecorder {
                     mRecordListener?.onMuteRecordChange(mute)
                 }
 
-                else -> {
-                }
+                else -> {}
             }
         }
     }
