@@ -8,7 +8,7 @@
 
 边录边转 MP3 的 Android 录音库。
 
-- 边录边转 MP3，支持系统自带 AEC、NC、AGC（通过 `enableAudioEffect` 开关，1.9.1+ 默认关闭）
+- 边录边转 MP3，支持系统自带 AEC、NC、AGC（通过 `enableAudioEffect` 开关，1.9.1 默认关闭，其他都是默认开启）
 - 支持暂停/继续，实时回调**录制时长**和**音量大小**
 - 支持背景音乐混音（Mix）、纯录音（Sim）、变声（ST）
 - 耳机/外放自动切换背景音乐播放方式
@@ -17,7 +17,7 @@
 
 ![](doc/img/recorder.gif)
 
----
+***
 
 ## 接入
 
@@ -33,15 +33,15 @@ implementation "com.github.SheTieJun.Mp3Recorder:recorder-st:<版本>"    // 变
 
 ### 模块选择
 
-| 场景 | 模块 |
-|------|------|
+| 场景                   | 模块             |
+| -------------------- | -------------- |
 | 只需录音转 MP3，无需背景音乐混入输出 | `recorder-sim` |
 | 需要背景音乐混入输出文件（K 歌、配乐） | `recorder-mix` |
-| 需要实时变声（男声/女声等），无背景音乐 | `recorder-st` |
+| 需要实时变声（男声/女声等），无背景音乐 | `recorder-st`  |
 
-> 接入文档：[Wiki](https://github.com/SheTieJun/Mp3Recorder/wiki/%E6%8E%A5%E5%85%A5%E6%96%87%E6%A1%A3)
+> 接入文档：[Wiki](https://github.com/SheTieJun/Mp3Recorder/wiki)
 
----
+***
 
 ## 快速开始
 
@@ -105,25 +105,25 @@ recorder.getSoundTouch().apply {
 }
 ```
 
----
+***
 
 ## API 概览
 
 详见 [BaseRecorder](recorder-core/src/main/java/me/shetj/recorder/core/BaseRecorder.kt)，核心方法：
 
-| 方法 | 说明 |
-|------|------|
-| `setOutputFile(path, isContinue)` | 设置输出路径，`isContinue` 为 true 时在文件末尾追加 |
-| `start()` / `pause()` / `resume()` / `complete()` | 录音生命周期 |
-| `reset()` / `destroy()` | 重置 / 释放资源 |
-| `setBGMVolume(0f..1f)` | 背景音乐音量 |
-| `setMaxTime(max, remindDiff)` | 最大录制时长，`remindDiff` 为提前提醒差值 |
-| `setFilter(lowpass, highpass)` | 滤波器 |
-| `muteRecord(true)` | 静音录制（录但不写声音，用于拼接场景） |
-| `updateDataEncode(path, isContinue)` | 中途切换输出文件 |
-| `getSoundTouch()` | 获取变声控制器（仅 ST） |
+| 方法                                                | 说明                                  |
+| ------------------------------------------------- | ----------------------------------- |
+| `setOutputFile(path, isContinue)`                 | 设置输出路径，`isContinue` 为 true 时在文件末尾追加 |
+| `start()` / `pause()` / `resume()` / `complete()` | 录音生命周期                              |
+| `reset()` / `destroy()`                           | 重置 / 释放资源                           |
+| `setBGMVolume(0f..1f)`                            | 背景音乐音量                              |
+| `setMaxTime(max, remindDiff)`                     | 最大录制时长，`remindDiff` 为提前提醒差值         |
+| `setFilter(lowpass, highpass)`                    | 滤波器                                 |
+| `muteRecord(true)`                                | 静音录制（录但不写声音，用于拼接场景）                 |
+| `updateDataEncode(path, isContinue)`              | 中途切换输出文件                            |
+| `getSoundTouch()`                                 | 获取变声控制器（仅 ST）                       |
 
----
+***
 
 ## 音频参数参考
 
@@ -137,11 +137,11 @@ val rate = am.getProperty(AudioManager.PROPERTY_OUTPUT_SAMPLE_RATE)
 
 > 采样率越高声音越接近原始数据；比特率越高音质越好文件越大。
 
----
+***
 
 ## 其他
 
 - [更新日志](https://github.com/SheTieJun/Mp3Recorder/wiki/%E6%9B%B4%E6%96%B0%E6%97%A5%E5%BF%97)
 - [Code Wiki](doc/code-wiki)
-- [MediaRecorder 说明](doc/MediaRecorder.MD)
 - [License](LICENSE)
+

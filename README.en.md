@@ -8,7 +8,7 @@
 
 An Android library for recording and encoding to MP3 in real time.
 
-- Record and encode to MP3 simultaneously, with system AEC/NC/AGC support (toggled via `enableAudioEffect`, off by default since v1.9.1)
+- Record and encode to MP3 simultaneously, with system AEC/NC/AGC support (toggled via `enableAudioEffect`, off by default since v1.9.1, on by default in earlier versions)
 - Pause / resume support with real-time **duration** and **volume** callbacks
 - Background music mixing (Mix), pure recording (Sim), voice changing (ST)
 - Auto-detect headset for background music playback mode
@@ -39,7 +39,7 @@ implementation "com.github.SheTieJun.Mp3Recorder:recorder-st:<version>"    // vo
 | Mix background music into output (karaoke, etc.) | `recorder-mix` |
 | Real-time voice changing (male/female pitch), no BGM | `recorder-st` |
 
-> Setup guide: [Wiki](https://github.com/SheTieJun/Mp3Recorder/wiki/%E6%8E%A5%E5%85%A5%E6%96%87%E6%A1%A3)
+> Setup guide: [Wiki](https://github.com/SheTieJun/Mp3Recorder/wiki)
 
 ---
 
@@ -143,5 +143,4 @@ val rate = am.getProperty(AudioManager.PROPERTY_OUTPUT_SAMPLE_RATE)
 
 - [Changelog](https://github.com/SheTieJun/Mp3Recorder/wiki/%E6%9B%B4%E6%96%B0%E6%97%A5%E5%BF%97)
 - [Code Wiki](doc/code-wiki)
-- [MediaRecorder Guide](doc/MediaRecorder.MD)
 - [License](LICENSE)
