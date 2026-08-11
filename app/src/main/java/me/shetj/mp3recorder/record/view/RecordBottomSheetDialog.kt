@@ -1,55 +1,35 @@
-/*
- * MIT License
- *
- * Copyright (c) 2019 SheTieJun
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
+
 package me.shetj.mp3recorder.record.view
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
+import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.bottomsheet.BottomSheetDialog
+import me.shetj.base.ktx.launch
 import me.shetj.mp3recorder.R
 import me.shetj.mp3recorder.record.bean.Record
 import me.shetj.mp3recorder.record.bean.RecordDbUtils
 import me.shetj.mp3recorder.record.utils.EventCallback
+import me.shetj.recorder.core.FileUtils
 
 
 /**
  * 录音更多菜单
  */
 class RecordBottomSheetDialog(
-    context: Context,
-    position: Int,
+    private val context: AppCompatActivity,
     private val record: Record,
     private val callback: EventCallback
 ) : View.OnClickListener {
     private val easyBottomSheetDialog: BottomSheetDialog?
-    private var position = -1
 
     init {
-        this.position = position
         this.easyBottomSheetDialog = buildBottomSheetDialog(context)
     }
 
+    @SuppressLint("InflateParams")
     private fun buildBottomSheetDialog(context: Context): BottomSheetDialog {
         val bottomSheetDialog = BottomSheetDialog(context)
         val rootView = LayoutInflater.from(context).inflate(R.layout.dailog_record_case, null)
@@ -81,8 +61,11 @@ class RecordBottomSheetDialog(
                 dismissBottomSheet()
             }
             R.id.tv_del -> {
-                RecordDbUtils.getInstance().del(record)
-                dismissBottomSheet()
+                context.launch {
+                    record.audio_url?.let { FileUtils.deleteFile(it) }
+                    RecordDbUtils.getInstance().del(record)
+                    dismissBottomSheet()
+                }
             }
             R.id.tv_cancel -> dismissBottomSheet()
             R.id.tv_edit_name -> dismissBottomSheet()

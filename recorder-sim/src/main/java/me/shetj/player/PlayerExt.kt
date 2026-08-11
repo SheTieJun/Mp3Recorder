@@ -2,7 +2,6 @@
 package me.shetj.player
 
 import android.widget.SeekBar
-import me.shetj.recorder.core.PlayerListener
 
 /**
  * 设置URL,

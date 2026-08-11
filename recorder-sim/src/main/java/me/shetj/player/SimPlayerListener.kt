@@ -1,7 +1,6 @@
 
 package me.shetj.player
 
-import me.shetj.recorder.core.PlayerListener
 
 /**
  * **@author：** shetj<br></br>

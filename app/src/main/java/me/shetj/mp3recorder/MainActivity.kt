@@ -1,30 +1,13 @@
-/*
- * MIT License
- *
- * Copyright (c) 2019 SheTieJun
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
+
 package me.shetj.mp3recorder
 
-import android.Manifest
+import android.Manifest.permission
 import android.animation.ObjectAnimator
+import android.content.Intent
+import android.graphics.Color
+import android.media.AudioFormat
+import android.media.AudioManager
+import android.media.AudioRecord
 import android.os.Bundle
 import android.view.View
 import androidx.core.animation.doOnEnd
@@ -33,19 +16,19 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import me.shetj.base.BaseKit
+import me.shetj.base.fix.FixPermission
 import me.shetj.base.ktx.hasPermission
-import me.shetj.base.ktx.showToast
-import me.shetj.base.ktx.start
-import me.shetj.base.mvvm.BaseBindingActivity
-import me.shetj.base.mvvm.BaseViewModel
-import me.shetj.base.tools.app.ArmsUtils
-import me.shetj.base.tools.app.ArmsUtils.Companion.statuInScreen
-import me.shetj.base.tools.time.CodeUtil
-import me.shetj.mp3recorder.databinding.ActivityMainBinding
+import me.shetj.base.ktx.setAppearance
+import me.shetj.base.mvvm.viewbind.BaseBindingActivity
+import me.shetj.base.mvvm.viewbind.BaseViewModel
+import me.shetj.mp3recorder.databinding.ActivityMainTestBinding
 import me.shetj.mp3recorder.record.activity.mix.RecordActivity
-import me.shetj.recorder.ui.RecorderPopup
+import me.shetj.mp3recorder.record.utils.AudioManagerX
+import me.shetj.mp3recorder.stress.LameStressTestActivity
+import me.shetj.recorder.core.AudioUtils
 
-class MainActivity : BaseBindingActivity<BaseViewModel, ActivityMainBinding>() {
+class MainActivity : BaseBindingActivity<ActivityMainTestBinding, BaseViewModel>() {
     private var splashScreen:  SplashScreen? =null
     private var isKeep = true
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -59,6 +42,7 @@ class MainActivity : BaseBindingActivity<BaseViewModel, ActivityMainBinding>() {
             return@KeepOnScreenCondition isKeep
         })
         splashScreen!!.setOnExitAnimationListener { splashScreenViewProvider ->
+            setAppearance(true)
             val splashScreenView = splashScreenViewProvider.view
             val slideUp = ObjectAnimator.ofFloat(
                 splashScreenView,
@@ -69,46 +53,58 @@ class MainActivity : BaseBindingActivity<BaseViewModel, ActivityMainBinding>() {
             slideUp.duration = 800
             slideUp.doOnEnd {
                 splashScreenViewProvider.remove()
+                setAppearance(true,Color.WHITE)
             }
             slideUp.start()
         }
         super.onCreate(savedInstanceState)
     }
 
-    private val recorderPopup: RecorderPopup by lazy {
-        RecorderPopup(this, needPlay = false, maxTime = (10 * 1000).toLong()) {
-            it.showToast()
-        }
-    }
 
-    override fun onActivityCreate() {
-        super.onActivityCreate()
-        ArmsUtils.statuInScreen2(this,true)
-        hasPermission(
-            Manifest.permission.WRITE_EXTERNAL_STORAGE,
-            Manifest.permission.READ_EXTERNAL_STORAGE,
-            Manifest.permission.RECORD_AUDIO,
-            isRequest = true
-        )
-        mViewBinding.btnDemo3.setOnClickListener {
-            if (hasPermission(
-                    Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                    Manifest.permission.READ_EXTERNAL_STORAGE,
-                    Manifest.permission.RECORD_AUDIO, isRequest = true
-                )
-            ) {
-                start<RecordActivity>()
+    override fun initBaseView() {
+        mBinding.btnDemo3.setOnClickListener {
+            if (FixPermission.checkReadMediaFile(this, isRequest = true) && hasPermission(permission.RECORD_AUDIO, isRequest = true)) {
+                startActivity(Intent(this,RecordActivity::class.java))
             }
         }
-
-        mViewBinding.btnDemo4.setOnClickListener {
-            recorderPopup.showPop()
+        mBinding.btnStress.setOnClickListener {
+            startActivity(Intent(this, LameStressTestActivity::class.java))
         }
+
+        val audioManagerX = AudioManagerX(this)
+        val bestSampleRate = AudioUtils.getBestSampleRate(this@MainActivity)
+        mBinding.msg.apply {
+            text = audioManagerX.checkDevice()
+            append("\n\n\n获取当前手机录音最佳参数：")
+            append("\n最佳采样率：${bestSampleRate}\n")
+            append("\n录音最小缓存大小($bestSampleRate,1,${AudioFormat.ENCODING_PCM_16BIT})：${AudioRecord.getMinBufferSize(
+                bestSampleRate,
+                1,  AudioFormat.ENCODING_PCM_16BIT
+            )}\n")
+            append("音频输出的缓冲：${getBestBufferSize()}\n")
+        }
+
     }
 
-    override fun onBackPressed() {
-        if (recorderPopup.onBackPress()) {
-            super.onBackPressed()
-        }
+
+
+    //
+    private fun getBestBufferSize(): Int {
+        val am = BaseKit.app.getSystemService(AUDIO_SERVICE) as? AudioManager
+        val bufferSizeStr: String? = am?.getProperty(AudioManager.PROPERTY_OUTPUT_FRAMES_PER_BUFFER)
+        val bufferSize: Int = bufferSizeStr?.let { str ->
+            Integer.parseInt(str).takeUnless { it == 0 }
+        } ?: 256 // Use a default value if property not found
+        return bufferSize
     }
+
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+    }
+
 }

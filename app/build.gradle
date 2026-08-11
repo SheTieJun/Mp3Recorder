@@ -5,7 +5,8 @@ plugins {
 }
 
 android {
-    compileSdkVersion 31
+    namespace 'me.shetj.mp3recorder'
+    compileSdk 31
     defaultConfig {
         applicationId "me.shetj.mp3recorder"
         minSdkVersion 21
@@ -68,7 +69,6 @@ dependencies {
     implementation project(path: ':recorder-mix')
     implementation project(path: ':recorder-sim')
     implementation project(path: ':recorder-core')
-    implementation project(path: ':recorder-ui')
     implementation project(path: ':recorder-st')
 
     testImplementation 'junit:junit:4.13.2'

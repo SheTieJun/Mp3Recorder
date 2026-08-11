@@ -1,7 +1,7 @@
 <resources>
 
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+    <style name="AppTheme" parent="BaseTheme.MD3">
         <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
@@ -23,11 +23,8 @@
     <style name="App.SplashScreen" parent="Theme.SplashScreen.IconBackground">
         <item name="windowSplashScreenAnimatedIcon">@drawable/unsplash_cat</item>
         <item name="windowSplashScreenBackground">@color/white</item>
-        <item name="windowSplashScreenIconBackgroundColor">@color/colorPrimary</item>
+        <item name="windowSplashScreenIconBackgroundColor">@color/white</item>
+        <!--        must be set-->
+        <item name="postSplashScreenTheme">@style/BaseTheme.MD3</item>
     </style>
-
-    <style name="Base.Theme.SplashScreen" parent="AppTheme.NoActionBar"/>
-    <style name="Base.Theme.SplashScreen.DayNight" parent="AppTheme.NoActionBar"/>
-    <style name="Base.Theme.SplashScreen.Light" parent="AppTheme.NoActionBar"/>
-    <style name="Base.v21.Theme.SplashScreen" parent="AppTheme.NoActionBar"/>
 </resources>

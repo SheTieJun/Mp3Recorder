@@ -19,8 +19,8 @@ import android.os.Message
 import android.util.Log
 import java.util.concurrent.LinkedBlockingDeque
 import java.util.concurrent.atomic.AtomicBoolean
+import me.shetj.player.PlayerListener
 import me.shetj.recorder.core.BaseRecorder
-import me.shetj.recorder.core.PlayerListener
 import me.shetj.recorder.core.PlugConfigs
 
 /**

@@ -35,24 +35,6 @@
         app:layout_constraintTop_toTopOf="parent" />
 
 
-    <TextView
-        android:id="@+id/tv_go_cache"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:layout_marginEnd="15dp"
-        android:layout_marginBottom="8dp"
-        android:drawableStart="@drawable/icon_want_other"
-        android:drawablePadding="5dp"
-        android:gravity="center"
-        android:textAlignment="center"
-        android:text="想要其它音乐"
-        android:textColor="#FF999999"
-        android:textSize="14sp"
-        app:layout_constraintBottom_toTopOf="@+id/recycler_view"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recycler_view"
         android:layout_width="match_parent"

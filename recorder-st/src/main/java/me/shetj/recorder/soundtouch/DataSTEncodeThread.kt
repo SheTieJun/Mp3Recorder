@@ -21,9 +21,10 @@ constructor(
     isContinue: Boolean,
     private val is2CHANNEL: Boolean,
     private val soundTouchKit: SoundTouchKit,
-    isEnableVBR: Boolean
+    isEnableVBR: Boolean,
+    lameUtils: LameUtils
 ) :
-    BaseEncodeThread(file, bufferSize, isContinue, isEnableVBR, "DataSTEncodeThread") {
+    BaseEncodeThread(file, bufferSize, isContinue, isEnableVBR, "DataSTEncodeThread",lameUtils) {
     private val mSTBuffer = ShortArray(7200 + (bufferSize.toDouble() * 2.0).toInt()) // 处理变音的后的数据
     private val mTasks = Collections.synchronizedList(ArrayList<ReadTask>())
 
@@ -34,7 +35,7 @@ constructor(
      * 缓冲区中没有数据时返回0
      */
     override fun processData(): Int {
-        if (mTasks.size > 0) {
+        if (mTasks.isNotEmpty()) {
             val task = mTasks.removeAt(0)
             // 处理变音，如果需要变音，仅需要得到变音后的数据，以及长度
             return if (soundTouchKit.isUse()) {
@@ -60,10 +61,10 @@ constructor(
         val readSize: Int
         if (is2CHANNEL) {
             readSize = size / 2
-            encodedSize = LameUtils.encodeInterleaved(pcmData, readSize, mMp3Buffer)
+            encodedSize = lameUtils.encodeInterleaved(pcmData, readSize, mMp3Buffer)
         } else {
             readSize = size
-            encodedSize = LameUtils.encode(pcmData, pcmData, readSize, mMp3Buffer)
+            encodedSize = lameUtils.encode(pcmData, pcmData, readSize, mMp3Buffer)
         }
         if (encodedSize > 0) {
             try {
@@ -81,28 +82,12 @@ constructor(
      */
     override fun flushAndRelease() {
         soundTouchKit.flush(mSTBuffer)
-        val flushResult = LameUtils.flush(mMp3Buffer)
-        if (flushResult > 0) {
-            try {
-                mFileOutputStream!!.write(mMp3Buffer, 0, flushResult)
-            } catch (e: IOException) {
-                e.printStackTrace()
-            } finally {
-                if (mFileOutputStream != null) {
-                    try {
-                        mFileOutputStream!!.close()
-                    } catch (e: IOException) {
-                        e.printStackTrace()
-                    }
-                }
-                LameUtils.close()
-            }
-        }
+        super.flushAndRelease()
     }
 
     private fun checkCut() {
         if (needUpdate) {
-            val flushResult = LameUtils.flush(mMp3Buffer)
+            val flushResult = lameUtils.flush(mMp3Buffer)
             if (flushResult > 0) {
                 mFileOutputStream!!.write(mMp3Buffer, 0, flushResult)
             }
@@ -110,7 +95,7 @@ constructor(
             mFileOutputStream = null
             mFileOutputStream = FileOutputStream(path, isContinue)
             if (isEnableVBR) {
-                LameUtils.writeVBRHeader(path)
+                lameUtils.writeVBRHeader(path)
             }
             needUpdate = false
         }

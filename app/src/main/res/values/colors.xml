@@ -10,4 +10,6 @@
     <color name="recorder_text_main">#333333</color><!--字体主色-->
     <color name="recorder_text_second">#666666</color><!--字体第二辅助色-->
     <color name="recorder_text_third">#999999</color><!--字体第三辅助色-->
+
+    <color name="colorAccent2">#CDF36C60</color>
 </resources>

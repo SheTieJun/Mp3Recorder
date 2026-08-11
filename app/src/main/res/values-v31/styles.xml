@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="App.SplashScreen" parent="Theme.SplashScreen.IconBackground">
+        <item name="windowSplashScreenAnimatedIcon">@drawable/unsplash_cat</item>
+        <item name="windowSplashScreenBackground">@color/white</item>
+        <item name="windowSplashScreenIconBackgroundColor">@color/white</item>
+<!--        <item name="android:windowSplashScreenBrandingImage">@drawable/android_go</item>-->
+        <!--        must be set-->
+        <item name="postSplashScreenTheme">@style/BaseTheme.MD3</item>
+    </style>
+</resources>

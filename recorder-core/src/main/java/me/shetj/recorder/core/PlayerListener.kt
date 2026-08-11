@@ -1,5 +1,5 @@
 
-package me.shetj.recorder.core
+package me.shetj.player
 
 /**
  * **@author：** shetj<br></br>

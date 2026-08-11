@@ -1,55 +1,40 @@
-/*
- * MIT License
- *
- * Copyright (c) 2019 SheTieJun
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
 package me.shetj.mp3recorder.record.utils
 
 import android.content.Context
 import android.media.MediaRecorder
 import android.net.Uri
 import android.text.TextUtils
-import android.view.View
 import android.widget.Toast
 import androidx.lifecycle.MutableLiveData
-import me.shetj.base.S
-import me.shetj.base.ktx.logi
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import me.shetj.base.BaseKit
+import me.shetj.base.ktx.logI
 import me.shetj.base.tools.app.Utils
 import me.shetj.base.tools.file.EnvironmentStorage
-import me.shetj.dialog.OrangeDialog
-import me.shetj.dialog.SingleChoiceCallback
-import me.shetj.dialog.orangeSingeDialog
 import me.shetj.mp3recorder.record.RecordingNotification
 import me.shetj.player.PlayerListener
-import me.shetj.recorder.core.*
+import me.shetj.recorder.core.AudioUtils
+import me.shetj.recorder.core.BaseRecorder
+import me.shetj.recorder.core.FileUtils
+import me.shetj.recorder.core.PCMListener
+import me.shetj.recorder.core.PermissionListener
+import me.shetj.recorder.core.RecordListener
+import me.shetj.recorder.core.RecordState
+import me.shetj.recorder.core.SimRecordListener
+import me.shetj.recorder.core.recorder
 import me.shetj.recorder.mixRecorder.buildMix
 import me.shetj.recorder.simRecorder.buildSim
 import me.shetj.recorder.soundtouch.buildST
+import kotlin.math.abs
+import kotlin.math.log10
+import kotlin.math.sqrt
 
 /**
  * 录音工具类
  */
 class RecordUtils(
     private val callBack: SimRecordListener?
-) : RecordListener, PermissionListener {
+) : RecordListener, PermissionListener, PCMListener {
 
     private var bgmUrl: Uri? = null
     private var listener: PlayerListener? = null
@@ -94,39 +79,31 @@ class RecordUtils(
                 } else {
                     this.saveFile = file
                 }
-                saveFile.logi()
+                saveFile.logI()
                 mRecorder?.setOutputFile(saveFile, !TextUtils.isEmpty(file))
                 mRecorder?.start()
             }
+
             RecordState.PAUSED -> {
                 mRecorder?.resume()
             }
+
             RecordState.RECORDING -> {
                 mRecorder?.pause()
             }
+
+            else -> {}
         }
     }
 
     fun showChangeDialog(context: Context) {
-        orangeSingeDialog(
-            context = context,
-            title = "切换录音工具",
-            content = "建议不要在录音中进行切换，切换时会自动默认完成",
-            items = arrayOf("MixRecorder", "SimRecorder", "STRecorder"),
-            selectIndex = getSelectPosition(recorderType),
-            singleChoiceCallBack = object : SingleChoiceCallback {
-                override fun invoke(
-                    dialog: OrangeDialog,
-                    itemView: View,
-                    which: Int,
-                    text: CharSequence?
-                ): Boolean {
-                    updateRecorderType(which)
-                    dialog.dismiss()
-                    return true
-                }
-            }
-        )
+        MaterialAlertDialogBuilder(context)
+            .setTitle("切换录音工具")
+            .setSingleChoiceItems(arrayOf("MixRecorder", "SimRecorder", "STRecorder"), getSelectPosition(recorderType))
+            { dialog, which ->
+                updateRecorderType(which)
+                dialog.dismiss()
+            }.show()
     }
 
     fun getRecorderTypeName(): String {
@@ -162,29 +139,32 @@ class RecordUtils(
         if (hasRecord()) {
             mRecorder?.complete()
         }
-        "updateRecorderType:${getRecorderTypeName()}".logi()
+        "updateRecorderType:${getRecorderTypeName()}".logI()
         this.recorderType = recorderType
         recorderLiveDate.postValue(recorderType)
         initRecorder()
     }
 
-    /**
-     * VOICE_COMMUNICATION 消除回声和噪声问题
-     * MIC 麦克风- 因为有噪音问题
-     */
     private fun initRecorder() {
         mRecorder = recorder {
             mMaxTime = 5 * 60 * 1000
             isDebug = true
-            wax = 1f
-            samplingRate = 44100
+            samplingRate = 48000
             audioSource = MediaRecorder.AudioSource.MIC
-            audioChannel = 2
+            audioChannel = 1
+            mp3BitRate = 128
+            mp3Quality = 5
+            enableAudioEffect = true
             recordListener = this@RecordUtils
             permissionListener = this@RecordUtils
+            pcmListener = this@RecordUtils
         }.let {
             when (recorderType) {
                 BaseRecorder.RecorderType.MIX -> it.buildMix(Utils.app)
+                    .also {
+                        it.isEnableVBR(false) // 请不要使用，虽然可以正常播放，但是会时间错误获取会错误，暂时没有解决方法
+                    }
+
                 BaseRecorder.RecorderType.SIM -> it.buildSim(Utils.app)
                 BaseRecorder.RecorderType.ST -> it.buildST()
             }
@@ -192,9 +172,9 @@ class RecordUtils(
 
         if (recorderType == BaseRecorder.RecorderType.ST) {
             mRecorder!!.getSoundTouch().changeUse(true)
-            mRecorder!!.getSoundTouch().setPitchSemiTones(12f)
-            mRecorder!!.getSoundTouch().setRateChange(50f)
-            Toast.makeText(S.app, "变声，不可以使用背景音乐", Toast.LENGTH_LONG).show()
+            mRecorder!!.getSoundTouch().setPitchSemiTones(10f) //往女声变
+//            mRecorder!!.getSoundTouch().setRateChange(50f) //加速，会导致录音计时> 实际时间
+            Toast.makeText(BaseKit.app, "变声，不可以使用背景音乐", Toast.LENGTH_LONG).show()
         }
         mRecorder?.setMaxTime(TIME, TIME - 20 * 1000)
         listener?.let { setBackgroundPlayerListener(it) }
@@ -202,15 +182,21 @@ class RecordUtils(
     }
 
     fun startOrPauseBGM() {
-        if (mRecorder?.isPlayMusic() == true) {
-            if (mRecorder?.isPauseMusic() == true) {
-                mRecorder?.resumeMusic()
+        mRecorder?.let { recorder ->
+            if (recorder.isPlayMusic()) {
+                if (recorder.isPauseMusic()) {
+                    recorder.resumeMusic()
+                } else {
+                    recorder.pauseMusic()
+                }
             } else {
-                mRecorder?.pauseMusic()
+                recorder.startPlayMusic()
             }
-        } else {
-            mRecorder?.startPlayMusic()
         }
+    }
+
+    private fun mute(mute:Boolean){
+        mRecorder?.muteRecord(mute)
     }
 
     fun setBackgroundPlayerListener(listener: PlayerListener) {
@@ -235,9 +221,8 @@ class RecordUtils(
      * @param startTime 已经录制的时间
      */
     fun setTime(startTime: Long) {
-        this.startTime = startTime
-        setMaxTime((TIME - startTime).toInt())
-        callBack?.onRecording((startTime / 1000), 0)
+        mRecorder?.setCurDuration(startTime)
+        callBack?.onRecording(startTime, -1)
     }
 
     /**
@@ -280,7 +265,7 @@ class RecordUtils(
     }
 
     override fun onRecording(time: Long, volume: Int) {
-        callBack?.onRecording(((startTime + time) / 1000), volume)
+        callBack?.onRecording((startTime + time), volume)
     }
 
     override fun onPause() {
@@ -304,6 +289,11 @@ class RecordUtils(
         callBack?.onError(e)
     }
 
+    override fun onMuteRecordChange(mute: Boolean) {
+        super.onMuteRecordChange(mute)
+        callBack?.onMuteRecordChange(mute)
+    }
+
     fun setVolume(volume: Float) {
         mRecorder?.setBGMVolume(volume)
     }
@@ -311,10 +301,46 @@ class RecordUtils(
     fun setBackGroundUrl(context: Context?, url: Uri) {
         if (context != null) {
             this.bgmUrl = url
-            AudioUtils.getAudioChannel(context, url).toString().logi()
+            AudioUtils.getAudioChannel(context, url).toString().logI()
             mRecorder!!.setAudioChannel(AudioUtils.getAudioChannel(context, url))
             mRecorder!!.setBackgroundMusic(context, url, null)
         }
     }
 
+    override fun onBeforePCMToMp3(pcm: ShortArray): ShortArray {
+        // 处理完成后导致了噪音
+//        val pcmdb = calculateRealVolume(pcm, pcm.size)
+//        "修改PCM前DB:$pcmdb".logD("onBeforePCMToMp3")
+//        val adjustVoice = BytesTransUtil.adjustVoice(pcm, 3)
+//        val afterdb = calculateRealVolume(adjustVoice, adjustVoice.size)
+//        "修改PCM后DB:$afterdb".logD("onBeforePCMToMp3")
+        return pcm
+    }
+
+
+    private fun calculateRealVolume(buffer: ShortArray, readSize: Int): Int {
+        var sum = 0.0
+        var mVolume = 0
+        for (i in 0 until readSize) {
+            // 这里没有做运算的优化，为了更加清晰的展示代码
+            sum += abs((buffer[i] * buffer[i]).toDouble())
+        }
+        if (readSize > 0) {
+            mVolume = (log10(sqrt(sum / readSize)) * 20).toInt()
+            if (mVolume < 0) {
+                mVolume = 0
+            } else if (mVolume > 100) {
+                mVolume = 100
+            }
+        }
+        return mVolume
+    }
+
+    fun muteChange() {
+        if (mRecorder?.mute == true){
+            mute(false)
+        }else{
+            mute(true)
+        }
+    }
 }

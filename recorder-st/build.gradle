@@ -36,4 +36,3 @@ dependencies {
     implementation "androidx.annotation:annotation:1.3.0"
 }
 apply from : "uploadLocal.gradle"
-apply from: "../spotless.gradle"

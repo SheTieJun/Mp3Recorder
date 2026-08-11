@@ -13,7 +13,6 @@ import android.os.Handler
 import android.os.Looper
 import android.os.Message
 import android.text.TextUtils
-import me.shetj.recorder.core.PlayerListener
 import java.util.concurrent.atomic.AtomicBoolean
 
 

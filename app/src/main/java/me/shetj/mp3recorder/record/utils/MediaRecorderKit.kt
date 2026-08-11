@@ -1,38 +1,12 @@
-/*
- * MIT License
- *
- * Copyright (c) 2019 SheTieJun
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
+
 package me.shetj.mp3recorder.record.utils
 
 import android.media.MediaRecorder
+import android.os.Build
+import me.shetj.base.BaseKit
 import me.shetj.base.tools.file.EnvironmentStorage
+import java.io.File
 
-/**
- *
- * <b>@author：</b> shetj<br>
- * <b>@createTime：</b> 2021/11/11<br>
- * <b>@email：</b> 375105540@qq.com<br>
- * <b>@describe</b> MediaRecorder demo <br>
- */
 object MediaRecorderKit {
 
     var mMediaRecorder: MediaRecorder? = null
@@ -43,7 +17,11 @@ object MediaRecorderKit {
         // 开始录音
         /* ①Initial：实例化MediaRecorder对象 */
         if (mMediaRecorder == null){
-            mMediaRecorder = MediaRecorder()
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                mMediaRecorder = MediaRecorder(BaseKit.app)
+            }else{
+                mMediaRecorder = MediaRecorder()
+            }
         }
         try {
             /* ②setAudioSource/setVedioSource */
@@ -56,15 +34,40 @@ object MediaRecorderKit {
             mMediaRecorder!!.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
             /* ②设置音频文件的编码：AAC/AMR_NB/AMR_MB/Default 声音的（波形）的采样 */
             mMediaRecorder!!.setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
+            /**
+             *  采样频率越高， 声音越接近原始数据。
+             *  采样位数越高，声音越接近原始数据。
+             *  比特率越高，传送的数据越大，音质越好
+             */
+            mMediaRecorder!!.setAudioEncodingBitRate(128) // 设置比特率
+            mMediaRecorder!!.setAudioChannels(2) // 设置双声道
+            mMediaRecorder!!.setAudioSamplingRate(44100) // 设置采样率
+            mMediaRecorder!!.setMaxDuration(1000 * 60 * 60 * 24) // 设置最大录音时长
+            mMediaRecorder!!.setMaxFileSize(10*1024*1024)
             savePath = EnvironmentStorage.getPath(packagePath = "record") + "/" + System.currentTimeMillis() + ".m4a"
-            /* ③准备 */
             mMediaRecorder!!.setOutputFile(savePath)
+            /* ③准备 */
             mMediaRecorder!!.prepare()
             /* ④开始 */
             mMediaRecorder!!.start()
         } catch (e: IllegalStateException) {
             e.printStackTrace()
         }
+    }
+
+    fun setNextSavePath(){
+        val nextSavePath = File(EnvironmentStorage.getPath(packagePath = "record") + "/" + System.currentTimeMillis() + ".m4a")
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            mMediaRecorder!!.setNextOutputFile(nextSavePath)
+        }
+    }
+
+    fun pause(){
+        mMediaRecorder?.pause()
+    }
+
+    fun resume(){
+        mMediaRecorder?.resume()
     }
 
 

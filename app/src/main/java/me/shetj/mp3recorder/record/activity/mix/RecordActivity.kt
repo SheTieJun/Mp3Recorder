@@ -1,29 +1,6 @@
-/*
- * MIT License
- *
- * Copyright (c) 2019 SheTieJun
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
+
 package me.shetj.mp3recorder.record.activity.mix
 
-import android.Manifest
 import android.os.Bundle
 import android.transition.Transition
 import android.transition.TransitionInflater
@@ -31,15 +8,13 @@ import android.transition.TransitionManager
 import android.widget.FrameLayout
 import androidx.appcompat.widget.AppCompatButton
 import androidx.core.view.isVisible
-import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
-import me.shetj.base.ktx.hasPermission
+import me.shetj.base.fix.FixPermission
 import me.shetj.base.mvp.BaseActivity
 import me.shetj.base.mvp.EmptyPresenter
 import me.shetj.base.tools.app.ArmsUtils.Companion.statuInScreen
 import me.shetj.mp3recorder.R
 import me.shetj.mp3recorder.record.RecordingNotification
 import me.shetj.mp3recorder.record.utils.EventCallback
-import java.util.concurrent.TimeUnit
 
 
 /**
@@ -53,16 +28,18 @@ class RecordActivity : BaseActivity<EmptyPresenter>(), EventCallback {
     private var isRecord = false
     private var recordTransition: Transition? = null
     private var myRecordTransition: Transition? = null
-    private var btnRecorderType:AppCompatButton?=null
+    private var btnRecorderType: AppCompatButton? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_my_record)
+        enabledOnBack = true
     }
 
 
-    override fun initView() {
-        statuInScreen( true)
+    override fun initBaseView() {
+        setContentView(R.layout.activity_my_record)
+        statuInScreen(true)
+        setOrientation(false)
         canRecord()
         mFrameLayout = findViewById(R.id.frameLayout)
         btnRecorderType = findViewById(R.id.btn_recorderType)
@@ -84,9 +61,6 @@ class RecordActivity : BaseActivity<EmptyPresenter>(), EventCallback {
         TransitionManager.go(recordListPage!!.scene, myRecordTransition)
     }
 
-    override fun initData() {
-
-    }
 
 
     override fun onEvent(message: Int) {
@@ -102,9 +76,7 @@ class RecordActivity : BaseActivity<EmptyPresenter>(), EventCallback {
                 setTitle(R.string.my_record)
                 recordPage!!.setRecord(null)
                 recordPage?.clearMusic()
-                AndroidSchedulers.mainThread().scheduleDirect({
-                    TransitionManager.go(recordListPage!!.scene, myRecordTransition)
-                },200,TimeUnit.MICROSECONDS)
+                TransitionManager.go(recordListPage!!.scene, myRecordTransition)
                 isRecord = false
                 btnRecorderType?.isVisible = false
             }
@@ -123,17 +95,14 @@ class RecordActivity : BaseActivity<EmptyPresenter>(), EventCallback {
     }
 
     private fun canRecord() {
-        hasPermission(Manifest.permission.READ_EXTERNAL_STORAGE,
-                        Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                        Manifest.permission.RECORD_AUDIO
-                ,isRequest = true)
+        FixPermission.checkReadMediaFile(this,true)
     }
 
-    override fun onBackPressed() {
+    override fun onBack() {
         if (isRecord) {
             recordPage!!.onStop()
-        } else {
-            super.onBackPressed()
+        }else{
+            super.onBack()
         }
     }
 

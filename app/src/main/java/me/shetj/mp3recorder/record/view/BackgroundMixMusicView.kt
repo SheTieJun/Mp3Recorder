@@ -1,28 +1,7 @@
-/*
- * MIT License
- *
- * Copyright (c) 2019 SheTieJun
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
+
 package me.shetj.mp3recorder.record.view
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.transition.TransitionManager
 import android.util.AttributeSet
@@ -84,7 +63,7 @@ class BackgroundMixMusicView @JvmOverloads constructor(
         mIvChange.setOnClickListener(this)
     }
 
-    private val onVolumeChange: OnVolumeChange = object : (Float) -> Unit() {
+    private val onVolumeChange: OnVolumeChange = object : (Float) -> Unit {
         override fun invoke(p1: Float) {
             mSeekBar.progress = (p1 * max).toInt()
         }
@@ -99,10 +78,11 @@ class BackgroundMixMusicView @JvmOverloads constructor(
         music = null
     }
 
+    @SuppressLint("SetTextI18n")
     fun resetMusic() {
         music?.let {
             mTvProgress.text =
-                Util.formatSeconds3(0 / 1000) + "/" + Util.formatSeconds3(it.duration.toInt())
+               "${ Util.formatSeconds3(0 / 1000) }/${Util.formatSeconds3(it.duration.toInt())}"
         }
     }
 
@@ -140,6 +120,7 @@ class BackgroundMixMusicView @JvmOverloads constructor(
         })
     }
 
+    @SuppressLint("SetTextI18n")
     private fun showVolumeString(
         it: SeekBar,
         recordUtils: RecordUtils?
@@ -159,6 +140,7 @@ class BackgroundMixMusicView @JvmOverloads constructor(
     /**
      * isSave 是否保存，默认是保存
      */
+    @SuppressLint("SetTextI18n")
     fun setMusic(music: MusicQ, isSave: Boolean = true) {
         if (music.url == null) {
             //如果是错误数据，直接忽略
@@ -251,6 +233,7 @@ class BackgroundMixMusicView @JvmOverloads constructor(
 
     }
 
+    @SuppressLint("SetTextI18n")
     override fun onProgress(current: Int, duration: Int) {
         mTvProgress.text =
             Util.formatSeconds3(current / 1000) + "/" + Util.formatSeconds3(duration / 1000)

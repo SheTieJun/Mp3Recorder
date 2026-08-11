@@ -15,10 +15,10 @@ import android.os.Handler
 import android.os.Looper
 import android.os.Message
 import android.util.Log
+import me.shetj.player.PlayerListener
 import java.nio.ByteBuffer
 import java.util.concurrent.LinkedBlockingDeque
 import me.shetj.recorder.core.BaseRecorder
-import me.shetj.recorder.core.PlayerListener
 
 /**
  * 播放音乐，用来播放PCM

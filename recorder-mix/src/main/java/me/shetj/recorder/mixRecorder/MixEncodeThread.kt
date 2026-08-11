@@ -18,8 +18,8 @@ import me.shetj.recorder.core.BaseEncodeThread
  */
 internal class MixEncodeThread
 @Throws(FileNotFoundException::class)
-constructor(file: File, bufferSize: Int, isContinue: Boolean, private val is2CHANNEL: Boolean, isEnableVBR: Boolean) :
-    BaseEncodeThread(file, bufferSize, isContinue, isEnableVBR, "MixEncodeThread") {
+constructor(file: File, bufferSize: Int, isContinue: Boolean, private val is2CHANNEL: Boolean, isEnableVBR: Boolean,lameUtils: LameUtils) :
+    BaseEncodeThread(file, bufferSize, isContinue, isEnableVBR, "MixEncodeThread",lameUtils) {
 
     private val mTasks = Collections.synchronizedList(ArrayList<ReadMixTask>())
     private val mOldTasks = Collections.synchronizedList(ArrayList<ReadMixTask>())
@@ -31,7 +31,7 @@ constructor(file: File, bufferSize: Int, isContinue: Boolean, private val is2CHA
      * 缓冲区中没有数据时返回0
      */
     override fun processData(): Int {
-        if (mTasks.size > 0) {
+        if (mTasks.isNotEmpty()) {
             val task = mTasks.removeAt(0)
             addOldData(task)
             val buffer = beforePCMtoMP3(task.getData())
@@ -39,10 +39,10 @@ constructor(file: File, bufferSize: Int, isContinue: Boolean, private val is2CHA
             val readSize: Int
             if (is2CHANNEL) {
                 readSize = buffer.size / 2
-                encodedSize = LameUtils.encodeInterleaved(buffer, readSize, mMp3Buffer)
+                encodedSize = lameUtils.encodeInterleaved(buffer, readSize, mMp3Buffer)
             } else {
                 readSize = buffer.size
-                encodedSize = LameUtils.encode(buffer, buffer, readSize, mMp3Buffer)
+                encodedSize = lameUtils.encode(buffer, buffer, readSize, mMp3Buffer)
             }
             if (encodedSize > 0) {
                 try {
@@ -61,56 +61,40 @@ constructor(file: File, bufferSize: Int, isContinue: Boolean, private val is2CHA
      * Flush all data left in lame buffer to file
      */
     override fun flushAndRelease() {
-        // 将MP3结尾信息写入buffer中
-        val flushResult = LameUtils.flush(mMp3Buffer)
-        if (flushResult > 0) {
-            try {
-                mFileOutputStream!!.write(mMp3Buffer, 0, flushResult)
-            } catch (e: IOException) {
-                e.printStackTrace()
-            } finally {
-                if (mFileOutputStream != null) {
-                    try {
-                        mFileOutputStream?.close()
-                    } catch (e: IOException) {
-                        e.printStackTrace()
-                    }
-                }
-                mOldTasks.clear()
-                if (isEnableVBR) {
-                    LameUtils.writeVBRHeader(path)
-                }
-                LameUtils.close()
-            }
-        }
+        super.flushAndRelease()
+        mOldTasks.clear()
     }
 
     private fun checkCut() {
         if (needUpdate) {
-            val flushResult = LameUtils.flush(mMp3Buffer)
+            val flushResult = lameUtils.flush(mMp3Buffer)
             if (flushResult > 0) {
                 mFileOutputStream!!.write(mMp3Buffer, 0, flushResult)
+            }
+            if (isEnableVBR) {
+                lameUtils.writeVBRHeader(path)
             }
             mFileOutputStream?.close()
             mFileOutputStream = null
             mFileOutputStream = FileOutputStream(path, isContinue)
-            while (setOldDateToFile() > 0);
-            needUpdate = false
+            while (setOldDateToFile() > 0){
+                needUpdate = false
+            }
         }
     }
 
     private fun setOldDateToFile(): Int {
-        if (mOldTasks.size > 0 && mFileOutputStream != null) {
+        if (mOldTasks.isNotEmpty() && mFileOutputStream != null) {
             val task = mOldTasks.removeAt(0)
             val buffer = beforePCMtoMP3(task.getData())
             val encodedSize: Int
             val readSize: Int
             if (is2CHANNEL) {
                 readSize = buffer.size / 2
-                encodedSize = LameUtils.encodeInterleaved(buffer, readSize, mMp3Buffer)
+                encodedSize = lameUtils.encodeInterleaved(buffer, readSize, mMp3Buffer)
             } else {
                 readSize = buffer.size
-                encodedSize = LameUtils.encode(buffer, buffer, readSize, mMp3Buffer)
+                encodedSize = lameUtils.encode(buffer, buffer, readSize, mMp3Buffer)
             }
             if (encodedSize > 0) {
                 try {

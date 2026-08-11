@@ -1,29 +1,7 @@
-/*
- * MIT License
- *
- * Copyright (c) 2019 SheTieJun
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
- */
+
 package me.shetj.mp3recorder.record.activity.mix
 
-import android.app.Activity
+import android.annotation.SuppressLint
 import android.transition.Scene
 import android.transition.TransitionManager
 import android.view.LayoutInflater
@@ -32,9 +10,10 @@ import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.RelativeLayout
+import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
-import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
-import io.reactivex.rxjava3.schedulers.Schedulers
+import kotlinx.coroutines.launch
 import me.shetj.base.tools.app.ArmsUtils
 import me.shetj.mp3recorder.R
 import me.shetj.mp3recorder.record.adapter.RecordAdapter
@@ -42,12 +21,11 @@ import me.shetj.mp3recorder.record.bean.Record
 import me.shetj.mp3recorder.record.bean.RecordDbUtils
 import me.shetj.mp3recorder.record.utils.EventCallback
 import me.shetj.mp3recorder.record.view.RecordBottomSheetDialog
-import java.util.*
 
 /**
  */
 class RecordListPage(
-    private val context: Activity,
+    private val context: AppCompatActivity,
     mRoot: ViewGroup,
     private var callback: EventCallback
 ) {
@@ -76,15 +54,13 @@ class RecordListPage(
         initData()
     }
 
-    private fun initData() {
-        RecordDbUtils.getInstance().allRecord
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .doOnNext {
+    fun initData() {
+        context.lifecycleScope.launch {
+            RecordDbUtils.getInstance().allRecord.collect{
                 recordAdapter.setNewInstance(it.toMutableList())
                 checkShow(it)
             }
-            .subscribe()
+        }
     }
 
     /**
@@ -101,6 +77,7 @@ class RecordListPage(
         }
     }
 
+    @SuppressLint("InflateParams")
     private fun initView(view: View?) {
         //绑定view
         mRecyclerView = view!!.findViewById(R.id.recycler_view)
@@ -111,20 +88,9 @@ class RecordListPage(
         mRecyclerView?.adapter = recordAdapter
         //设置点击
         recordAdapter.setOnItemClickListener { _, _, position ->
-            recordAdapter.setPlayPosition(
-                position
-            )
+            recordAdapter.setPlayPosition(position)
         }
-        recordAdapter.setOnItemChildClickListener { adapter, view1, position ->
-            when (view1.id) {
-                R.id.tv_more -> {
-                    val dialog = showBottomDialog(position)
-                    dialog.showBottomSheet()
-                }
-            }
-        }
-        recordAdapter.addChildClickViewIds(R.id.tv_more)
-        recordAdapter.setOnItemLongClickListener { adapter, _, position ->
+        recordAdapter.setOnItemLongClickListener { _, _, position ->
             val dialog = showBottomDialog(position)
             dialog.showBottomSheet()
             true
@@ -137,8 +103,6 @@ class RecordListPage(
         emptyView.findViewById<View>(R.id.cd_start_record).setOnClickListener {
             callback.onEvent(0)
         }
-
-
         //添加一个head
         val headView = View(context)
         headView.layoutParams =
@@ -149,15 +113,11 @@ class RecordListPage(
             recordAdapter.setPlayPosition(-1)
             callback.onEvent(0)
         }
-
     }
 
     private fun showBottomDialog(position: Int): RecordBottomSheetDialog {
         recordAdapter.onPause()
-        return RecordBottomSheetDialog(
-            context, position, recordAdapter.getItem(position),
-            callback
-        )
+        return RecordBottomSheetDialog(context, recordAdapter.getItem(position), callback)
     }
 
 

@@ -5,11 +5,11 @@ plugins {
 
 
 android {
-    compileSdkVersion 30
+    compileSdk 30
 
     defaultConfig {
         minSdkVersion 21
-        targetSdkVersion 30
+        targetSdk 30
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"
@@ -34,4 +34,3 @@ dependencies {
 }
 
 apply from : "uploadLocal.gradle"
-apply from: "../spotless.gradle"
