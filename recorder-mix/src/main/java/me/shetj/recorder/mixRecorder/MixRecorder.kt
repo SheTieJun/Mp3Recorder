@@ -6,7 +6,6 @@ import android.media.AudioFormat
 import android.media.AudioRecord
 import android.media.MediaRecorder
 import android.net.Uri
-import android.os.Message
 import android.os.Process
 import android.util.Log
 import me.shetj.ndk.lame.LameUtils
@@ -262,7 +261,7 @@ internal class MixRecorder : BaseRecorder {
                     mAudioRecord!!.stop()
                     mAudioRecord!!.release()
                     mAudioRecord = null
-                    if (isError) {
+                    if (isError || hasNotifyError) {
                         mEncodeThread!!.sendErrorMessage()
                     } else {
                         mEncodeThread!!.sendStopMessage()
@@ -271,7 +270,7 @@ internal class MixRecorder : BaseRecorder {
                     onError(ex)
                     ex.printStackTrace()
                 } finally {
-                    if (!isError) {
+                    if (!isError && !hasNotifyError) {
                         if (isAutoComplete) {
                             handler.sendEmptyMessage(HANDLER_AUTO_COMPLETE)
                         } else {
@@ -379,7 +378,15 @@ internal class MixRecorder : BaseRecorder {
     }
 
     override fun createEncodeThread(): BaseEncodeThread {
-        return MixEncodeThread(mRecordFile!!, mBufferSize, isContinue, is2Channel, openVBR,lameUtils!!)
+        return MixEncodeThread(
+            file = mRecordFile!!,
+            bufferSize = mBufferSize,
+            isContinue = isContinue,
+            is2CHANNEL = is2Channel,
+            isEnableVBR = openVBR,
+            lameUtils = lameUtils!!,
+            baseRecorder = this,
+        )
     }
 
     //endregion
@@ -409,15 +416,8 @@ internal class MixRecorder : BaseRecorder {
         }
     }
 
-    private fun onError(ex: Exception? = null) {
-        isPause = false
-        isActive = false
-        val message = Message.obtain()
-        message.what = HANDLER_ERROR
-        message.obj = ex
-        handler.sendMessage(message)
-        state = RecordState.STOPPED
-        backgroundMusicIsPlay = false
+    override fun onError(ex: Exception? = null) {
+        super.onError(ex)
         if (mPlayBackMusic != null) {
             mPlayBackMusic!!.setNeedRecodeDataEnable(false)
             bgPlayer.release()

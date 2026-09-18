@@ -103,6 +103,9 @@ abstract class BaseRecorder {
 
     protected var mEncodeThread: BaseEncodeThread? = null
     protected var mAudioRecord: AudioRecord? = null
+    /** 本次录音是否已经向用户回调过错误，避免编码线程与录音线程重复通知 */
+    @Volatile
+    protected var hasNotifyError: Boolean = false
     // 缓冲数量
     protected var mBufferSize: Int = 0
     //region 系统自带的去噪音，增强以及回音问题
@@ -449,6 +452,7 @@ abstract class BaseRecorder {
 
         initAudioEffect(mAudioRecord!!.audioSessionId)
         initLameOption() // 更新或者初始化
+        hasNotifyError = false
 
         mEncodeThread = createEncodeThread()
         mEncodeThread!!.start()
@@ -643,6 +647,7 @@ abstract class BaseRecorder {
         duration = 0L
         recordBufferSize = 0
         mRecordFile = null
+        hasNotifyError = false
         handler.sendEmptyMessage(HANDLER_RESET)
     }
 
@@ -660,6 +665,7 @@ abstract class BaseRecorder {
         handler.removeCallbacksAndMessages(null)
         volumeConfig?.unregisterReceiver()
         lameUtils = null
+        hasNotifyError = false
     }
     //endregion public method
 
@@ -744,6 +750,25 @@ abstract class BaseRecorder {
         Log.e(TAG, error)
     }
 
+
+    /**
+     * 录音或编码失败时收尾，并回调 [RecordListener.onError]
+     * @param ex 失败原因，null 时由主线程回调使用默认提示
+     */
+    protected open fun onError(ex: Exception? = null) {
+        isPause = false
+        isActive = false
+        state = RecordState.STOPPED
+        backgroundMusicIsPlay = false
+        if (hasNotifyError) {
+            return
+        }
+        hasNotifyError = true
+        val message = Message.obtain()
+        message.what = HANDLER_ERROR
+        message.obj = ex
+        handler.sendMessage(message)
+    }
     /**
      * 1. 噪声抑制
      * 2. 回音消除

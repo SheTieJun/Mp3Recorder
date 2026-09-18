@@ -9,13 +9,19 @@ import java.io.File
 import java.io.FileOutputStream
 import me.shetj.ndk.lame.LameUtils
 import java.io.IOException
-import java.util.ArrayList
-import java.util.Collections
 
 /**
  *
  * <b>@author：</b> shetj<br>
  * <b>@createTime：</b> 2023/3/22<br>
+ *
+ * @param file 输出的 mp3 文件
+ * @param bufferSize PCM 缓冲区大小，用来估算 mp3 缓冲
+ * @param isContinue 是否在已有文件末尾续写
+ * @param isEnableVBR 是否在结束时写入 VBR 头
+ * @param name 编码线程名
+ * @param lameUtils lame 编码器
+ * @param baseRecorder 所属录音器，写文件失败时把错误回传给用户回调
  */
 abstract class BaseEncodeThread(
     file: File,
@@ -24,6 +30,7 @@ abstract class BaseEncodeThread(
     protected val isEnableVBR: Boolean,
     name: String,
     val lameUtils: LameUtils,
+    protected val baseRecorder: BaseRecorder,
 ) : HandlerThread(name), AudioRecord.OnRecordPositionUpdateListener {
     protected var path: String
     protected var mFileOutputStream: FileOutputStream?
@@ -50,9 +57,7 @@ abstract class BaseEncodeThread(
                 encodeThread.flushAndRelease()
                 looper.quit()
             } else if (msg.what == PROCESS_ERROR) {
-                // 处理缓冲区中的数据
-                while (encodeThread.processData() > 0);
-                // Cancel any event left in the queue
+                // 错误收尾：不再继续写文件，释放编码器后删除损坏文件
                 removeCallbacksAndMessages(null)
                 encodeThread.flushAndRelease()
                 looper.quit()
@@ -107,27 +112,52 @@ abstract class BaseEncodeThread(
         mHandler?.sendEmptyMessage(PROCESS_ERROR)
     }
 
+    /**
+     * 将 lame 编码后的 mp3 数据写入文件
+     * @param encodedSize 本次需要写入的字节数
+     * @return 写入成功返回 true；失败时已回调错误并返回 false
+     */
+    protected fun writeMp3Buffer(encodedSize: Int): Boolean {
+        if (encodedSize <= 0) {
+            return true
+        }
+        if (baseRecorder.hasNotifyError) {
+            return false
+        }
+        return try {
+            mFileOutputStream!!.write(mMp3Buffer, 0, encodedSize)
+            true
+        } catch (e: IOException) {
+            e.printStackTrace()
+            onWriteError(e)
+            false
+        }
+    }
+
+    /**
+     * 写文件失败：通知 PCM 监听，并让录音器进入错误状态
+     * @param e 写入失败的 IO 异常
+     */
+    protected fun onWriteError(e: IOException) {
+        baseRecorder.onError(e)
+    }
+
     open fun flushAndRelease() {
         // 将MP3结尾信息写入buffer中
         val flushResult = lameUtils.flush(mMp3Buffer)
-        if (flushResult > 0) {
-            try {
-                mFileOutputStream!!.write(mMp3Buffer, 0, flushResult)
-            } catch (e: IOException) {
-                e.printStackTrace()
-            } finally {
-                if (mFileOutputStream != null) {
-                    try {
-                        mFileOutputStream?.close()
-                    } catch (e: IOException) {
-                        e.printStackTrace()
-                    }
-                }
-                if (isEnableVBR) {
-                    lameUtils.writeVBRHeader(path)
-                }
-                lameUtils.close()
+        if (flushResult > 0 && !baseRecorder.hasNotifyError) {
+            writeMp3Buffer(flushResult)
+        }
+        try {
+            mFileOutputStream?.close()
+        } catch (e: IOException) {
+            e.printStackTrace()
+        } finally {
+            mFileOutputStream = null
+            if (isEnableVBR && !baseRecorder.hasNotifyError) {
+                lameUtils.writeVBRHeader(path)
             }
+            lameUtils.close()
         }
     }
 

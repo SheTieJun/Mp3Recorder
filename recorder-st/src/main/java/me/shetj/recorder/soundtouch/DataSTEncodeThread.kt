@@ -7,11 +7,17 @@ import java.io.IOException
 import java.util.*
 import me.shetj.ndk.lame.LameUtils
 import me.shetj.recorder.core.BaseEncodeThread
+import me.shetj.recorder.core.BaseRecorder
 
 /**
- * @param file       file
- * @param bufferSize bufferSize
+ * @param file 输出的 mp3 文件
+ * @param bufferSize PCM 缓冲区大小
  * @param isContinue 是否写在文件末尾,只支持lame格式的
+ * @param is2CHANNEL 是否双声道交织编码
+ * @param soundTouchKit 变音处理
+ * @param isEnableVBR 是否写入 VBR 头
+ * @param lameUtils lame 编码器
+ * @param baseRecorder 所属录音器，写文件失败时回传错误
  * @throws FileNotFoundException file not found
  */
 internal class DataSTEncodeThread @Throws(FileNotFoundException::class)
@@ -22,9 +28,10 @@ constructor(
     private val is2CHANNEL: Boolean,
     private val soundTouchKit: SoundTouchKit,
     isEnableVBR: Boolean,
-    lameUtils: LameUtils
+    lameUtils: LameUtils,
+    baseRecorder: BaseRecorder,
 ) :
-    BaseEncodeThread(file, bufferSize, isContinue, isEnableVBR, "DataSTEncodeThread",lameUtils) {
+    BaseEncodeThread(file, bufferSize, isContinue, isEnableVBR, "DataSTEncodeThread", lameUtils, baseRecorder) {
     private val mSTBuffer = ShortArray(7200 + (bufferSize.toDouble() * 2.0).toInt()) // 处理变音的后的数据
     private val mTasks = Collections.synchronizedList(ArrayList<ReadTask>())
 
@@ -66,13 +73,8 @@ constructor(
             readSize = size
             encodedSize = lameUtils.encode(pcmData, pcmData, readSize, mMp3Buffer)
         }
-        if (encodedSize > 0) {
-            try {
-                mFileOutputStream!!.write(mMp3Buffer, 0, encodedSize)
-                checkCut()
-            } catch (e: IOException) {
-                e.printStackTrace()
-            }
+        if (encodedSize > 0 && writeMp3Buffer(encodedSize)) {
+            checkCut()
         }
         return readSize
     }
@@ -88,12 +90,17 @@ constructor(
     private fun checkCut() {
         if (needUpdate) {
             val flushResult = lameUtils.flush(mMp3Buffer)
-            if (flushResult > 0) {
-                mFileOutputStream!!.write(mMp3Buffer, 0, flushResult)
+            if (flushResult > 0 && !writeMp3Buffer(flushResult)) {
+                return
             }
-            mFileOutputStream?.close()
-            mFileOutputStream = null
-            mFileOutputStream = FileOutputStream(path, isContinue)
+            try {
+                mFileOutputStream?.close()
+                mFileOutputStream = null
+                mFileOutputStream = FileOutputStream(path, isContinue)
+            } catch (e: IOException) {
+                onWriteError(e)
+                return
+            }
             if (isEnableVBR) {
                 lameUtils.writeVBRHeader(path)
             }

@@ -7,19 +7,31 @@ import java.io.IOException
 import java.util.*
 import me.shetj.ndk.lame.LameUtils
 import me.shetj.recorder.core.BaseEncodeThread
+import me.shetj.recorder.core.BaseRecorder
 
 /**
  * Constructor
  *
- * @param file       file
- * @param bufferSize bufferSize
+ * @param file 输出的 mp3 文件
+ * @param bufferSize PCM 缓冲区大小
  * @param isContinue 是否写在文件末尾
+ * @param is2CHANNEL 是否双声道交织编码
+ * @param isEnableVBR 是否写入 VBR 头
+ * @param lameUtils lame 编码器
+ * @param baseRecorder 所属录音器，写文件失败时回传错误
  * @throws FileNotFoundException file not found
  */
 internal class MixEncodeThread
 @Throws(FileNotFoundException::class)
-constructor(file: File, bufferSize: Int, isContinue: Boolean, private val is2CHANNEL: Boolean, isEnableVBR: Boolean,lameUtils: LameUtils) :
-    BaseEncodeThread(file, bufferSize, isContinue, isEnableVBR, "MixEncodeThread",lameUtils) {
+constructor(
+    file: File,
+    bufferSize: Int,
+    isContinue: Boolean,
+    private val is2CHANNEL: Boolean,
+    isEnableVBR: Boolean,
+    lameUtils: LameUtils,
+    baseRecorder: BaseRecorder,
+) : BaseEncodeThread(file, bufferSize, isContinue, isEnableVBR, "MixEncodeThread", lameUtils, baseRecorder) {
 
     private val mTasks = Collections.synchronizedList(ArrayList<ReadMixTask>())
     private val mOldTasks = Collections.synchronizedList(ArrayList<ReadMixTask>())
@@ -44,13 +56,8 @@ constructor(file: File, bufferSize: Int, isContinue: Boolean, private val is2CHA
                 readSize = buffer.size
                 encodedSize = lameUtils.encode(buffer, buffer, readSize, mMp3Buffer)
             }
-            if (encodedSize > 0) {
-                try {
-                    mFileOutputStream!!.write(mMp3Buffer, 0, encodedSize)
-                    checkCut()
-                } catch (e: IOException) {
-                    e.printStackTrace()
-                }
+            if (encodedSize > 0 && writeMp3Buffer(encodedSize)) {
+                checkCut()
             }
             return readSize
         }
@@ -68,15 +75,20 @@ constructor(file: File, bufferSize: Int, isContinue: Boolean, private val is2CHA
     private fun checkCut() {
         if (needUpdate) {
             val flushResult = lameUtils.flush(mMp3Buffer)
-            if (flushResult > 0) {
-                mFileOutputStream!!.write(mMp3Buffer, 0, flushResult)
+            if (flushResult > 0 && !writeMp3Buffer(flushResult)) {
+                return
             }
             if (isEnableVBR) {
                 lameUtils.writeVBRHeader(path)
             }
-            mFileOutputStream?.close()
-            mFileOutputStream = null
-            mFileOutputStream = FileOutputStream(path, isContinue)
+            try {
+                mFileOutputStream?.close()
+                mFileOutputStream = null
+                mFileOutputStream = FileOutputStream(path, isContinue)
+            } catch (e: IOException) {
+                onWriteError(e)
+                return
+            }
             while (setOldDateToFile() > 0){
                 needUpdate = false
             }
@@ -97,11 +109,7 @@ constructor(file: File, bufferSize: Int, isContinue: Boolean, private val is2CHA
                 encodedSize = lameUtils.encode(buffer, buffer, readSize, mMp3Buffer)
             }
             if (encodedSize > 0) {
-                try {
-                    mFileOutputStream!!.write(mMp3Buffer, 0, encodedSize)
-                } catch (e: IOException) {
-                    e.printStackTrace()
-                }
+                writeMp3Buffer(encodedSize)
             }
             return readSize
         }

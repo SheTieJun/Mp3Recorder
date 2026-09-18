@@ -14,3 +14,4 @@
 .cxx
 .idea/*
 /buildSrc/build/
+/.codegraph/
